@@ -1,0 +1,115 @@
+#!/bin/zsh
+# Terminal Color Enhancements - Practical and Readable
+
+# Better ls colors (more readable)
+export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"
+export CLICOLOR=1
+
+# Grep highlighting
+export GREP_OPTIONS='--color=auto'
+export GREP_COLOR='1;35'  # Purple for matches
+
+# Less/Man page colors (much more readable)
+export LESS_TERMCAP_mb=$'\e[1;31m'     # begin bold
+export LESS_TERMCAP_md=$'\e[1;36m'     # begin blink
+export LESS_TERMCAP_me=$'\e[0m'        # reset bold/blink
+export LESS_TERMCAP_so=$'\e[01;44;37m' # begin reverse video
+export LESS_TERMCAP_se=$'\e[0m'        # reset reverse video
+export LESS_TERMCAP_us=$'\e[1;32m'     # begin underline
+export LESS_TERMCAP_ue=$'\e[0m'        # reset underline
+
+# Simple colored aliases
+alias ls='ls -GF'
+alias ll='ls -lhG'
+alias la='ls -lahG'
+alias grep='grep --color=auto'
+alias diff='diff --color=auto'
+
+# NPM test output colorizer (makes test output more readable)
+npm-test() {
+    npm test 2>&1 | sed '
+        s/✓/\x1b[32m✓\x1b[0m/g;
+        s/×/\x1b[31m×\x1b[0m/g;
+        s/PASS/\x1b[32mPASS\x1b[0m/g;
+        s/FAIL/\x1b[31mFAIL\x1b[0m/g;
+        s/passed/\x1b[32mpassed\x1b[0m/g;
+        s/failed/\x1b[31mfailed\x1b[0m/g;
+    '
+}
+
+# Colorize test output automatically
+test-color() {
+    "$@" 2>&1 | awk '
+        /✓|passed|PASS/ { print "\033[32m" $0 "\033[0m"; next }
+        /×|failed|FAIL|Error:/ { print "\033[31m" $0 "\033[0m"; next }
+        /warning|warn/ { print "\033[33m" $0 "\033[0m"; next }
+        { print }
+    '
+}
+
+# Simple prompt with git branch (if in git repo)
+git_branch() {
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+
+# Clean, practical prompt with colors
+PROMPT='%F{cyan}%n%f %F{yellow}%~%f %F{green}$(git_branch)%f %# '
+
+# Error code indicator (shows red number if last command failed)
+RPROMPT='%(?..[%F{red}%?%f])'
+
+# Syntax highlighting for commands (install with: brew install zsh-syntax-highlighting)
+if [ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+    source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+elif [ -f /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+    source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+
+# Auto suggestions (install with: brew install zsh-autosuggestions)
+if [ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+    source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=240'  # Subtle gray
+elif [ -f /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+    source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=240'  # Subtle gray
+fi
+
+# Function to display file content with syntax highlighting
+ccat() {
+    if command -v pygmentize &> /dev/null; then
+        pygmentize -g "$@" | less -R
+    else
+        cat "$@"
+    fi
+}
+
+# Practical directory navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# Show current directory in terminal title
+precmd() {
+    print -Pn "\e]0;%~\a"
+}
+
+# Better history search
+bindkey '^R' history-incremental-search-backward
+bindkey '^S' history-incremental-search-forward
+
+# Color for different file types in completion
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+# Function to run npm test with better colors
+nt() {
+    npm test 2>&1 | awk '
+        /✓/ { gsub(/✓/, "\033[32m✓\033[0m"); print; next }
+        /×/ { gsub(/×/, "\033[31m×\033[0m"); print; next }
+        /PASS/ { gsub(/PASS/, "\033[32mPASS\033[0m"); print; next }
+        /FAIL/ { gsub(/FAIL/, "\033[31mFAIL\033[0m"); print; next }
+        /Error:|TypeError:|AssertionError:/ { print "\033[31m" $0 "\033[0m"; next }
+        /warning|warn/ { print "\033[33m" $0 "\033[0m"; next }
+        /expected|received/ { print "\033[36m" $0 "\033[0m"; next }
+        { print }
+    '
+}

@@ -1,0 +1,105 @@
+Field Name,Category,Description,Entity Types,Used By Count,Access Methods,Has Variations
+],Other,Data field: ],wsbvnext,1,entityPick,No
+account.paymentStatus,Identity & Authentication,Current payment status of the account,"mktgasst, wsbvnext",11,entityPick,No
+account.planType,Identity & Authentication,Data field: account.planType,wsbvnext,1,entityPick,No
+accountId,Identity & Authentication,Unique identifier for the account,"mktgasst, wsbvnext",120,"direct, entityPick",No
+appointments.serviceCount,Appointments & Services,Number of services available for appointments,wsbvnext,7,entityPick,No
+appointments.status,Appointments & Services,Status of the appointments system,wsbvnext,6,entityPick,No
+billing.autoRenew,Billing & Payments,Data field: billing.autoRenew,wsbvnext,2,entityPick,No
+billing.commitment,Billing & Payments,Billing commitment type,"mktgasst, wsbvnext",15,entityPick,No
+billing.termType,Billing & Payments,Data field: billing.termType,wsbvnext,2,entityPick,No
+blog,Other,Data field: blog,wsbvnext,4,entityPick,No
+commerce.productCount,Commerce & Products,Number of products in the commerce store,wsbvnext,8,entityPick,No
+contacts,Other,Data field: contacts,wsbvnext,1,entityPick,No
+customerIntentions,Other,Customer intent data for personalization,wsbvnext,9,entityPick,No
+domainName,Other,Data field: domainName,wsbvnext,1,entityPick,No
+email.hasSent,Other,Data field: email.hasSent,wsbvnext,3,entityPick,No
+email.subscriberCount,Other,Data field: email.subscriberCount,wsbvnext,5,entityPick,No
+entitlementData,Entitlements & Permissions,Complete entitlement information for the account,"mktgasst, wsbvnext",37,entityPick,No
+entitlements.current,Entitlements & Permissions,Currently active entitlements,"mktgasst, wsbvnext",9,entityPick,No
+entitlements.current.appointments,Entitlements & Permissions,Data field: entitlements.current.appointments,wsbvnext,2,entityPick,No
+entitlements.current.blog,Entitlements & Permissions,Data field: entitlements.current.blog,wsbvnext,2,entityPick,No
+entitlements.current.commerce,Entitlements & Permissions,Data field: entitlements.current.commerce,wsbvnext,4,entityPick,No
+entitlements.current.conversations,Entitlements & Permissions,Data field: entitlements.current.conversations,wsbvnext,1,entityPick,No
+entitlements.current[,Entitlements & Permissions,Data field: entitlements.current[,wsbvnext,1,entityPick,No
+entitlements.transitionable,Entitlements & Permissions,Data field: entitlements.transitionable,wsbvnext,1,entityPick,No
+entitlements.used,Entitlements & Permissions,Data field: entitlements.used,wsbvnext,1,entityPick,No
+exports,Other,Data field: exports,unknown,1,direct,No
+features,Features & Configuration,Data field: features,uce,1,direct,No
+features.businessCategory,Features & Configuration,Data field: features.businessCategory,mktgasst,2,entityPick,No
+features.businessCategoryGroup,Features & Configuration,Data field: features.businessCategoryGroup,mktgasst,2,entityPick,No
+features.externalDomainName,Features & Configuration,Data field: features.externalDomainName,wsbvnext,1,entityPick,No
+features.facebook.isConnected,Features & Configuration,Data field: features.facebook.isConnected,"mktgasst, wsbvnext",5,entityPick,No
+features.facebook.pageId,Identity & Authentication,Data field: features.facebook.pageId,"mktgasst, wsbvnext",7,entityPick,No
+features.facebook.socialWidgetData.pageURL,Identity & Authentication,Data field: features.facebook.socialWidgetData.pageURL,mktgasst,1,entityPick,No
+features.gmb.hasGMBLocation,Features & Configuration,Data field: features.gmb.hasGMBLocation,mktgasst,1,entityPick,No
+features.gmb.hasGMBOnlineBusiness,Features & Configuration,Data field: features.gmb.hasGMBOnlineBusiness,mktgasst,1,entityPick,No
+features.gmb.hasGMBPublished,Features & Configuration,Data field: features.gmb.hasGMBPublished,"mktgasst, wsbvnext",4,entityPick,No
+features.gmb.hasGMBStarted,Features & Configuration,Data field: features.gmb.hasGMBStarted,mktgasst,1,entityPick,No
+features.gmb.hasSubmittedToOneSpace,Features & Configuration,Data field: features.gmb.hasSubmittedToOneSpace,mktgasst,1,entityPick,No
+features.gmb.photos.counts,Features & Configuration,Data field: features.gmb.photos.counts,mktgasst,1,entityPick,No
+features.planType,Features & Configuration,Type of plan the customer is on,"mktgasst, wsbvnext",12,entityPick,No
+features.published,Features & Configuration,Whether the website is published,"mktgasst, wsbvnext",20,entityPick,No
+features.userAddedLogo,Features & Configuration,Data field: features.userAddedLogo,wsbvnext,1,entityPick,No
+features.widgets,Identity & Authentication,List of enabled widgets on the website,"unknown, wsbvnext",18,"direct, entityPick",No
+features.yelp.hasCompletedYelpFlow,Features & Configuration,Data field: features.yelp.hasCompletedYelpFlow,mktgasst,2,entityPick,No
+features.yelp.hasYelpPublished,Features & Configuration,Data field: features.yelp.hasYelpPublished,"mktgasst, wsbvnext",3,entityPick,No
+id,Identity & Authentication,Entity unique identifier,"mktgasst, wsbvnext",71,"direct, entityPick",No
+links.addSubscribers,Other,Data field: links.addSubscribers,wsbvnext,2,entityPick,No
+links.blog,Other,Data field: links.blog,wsbvnext,1,entityPick,No
+links.composeCampaign,Other,Data field: links.composeCampaign,wsbvnext,4,entityPick,No
+links.editorDirect,Other,Data field: links.editorDirect,wsbvnext,2,entityPick,No
+links.fbAdsDirect,Other,Data field: links.fbAdsDirect,mktgasst,1,entityPick,No
+links.fbPageCreate,Other,Data field: links.fbPageCreate,mktgasst,1,entityPick,No
+links.gmbLaunch,Other,Data field: links.gmbLaunch,mktgasst,1,entityPick,No
+links.gmbLaunchPhotos,Other,Data field: links.gmbLaunchPhotos,mktgasst,1,entityPick,No
+links.olsAddPayment,Billing & Payments,Data field: links.olsAddPayment,wsbvnext,1,entityPick,No
+links.olsAddProducts,Commerce & Products,Data field: links.olsAddProducts,wsbvnext,4,entityPick,No
+links.olsAddShipping,Commerce & Products,Data field: links.olsAddShipping,wsbvnext,1,entityPick,No
+links.olsMarketplace,Commerce & Products,Data field: links.olsMarketplace,wsbvnext,3,entityPick,No
+links.preview,Other,Data field: links.preview,wsbvnext,1,entityPick,No
+links.sev,Other,Data field: links.sev,wsbvnext,2,entityPick,No
+links.yelpLaunch,Other,Data field: links.yelpLaunch,mktgasst,2,entityPick,No
+mktgasst.features.facebook.isConnected,Features & Configuration,Data field: mktgasst.features.facebook.isConnected,unknown,2,entityPick,No
+mktgasst.features.gmb.hasGMBPublished,Features & Configuration,Data field: mktgasst.features.gmb.hasGMBPublished,unknown,2,entityPick,No
+mktgasst.features.instagram.isConnected,Features & Configuration,Data field: mktgasst.features.instagram.isConnected,unknown,1,entityPick,No
+mktgasst.features.yelp.hasYelpApprovedClaim,Features & Configuration,Data field: mktgasst.features.yelp.hasYelpApprovedClaim,unknown,1,entityPick,No
+mktgasst.features.yelp.hasYelpPublished,Features & Configuration,Data field: mktgasst.features.yelp.hasYelpPublished,unknown,2,entityPick,No
+mktgasst.id,Identity & Authentication,Data field: mktgasst.id,unknown,12,entityPick,No
+mktgasst.type,Status & Types,Data field: mktgasst.type,unknown,12,entityPick,No
+o365.id,Identity & Authentication,Data field: o365.id,unknown,1,entityPick,No
+o365.shopper.shopperId,Identity & Authentication,Data field: o365.shopper.shopperId,unknown,1,entityPick,No
+o365.states.activated,Other,Data field: o365.states.activated,unknown,1,entityPick,No
+ola.account.has_business_address,Identity & Authentication,Data field: ola.account.has_business_address,wsbvnext,1,entityPick,No
+ola.calendar_sync.status,Appointments & Services,Data field: ola.calendar_sync.status,wsbvnext,2,entityPick,No
+ola.facebook_booking.status,Social Media & Marketing,Data field: ola.facebook_booking.status,wsbvnext,1,entityPick,No
+ola.notifications.c1_sms,Appointments & Services,Data field: ola.notifications.c1_sms,wsbvnext,1,entityPick,No
+ola.online_payment.status,Billing & Payments,Data field: ola.online_payment.status,wsbvnext,1,entityPick,No
+ols.featured_products_with_images,Features & Configuration,Data field: ols.featured_products_with_images,mktgasst,1,entityPick,No
+ols.features_enabled.abandoned_cart,Features & Configuration,Data field: ols.features_enabled.abandoned_cart,wsbvnext,1,entityPick,No
+ols.features_enabled.product_reviews,Features & Configuration,Data field: ols.features_enabled.product_reviews,wsbvnext,1,entityPick,No
+ols.marketplace_data,Commerce & Products,Data field: ols.marketplace_data,wsbvnext,2,entityPick,No
+ols.payment_methods.available,Billing & Payments,Data field: ols.payment_methods.available,wsbvnext,1,entityPick,No
+ols.setup_status,Commerce & Products,Data field: ols.setup_status,wsbvnext,2,entityPick,No
+ols.store_status,Commerce & Products,Data field: ols.store_status,wsbvnext,1,entityPick,No
+sev.hasActivated,Other,Data field: sev.hasActivated,wsbvnext,2,entityPick,No
+social.lastFacebookPost,Social Media & Marketing,Date of last Facebook post,"mktgasst, wsbvnext",5,entityPick,No
+social.lastInstagramPost,Social Media & Marketing,Date of last Instagram post,"mktgasst, wsbvnext",2,entityPick,No
+type,Status & Types,"Entity type identifier (e.g., wsbvnext, mktgasst)","mktgasst, o365, vnextgraph, wsbvnext",100,"direct, entityPick",No
+vnextAccount.shopperId,Identity & Authentication,Data field: vnextAccount.shopperId,wsbvnext,1,entityPick,No
+vnextAccount.ventureId,Identity & Authentication,Data field: vnextAccount.ventureId,wsbvnext,2,entityPick,No
+websiteType,Status & Types,"Type of website (e.g., gocentral)","mktgasst, wsbvnext",32,entityPick,No
+wsbvnext.accountCreationListingId,Identity & Authentication,Data field: wsbvnext.accountCreationListingId,unknown,1,entityPick,No
+wsbvnext.accountId,Identity & Authentication,Data field: wsbvnext.accountId,"unknown, wsbvnext",16,entityPick,No
+wsbvnext.customerIntentions,Other,Data field: wsbvnext.customerIntentions,"mktgasst, unknown",15,entityPick,No
+wsbvnext.entitlementData.current,Entitlements & Permissions,Data field: wsbvnext.entitlementData.current,unknown,1,entityPick,No
+wsbvnext.entitlementData.current.website,Entitlements & Permissions,Data field: wsbvnext.entitlementData.current.website,wsbvnext,1,entityPick,No
+wsbvnext.features,Features & Configuration,Data field: wsbvnext.features,unknown,5,entityPick,No
+wsbvnext.features.id,Identity & Authentication,Data field: wsbvnext.features.id,unknown,1,entityPick,No
+wsbvnext.features.planType,Features & Configuration,Data field: wsbvnext.features.planType,"unknown, wsbvnext",2,entityPick,No
+wsbvnext.features.published,Features & Configuration,Data field: wsbvnext.features.published,"unknown, wsbvnext",2,entityPick,No
+wsbvnext.features.websiteType,Features & Configuration,Data field: wsbvnext.features.websiteType,unknown,1,entityPick,No
+wsbvnext.id,Identity & Authentication,Data field: wsbvnext.id,"unknown, wsbvnext",19,entityPick,No
+wsbvnext.type,Status & Types,Data field: wsbvnext.type,"unknown, wsbvnext",19,entityPick,No
+wsbvnext.vnextAccount.billing.commitment,Identity & Authentication,Data field: wsbvnext.vnextAccount.billing.commitment,unknown,1,entityPick,No
+wsbvnext.vnextAccount.shopperId,Identity & Authentication,Data field: wsbvnext.vnextAccount.shopperId,unknown,1,entityPick,No

@@ -1,0 +1,124 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Testing
+coverage/
+coverage-summary.json
+*.log
+test-results/
+test-output*.txt
+test-results*.txt
+test-results*.json
+test-fix-report.json
+test-analysis-report.json
+test-summary*.txt
+full-test-output.txt
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+tmp/
+temp/
+
+# MCP related files (EVERYTHING)
+*mcp*
+*MCP*
+mcp/
+docs/archive/mcp/
+README-MCP.md
+docs/MCP-*.md
+mcp-server.js
+scripts/build-mcp-server.ts
+src/mcp/
+test/mcp-*.test.ts
+
+# Debugging and development files
+debug-*.ts
+scripts/debug-*.ts
+scripts/fix-*.ts
+test-*.js
+serve-*.js
+
+# Extracted queries and variants
+extracted-*.json
+extraction-*.json
+query-*.json
+extracted-queries/
+extracted-variants/
+extracted-advanced-variants/
+test-variants/
+variant-analysis/
+
+# Reports and documentation
+audit/
+production-report/
+test-pipeline/
+*.html
+deprecations.json
+
+# Example and test data
+examples/
+data/sample_data/
+test/fixtures/
+
+# Documentation that's not essential
+docs/archive/
+docs/test-docs/
+docs/validation/
+REMAINING-TEST-ISSUES.md
+docs/IMPLEMENTATION-HISTORY.md
+docs/test-infrastructure.md
+
+# Scripts that are not production
+scripts/
+quickstart.sh
+setup-terminal-colors.sh
+
+# UI and viewer files
+*-ui.html
+*viewer.html
+ui-server.js
+
+# Stryker mutation testing
+stryker.config.json
+
+# Vitest setup
+vitest.setup.ts
+
+# Any personal or debugging files
+revert-*.sh

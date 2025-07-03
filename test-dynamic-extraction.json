@@ -1,0 +1,336 @@
+{
+  "timestamp": "2025-06-20T03:59:18.108Z",
+  "totalQueries": 30,
+  "queriesWithVariants": 3,
+  "queries": [
+    {
+      "id": "offer-graph-queries.js-0-FindUnifiedBillDetails",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/offer-graph-queries.js",
+      "name": "FindUnifiedBillDetails",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "offer-graph-queries.js-1-ModifyBasketWithOptions",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/offer-graph-queries.js",
+      "name": "ModifyBasketWithOptions",
+      "type": "mutation",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "quicklinks.js-0-getQuickLinksData",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/quicklinks.js",
+      "name": "getQuickLinksData",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v1.js-0-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v1.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v1.js-1-ventureStates-variant-infinityStoneEnabled=true",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v1.js",
+      "name": "ventureStates_infinityStoneEnabled=true",
+      "type": "query",
+      "hasVariants": true,
+      "variantCount": 2,
+      "variants": [
+        {
+          "condition": "infinityStoneEnabled=true",
+          "id": "shared-graph-queries-v1.js-1-ventureStates-variant-infinityStoneEnabled=true",
+          "fragmentSpreads": []
+        },
+        {
+          "condition": "infinityStoneEnabled=false",
+          "id": "shared-graph-queries-v1.js-1-ventureStates-variant-infinityStoneEnabled=false",
+          "fragmentSpreads": []
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v1.js-5-projectByEntitlement-variant-infinityStoneEnabled=true-infinityStoneEnabled=true-infinityStoneEnabled=true",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v1.js",
+      "name": "projectByEntitlement_infinityStoneEnabled=true_infinityStoneEnabled=true_infinityStoneEnabled=true",
+      "type": "query",
+      "hasVariants": true,
+      "variantCount": 8,
+      "variants": [
+        {
+          "condition": "infinityStoneEnabled=true-infinityStoneEnabled=true-infinityStoneEnabled=true",
+          "id": "shared-graph-queries-v1.js-5-projectByEntitlement-variant-infinityStoneEnabled=true-infinityStoneEnabled=true-infinityStoneEnabled=true",
+          "fragmentSpreads": []
+        },
+        {
+          "condition": "infinityStoneEnabled=true-infinityStoneEnabled=true-infinityStoneEnabled=false",
+          "id": "shared-graph-queries-v1.js-5-projectByEntitlement-variant-infinityStoneEnabled=true-infinityStoneEnabled=true-infinityStoneEnabled=false",
+          "fragmentSpreads": []
+        },
+        {
+          "condition": "infinityStoneEnabled=true-infinityStoneEnabled=false-infinityStoneEnabled=true",
+          "id": "shared-graph-queries-v1.js-5-projectByEntitlement-variant-infinityStoneEnabled=true-infinityStoneEnabled=false-infinityStoneEnabled=true",
+          "fragmentSpreads": []
+        },
+        {
+          "condition": "infinityStoneEnabled=true-infinityStoneEnabled=false-infinityStoneEnabled=false",
+          "id": "shared-graph-queries-v1.js-5-projectByEntitlement-variant-infinityStoneEnabled=true-infinityStoneEnabled=false-infinityStoneEnabled=false",
+          "fragmentSpreads": []
+        },
+        {
+          "condition": "infinityStoneEnabled=false-infinityStoneEnabled=true-infinityStoneEnabled=true",
+          "id": "shared-graph-queries-v1.js-5-projectByEntitlement-variant-infinityStoneEnabled=false-infinityStoneEnabled=true-infinityStoneEnabled=true",
+          "fragmentSpreads": []
+        },
+        {
+          "condition": "infinityStoneEnabled=false-infinityStoneEnabled=true-infinityStoneEnabled=false",
+          "id": "shared-graph-queries-v1.js-5-projectByEntitlement-variant-infinityStoneEnabled=false-infinityStoneEnabled=true-infinityStoneEnabled=false",
+          "fragmentSpreads": []
+        },
+        {
+          "condition": "infinityStoneEnabled=false-infinityStoneEnabled=false-infinityStoneEnabled=true",
+          "id": "shared-graph-queries-v1.js-5-projectByEntitlement-variant-infinityStoneEnabled=false-infinityStoneEnabled=false-infinityStoneEnabled=true",
+          "fragmentSpreads": []
+        },
+        {
+          "condition": "infinityStoneEnabled=false-infinityStoneEnabled=false-infinityStoneEnabled=false",
+          "id": "shared-graph-queries-v1.js-5-projectByEntitlement-variant-infinityStoneEnabled=false-infinityStoneEnabled=false-infinityStoneEnabled=false",
+          "fragmentSpreads": []
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v1.js-6-allVentures-variant-infinityStoneEnabled=true-infinityStoneEnabled=true",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v1.js",
+      "name": "allVentures_infinityStoneEnabled=true_infinityStoneEnabled=true",
+      "type": "query",
+      "hasVariants": true,
+      "variantCount": 4,
+      "variants": [
+        {
+          "condition": "infinityStoneEnabled=true-infinityStoneEnabled=true",
+          "id": "shared-graph-queries-v1.js-6-allVentures-variant-infinityStoneEnabled=true-infinityStoneEnabled=true",
+          "fragmentSpreads": []
+        },
+        {
+          "condition": "infinityStoneEnabled=true-infinityStoneEnabled=false",
+          "id": "shared-graph-queries-v1.js-6-allVentures-variant-infinityStoneEnabled=true-infinityStoneEnabled=false",
+          "fragmentSpreads": []
+        },
+        {
+          "condition": "infinityStoneEnabled=false-infinityStoneEnabled=true",
+          "id": "shared-graph-queries-v1.js-6-allVentures-variant-infinityStoneEnabled=false-infinityStoneEnabled=true",
+          "fragmentSpreads": []
+        },
+        {
+          "condition": "infinityStoneEnabled=false-infinityStoneEnabled=false",
+          "id": "shared-graph-queries-v1.js-6-allVentures-variant-infinityStoneEnabled=false-infinityStoneEnabled=false",
+          "fragmentSpreads": []
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v1.js-8-ventureIsInfinityStoneByVentureId",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v1.js",
+      "name": "ventureIsInfinityStoneByVentureId",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v1.js-10-intentsByVenture",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v1.js",
+      "name": "intentsByVenture",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v2.js-0-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v2.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v2.js-1-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v2.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v2.js-2-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v2.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-0-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-1-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-2-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-3-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-4-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-6-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-7-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-8-GetUserAccountInfo",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "GetUserAccountInfo",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-9-GetUserWebsiteData",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "GetUserWebsiteData",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-10-GetAamcUserPreferences",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "GetAamcUserPreferences",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-11-getVentureDomainInfo",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "getVentureDomainInfo",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-12-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-13-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-14-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-15-GetAiroPlusEntitlement",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "GetAiroPlusEntitlement",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-16-getEstimatedSpendGroup",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "getEstimatedSpendGroup",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-17-VentureSpendGroupByDomain",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "VentureSpendGroupByDomain",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    },
+    {
+      "id": "shared-graph-queries-v3.js-18-VentureSpendGroupByAccountId",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "VentureSpendGroupByAccountId",
+      "type": "query",
+      "hasVariants": false,
+      "variantCount": 0,
+      "variants": []
+    }
+  ]
+}
