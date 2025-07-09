@@ -13,6 +13,13 @@ export interface GraphQLOperation {
   fragments: FragmentUsage[];
   directives: Directive[];
   confidence?: ConfidenceScore;
+  sourceAST?: any; // Add sourceAST for compatibility with ExistingScriptsAdapter
+}
+
+export interface IncrementalExtraction {
+  lastRun: Date;
+  fileHashes: Map<string, string>;
+  previousResults: Map<string, any[]>;
 }
 
 export interface Variable {

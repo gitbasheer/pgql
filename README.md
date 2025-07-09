@@ -1,4 +1,4 @@
-# pg-migration-620: Production-Ready GraphQL Migration Tool
+#  GraphQL Migration Tool
 
 A schema-aware GraphQL migration tool that automatically transforms deprecated queries based on your GraphQL schema's `@deprecated` directives. Built for production environments with safety, rollback support, and progressive migration capabilities.
 
@@ -106,6 +106,11 @@ pnpm apply -i transformed/transformed-queries.json --backup
 - `pnpm transform` - Transform queries based on schema deprecations
 - `pnpm validate` - Validate queries against GraphQL schema
 - `pnpm apply` - Apply transformations back to source files
+
+### Pattern-Based Migration Commands
+- `pnpm migrate pattern-migrate` - Run pattern-aware migration with centralized query naming
+- `pnpm cli pattern-migrate` - Standalone pattern-based migration tool
+- `pnpm cli pattern-migrate --demo` - Demo mode showing pattern detection
 
 ### Analysis Commands
 - `pnpm analyze` - Analyze GraphQL operations for patterns and issues
@@ -379,11 +384,86 @@ LOG_LEVEL=debug npm run migrate:dev analyze
 
 ## 🔍 Next Steps
 
-1. **Add AST Scanner**: Replace string extraction with proper AST parsing
-2. **Implement Response Transformer**: Runtime response shape transformation
-3. **Add Pattern Learning**: ML-based pattern detection from successful migrations
-4. **Build Dashboard**: Web UI for monitoring migrations
-5. **Add Integration Tests**: Full pipeline testing
+1. **Enhanced Pattern Learning**: ML-based pattern detection from successful migrations
+2. **Build Dashboard**: Web UI for monitoring migrations
+3. **Add Integration Tests**: Full pipeline testing
+4. **Implement Response Transformer**: Runtime response shape transformation
+5. **Advanced Pattern Registry**: Support for complex migration scenarios
+
+## 🎯 Pattern-Based Migration
+
+This tool now uses a **pattern-based migration approach** that preserves your application's dynamic query naming logic while enabling safe migrations:
+
+### Key Features
+- **Pattern Registry**: Maps dynamic query naming patterns to version information
+- **Query Naming Service**: Centralized service for handling all query naming concerns
+- **Content-Based Deduplication**: True duplicate detection regardless of naming
+- **Safe Migration Strategy**: Updates configuration instead of breaking query strings
+
+### Enabling Pattern-Based Processing
+
+**Automatic Initialization (Recommended)**:
+```javascript
+// The pattern-based system initializes automatically when using CLI commands
+npm run cli pattern-migrate --directory ./src --schema ./schema.graphql
+```
+
+**Manual Initialization**:
+```javascript
+import { createDefaultQueryServices } from './src/core/extraction/services/QueryServicesFactory';
+import { ExtractionContext } from './src/core/extraction/engine/ExtractionContext';
+
+// Initialize pattern-based services
+const queryServices = await createDefaultQueryServices({
+  projectRoot: './src',
+  enableIncrementalExtraction: true,
+  cacheConfig: {
+    memoryLimit: 50 * 1024 * 1024, // 50MB
+    ttl: 30 * 60 * 1000, // 30 minutes
+  }
+});
+
+// Create extraction context with pattern services
+const context = new ExtractionContext({
+  directory: './src',
+  enablePatterns: true
+});
+
+// Services are automatically injected via factory pattern
+const { namingService, migrator } = queryServices;
+```
+
+**Converting Existing queryNames.js**:
+```bash
+# Convert your existing queryNames.js to pattern registry format
+npm run cli convert-querynames --input ./src/queryNames.js --output ./pattern-registry.json
+
+# Validate the conversion
+npm run cli validate-migration --before ./extracted-old.json --after ./extracted-new.json
+```
+
+### Example Pattern Migration
+
+**Before (problematic normalization)**:
+```javascript
+// Dynamic query selection
+const queryName = conditions.infinity ? 'byIdV2' : 'byIdV1';
+const query = gql`query ${queryNames[queryName]} { ... }`;
+
+// ❌ Old approach would break this by normalizing names
+```
+
+**After (pattern-based)**:
+```javascript
+// Dynamic query selection preserved
+const queryName = conditions.infinity ? 'byIdV2' : 'byIdV1';
+const query = gql`query ${queryNames[queryName]} { ... }`;
+
+// ✅ Pattern system tracks versions and suggests migrations
+// Updates queryNames object instead of breaking query strings
+```
+
+For detailed information, see [Pattern-Based Migration Guide](PATTERN-BASED-MIGRATION.md).
 
 ## 📦 Package Dependencies
 

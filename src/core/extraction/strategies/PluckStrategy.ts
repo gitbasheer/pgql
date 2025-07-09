@@ -8,7 +8,6 @@ import { ExtractionContext } from '../engine/ExtractionContext';
 import { safeParseGraphQL } from '../../../utils/graphqlValidator';
 import { SourceMapper } from '../utils/SourceMapper';
 
-const traverseDefault = (traverse as any).default || traverse;
 
 export class PluckStrategy extends BaseStrategy {
   private sourceMapper: SourceMapper;
@@ -162,7 +161,7 @@ export class PluckStrategy extends BaseStrategy {
       });
 
       let index = 0;
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression: (path: any) => {
           if (SourceMapper.isGraphQLTag(path.node.tag)) {
             const sourceAST: SourceAST = {

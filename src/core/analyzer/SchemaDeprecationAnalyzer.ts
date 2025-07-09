@@ -55,8 +55,8 @@ export class SchemaDeprecationAnalyzer {
         }
       }
       
-      // Find deprecated fields - capture field name before the colon
-      const deprecatedMatch = line.match(/^\s*(\w+)\s*(?:\([^)]*\))?\s*:\s*[^\n]+@deprecated\(reason:\s*"([^"]+)"\)/);
+      // Find deprecated fields - improved regex to handle GraphQL syntax
+      const deprecatedMatch = line.match(/^\s*(\w+)\s*(?:\([^)]*\))?\s*:\s*[^@]+@deprecated\(reason:\s*"([^"]+)"\)/);
       if (deprecatedMatch && currentType) {
         const fieldName = deprecatedMatch[1];
         const reason = deprecatedMatch[2];

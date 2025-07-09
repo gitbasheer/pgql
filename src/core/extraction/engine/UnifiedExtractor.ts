@@ -2,11 +2,11 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import glob from 'fast-glob';
 import { logger } from '../../../utils/logger';
-import { 
-  ExtractionOptions, 
-  ExtractionResult, 
+import {
+  ExtractionOptions,
+  ExtractionResult,
   ExtractedQuery,
-  ResolvedQuery 
+  ResolvedQuery
 } from '../types/index';
 import { ExtractionContext } from './ExtractionContext';
 import { ExtractionPipeline } from './ExtractionPipeline';
@@ -29,11 +29,11 @@ export class UnifiedExtractor {
 
   private initializeStrategies(): Map<string, BaseStrategy> {
     const strategies = new Map<string, BaseStrategy>();
-    
+
     // Always initialize both strategies
     strategies.set('pluck', new PluckStrategy(this.context));
     strategies.set('ast', new ASTStrategy(this.context));
-    
+
     return strategies;
   }
 
@@ -41,27 +41,27 @@ export class UnifiedExtractor {
   async extract(): Promise<ExtractionResult> {
     const startTime = Date.now();
     logger.info(`Starting unified extraction from ${this.context.options.directory}`);
-    
+
     try {
       // Phase 1: Discovery
       const files = await this.discoverFiles();
       this.context.stats.totalFiles = files.length;
-      
+
       // Phase 2: Load auxiliary data
       await this.loadAuxiliaryData();
-      
+
       // Phase 3: Extract queries
       const rawQueries = await this.extractQueries(files);
-      
+
       // Phase 4: Process through pipeline
       const result = await this.pipeline.process(rawQueries);
-      
+
       // Phase 5: Finalize stats
       result.stats = this.context.finalizeStats();
-      
+
       logger.info(`Extraction completed in ${Date.now() - startTime}ms`);
       logger.info(`Extracted ${result.queries.length} queries with ${result.variants.length} variants`);
-      
+
       return result;
     } catch (error) {
       logger.error('Extraction failed:', error);
@@ -71,70 +71,42 @@ export class UnifiedExtractor {
 
   private async discoverFiles(): Promise<string[]> {
     const { directory, patterns, ignore } = this.context.options;
-    
+
     logger.info(`Discovering files in ${directory} with patterns: ${patterns?.join(', ')}`);
     logger.debug('Raw patterns value:', patterns);
     logger.debug('Type of patterns:', typeof patterns);
-    
+
     // Ensure patterns is always an array
     const filePatterns = patterns || ['**/*.{js,jsx,ts,tsx}'];
     logger.debug('Final filePatterns:', filePatterns);
-    
+
     const files = await glob(filePatterns, {
       cwd: directory,
       absolute: true,
       ignore: ignore || ['**/node_modules/**', '**/__generated__/**', '**/*.test.*']
     });
-    
+
     logger.info(`Found ${files.length} files to process`);
     return files;
   }
 
   private async loadAuxiliaryData(): Promise<void> {
-    // Load query names if available
-    if (this.context.options.resolveNames) {
-      await this.loadQueryNames();
-    }
-    
+    // Initialize query naming service with pattern-based approach
+    await this.context.initializeQueryNaming();
+
     // Pre-load fragments if needed
     if (this.context.options.resolveFragments) {
       await this.preloadFragments();
     }
   }
 
+  /**
+   * @deprecated The old loadQueryNames method is replaced by QueryNamingService
+   * This method is kept for backward compatibility but does nothing
+   */
   private async loadQueryNames(): Promise<void> {
-    const possiblePaths = [
-      // Check the target directory first
-      path.join(this.context.options.directory, 'queryNames.js'),
-      // Then check relative paths from project root
-      path.resolve('data/sample_data/queryNames.js'),
-      path.resolve('src/queryNames.js'),
-      path.resolve('graphql/queryNames.js')
-    ];
-
-    for (const queryNamesPath of possiblePaths) {
-      try {
-        const content = await fs.readFile(queryNamesPath, 'utf-8');
-        // Use AST strategy to parse the queryNames
-        const astStrategy = this.strategies.get('ast') as ASTStrategy;
-        
-        // Simple extraction of queryNames object
-        const match = content.match(/export\s+const\s+queryNames\s*=\s*({[\s\S]*?});/);
-        if (match) {
-          try {
-            // Safely evaluate the object
-            const queryNamesObj = eval(`(${match[1]})`);
-            Object.assign(this.context.queryNames, queryNamesObj);
-            logger.info(`Loaded ${Object.keys(queryNamesObj).length} query names from ${queryNamesPath}`);
-            break;
-          } catch (e) {
-            logger.warn(`Failed to parse queryNames from ${queryNamesPath}`);
-          }
-        }
-      } catch (error) {
-        // File doesn't exist, continue
-      }
-    }
+    logger.warn('loadQueryNames is deprecated. QueryNamingService handles this automatically.');
+    // No-op - the QueryNamingService handles this now
   }
 
   private async preloadFragments(): Promise<void> {
@@ -145,7 +117,7 @@ export class UnifiedExtractor {
   private async extractQueries(files: string[]): Promise<ExtractedQuery[]> {
     const allQueries: ExtractedQuery[] = [];
     const { parallel, maxConcurrency } = this.context.options;
-    
+
     if (parallel) {
       // Process files in batches
       const batchSize = maxConcurrency || 4;
@@ -163,7 +135,7 @@ export class UnifiedExtractor {
         allQueries.push(...queries);
       }
     }
-    
+
     this.context.stats.totalQueries = allQueries.length;
     return allQueries;
   }
@@ -177,25 +149,25 @@ export class UnifiedExtractor {
         logger.debug(`Cache hit for ${filePath}`);
         return cachedQueries;
       }
-      
+
       // Check context cache (in-memory)
       const cached = this.context.getCached<ExtractedQuery[]>('file', filePath);
       if (cached) {
         return cached;
       }
-      
+
       const content = await fs.readFile(filePath, 'utf-8');
       const queries: ExtractedQuery[] = [];
-      
+
       // Determine which strategy to use
       const strategyNames = this.context.options.strategies || ['hybrid'];
-      
+
       for (const strategyName of strategyNames) {
         if (strategyName === 'hybrid') {
           // Use both strategies and merge results
           const pluckResults = await this.extractWithStrategy('pluck', filePath, content);
           const astResults = await this.extractWithStrategy('ast', filePath, content);
-          
+
           // Merge results, preferring AST for better context
           queries.push(...this.mergeResults(pluckResults, astResults));
         } else {
@@ -203,12 +175,12 @@ export class UnifiedExtractor {
           queries.push(...results);
         }
       }
-      
+
       // Cache results (both in-memory and persistent)
       this.context.setCached('file', filePath, queries);
       await astCache.set('queries', filePath, queries, 3600000); // 1 hour TTL
       this.context.incrementStat('processedFiles');
-      
+
       return queries;
     } catch (error) {
       this.context.addError(
@@ -220,8 +192,8 @@ export class UnifiedExtractor {
   }
 
   private async extractWithStrategy(
-    strategyName: string, 
-    filePath: string, 
+    strategyName: string,
+    filePath: string,
     content: string
   ): Promise<ExtractedQuery[]> {
     const strategy = this.strategies.get(strategyName);
@@ -229,11 +201,11 @@ export class UnifiedExtractor {
       logger.warn(`Strategy ${strategyName} not found`);
       return [];
     }
-    
+
     if (!strategy.canHandle(filePath)) {
       return [];
     }
-    
+
     try {
       return await strategy.extract(filePath, content);
     } catch (error) {
@@ -247,7 +219,7 @@ export class UnifiedExtractor {
     if (astResults.length > 0) {
       return astResults;
     }
-    
+
     // Otherwise use pluck results
     return pluckResults;
   }

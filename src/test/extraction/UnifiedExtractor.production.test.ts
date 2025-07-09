@@ -447,7 +447,7 @@ function createTestFiles() {
         \`;
       `
   }, {
-    name: 'queryNames.js',
+            name: 'queryNames.js', // Legacy query naming file - now deprecated
     content: `
         export const queryNames = {
           GetUser: 'USER_QUERY',

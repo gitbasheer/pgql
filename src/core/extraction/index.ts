@@ -30,3 +30,26 @@ export { SourceMapper } from './utils/SourceMapper';
 export { JSONReporter } from './reporters/JSONReporter';
 export { HTMLReporter } from './reporters/HTMLReporter';
 export { FileReporter } from './reporters/FileReporter';
+
+// Pattern-based system (NEW)
+export { QueryPatternService } from './engine/QueryPatternRegistry';
+export { QueryMigrator } from './engine/QueryMigrator';
+export { QueryNamingService } from './services/QueryNamingService';
+export {
+  QueryServicesFactory,
+  QueryCacheManager,
+  createQueryServices,
+  createDefaultQueryServices
+} from './services/QueryServicesFactory';
+export {
+  PatternAwareExtraction,
+  extractWithPatterns,
+  analyzeMigration,
+  createPatternServices
+} from './PatternAwareExtraction';
+
+// New strategy
+export { PatternAwareASTStrategy } from './strategies/PatternAwareASTStrategy';
+
+// New analyzer
+export { TemplateResolver } from './analyzers/TemplateResolver';

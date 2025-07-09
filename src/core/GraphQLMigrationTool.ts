@@ -187,11 +187,20 @@ export class GraphQLMigrationTool {
         throw new Error(applyResult.error || 'Failed to apply AST transformation');
       }
     } else {
-      // Fallback to string replacement if no AST
-      const content = await fs.readFile(filePath, 'utf-8');
-      const newContent = content.replace(result.originalCode, result.transformedCode);
-      await fs.writeFile(filePath, newContent);
-      logger.info(`Updated ${filePath} (string replacement fallback)`);
+      // Re-extract with source AST preservation if not available
+      logger.warn(`Query ${query.id} missing source AST, re-extracting with source preservation`);
+      
+      const reExtractedQueries = await this.extractor.extractFromFile(filePath);
+      const reExtractedQuery = reExtractedQueries.find(q => q.content === query.content);
+      
+      if (reExtractedQuery) {
+        // Note: Current GraphQLExtractor doesn't preserve sourceAST
+        // This indicates the extraction strategy needs to be updated
+        logger.error(`GraphQLExtractor needs to be updated to preserve sourceAST. Query transformation cannot proceed safely without source mapping.`);
+        throw new Error(`Unable to preserve source AST for query in ${filePath}. The extractor needs to implement sourceAST preservation.`);
+      } else {
+        throw new Error(`Unable to find matching query in ${filePath}. AST-based transformation is required for safety.`);
+      }
     }
   }
 

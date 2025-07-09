@@ -8,7 +8,6 @@ import * as os from 'os';
 import * as babel from '@babel/parser';
 import traverse from '@babel/traverse';
 
-const traverseDefault = (traverse as any).default || traverse;
 
 describe('ASTCodeApplicator - Edge Cases', () => {
   let applicator: ASTCodeApplicator;
@@ -141,7 +140,7 @@ const query = gql\`
       });
 
       let sourceNode: any;
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNode = path.node;
         }
@@ -224,7 +223,7 @@ const query3 = GraphQL\`query { c }\`;
       });
 
       const sourceNodes: any[] = [];
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNodes.push(path.node);
         }
@@ -289,7 +288,7 @@ const query = gql\`
       });
 
       let sourceNode: any;
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression(path: any) {
           if (path.node.tag.name === 'gql') {
             sourceNode = path.node;
@@ -354,7 +353,7 @@ const query = gql\`
       });
 
       let sourceNode: any;
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNode = path.node;
         }
@@ -420,7 +419,7 @@ const query = gql\`
       });
 
       let sourceNode: any;
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNode = path.node;
         }
@@ -482,7 +481,7 @@ const query = gql\`
       });
 
       let sourceNode: any;
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNode = path.node;
         }

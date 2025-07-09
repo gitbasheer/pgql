@@ -265,7 +265,7 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
       const description = pipeline.generatePRDescription();
 
       expect(description).toContain('GraphQL Migration Summary');
-      expect(description).toContain('Operations Processed: 1');
+      expect(description).toContain('**Operations Processed**: 1');
       expect(description).toContain('Successful Transformations: 1');
       expect(description).toContain('Average Confidence: 95.0%');
       expect(description).toContain('Progressive rollout enabled at 1%');

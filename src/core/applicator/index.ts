@@ -1,3 +1,4 @@
 export { ASTCodeApplicator } from './ASTCodeApplicator';
-export { MinimalChangeCalculator, GraphQLChangeMap } from './MinimalChangeCalculator';
-export * from './types'; 
+export { MinimalChangeCalculator } from './MinimalChangeCalculator';
+export type { GraphQLChangeMap } from './MinimalChangeCalculator';
+export * from './types';

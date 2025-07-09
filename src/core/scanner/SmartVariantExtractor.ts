@@ -7,7 +7,6 @@ import * as babel from '@babel/parser';
 import traverse from '@babel/traverse';
 import generate from '@babel/generator';
 
-const traverseDefault = (traverse as any).default || traverse;
 
 export interface VariantSwitch {
   variable: string;
@@ -142,7 +141,7 @@ export class SmartVariantExtractor {
       });
       
       // Find GraphQL queries with dynamic fragments
-      traverseDefault(ast, {
+      traverse(ast, {
         // Look for gql template literals
         TaggedTemplateExpression: (path: any) => {
           if (path.node.tag.type === 'Identifier' && path.node.tag.name === 'gql') {

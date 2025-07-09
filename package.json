@@ -6,6 +6,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
+    "pg-cli": "./dist/cli/main-cli.js",
     "pg-extract": "./dist/cli/unified-extract.js",
     "pg-extract-transform": "./dist/cli/extract-transform.js",
     "pg-extract-variants": "./dist/cli/extract-variants.js",
@@ -69,7 +70,20 @@
     "test:mcp:watch": "vitest watch src/test/mcp-server.test.ts",
     "test:mcp:mock": "vitest run src/test/mcp-server-mock.test.ts --no-typecheck",
     "test:mcp:build": "tsx scripts/build-mcp-server.ts && pnpm test:mcp",
-    "mcp:build": "tsx scripts/build-mcp-server.ts"
+    "mcp:build": "tsx scripts/build-mcp-server.ts",
+    "cli": "tsx src/cli/main-cli.ts",
+    "cli:dev": "tsx src/cli/main-cli.ts",
+    "cli:build": "tsc -p tsconfig.build.json && chmod +x dist/cli/main-cli.js",
+    "cli:analyze": "tsx src/cli/main-cli.ts analyze operations",
+    "cli:extract": "tsx src/cli/main-cli.ts extract queries",
+    "cli:transform": "tsx src/cli/main-cli.ts transform queries",
+    "cli:migrate": "tsx src/cli/main-cli.ts migrate full",
+    "cli:pattern-migrate": "tsx src/cli/pattern-based-migration.ts",
+    "cli:convert-querynames": "tsx src/cli/convert-querynames.ts",
+    "cli:validate-migration": "tsx src/cli/validate-migration.ts",
+    "cli:status": "tsx src/cli/main-cli.ts status",
+    "cli:quick-start": "tsx src/cli/main-cli.ts quick-start",
+    "test:benchmark": "vitest run src/test/performance/pattern-migration.bench.ts --reporter=verbose"
   },
   "dependencies": {
     "@graphql-tools/graphql-file-loader": "^8.0.0",

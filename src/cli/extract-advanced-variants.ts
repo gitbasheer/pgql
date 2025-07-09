@@ -5,7 +5,8 @@ import chalk from 'chalk';
 import ora from 'ora';
 import * as fs from 'fs/promises';
 import path from 'node:path';
-import { AdvancedVariantExtractor } from '../core/scanner/AdvancedVariantExtractor';
+import { UnifiedVariantExtractor } from '../core/scanner/UnifiedVariantExtractor';
+import { ExtractedQueryWithVariant } from '../core/extraction/types/variant-extractor.types';
 import { logger } from '../utils/logger';
 
 const program = new Command();
@@ -22,7 +23,7 @@ program
     const spinner = ora('Extracting GraphQL query variants...').start();
     
     try {
-      const extractor = new AdvancedVariantExtractor();
+      const extractor = new UnifiedVariantExtractor({ enableIncrementalExtraction: true });
       const result = await extractor.extractWithVariants(directory, options.pattern);
       
       spinner.succeed(`Extraction complete`);
@@ -47,12 +48,15 @@ program
       }
       
       // Display variants by query
-      const variantsByQuery = new Map<string, typeof result.variants>();
+      const variantsByQuery = new Map<string, ExtractedQueryWithVariant[]>();
       for (const variant of result.variants) {
-        if (!variantsByQuery.has(variant.originalQueryId)) {
-          variantsByQuery.set(variant.originalQueryId, []);
+        const originalId = variant.variantMetadata?.originalQueryId;
+        if (originalId) {
+          if (!variantsByQuery.has(originalId)) {
+            variantsByQuery.set(originalId, []);
+          }
+          variantsByQuery.get(originalId)!.push(variant);
         }
-        variantsByQuery.get(variant.originalQueryId)!.push(variant);
       }
       
       if (variantsByQuery.size > 0) {
@@ -62,11 +66,13 @@ program
           console.log(`  ${chalk.bold(queryId)}`);
           
           for (const variant of variants) {
-            const conditionStr = Object.entries(variant.conditions)
+            const conditionStr = Object.entries(variant.variantMetadata?.conditions || {})
               .map(([k, v]) => `${k}=${v}`)
               .join(', ');
             console.log(`    • ${conditionStr}`);
-            console.log(`      Fragments: ${variant.usedFragments.join(', ')}`);
+            if (variant.fragments?.length) {
+              console.log(`      Fragments: ${variant.fragments.join(', ')}`);
+            }
           }
         }
       }
@@ -85,10 +91,9 @@ program
         })),
         variants: result.variants.map(v => ({
           id: v.id,
-          originalQueryId: v.originalQueryId,
-          queryName: v.queryName,
-          conditions: v.conditions,
-          usedFragments: v.usedFragments,
+          originalQueryId: v.variantMetadata?.originalQueryId,
+          queryName: v.name,
+          conditions: v.variantMetadata?.conditions,
           filePath: v.filePath
         }))
       };
@@ -103,9 +108,8 @@ program
         totalVariants: result.variants.length,
         variants: result.variants.map(v => ({
           id: v.id,
-          queryName: v.queryName,
-          conditions: v.conditions,
-          usedFragments: v.usedFragments,
+          queryName: v.name,
+          conditions: v.variantMetadata?.conditions,
           content: v.content
         }))
       }, null, 2));
@@ -113,28 +117,17 @@ program
       // Optionally save individual query files
       if (options.saveQueries) {
         const queriesDir = path.join(options.output, 'queries');
-        await extractor.saveVariants(result.variants, queriesDir);
+        await extractor.saveVariants(queriesDir, result.variants);
         console.log(chalk.dim(`\n📁 Individual query files saved to ${queriesDir}`));
       }
       
       console.log(chalk.green(`\n✅ Extraction complete!`));
-      console.log(chalk.dim(`Reports saved to ${options.output}`));
-      
-      // Show example of how variants differ
-      if (result.variants.length >= 2) {
-        const example = variantsByQuery.values().next().value;
-        if (example && example.length >= 2) {
-          console.log(chalk.cyan('\n📝 Example Variant Difference:\n'));
-          console.log(chalk.bold('Variant 1:'), Object.entries(example[0].conditions).map(([k,v]) => `${k}=${v}`).join(', '));
-          console.log('Uses fragments:', example[0].usedFragments.join(', '));
-          console.log(chalk.bold('\nVariant 2:'), Object.entries(example[1].conditions).map(([k,v]) => `${k}=${v}`).join(', '));
-          console.log('Uses fragments:', example[1].usedFragments.join(', '));
-        }
-      }
+      console.log(chalk.dim(`📁 Reports saved to ${options.output}`));
       
     } catch (error) {
       spinner.fail('Extraction failed');
-      logger.error('Error:', error);
+      logger.error('Extraction error:', error);
+      console.error(chalk.red('\n❌ Error:'), error);
       process.exit(1);
     }
   });

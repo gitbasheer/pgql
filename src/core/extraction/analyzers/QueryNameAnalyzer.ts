@@ -1,7 +1,12 @@
 import { ExtractedQuery, QueryContext } from '../types/index';
+import { PatternExtractedQuery } from '../types/pattern.types';
 import { ExtractionContext } from '../engine/ExtractionContext';
 import { logger } from '../../../utils/logger';
 
+/**
+ * @deprecated Use QueryNamingService directly for pattern-based analysis
+ * This analyzer is being refactored to use the new pattern-based approach
+ */
 export class QueryNameAnalyzer {
   private context: ExtractionContext;
 
@@ -9,28 +14,21 @@ export class QueryNameAnalyzer {
     this.context = context;
   }
 
-  async analyze(queries: ExtractedQuery[]): Promise<ExtractedQuery[]> {
-    return queries.map(query => {
-      const enhancedName = this.enhanceQueryName(query);
-      
-      if (enhancedName !== query.name) {
-        logger.debug(`Enhanced query name from '${query.name}' to '${enhancedName}'`);
-        query.originalName = query.name;
-        query.name = enhancedName;
-      }
-      
-      // Normalize for duplicates
-      if (query.name) {
-        const normalizedName = this.context.normalizeQueryName(query.name, query.content);
-        if (normalizedName !== query.name) {
-          logger.debug(`Normalized duplicate query name from '${query.name}' to '${normalizedName}'`);
-          if (!query.originalName) {
-            query.originalName = query.name;
-          }
-          query.name = normalizedName;
+  async analyze(queries: ExtractedQuery[]): Promise<PatternExtractedQuery[]> {
+    const namingService = this.context.getQueryNamingService();
+
+    // Use the centralized naming service for pattern-based processing
+    const patternQueries = namingService.processQueries(queries);
+
+    // Still apply name enhancement for queries without patterns
+    return patternQueries.map(query => {
+      if (!query.namePattern && !query.name) {
+        const enhancedName = this.enhanceQueryName(query);
+        if (enhancedName) {
+          query.name = enhancedName;
+          logger.debug(`Enhanced static query name to '${enhancedName}'`);
         }
       }
-      
       return query;
     });
   }
@@ -40,18 +38,18 @@ export class QueryNameAnalyzer {
     if (query.name && !query.name.startsWith('$') && query.name !== 'unnamed') {
       return query.name;
     }
-    
+
     // Try to extract from the query content
     const contentName = this.extractNameFromContent(query.content);
     if (contentName) {
       return contentName;
     }
-    
+
     // Try to infer from context
     if (query.context) {
       return this.inferNameFromContext(query.context, query.type);
     }
-    
+
     // Try to infer from file path
     return this.inferNameFromPath(query.filePath, query.type);
   }
@@ -69,39 +67,39 @@ export class QueryNameAnalyzer {
     if (context.functionName) {
       return this.formatName(context.functionName, type);
     }
-    
+
     if (context.componentName) {
       return this.formatName(`${context.componentName}${this.capitalize(type)}`, type);
     }
-    
+
     if (context.exportName) {
       return this.formatName(context.exportName, type);
     }
-    
+
     return undefined;
   }
 
   private inferNameFromPath(filePath: string, type: string): string | undefined {
     const fileName = filePath.split('/').pop()?.replace(/\.[^.]+$/, '') || 'unknown';
-    
+
     // Skip generic names
     if (['index', 'queries', 'graphql'].includes(fileName.toLowerCase())) {
       return undefined;
     }
-    
+
     return this.formatName(fileName, type);
   }
 
   private formatName(baseName: string, type: string): string {
     // Remove common suffixes
     baseName = baseName.replace(/(Query|Mutation|Subscription|Fragment)$/i, '');
-    
+
     // Add type prefix if not present
     const typePrefix = this.capitalize(type);
     if (!baseName.toLowerCase().includes(type.toLowerCase())) {
       return `${typePrefix}${this.capitalize(baseName)}`;
     }
-    
+
     return this.capitalize(baseName);
   }
 

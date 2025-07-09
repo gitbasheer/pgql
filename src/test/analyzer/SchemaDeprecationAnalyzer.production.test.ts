@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { SchemaDeprecationAnalyzer } from '@core/analyzer/SchemaDeprecationAnalyzer';
+import { SchemaDeprecationAnalyzer } from '../../core/analyzer/SchemaDeprecationAnalyzer';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 
@@ -10,18 +10,22 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
 
   beforeAll(async () => {
     try {
-      // Load the real production schema
+      // Load the real production schema  
       const schemaPath = join(process.cwd(), 'data', 'schema.graphql');
+      console.log('Trying schema path:', schemaPath);
       schemaContent = await readFile(schemaPath, 'utf-8');
+      console.log('Schema loaded, length:', schemaContent.length, 'lines:', schemaContent.split('\n').length);
       analyzer = new SchemaDeprecationAnalyzer();
       if (schemaContent) {
         deprecationRules = analyzer.analyzeSchema(schemaContent);
+        console.log('Deprecation rules found:', deprecationRules.length);
       }
     } catch (error) {
       console.error('Failed to load schema:', error);
       // Try alternative path
       try {
         const altPath = join(__dirname, '..', '..', '..', 'data', 'schema.graphql');
+        console.log('Trying alternative path:', altPath);
         schemaContent = await readFile(altPath, 'utf-8');
         analyzer = new SchemaDeprecationAnalyzer();
         if (schemaContent) {

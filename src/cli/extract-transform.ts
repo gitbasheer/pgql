@@ -316,8 +316,32 @@ program
       // Group transformations by file
       for (const result of results) {
         if (!result.sourceAST) {
-          logger.warn(`Query ${result.id} missing source AST, falling back to string replacement`);
-          continue;
+          logger.error(`Query ${result.id} missing source AST. Re-extracting with source preservation enabled.`);
+          
+          // Re-extract this specific file with source AST preservation using UnifiedExtractor
+          try {
+            // Use the already imported UnifiedExtractor
+            const reExtractor = new UnifiedExtractor({
+              directory: path.dirname(result.file),
+              patterns: [path.basename(result.file)],
+              preserveSourceAST: true,
+              resolveFragments: true
+            });
+            
+            const reExtractionResult = await reExtractor.extract();
+            const reExtractedQuery = reExtractionResult.queries.find(q => q.content === result.content);
+            
+            if (reExtractedQuery?.sourceAST) {
+              result.sourceAST = reExtractedQuery.sourceAST;
+              logger.info(`Successfully re-extracted source AST for query ${result.id}`);
+            } else {
+              logger.error(`Failed to re-extract source AST for query ${result.id} in ${result.file}. Skipping unsafe transformation.`);
+              continue;
+            }
+          } catch (error) {
+            logger.error(`Error re-extracting query ${result.id}: ${error}. Skipping transformation.`);
+            continue;
+          }
         }
 
         const sourceMapping: SourceMapping = {
