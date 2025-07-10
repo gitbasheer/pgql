@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { SchemaDeprecationAnalyzer } from '../../core/analyzer/SchemaDeprecationAnalyzer';
-import { readFile } from 'fs/promises';
 import { join } from 'path';
+
+// Unmock fs/promises for this test to read the actual schema file
+vi.unmock('node:fs/promises');
 
 describe('SchemaDeprecationAnalyzer - Production Schema', () => {
   let analyzer: SchemaDeprecationAnalyzer;
@@ -10,7 +12,10 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
 
   beforeAll(async () => {
     try {
-      // Load the real production schema  
+      // Import the real fs/promises module
+      const { readFile } = await import('fs/promises');
+
+      // Load the real production schema
       const schemaPath = join(process.cwd(), 'data', 'schema.graphql');
       console.log('Trying schema path:', schemaPath);
       schemaContent = await readFile(schemaPath, 'utf-8');
@@ -24,6 +29,7 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
       console.error('Failed to load schema:', error);
       // Try alternative path
       try {
+        const { readFile } = await import('fs/promises');
         const altPath = join(__dirname, '..', '..', '..', 'data', 'schema.graphql');
         console.log('Trying alternative path:', altPath);
         schemaContent = await readFile(altPath, 'utf-8');

@@ -3,6 +3,7 @@ import * as path from 'path';
 import { ExtractionResult } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';
 import { logger } from '../../../utils/logger';
+import { validateWritePath, sanitizeFileName } from '../../../utils/securePath';
 
 export class FileReporter {
   private context: ExtractionContext;
@@ -12,18 +13,33 @@ export class FileReporter {
   }
 
   async generate(result: ExtractionResult): Promise<void> {
-    const outputDir = path.join(this.context.options.outputDir || '.', 'extracted-queries');
+    // SECURITY FIX: Validate output directory to prevent path traversal
+    const baseOutputDir = this.context.options.outputDir || '.';
+    const validatedBase = validateWritePath(baseOutputDir, 'extracted-queries');
+    if (!validatedBase) {
+      throw new Error(`Invalid output directory: ${baseOutputDir}`);
+    }
     
     // Create directories
-    await fs.mkdir(outputDir, { recursive: true });
+    await fs.mkdir(validatedBase, { recursive: true });
     
     // Write queries
-    const queriesDir = path.join(outputDir, 'queries');
+    const queriesDir = validateWritePath(validatedBase, 'queries');
+    if (!queriesDir) {
+      throw new Error('Invalid queries directory path');
+    }
     await fs.mkdir(queriesDir, { recursive: true });
     
     for (const query of result.queries) {
-      const fileName = this.generateFileName(query.name || query.id, 'graphql');
-      const filePath = path.join(queriesDir, fileName);
+      // SECURITY FIX: Sanitize file names to prevent path injection
+      const safeName = sanitizeFileName(query.name || query.id);
+      const fileName = this.generateFileName(safeName, 'graphql');
+      const filePath = validateWritePath(queriesDir, fileName);
+      
+      if (!filePath) {
+        logger.warn(`Skipping query with unsafe filename: ${query.name || query.id}`);
+        continue;
+      }
       
       await fs.writeFile(filePath, query.resolvedContent);
     }
@@ -32,16 +48,23 @@ export class FileReporter {
     
     // Write variants if any
     if (result.variants.length > 0) {
-      const variantsDir = path.join(outputDir, 'variants');
+      const variantsDir = validateWritePath(validatedBase, 'variants');
+      if (!variantsDir) {
+        logger.warn('Invalid variants directory path');
+        return;
+      }
       await fs.mkdir(variantsDir, { recursive: true });
       
       for (const variant of result.variants) {
         const conditionStr = this.formatConditions(variant.conditions);
-        const fileName = this.generateFileName(
-          `${variant.queryName}_${conditionStr}`,
-          'graphql'
-        );
-        const filePath = path.join(variantsDir, fileName);
+        const safeVariantName = sanitizeFileName(`${variant.queryName}_${conditionStr}`);
+        const fileName = this.generateFileName(safeVariantName, 'graphql');
+        const filePath = validateWritePath(variantsDir, fileName);
+        
+        if (!filePath) {
+          logger.warn(`Skipping variant with unsafe filename: ${variant.queryName}`);
+          continue;
+        }
         
         await fs.writeFile(filePath, variant.content);
       }
@@ -51,12 +74,22 @@ export class FileReporter {
     
     // Write fragments
     if (result.fragments.size > 0) {
-      const fragmentsDir = path.join(outputDir, 'fragments');
+      const fragmentsDir = validateWritePath(validatedBase, 'fragments');
+      if (!fragmentsDir) {
+        logger.warn('Invalid fragments directory path');
+        return;
+      }
       await fs.mkdir(fragmentsDir, { recursive: true });
       
       for (const [name, content] of result.fragments) {
-        const fileName = this.generateFileName(name, 'graphql');
-        const filePath = path.join(fragmentsDir, fileName);
+        const safeName = sanitizeFileName(name);
+        const fileName = this.generateFileName(safeName, 'graphql');
+        const filePath = validateWritePath(fragmentsDir, fileName);
+        
+        if (!filePath) {
+          logger.warn(`Skipping fragment with unsafe filename: ${name}`);
+          continue;
+        }
         
         await fs.writeFile(filePath, content);
       }
@@ -65,7 +98,7 @@ export class FileReporter {
     }
     
     // Write index file
-    await this.writeIndexFile(outputDir, result);
+    await this.writeIndexFile(validatedBase, result);
   }
 
   private generateFileName(name: string, extension: string): string {

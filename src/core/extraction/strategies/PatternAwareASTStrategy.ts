@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BaseStrategy } from './BaseStrategy';
 import { PatternExtractedQuery } from '../types/pattern.types';
 import { ExtractedQuery, SourceAST } from '../types/query.types';

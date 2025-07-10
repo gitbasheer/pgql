@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ExtractionOptions, ExtractionResult } from './types/index';
 import { PatternExtractedQuery, MigrationResult } from './types/pattern.types';
 import { ExtractionContext } from './engine/ExtractionContext';

@@ -4,6 +4,7 @@ import pRetry from 'p-retry';
 import { ResponseCaptureService } from '../../core/validator/ResponseCaptureService';
 import { EndpointConfig } from '../../core/validator/types';
 import { ResolvedQuery } from '../../core/extraction/types/query.types';
+import { createMockPRetry } from '../utils/mockRetry';
 // Mock modules
 vi.mock('p-limit', () => ({
   default: () => (fn: Function) => fn()
@@ -37,6 +38,7 @@ describe('ResponseCaptureService - Error Handling', () => {
   let mockAxiosInstance: ReturnType<typeof createMockAxiosInstance>;
   const mockedAxios = vi.mocked(axios);
   const mockedPRetry = vi.mocked(pRetry);
+  const mockRetry = createMockPRetry();
 
   const mockEndpoint: EndpointConfig = {
     url: 'https://api.example.com/graphql',
@@ -79,7 +81,8 @@ describe('ResponseCaptureService - Error Handling', () => {
     (mockedAxios.isAxiosError as any).mockReturnValue(false);
 
     // Default p-retry behavior - just execute the function
-    mockedPRetry.mockImplementation(async (fn: any) => fn());
+    mockedPRetry.mockImplementation(mockRetry.mockPRetry);
+    mockRetry.setFailTimes(0); // Default: no failures
   });
 
   afterEach(() => {
@@ -87,10 +90,8 @@ describe('ResponseCaptureService - Error Handling', () => {
   });
 
   it('should retry on failure', async () => {
-    // Clear all previous mocks completely
     vi.clearAllMocks();
-    
-    const retryError = new Error('Temporary failure');
+    mockRetry.setFailTimes(2); // Fail first 2 times
     let callCount = 0;
 
     // Create completely fresh mock instance
@@ -102,7 +103,7 @@ describe('ResponseCaptureService - Error Handling', () => {
     freshMockAxios.post.mockImplementation(() => {
       callCount++;
       if (callCount < 3) {
-        return Promise.reject(retryError);
+        return Promise.reject(new Error('Temporary failure'));
       }
       return Promise.resolve(mockResponse);
     });
@@ -138,6 +139,7 @@ describe('ResponseCaptureService - Error Handling', () => {
     const result = await service.captureBaseline([mockQuery]);
 
     expect(callCount).toBe(3);
+    expect(mockRetry.getCallCount()).toBe(3);
     expect(result.responses.size).toBe(1);
     expect(result.metadata.successCount).toBe(1);
     expect(result.metadata.errorCount).toBe(0);
@@ -146,7 +148,7 @@ describe('ResponseCaptureService - Error Handling', () => {
   it('should capture axios errors as responses', async () => {
     // Clear all previous mocks completely
     vi.clearAllMocks();
-    
+
     const axiosError = {
       message: 'Request failed',
       response: {
@@ -161,7 +163,7 @@ describe('ResponseCaptureService - Error Handling', () => {
     // Create completely fresh mock instance
     const freshMockAxios = createMockAxiosInstance();
     (mockedAxios.create as Mock).mockReturnValue(freshMockAxios as any);
-    
+
     freshMockAxios.post.mockRejectedValue(axiosError);
 
     // Make sure isAxiosError returns true when checking our error
@@ -193,13 +195,13 @@ describe('ResponseCaptureService - Error Handling', () => {
   it('should handle non-axios errors', async () => {
     // Clear all previous mocks completely
     vi.clearAllMocks();
-    
+
     const genericError = new Error('Unknown error');
 
     // Create completely fresh mock instance
     const freshMockAxios = createMockAxiosInstance();
     (mockedAxios.create as Mock).mockReturnValue(freshMockAxios as any);
-    
+
     freshMockAxios.post.mockRejectedValue(genericError);
     (mockedAxios.isAxiosError as any).mockImplementation(() => false);
 
@@ -220,7 +222,7 @@ describe('ResponseCaptureService - Error Handling', () => {
   it('should handle network timeout errors', async () => {
     // Clear all previous mocks completely
     vi.clearAllMocks();
-    
+
     const timeoutError = {
       message: 'timeout of 30000ms exceeded',
       code: 'ECONNABORTED',
@@ -231,7 +233,7 @@ describe('ResponseCaptureService - Error Handling', () => {
     // Create completely fresh mock instance
     const freshMockAxios = createMockAxiosInstance();
     (mockedAxios.create as Mock).mockReturnValue(freshMockAxios as any);
-    
+
     freshMockAxios.post.mockRejectedValue(timeoutError);
     (mockedAxios.isAxiosError as any).mockImplementation((err: any) => err === timeoutError);
 

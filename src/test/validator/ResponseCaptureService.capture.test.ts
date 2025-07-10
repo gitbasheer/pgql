@@ -5,6 +5,7 @@ import pLimit from 'p-limit';
 import { ResponseCaptureService } from '../../core/validator/ResponseCaptureService';
 import { EndpointConfig } from '../../core/validator/types';
 import { ResolvedQuery } from '../../core/extraction/types/query.types';
+import { createMockPRetry } from '../utils/mockRetry';
 
 // Mock all dependencies at the module level
 vi.mock('axios');
@@ -31,6 +32,7 @@ const createMockAxiosInstance = () => ({
 describe('ResponseCaptureService - Capture Operations', () => {
   let service: ResponseCaptureService;
   let mockAxiosInstance: any;
+  const mockRetry = createMockPRetry();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -92,7 +94,8 @@ describe('ResponseCaptureService - Capture Operations', () => {
     (mockedAxios.isAxiosError as any).mockReturnValue(false);
 
     // Default p-retry behavior - just execute the function
-    mockedPRetry.mockImplementation(async (fn: any) => fn());
+    mockedPRetry.mockImplementation(mockRetry.mockPRetry);
+    mockRetry.setFailTimes(0); // Default: no failures
   });
 
   describe('captureBaseline', () => {
@@ -139,11 +142,11 @@ describe('ResponseCaptureService - Capture Operations', () => {
 
       // Clear any existing mock state
       vi.clearAllMocks();
-      
+
       // Create fresh mock for this test
       const freshMockAxios = createMockAxiosInstance();
       (mockedAxios.create as Mock).mockReturnValue(freshMockAxios as any);
-      
+
       // Return fresh data for each call
       let callCount = 0;
       freshMockAxios.post.mockImplementation(() => {
@@ -162,7 +165,7 @@ describe('ResponseCaptureService - Capture Operations', () => {
       // Check that all queries were processed
       expect(result.metadata.totalQueries).toBe(3);
       expect(freshMockAxios.post).toHaveBeenCalledTimes(3);
-      
+
       // The actual number of responses depends on how many succeed
       // Since our mock succeeds, we should get all 3
       expect(result.responses.size).toBe(3);

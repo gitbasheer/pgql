@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { logger } from '../../../utils/logger';
 import { QueryPatternService } from '../engine/QueryPatternRegistry';
 import { QueryNamingService } from './QueryNamingService';

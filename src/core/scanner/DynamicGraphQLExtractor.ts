@@ -3,6 +3,7 @@ import { GraphQLExtractor, ExtractedQuery } from './GraphQLExtractor';
 import { logger } from '../../utils/logger';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { validateReadPath } from '../../utils/securePath';
 
 export interface QueryVariant {
   condition: string;
@@ -26,7 +27,14 @@ export class DynamicGraphQLExtractor extends GraphQLExtractor {
    * Enhanced extraction that detects dynamic fragment spreads and generates variants
    */
   async extractFromFile(filePath: string): Promise<ExtractedQuery[]> {
-    const content = await fs.readFile(filePath, 'utf-8');
+    // SECURITY FIX: Validate path to prevent traversal
+    const validatedPath = validateReadPath(process.cwd(), filePath);
+    if (!validatedPath) {
+      logger.warn(`Skipping potentially malicious file path: ${filePath}`);
+      return [];
+    }
+    
+    const content = await fs.readFile(validatedPath, 'utf-8');
     const baseQueries = await super.extractFromFile(filePath);
     const enhancedQueries: ExtractedQuery[] = [];
 

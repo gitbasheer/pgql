@@ -1,3 +1,10 @@
+# Production-critical MCP files that must NOT be ignored:
+# - src/mcp/server.ts (MCP server implementation)
+# - scripts/build-mcp-server.ts (MCP build script)
+# - src/test/mcp-server.test.ts (MCP server tests)
+# - src/test/mcp-server-mock.test.ts (MCP mock tests)
+# - dist/mcp/server.js (built MCP server - handled by dist/ ignore)
+
 # Dependencies
 node_modules/
 pnpm-lock.yaml
@@ -55,17 +62,15 @@ Thumbs.db
 tmp/
 temp/
 
-# MCP related files (EVERYTHING)
-*mcp*
-*MCP*
-mcp/
+# MCP related files (excluding production-critical ones)
+# NOTE: We need src/mcp/server.ts and scripts/build-mcp-server.ts for production
+# Only ignore non-essential MCP files
 docs/archive/mcp/
 README-MCP.md
 docs/MCP-*.md
 mcp-server.js
-scripts/build-mcp-server.ts
-src/mcp/
-test/mcp-*.test.ts
+# Keep src/mcp/ and scripts/build-mcp-server.ts for production
+# test/mcp-*.test.ts - keeping tests for quality assurance
 
 # Debugging and development files
 debug-*.ts
@@ -105,7 +110,9 @@ docs/IMPLEMENTATION-HISTORY.md
 docs/test-infrastructure.md
 
 # Scripts that are not production
-scripts/
+# Ignore all scripts except build-mcp-server.ts which is needed for production
+scripts/*
+!scripts/build-mcp-server.ts
 quickstart.sh
 setup-terminal-colors.sh
 
@@ -122,3 +129,43 @@ vitest.setup.ts
 
 # Any personal or debugging files
 revert-*.sh
+audit_security_findings.md
+AUDIT_SUMMARY.md
+build_errors.txt
+CLAUDE.md
+CLI_COMPATIBILITY_ANALYSIS.md
+CLI_COMPATIBILITY_GUARANTEE.md
+CLI_COMPATIBILITY_VALIDATION_REPORT.md
+COMPLETE_TEST_INVENTORY.md
+comprehensive-completion-checklist.md
+CONTRIBUTING.md
+DEPRECATED_MODULES_AUDIT.md
+DEPRECATION_GUIDE.md
+DOCUMENTATION_CLEANUP_SUMMARY.md
+ERROR_MESSAGE_CONSISTENCY_AUDIT.md
+EVAL_INJECTION_TEST_REPORT.md
+FEATURE_FLAG_CATALOG.md
+FEATURE_PARITY_AUDIT.md
+FEATURE_PRESERVATION_CHECKLIST.md
+handoff079.old.md
+logs.md
+MCP_PRODUCTION_FILES.md
+MIGRATION_CHECKLIST_TEMPLATE.md
+migration_complete_collab.md
+MIGRATION_GUIDE_EXTERNAL.md
+MIGRATION_PROCESS_DIAGRAM_UPDATED.md
+MIGRATION_PROCESS_DIAGRAM.md
+MIGRATION_SCRIPT_SECURITY_AUDIT.md
+migration-blocker.md
+PHASE-2-IMPLEMENTATION-PLAN.md
+REDUNDANCY_OVERLAP_AUDIT.md
+SECURITY_BYPASS_POC.md
+SECURITY_REGRESSION_CHECKLIST.md
+SECURITY_TEST_CASES.md
+SECURITY_VALIDATION_REPORT.md
+suggested-fixes.md
+TEAM_handoff.md
+TECHNICAL_DEBT_TRACKER.md
+TEST_METRICS_AFTER_UPDATE.md
+TEST_METRICS_BASELINE.md
+TEST_UPDATE_FINAL_SUMMARY.md

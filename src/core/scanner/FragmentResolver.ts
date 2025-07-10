@@ -1,9 +1,11 @@
 import { DocumentNode, FragmentDefinitionNode, parse, print, visit, Kind } from 'graphql';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import * as vm from 'vm';
+// import * as vm from 'vm'; // REMOVED: Security fix - no longer using vm.runInContext
 import { logger } from '../../utils/logger';
 import { safeParseGraphQL, logParsingError } from '../../utils/graphqlValidator';
+import * as babel from '@babel/parser';
+import traverse from '@babel/traverse';
 import glob from 'fast-glob';
 
 export interface ResolvedQuery {
@@ -61,7 +63,12 @@ export class FragmentResolver {
     
     // Load fragments from imports
     for (const importPath of imports) {
-      const resolvedPath = path.resolve(queryDir, importPath);
+      // SECURITY FIX: Validate path to prevent directory traversal
+      const resolvedPath = this.validateAndResolvePath(queryDir, importPath);
+      if (!resolvedPath) {
+        logger.warn(`Skipping potentially malicious import path: ${importPath}`);
+        continue;
+      }
       const fragmentsFromFile = await this.loadFragmentsFromFile(resolvedPath);
       allFragments.push(...fragmentsFromFile);
     }
@@ -404,11 +411,99 @@ export class FragmentResolver {
         }
       };
       
-      vm.createContext(sandbox);
-      vm.runInContext(content, sandbox);
+      // SECURITY FIX: Remove vm.runInContext to prevent RCE vulnerability
+      // Use static AST analysis instead of code execution
+      const exports: any = {};
       
-      // Check for exported fragments
-      const exports: any = sandbox.module.exports || sandbox.exports;
+      try {
+        // Parse the module code without executing it
+        const ast = babel.parse(content, {
+          sourceType: 'module',
+          plugins: ['typescript', 'jsx', 'decorators-legacy']
+        });
+        
+        // Extract exports via AST traversal
+        traverse(ast, {
+          // Handle: export const fragmentName = `...` or gql`...`
+          ExportNamedDeclaration(path) {
+            const declaration = path.node.declaration;
+            if (declaration && declaration.type === 'VariableDeclaration') {
+              for (const declarator of declaration.declarations) {
+                if (declarator.id.type === 'Identifier' && declarator.init) {
+                  const name = declarator.id.name;
+                  const value = extractStringValue(declarator.init);
+                  if (value && name.toLowerCase().includes('fragment')) {
+                    exports[name] = value;
+                  }
+                }
+              }
+            }
+          },
+          
+          // Handle: module.exports = { fragmentName: `...` }
+          AssignmentExpression(path) {
+            if (isModuleExportsAssignment(path.node) && 
+                path.node.right.type === 'ObjectExpression') {
+              for (const prop of path.node.right.properties) {
+                if (prop.type === 'ObjectProperty' && 
+                    prop.key.type === 'Identifier') {
+                  const name = prop.key.name;
+                  const value = extractStringValue(prop.value);
+                  if (value && name.toLowerCase().includes('fragment')) {
+                    exports[name] = value;
+                  }
+                }
+              }
+            }
+          }
+        });
+      } catch (parseError: any) {
+        logger.warn(`Failed to parse module for fragment extraction: ${parseError?.message || parseError}`);
+        return fragments;
+      }
+      
+      // Helper to check if assignment is to module.exports
+      function isModuleExportsAssignment(node: any): boolean {
+        return node.left.type === 'MemberExpression' &&
+               node.left.object.type === 'Identifier' &&
+               node.left.object.name === 'module' &&
+               node.left.property.type === 'Identifier' &&
+               node.left.property.name === 'exports';
+      }
+      
+      // Helper to extract string value from AST node
+      function extractStringValue(node: any): string | null {
+        if (!node) return null;
+        
+        // Handle string literal
+        if (node.type === 'StringLiteral') {
+          return node.value;
+        }
+        
+        // Handle template literal
+        if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
+          return node.quasis.map((q: any) => q.value.raw).join('');
+        }
+        
+        // Handle gql tagged template
+        if (node.type === 'TaggedTemplateExpression' &&
+            node.tag.type === 'Identifier' &&
+            node.tag.name === 'gql' &&
+            node.quasi.expressions.length === 0) {
+          return node.quasi.quasis.map((q: any) => q.value.raw).join('');
+        }
+        
+        // Handle CallExpression like gql(`...`)
+        if (node.type === 'CallExpression' &&
+            node.callee.type === 'Identifier' &&
+            node.callee.name === 'gql' &&
+            node.arguments.length === 1 &&
+            node.arguments[0].type === 'StringLiteral') {
+          return node.arguments[0].value;
+        }
+        
+        return null;
+      }
       
       for (const key of Object.keys(exports)) {
         if (key.toLowerCase().includes('fragment')) {
@@ -564,6 +659,42 @@ export class FragmentResolver {
     }
     
     return resolved;
+  }
+
+  /**
+   * Validate and resolve a path to prevent directory traversal attacks
+   * @param baseDir Base directory to resolve from
+   * @param userPath User-provided path
+   * @returns Resolved path if safe, null if potentially malicious
+   */
+  private validateAndResolvePath(baseDir: string, userPath: string): string | null {
+    // SECURITY: Prevent directory traversal attacks
+    
+    // Reject obvious traversal attempts
+    if (userPath.includes('..') || userPath.includes('~')) {
+      return null;
+    }
+    
+    // Normalize and resolve the path
+    const resolved = path.resolve(baseDir, userPath);
+    const normalized = path.normalize(resolved);
+    
+    // Ensure the resolved path is within the base directory or a safe location
+    const normalizedBase = path.normalize(baseDir);
+    const projectRoot = path.normalize(process.cwd());
+    
+    // Allow paths within the base directory or project root
+    if (!normalized.startsWith(normalizedBase) && !normalized.startsWith(projectRoot)) {
+      return null;
+    }
+    
+    // Additional check: ensure no sneaky traversals after normalization
+    const relative = path.relative(projectRoot, normalized);
+    if (relative.startsWith('..')) {
+      return null;
+    }
+    
+    return normalized;
   }
 
   async findAndLoadFragmentFiles(directory: string): Promise<Map<string, FragmentDefinitionNode[]>> {

@@ -326,15 +326,62 @@ describe('ResponseComparator', () => {
       comparator = new ResponseComparator({
         strict: false,
         customComparators: {
-          'data.timestamp': (baseline: any, transformed: any) => {
-            // Always treat timestamps as equal
-            return true;
+          'data.timestamp': {
+            type: 'date-tolerance',
+            options: { tolerance: 60000 }  // 1 minute tolerance
           }
         }
       });
 
-      const baseline = createMockResponse({ timestamp: '2024-01-01' });
-      const transformed = createMockResponse({ timestamp: '2024-01-02' });
+      const baseline = createMockResponse({ timestamp: '2024-01-01T00:00:00Z' });
+      const transformed = createMockResponse({ timestamp: '2024-01-01T00:00:30Z' }); // 30 seconds later
+
+      const result = comparator.compare(baseline, transformed);
+
+      expect(result.identical).toBe(true);
+    });
+
+    it('should support multiple comparator types', () => {
+      comparator = new ResponseComparator({
+        strict: false,
+        customComparators: {
+          'data.name': { type: 'case-insensitive' },
+          'data.score': {
+            type: 'numeric-tolerance',
+            options: { tolerance: 0.1 }
+          },
+          'data.tags': { type: 'array-unordered' }
+        }
+      });
+
+      const baseline = createMockResponse({
+        name: 'JOHN',
+        score: 95.0,
+        tags: ['a', 'b', 'c']
+      });
+
+      const transformed = createMockResponse({
+        name: 'john',
+        score: 95.05,
+        tags: ['c', 'a', 'b']
+      });
+
+      const result = comparator.compare(baseline, transformed);
+
+      expect(result.identical).toBe(true);
+    });
+
+    it('should handle type coercion comparator', () => {
+      comparator = new ResponseComparator({
+        strict: false,
+        customComparators: {
+          'data.id': { type: 'type-coercion' },
+          'data.enabled': { type: 'type-coercion' }
+        }
+      });
+
+      const baseline = createMockResponse({ id: '123', enabled: 'true' });
+      const transformed = createMockResponse({ id: 123, enabled: true });
 
       const result = comparator.compare(baseline, transformed);
 

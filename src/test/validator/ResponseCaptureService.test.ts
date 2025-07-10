@@ -4,6 +4,7 @@ import pRetry from 'p-retry';
 import { ResponseCaptureService } from '../../core/validator/ResponseCaptureService';
 import { EndpointConfig, CapturedResponse } from '../../core/validator/types';
 import { ResolvedQuery } from '../../core/extraction/types/query.types';
+import { createMockPRetry } from '../utils/mockRetry';
 
 // Mock all dependencies
 vi.mock('axios');
@@ -15,6 +16,7 @@ describe('ResponseCaptureService', () => {
   let mockAxiosInstance: any;
   const mockedAxios = vi.mocked(axios);
   const mockedPRetry = vi.mocked(pRetry);
+  const mockRetry = createMockPRetry();
 
   const mockEndpoint: EndpointConfig = {
     url: 'https://api.example.com/graphql',
@@ -65,7 +67,8 @@ describe('ResponseCaptureService', () => {
     vi.mocked(axios.isAxiosError).mockReturnValue(false);
 
     // Setup pRetry mock to return immediately
-    vi.mocked(pRetry).mockImplementation(async (fn: any) => fn(1));
+    vi.mocked(pRetry).mockImplementation(mockRetry.mockPRetry);
+    mockRetry.setFailTimes(0); // Default: no failures
   });
 
   afterEach(() => {
@@ -200,7 +203,7 @@ describe('ResponseCaptureService', () => {
 
       // Reset the mock implementation for this test suite
       (mockAxiosInstance.post as Mock).mockResolvedValue(mockResponse);
-      mockedPRetry.mockImplementation(async (fn) => fn(1));
+      mockedPRetry.mockImplementation(mockRetry.mockPRetry);
 
       service = new ResponseCaptureService([mockEndpoint]);
     });
@@ -246,7 +249,7 @@ describe('ResponseCaptureService', () => {
         .mockRejectedValueOnce(new Error('Network error'));
 
       // Mock pRetry to just execute the function
-      mockedPRetry.mockImplementation(async (fn) => fn(1));
+      mockedPRetry.mockImplementation(mockRetry.mockPRetry);
 
       const result = await service.captureBaseline(queries);
 
@@ -310,55 +313,25 @@ describe('ResponseCaptureService', () => {
 
       // Reset the mock implementation for this test suite
       (mockAxiosInstance.post as Mock).mockResolvedValue(mockResponse);
-      mockedPRetry.mockImplementation(async (fn) => fn(1));
+      mockedPRetry.mockImplementation(mockRetry.mockPRetry);
       (mockedAxios.isAxiosError as unknown as Mock).mockReturnValue(false);
 
       service = new ResponseCaptureService([mockEndpoint]);
     });
 
     it('should retry on failure', async () => {
-      const retryError = new Error('Temporary failure');
+      mockRetry.setFailTimes(2); // Fail first 2 times
       let callCount = 0;
-
-      // Mock axios to fail first 2 times, then succeed
       (mockAxiosInstance.post as Mock).mockImplementation(() => {
         callCount++;
         if (callCount < 3) {
-          return Promise.reject(retryError);
+          return Promise.reject(new Error('Temporary failure'));
         }
         return Promise.resolve(mockResponse);
       });
-
-      // Mock pRetry to call the function with retry behavior
-      mockedPRetry.mockImplementation(async (fn, options) => {
-        let lastError;
-        const maxRetries = typeof options === 'number' ? options : ((options as any)?.retries || 3) + 1; // pRetry counts attempts, not retries
-
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-                    try {
-            return await fn(attempt);
-          } catch (error) {
-            lastError = error;
-            if (typeof options === 'object' && options?.onFailedAttempt) {
-              options.onFailedAttempt({
-                attemptNumber: attempt,
-                message: (error as Error).message,
-                retriesLeft: maxRetries - attempt,
-                name: 'FailedAttemptError',
-                stack: ''
-              } as any);
-            }
-            if (attempt === maxRetries) {
-              throw lastError;
-            }
-          }
-        }
-        throw lastError;
-      });
-
       await service.captureBaseline([mockQuery]);
-
       expect(callCount).toBe(3);
+      expect(mockRetry.getCallCount()).toBe(3);
     });
 
     it('should capture axios errors as responses', async () => {
@@ -376,13 +349,7 @@ describe('ResponseCaptureService', () => {
       (mockedAxios.isAxiosError as unknown as Mock).mockReturnValue(true);
 
       // Mock pRetry to throw the error
-      mockedPRetry.mockImplementation(async (fn, options) => {
-        try {
-          return await fn(1);
-        } catch (error) {
-          throw error;
-        }
-      });
+      mockedPRetry.mockImplementation(mockRetry.mockPRetry);
 
       const result = await service.captureBaseline([mockQuery]);
 
@@ -406,13 +373,7 @@ describe('ResponseCaptureService', () => {
       (mockedAxios.isAxiosError as unknown as Mock).mockReturnValue(false);
 
       // Mock pRetry to throw the error
-      mockedPRetry.mockImplementation(async (fn, options) => {
-        try {
-          return await fn(1);
-        } catch (error) {
-          throw error;
-        }
-      });
+      mockedPRetry.mockImplementation(mockRetry.mockPRetry);
 
       const result = await service.captureBaseline([mockQuery]);
 

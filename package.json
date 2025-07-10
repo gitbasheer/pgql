@@ -31,6 +31,7 @@
     "format": "prettier --write src/**/*.ts",
     "migrate": "node dist/cli/unified-cli.js",
     "migrate:dev": "tsx src/cli/unified-cli.ts",
+    "migrate:response-config": "tsx scripts/migrate-response-validation-config.ts",
     "extract": "node dist/cli/extract-transform.js extract",
     "transform": "node dist/cli/extract-transform.js transform",
     "apply": "node dist/cli/extract-transform.js apply",
@@ -61,7 +62,7 @@
     "ui:dev": "tsx serve-ui.js",
     "test:mutation": "stryker run",
     "test:property": "vitest run --grep property",
-    "test:benchmark": "vitest run --grep benchmark --reporter=verbose",
+    "test:benchmark": "vitest run src/test/performance/pattern-migration.bench.ts --reporter=verbose",
     "test:contract": "pact-node verify",
     "test:security": "npm audit && snyk test",
     "test:all": "pnpm test:coverage && pnpm test:mutation && pnpm test:property",
@@ -83,7 +84,7 @@
     "cli:validate-migration": "tsx src/cli/validate-migration.ts",
     "cli:status": "tsx src/cli/main-cli.ts status",
     "cli:quick-start": "tsx src/cli/main-cli.ts quick-start",
-    "test:benchmark": "vitest run src/test/performance/pattern-migration.bench.ts --reporter=verbose"
+    "update:deprecated-imports": "tsx scripts/update-deprecated-imports.ts"
   },
   "dependencies": {
     "@graphql-tools/graphql-file-loader": "^8.0.0",
@@ -111,6 +112,7 @@
     "graphql": "^16.8.1",
     "immer": "^10.0.3",
     "inquirer": "^9.2.12",
+    "js-yaml": "^4.1.0",
     "level": "^8.0.0",
     "lodash-es": "^4.17.21",
     "lokijs": "^1.5.12",
@@ -155,6 +157,7 @@
     "@types/babel__traverse": "^7.20.5",
     "@types/diff": "^8.0.0",
     "@types/inquirer": "^9.0.8",
+    "@types/js-yaml": "^4.0.9",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20.10.8",
     "@typescript-eslint/eslint-plugin": "^6.13.0",

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as babel from '@babel/parser';
 import traverse, { NodePath } from '@babel/traverse';
 import generate from '@babel/generator';

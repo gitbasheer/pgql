@@ -29,18 +29,18 @@ vi.mock('../../../utils/logger');
 vi.mock('fs/promises');
 ;
 
-// Create a proper mock for QueryTransformer
-const createMockQueryTransformer = () => ({
-  transform: vi.fn().mockReturnValue({
-    original: 'query TestQuery { test }',
-    transformed: 'query TestQuery { newTest }',
-    ast: { kind: 'Document' },
-    changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
-    rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }]
-  })
-});
-
 vi.mock('../../../core/transformer/QueryTransformer', () => {
+  // Create a proper mock for QueryTransformer inside the mock call
+  const createMockQueryTransformer = () => ({
+    transform: vi.fn().mockReturnValue({
+      original: 'query TestQuery { test }',
+      transformed: 'query TestQuery { newTest }',
+      ast: { kind: 'Document' },
+      changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
+      rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }]
+    })
+  });
+
   return {
     QueryTransformer: vi.fn().mockImplementation(createMockQueryTransformer)
   };
