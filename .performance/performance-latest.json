@@ -1,0 +1,28 @@
+{
+  "timestamp": 1752535239198,
+  "trends": [],
+  "cacheStats": {
+    "ast": {
+      "hits": 0,
+      "misses": 0,
+      "evictions": 0,
+      "size": 0,
+      "hitRate": 0
+    },
+    "validation": {
+      "hits": 0,
+      "misses": 0,
+      "evictions": 0,
+      "size": 0,
+      "hitRate": 0
+    },
+    "transform": {
+      "hits": 10,
+      "misses": 19,
+      "evictions": 13,
+      "size": 6,
+      "hitRate": 0.3448275862068966
+    }
+  },
+  "slowOperations": []
+}

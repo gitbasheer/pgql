@@ -191,7 +191,7 @@ export function createCompatibleCLI(program: Command): CliWrapper {
  */
 export async function executeCommand(
   command: string[],
-  options: OutputOptions = {}
+  options: OutputOptions & { env?: Record<string, string> } = {}
 ): Promise<{ exitCode: number; stdout: string; stderr: string }> {
   const { spawn } = await import('child_process');
   
@@ -199,6 +199,7 @@ export async function executeCommand(
     const child = spawn(command[0], command.slice(1), {
       env: {
         ...process.env,
+        ...options.env,
         PG_CLI_OUTPUT_VERSION: options.outputVersion || '1.0',
         PG_CLI_NO_PROGRESS: options.quiet ? '1' : '0',
         FORCE_COLOR: '0' // Disable colors for parsing
