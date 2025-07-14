@@ -14,6 +14,15 @@ describe('OptimizedSchemaTransformer enhancements', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     
+    // Mock fs to return query content when reading file
+    const fs = await import('fs/promises');
+    vi.mocked(fs.readFile).mockImplementation(async (path) => {
+      if (path === 'src/queries/venture.js') {
+        return 'query { venture { logoUrl } }';
+      }
+      return 'mock file content';
+    });
+    
     const deprecationRules: DeprecationRule[] = [
       {
         type: 'field',

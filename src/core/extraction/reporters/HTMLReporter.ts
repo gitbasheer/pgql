@@ -29,6 +29,17 @@ export class HTMLReporter {
     logger.info(`HTML report written to ${outputPath}`);
   }
 
+  private escapeHtml(str: string): string {
+    const htmlEscapes: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+    return str.replace(/[&<>"']/g, char => htmlEscapes[char]);
+  }
+
   private generateHTML(result: ExtractionResult): string {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -158,12 +169,12 @@ export class HTMLReporter {
             ${result.queries.map(q => `
                 <div class="query-item">
                     <div class="query-name">
-                        ${q.name || 'Unnamed Query'}
-                        ${q.originalName ? `<small>(was: ${q.originalName})</small>` : ''}
+                        ${this.escapeHtml(q.name || 'Unnamed Query')}
+                        ${q.originalName ? `<small>(was: ${this.escapeHtml(q.originalName)})</small>` : ''}
                         ${this.hasVariants(q.id, result) ? '<span class="variant-badge">Has Variants</span>' : ''}
                     </div>
                     <div class="query-meta">
-                        Type: ${q.type} | File: ${q.filePath} | Line: ${q.location.line}
+                        Type: ${this.escapeHtml(q.type)} | File: ${this.escapeHtml(q.filePath)} | Line: ${q.location.line}
                     </div>
                 </div>
             `).join('')}
