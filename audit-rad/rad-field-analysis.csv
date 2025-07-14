@@ -1,0 +1,145 @@
+Synthesizer,Complexity,Entity Types,Field Count,Uses Join,Return Type
+Task-AddGEMSubscribers-gHLTYfjQb,simple,wsbvnext,4,False,dynamic
+Task-Upgrade-RemoveAds-ZsVan1Rs~,simple,wsbvnext,7,False,empty_array
+Task-AddMoreProducts-wLwoZl_J6,simple,wsbvnext,8,False,dynamic
+Task-SubscriptionsCouponOrInsights-EfdGoWY3R,simple,wsbvnext,1,False,empty_array
+Task-PromoteAppointmentService-EBVqroHvQ,simple,wsbvnext,7,False,dynamic
+Task-ReadBlogging-uQzCHoLKn,simple,wsbvnext,5,False,dynamic
+Task-DoEmailGEMCampaign-Social-Tile-R9MtcarCi,simple,,0,False,empty_array
+Guidance-Local-2-jDYwffkHC,medium,"wsbvnext, mktgasst",9,True,dynamic
+Task-AddHeaderImage-GQZD61oxC,simple,wsbvnext,4,False,dynamic
+Guidance-GetNoticed-2-ODfCE4BVy,medium,"wsbvnext, mktgasst",9,True,dynamic
+Task-AddLogo-6pWJNvpKc,simple,wsbvnext,3,False,dynamic
+Task-AddShopLocal-PUuCmUg60,simple,wsbvnext,7,False,dynamic
+Task-ChatLearnMore-HKQ4ObbyT,simple,wsbvnext,2,False,dynamic
+Task-SetupOLAPaymentsV2-jc8Qp_Caw,simple,wsbvnext,5,False,dynamic
+Task-UploadYelpPhotos-Mnf6UqWHp,simple,mktgasst,3,False,dynamic
+Task-DoPostToFacebook-Holiday-Sales-Tile-VUO1ImXfw,simple,,0,False,empty_array
+Task-AddVideoWidget-gnR7xUtCf,simple,wsbvnext,4,False,dynamic
+Task-DIFYPhotoShoot-0BcOP9tUR,simple,,0,False,dynamic
+Guidance-Appointments-1-Cs1c8jdv9,medium,"wsbvnext, mktgasst",9,True,dynamic
+Task-ConnectSocialChannels-Z3k1TBAVy,simple,wsbvnext,2,False,dynamic
+Task-WaysToSell-VTk695TTb,simple,,0,False,empty_array
+Task-FinishOLASetup-lojlsh6yk,simple,wsbvnext,3,False,dynamic
+Task-AddOLAV2-WlLowz8wT,simple,wsbvnext,5,False,dynamic
+Task-AddFBBookNowOLA-ylid4ZUsF,simple,wsbvnext,11,False,dynamic
+Guidance-DmFull-SocialEmail-1-GmfspIsuO,medium,"wsbvnext, mktgasst",8,True,dynamic
+Task-DIFY-n6n0grUBR,simple,wsbvnext,1,False,dynamic
+Task-DoFirstBlog-I0rcrov4y,simple,wsbvnext,6,False,dynamic
+Task-AddWidgetContent-WgaarO6ht,simple,wsbvnext,3,False,dynamic
+Task-Add10MoreProducts-LHwR9aqcU,simple,wsbvnext,3,False,dynamic
+Task-AddBlog-D8U9r02OD,simple,wsbvnext,5,False,dynamic
+Task-GoDaddyConversations-LoeR11kT~,simple,wsbvnext,5,False,dynamic
+Task-DoStartSEO-JjpaiNG8e,simple,wsbvnext,5,False,dynamic
+Task-CustomizeChatWidget-5BSAO5cvy,simple,wsbvnext,2,False,dynamic
+Task-DoEmailGEMCampaign-Sales-Tile-qdWVe5QuU,simple,,0,False,empty_array
+Task-AddMarketplaceProducts-Orders-Tile-zaOMcPW9~,simple,,0,False,empty_array
+Task-AddWidgetContactUs-VFIVqWNNF,simple,wsbvnext,4,False,dynamic
+SetupO365-Orders-Tile-dO765dxiP,simple,,0,False,empty_array
+Task-ConnectSocialMediaChannels-Xr6oFBp~w,simple,wsbvnext,2,False,dynamic
+Task-AddAppointments-4PBTM~evZ,simple,wsbvnext,3,False,dynamic
+Task-PoyntSetup-sGURMs9~y,medium,"wsbvnext, uce",0,False,empty_array
+Task-CreateGMB-rVIKdnkfH,complex,"wsbvnext, mktgasst",12,True,dynamic
+Task-DoPostToFacebook-Composer-Sales-Tile-9GxHrujAX,simple,,0,False,empty_array
+Task-EnableWebsiteChatbot-oGxPiCrpD,simple,wsbvnext,2,False,dynamic
+Task-AddCustomDomain-wMt3BHgAV,simple,wsbvnext,5,False,dynamic
+Task-MO-Social-Post-Create-1dxk25myc,simple,"wsbvnext, vnextgraph",1,False,dynamic
+Task-DoFirstBlog-Social-Views-Tile-uCdixXJyf,simple,,0,False,empty_array
+Task-CreateYelp-GA_Og2~US,medium,"wsbvnext, mktgasst",9,True,dynamic
+Task-AddImportContacts-jfCpiF5eE,simple,wsbvnext,3,False,dynamic
+Task-AddCustomDomain-Orders-Tile-of2MFbapb,simple,,0,False,empty_array
+Task-WriteAnotherBlog-GrO7TMHpK,simple,wsbvnext,8,False,dynamic
+Task-RemovePlaceHolderText-K_QK3NSYl,simple,wsbvnext,3,False,dynamic
+Guidance-ProductsLocal-1-qH9XwU_6p,medium,"wsbvnext, mktgasst",9,True,dynamic
+Task-ConnectSocialAccounts-leCIpNDXg,simple,wsbvnext,1,False,dynamic
+Task-DoStartSEO-Orders-Tile-NN2qogtkq,simple,,0,False,empty_array
+Task-Add-Your-Business-Info-6txejSc1E,simple,wsbvnext,5,False,dynamic
+Task-AboutSection-0ZQxVpFjU,simple,wsbvnext,1,False,empty_array
+Task-AddProducts-cNIUx3M29,simple,wsbvnext,4,False,dynamic
+Task-PostOLSProductFB-Composer-2hJM7wm~n,complex,"wsbvnext, mktgasst",7,True,spread_operator
+Task-HolidayTips-T1iPmqWfx,simple,wsbvnext,4,False,dynamic
+Task-SetupOLANotifications-zen_KPiqs,simple,wsbvnext,7,False,dynamic
+Task-AddProducts-Sales-Tile-69y9MQduu,simple,,0,False,empty_array
+Task-GetMobileApp-EFZSm0_x0,simple,wsbvnext,2,False,dynamic
+Task-BoostFacebookPost-PLnyt8eLO,medium,"wsbvnext, mktgasst",6,True,dynamic
+Task-ConnectEmail-X5r1RHNY7,simple,wsbvnext,2,False,dynamic
+Task-OLACalendarSyncV2-16YkByamt,simple,wsbvnext,8,False,dynamic
+Task-SetupOLA-bBvfbn~Fc,simple,wsbvnext,4,False,dynamic
+Task-UpdateHours-5TBU5si9t,medium,"wsbvnext, mktgasst",10,True,dynamic
+Guidance-ProductsApptsLocal-1-ys9Eh_zXN,medium,"wsbvnext, mktgasst",9,True,dynamic
+Task-DoPostToFacebook-Holiday-Social-Tile-I1cIjNYqS,simple,,0,False,empty_array
+Task-DoEmailGEMCampaign-WJmqcTWuG,simple,wsbvnext,6,False,dynamic
+Guidance-DmFull-Social-1-h7zbOhdMB,medium,"wsbvnext, mktgasst",8,True,dynamic
+Task-ConnectGoogleChannel-Srmwrh1J~,simple,wsbvnext,7,False,dynamic
+placeholderguidancegroup-9mpCbd9Sn,simple,wsbvnext,3,False,dynamic
+Task-AddPhotoGallery-n61NU0wb7,medium,"wsbvnext, mktgasst",10,True,dynamic
+Task-Upgrade-GetSEO-2LAl6Jf6~,simple,wsbvnext,7,False,empty_array
+Task-PostOLSProductFB-Composer-Orders-Tile-QFdjNHOt7,simple,,0,False,empty_array
+Task-DIYSocialAds-Google-IxmbJyahQ,simple,,0,False,dynamic
+Task-AddOLSv2-kR6RYmjhK,simple,wsbvnext,7,False,dynamic
+Task-ProductReviewsOn-JvWllTdA4,simple,wsbvnext,5,False,dynamic
+Task-AddDownloadWidget-UPZPuslFZ,simple,wsbvnext,4,False,dynamic
+Task-DIFY-Tier0RAC-8OkZvUlrI,medium,wsbvnext,8,True,dynamic
+Task-AddMoreServicesOLA-ggonWjB4r,simple,wsbvnext,5,False,dynamic
+Task-OptimizeSEOKeywords-6Rzv6USG0,simple,wsbvnext,5,False,dynamic
+Task-ReadFBPractices-lhTLuFAXD,medium,"wsbvnext, mktgasst",6,True,dynamic
+Guidance-C19EmailMarketing-uUD7sJSSw,medium,"wsbvnext, mktgasst",9,True,dynamic
+Task-SetupOLSShipping-qsUxHaA42,simple,wsbvnext,3,False,dynamic
+Task-EmailSubscriberWebformC19-ZmFDG9FcG,simple,wsbvnext,6,False,dynamic
+Task-BoostFacebookPost-Social-Views-Tile-5u6pHYGsK,simple,,0,False,empty_array
+SetupO365-Sales-Tile-E6JlwyIKx,simple,,0,False,empty_array
+Guidance-ProductsGoal-1-DwsETrlPT,medium,"wsbvnext, mktgasst",9,True,dynamic
+Task-DoPostToFacebook-Composer-Social-Tile-8b78ni1jS,simple,,0,False,empty_array
+Task-UploadSocialPhotosV2-nKEwhEHr5,complex,"wsbvnext, mktgasst",11,True,dynamic
+Task-AddAboutUs-liZueQkbU,simple,wsbvnext,3,False,dynamic
+Task-CustomizeWebChat-4kf2JuCK7,simple,wsbvnext,2,False,dynamic
+Task-UploadImages-L1wNWevaM,simple,wsbvnext,1,False,empty_array
+Task-CompleteSocialAd-HSkUrAAq2,simple,wsbvnext,3,False,dynamic
+Task-AddMarketplaces-ooFFpJyQH,simple,wsbvnext,7,False,dynamic
+Task-SetupOLS-K4Ke0BhVr,simple,wsbvnext,4,False,dynamic
+Task-RequestSiteEdit-kcqHrV_C_,simple,wsbvnext,4,False,dynamic
+Task-AddMarketplaces-Orders-Tile-tRAbYMbIA,simple,,0,False,empty_array
+Task-AddVideoWidget-Sales-Tile-cIt21E8k~,simple,,0,False,empty_array
+Guidance-GetNoticedLocal-1-QqudDQntn,medium,"wsbvnext, mktgasst",10,True,dynamic
+Task-ConnectGoogleChannel-Sales-Tile-azKISpnrT,simple,,0,False,empty_array
+Task-DIYSocialAds-Social-Views-Tile-6Ybg~ucB_,simple,,0,False,empty_array
+Task-AddMenuWidget-62VEyEM1S,simple,wsbvnext,4,False,dynamic
+Task-AddContactUs-y3Ex_bNsp,simple,wsbvnext,2,False,dynamic
+Task-DoPostToFacebook-Holiday-0Saq7QDFp,complex,"wsbvnext, mktgasst",7,True,spread_operator
+Task-LaunchYelpAd-ttZI44tTV,medium,"wsbvnext, mktgasst",9,True,dynamic
+Task-PublishStore-EMHmxoxji,medium,"wsbvnext, uce",0,False,empty_array
+Task-ConnectSocialAccounts-leCIpNDXg(copy)-hhIvw3CG0,simple,vnextgraph,0,False,dynamic
+Task-SellInPerson-pl9N8kzKb,medium,"wsbvnext, uce",2,False,empty_array
+Task-SetupOLSCoupons-2p9FxafXl,simple,wsbvnext,6,False,dynamic
+Task-AbandonedCartOn-UdVHbmFQ_,simple,wsbvnext,3,False,dynamic
+Task-PublishWebsiteV2-v_r5yAuLN,simple,wsbvnext,5,False,dynamic
+Task-UploadGMBPhotos-1n8hDk6g7,medium,"wsbvnext, mktgasst",9,True,dynamic
+Guidance-AppointmentsLocal-1-N~uMwJlnV,medium,"wsbvnext, mktgasst",9,True,dynamic
+Task-CreateFacebook-lJxPzgZ0_,medium,"wsbvnext, mktgasst",8,True,dynamic
+Task-HolidayTips-Sales-Tile-Hheu6jpl4,simple,,0,False,empty_array
+Task-ConnectInstagram-OJFRzVo1V,medium,"wsbvnext, mktgasst",10,True,dynamic
+Task-ImportSubscribersC19-zmAmJk57a,simple,wsbvnext,6,False,dynamic
+Task-PostOLSProductGMB-Composer-WX9wdWSpf,medium,"wsbvnext, mktgasst",10,True,dynamic
+DIFY-RequestSocialPost-FkIUvG_jS,simple,wsbvnext,3,False,dynamic
+Guidance-DmFull-SocialLocal-1-ADqrYOoKy,medium,"wsbvnext, mktgasst",8,True,dynamic
+Guidance-DmFull-SocialLocalEmail-1-gqOdjJjQu,medium,"wsbvnext, mktgasst",8,True,dynamic
+Guidance-ProductsAppts-1-FCmeBLtjA,medium,"wsbvnext, mktgasst",9,True,dynamic
+Task-Marketing-Checklist-6YjLchphX,simple,,0,False,empty_array
+Task-AddMarketplaceProducts-28gG3LLu5,simple,wsbvnext,6,False,dynamic
+Task-FirstEmailCampaignC19-nrezDgjU~,simple,wsbvnext,6,False,dynamic
+Task-FacebookAds-Direct-skYt7juRJ,medium,"wsbvnext, mktgasst",9,True,dynamic
+Task-AddWidgetSocialLink-4CAcVnOxs,medium,"wsbvnext, mktgasst",10,True,dynamic
+Task-DoPostToFacebook-Composer-6vaOpXKQY,complex,"wsbvnext, mktgasst",7,True,spread_operator
+Task-ConnectYourEmail-ydde1aa~_,simple,wsbvnext,2,False,dynamic
+Task-DIYSocialAds-2Rz6HLNBa,medium,"wsbvnext, mktgasst",6,True,dynamic
+SetupO365-9S2CsmNNg,complex,"o365, wsbvnext",11,True,dynamic
+Task-NeverMissMessage-civlq1Mso,simple,wsbvnext,2,False,dynamic
+Task-CreateGMB-Appointments-Tile-DKBrslslz,simple,,0,False,empty_array
+Task-ContactSection-wbAdmNLvR,simple,wsbvnext,1,False,empty_array
+Task-AddProductsLocal-H089y5Ocg,simple,wsbvnext,4,False,dynamic
+Task-SetupOLSPayment-Yra6mJk4y,simple,wsbvnext,6,False,dynamic
+Task-HeaderCTAtoContact-_ILcgYwDS,simple,wsbvnext,2,False,dynamic
+Task-ChooseTheme-rAQz4cW5H,simple,wsbvnext,2,False,dynamic
+Task-PublishWebsiteV2-Orders-Tile-Wqlujx1J3,simple,,0,False,empty_array
+Task-ExploreHub-aPyAmCbrm,medium,"wsbvnext, uce",0,False,empty_array
+Task-ViewMySubscribers-TCLmO4CU3,simple,wsbvnext,0,False,dynamic

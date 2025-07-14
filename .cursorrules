@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "graphql-migration": {
+      "command": "node",
+      "args": ["./dist/mcp/server.js"],
+      "cwd": "${workspaceFolder}"
+    }
+  }
+}

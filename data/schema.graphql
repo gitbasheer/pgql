@@ -1,0 +1,1799 @@
+schema {
+  query: CustomerQuery
+  mutation: CustomerMutation
+}
+
+"""
+Annotates a field definition as being experimental. Queries making usage of fields marked as `@experimental` must use the `@experimentalOptIn` directive.
+"""
+directive @experimental on FIELD_DEFINITION
+
+directive @cacheControl(maxAge: Int, scope: CacheControlScope, inheritMaxAge: Boolean) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+"""
+Opt in to using experimental fields. Fields defined as `@experimental` will throw an error if used without this directive.
+"""
+directive @experimentalOptIn on FIELD
+
+type AamcUserPreferences {
+  ventureId: String
+  emailOptedIn: Boolean
+  smsOptedIn: Boolean
+  modifiedTime: String
+  creationTime: String
+}
+
+type Billing {
+  id: ID!
+  source: BillingSource!
+  plan: String
+  pfid: String
+}
+
+enum BillingSource {
+  ces
+  nes
+  orion
+}
+
+input BillingInput {
+  id: ID!
+  source: BillingSource!
+  plan: String
+  pfid: String
+}
+
+type CustomerQuery {
+  """
+  Current authenticated user
+  Data source: Local context (Low latency)
+  """
+  user: CurrentUser
+
+  """
+  Get a project by ID, entitlement ID, or product ID
+  Data source: Karyon (Low latency)
+  """
+  projectNode(
+    """Lookup project by id"""
+    projectId: String
+
+    """Lookup project by entitlementId"""
+    entitlementId: String
+
+    """Lookup project by productId"""
+    productId: String
+  ): ProjectNode
+
+  """
+  Deprecated in favor of projectNode() which supports paginating
+  through the venture.projects field.
+  Data source: Karyon (Low latency)
+  """
+  productProject(productId: String!): Project @deprecated(reason: "Use projectNode")
+
+  """
+  Deprecated in favor of projectNode() which supports paginating
+  through the venture.projects field.
+  Data source: Karyon (Low latency)
+  """
+  projectByEntitlement(entitlementId: String!): Project @deprecated(reason: "Use projectNode")
+
+  """
+  Deprecated in favor of projectNode() which supports paginating through the venture.projects field.
+  Data source: Karyon (Low latency)
+  """
+  project(projectId: String!): Project @deprecated(reason: "Use projectNode")
+
+  """
+  Get paginated projects for the current user
+  Data source: Karyon (Low latency)
+  """
+  projects(first: Int, after: String, last: Int, before: String): ProjectsConnection
+
+  """
+  Get website information by ID
+  Data source: vNext (Medium latency)
+  """
+  website(websiteId: UUID!): WAMProduct
+
+  """
+  Get venture information by ID or domain name with pagination support
+  Data source: Karyon (Low latency)
+  """
+  ventureNode(ventureId: UUID, domainName: String): VentureNode
+
+  """
+  Deprecated in favor of ventureNode() which supports paginating through the
+  projects field.
+  Data source: Karyon (Low latency)
+  """
+  venture(ventureId: UUID!): Venture @deprecated(reason: "Use ventureNode")
+
+  """
+  Deprecated in favor of ventureNode() which supports paginating through the
+  projects field.
+  Data source: Karyon (Low latency)
+  """
+  ventureByDomainName(domainName: String!): Venture @deprecated(reason: "Use ventureNode")
+
+  """
+  Get venture profile information
+  Data source: Karyon (Low latency)
+  """
+  ventureProfile(ventureId: UUID!): VentureProfile
+
+  """
+  Get paginated ventures for the current user
+  Data source: Karyon (Low latency)
+  """
+  ventures(first: Int, after: String, last: Int, before: String): VenturesConnection
+
+  """
+  Aamc User Preferences is experimental and requests to use it must use the `@experimentalOptIn` directive.
+  Data source: Recommendations (Medium latency)
+  """
+  aamcUserPreferences(ventureId: String!): AamcUserPreferences
+
+  """
+  aapBundles is experimental and requests to use it must use the `@experimentalOptIn` directive.
+  Data source: Karyon (Low latency)
+  """
+  aapBundles: [[Project]]
+
+  """
+  aapBundle is experimental and requests to use it must use the `@experimentalOptIn` directive.
+  Data source: Karyon (Low latency)
+  """
+  aapBundle(aapSubscriptionId: String): [Project]
+}
+
+type CurrentUser implements User {
+  """
+  The user's email address
+  Data source: Shopper (Medium latency)
+  """
+  email: String
+
+  """
+  User contact information
+  Data source: Shopper (Medium latency)
+  """
+  contact: UserContact
+
+  """
+  User's country code
+  Data source: Local context (Low latency)
+  """
+  country: String!
+
+  """
+  User's currency code
+  Data source: Local context (Low latency)
+  """
+  currency: String!
+
+  """
+  Unique customer identifier
+  Data source: Shopper (Medium latency)
+  """
+  customerId: UUID
+
+  """
+  Type of customer (e.g. Pro, Business)
+  Data source: CustomerType (Low latency)
+  """
+  customerType: String
+
+  """
+  Extended attributes about the customer type
+  Data source: CustomerType (Low latency)
+  """
+  customerTypeAttributes: CustomerTypeAttributes
+
+  """
+  User's language preference
+  Data source: Local context (Low latency)
+  """
+  language: String!
+
+  """
+  Most recently accessed venture
+  Data source: Karyon (Low latency)
+  """
+  latestVenture: Venture
+
+  """
+  User's locale preference
+  Data source: Local context (Low latency)
+  """
+  locale: String!
+
+  """
+  Deprecated in favor of CustomerQuery.projects which supports pagination.
+  Data source: Karyon (Low latency)
+  """
+  projects: [Project] @deprecated(reason: "Use CustomerQuery.projects")
+
+  """
+  Reseller identifier
+  Data source: Local context (Low latency)
+  """
+  resellerId: Int!
+
+  """
+  Unique shopper identifier
+  Data source: Shopper (Medium latency)
+  """
+  shopperId: String
+
+  """
+  Total spend over the past 13 months in USD
+  Data source: CustomerType (Low latency)
+  """
+  spendTotal13MonthUSD: Float
+
+  """
+  Spend group classification based on spend amount
+  Data source: CustomerType (Low latency)
+  """
+  spendGroup13MonthUSD: SpendGroup
+
+  """
+  Projects not associated with any venture
+  Data source: Karyon (Low latency)
+  """
+  unassociatedProjects: [Project]
+
+  """
+  User's active subscriptions
+  Data source: Subscriptions (Medium latency)
+  """
+  subscriptions(expiresIn: Int): [EcommSubscription]
+
+  """
+  Count of projects grouped by project type
+  Data source: Karyon (Low latency)
+  """
+  projectCounts(groups: [ProjectGroup]!): JSONObject
+
+  """
+  Deprecated in favor of CustomerQuery.ventures which supports pagination.
+  Data source: Karyon (Low latency)
+  """
+  ventures: [Venture] @deprecated(reason: "Use CustomerQuery.ventures")
+
+  """
+  Visitor identifier
+  Data source: Local context (Low latency)
+  """
+  visitorId: String
+
+  """
+  Subscription prices for the given parameters
+  Data source: Pricelock (Low latency)
+  """
+  subscriptionPrice(params: [EcommSubscriptionPriceInput]): [EcommSubscriptionPrice]
+}
+
+type UserContact {
+  nameFirst: String
+  nameLast: String
+  organization: String
+  address: UserAddress
+  phoneWork: String
+  phoneWorkExtension: String
+  phoneHome: String
+  phoneMobile: String
+  fax: String
+  timeZone: String
+}
+
+type UserAddress {
+  address1: String
+  address2: String
+  city: String
+  state: String
+  postalCode: String
+  country: String
+}
+
+scalar UUID
+
+type CustomerTypeAttributes {
+  processors: [String]
+  isCoreInvestor: Boolean
+  isBusinessCareTeam: Boolean
+}
+
+type Venture {
+  id: ID!
+  intents: BooleanDictionary
+  preloadedIntents: BooleanDictionary
+  salesVolumeIntent: BooleanDictionary
+  profile: Profile
+  projects: [Project]
+  purchaser: Purchaser
+  assetContainerId: UUID
+  logoUrl: String @deprecated(reason: "Use profile.logoUrl instead")
+  hasWebsiteProject: Boolean
+  payments: Payments
+  isAAP: Boolean
+}
+
+type Payments {
+  balance: Float
+  paylinks: [Paylink]
+}
+
+type Paylink {
+  amount: Int
+  businessId: String
+  buttonText: String
+  checkoutUrlId: String
+  createdAt: String
+  currency: String
+  description: String
+  domain: String
+  isCustomPrice: Boolean
+  isDefault: Boolean
+  metadata: String
+  orderText: String
+  picture: String
+  productId: String
+  shortName: String
+  status: String
+  storeId: String
+  title: String
+  totalSalesAmount: Float
+  totalSalesCount: Float
+  updatedAt: String
+  urlType: String
+}
+
+scalar BooleanDictionary
+
+type Profile {
+  category: String
+  description: String
+  id: ID!
+  locations: [ProfileLocation]
+  name: String
+  tagLineSlogan: String
+  venture: Venture
+  metadata: ProfileMetadata
+  inferred: ProfileInferredData
+  brands: [Brand]
+  isInfinityStone: Boolean @deprecated(reason: "switch to using aiOnboarded")
+  aiOnboarded: Boolean
+  aapOnboarded: Boolean
+  lastVisited: DateTime
+  numVisits: Int
+  logoUrl: String
+  freeformVertical: String
+  compliance: Compliance
+}
+
+type ProfileLocation {
+  address: ProfileAddress
+  contacts: [ProfileContact]
+  dateFormat: String
+  hours: ProfileHours
+  localization: ProfileLocalization
+  locationName: String
+}
+
+type ProfileAddress {
+  address1: String
+  address2: String
+  city: String
+  country: String
+  geolocation: ProfileGeolocation
+  note: String
+  postalCode: String
+  state: String
+}
+
+type ProfileGeolocation {
+  accuracy: Float!
+  latitude: Float!
+  longitude: Float!
+}
+
+type ProfileContact {
+  name: String!
+  type: ProfileContactType!
+  value: String!
+}
+
+enum ProfileContactType {
+  EMAIL
+  FAX
+  PHONE
+  TEXT
+}
+
+type ProfileHours {
+  sunday: ProfileDay
+  monday: ProfileDay
+  tuesday: ProfileDay
+  wednesday: ProfileDay
+  thursday: ProfileDay
+  friday: ProfileDay
+  saturday: ProfileDay
+  notes: String
+}
+
+type ProfileDay {
+  byAppointmentOnly: Boolean
+  timeblocks: [ProfileTimeBlock]
+}
+
+type ProfileTimeBlock {
+  endTime: String!
+  startTime: String!
+}
+
+type ProfileLocalization {
+  country: String
+  currency: Currency
+  locale: String
+  measurementSystem: String
+  timeZone: String
+}
+
+scalar Currency
+
+type ProfileMetadata {
+  version: String
+  etag: String
+  createdAt: DateTime
+  updatedAt: DateTime
+  revision: Int
+}
+
+scalar DateTime
+
+type ProfileInferredData {
+  name: String
+  vertical: String
+  verticalConfidence: Float
+  freeformVertical: String
+  personalityKeywords: [String]
+  iconKeywords: [String]
+  photoKeywords: [String]
+  photoKeywordPhrases: [String]
+  businessStyles: [String]
+  tagLines: [String]
+  toneOfVoice: String
+  description: String
+  domainInappropriate: Boolean
+  domainAmbiguous: Boolean
+  websiteNeedsStore: Boolean
+  websiteNeedsAppointments: Boolean
+  fullWebsiteHeadline: String
+  fullWebsiteSubhead: String
+  fullWebsiteCTA: String
+  status: InferredLogoGenerationStatus
+  brands: [InferredBrand!]
+  logoUrl: String
+  phoneNumber: String
+  emailAddress: String
+  physicalAddress: String
+}
+
+type InferredLogoGenerationStatus {
+  ventureId: String!
+  name: Boolean!
+  description: Boolean!
+  vertical: Boolean!
+  personalityKeywords: Boolean!
+  iconKeywords: Boolean!
+  photoKeywords: Boolean!
+  photoKeywordPhrases: Boolean!
+  taglines: Boolean!
+  toneOfVoice: Boolean!
+  icons: Boolean!
+  styles: Boolean!
+  colors: Boolean!
+  fonts: Boolean!
+  logosRendered: Boolean!
+}
+
+type InferredBrand {
+  businessStyle: String
+  primaryText: String!
+  secondaryText: String!
+  logoFont: InferredBrandFont
+  titleFont: InferredBrandFont
+  bodyFont: InferredBrandFont
+  primaryFont: InferredBrandFont!
+  secondaryFont: InferredBrandFont!
+  icon: InferredBrandIcon
+  colors: InferredBrandColors!
+  logos: [InferredBrandLogo!]
+}
+
+interface InferredBrandFont {
+  type: InferredBrandFontType!
+}
+
+enum InferredBrandFontType {
+  studio_library
+  url
+}
+
+type InferredBrandStudioFont implements InferredBrandFont {
+  type: InferredBrandFontType!
+  id: ID!
+  family: String!
+  variant: String!
+}
+
+type InferredBrandURLFont implements InferredBrandFont {
+  type: InferredBrandFontType!
+  family: String!
+  variant: String!
+  url: String!
+}
+
+interface InferredBrandIcon {
+  type: InferredBrandIconType!
+}
+
+enum InferredBrandIconType {
+  flaticon
+  inline_svg
+  studio_graphic
+  url
+}
+
+type InferredBrandSVGIcon implements InferredBrandIcon {
+  type: InferredBrandIconType!
+  width: String!
+  height: String!
+  left: String!
+  top: String!
+  body: String!
+}
+
+type InferredBrandStudioIcon implements InferredBrandIcon {
+  type: InferredBrandIconType!
+  id: ID!
+  uniqueId: ID!
+  thumbnailUrl: String!
+  shareImageUrl: String!
+}
+
+type InferredBrandFlaticonIcon implements InferredBrandIcon {
+  type: InferredBrandIconType!
+  id: ID!
+  thumbnailUrl: String!
+}
+
+type InferredBrandURLIcon implements InferredBrandIcon {
+  type: InferredBrandIconType!
+  url: String!
+}
+
+type InferredBrandColors {
+  accentColor: InferredBrandColor!
+  backgroundColor: InferredBrandColor!
+  primaryTextColor: InferredBrandColor!
+  secondaryTextColor: InferredBrandColor!
+  iconColor: InferredBrandColor!
+  primaryColorPalette: [InferredBrandColor!]!
+  accentColorPalette: [InferredBrandColor!]!
+}
+
+type InferredBrandColor {
+  hex: String!
+  rgba: InferredBrandRGBA!
+  rgbaNorm: InferredBrandRGBANorm!
+  hsla: InferredBrandHSLA!
+  hslaNorm: InferredBrandHSLANorm!
+}
+
+type InferredBrandRGBA {
+  r: Int!
+  g: Int!
+  b: Int!
+  a: Int!
+}
+
+type InferredBrandRGBANorm {
+  r: Float!
+  g: Float!
+  b: Float!
+  a: Float!
+}
+
+type InferredBrandHSLA {
+  h: Int!
+  s: Int!
+  l: Int!
+  a: Int!
+}
+
+type InferredBrandHSLANorm {
+  h: Float!
+  s: Float!
+  l: Float!
+  a: Float!
+}
+
+type InferredBrandLogo {
+  id: ID!
+  ventureId: ID!
+  brandIndex: Int!
+  template: String!
+  width: Int!
+  height: Int!
+  lightBg: Boolean!
+  transparentBg: Boolean!
+  imageUrl: String!
+  projectSpecUri: String!
+  genTs: Float!
+}
+
+type Brand {
+  id: ID!
+  logos: [BrandLogo]
+  palette: [BrandPalette]
+  fonts: BrandFonts
+}
+
+type BrandLogo {
+  id: ID
+  fileHash: String
+  default: Boolean
+  servingUrl: String
+  size: BrandLogoSize
+  status: String
+}
+
+type BrandLogoSize {
+  height: Int
+  width: Int
+}
+
+type BrandPalette {
+  alpha: Float
+  blue: Float
+  green: Float
+  red: Float
+}
+
+type BrandFonts {
+  heading: BrandFontWrapper
+  subheading: BrandFontWrapper
+  paragraph: BrandFontWrapper
+}
+
+type BrandFontWrapper {
+  font: BrandFont
+}
+
+type BrandFont {
+  id: ID
+  familyId: UUID
+  postscriptName: String
+  type: String
+  servingUrl: String
+}
+
+type Compliance {
+  status: ComplianceStatus
+}
+
+type ComplianceStatus {
+  needsPrivacyPolicy: Boolean!
+  needsTermsOfService: Boolean!
+}
+
+"""
+Deprecated in favor of ProjectNode because the venture field does not support
+paginated projects.
+"""
+type Project {
+  id: ID!
+  group: ProjectGroup
+  domain: String
+  domainUnicode: String
+  domainPunycode: String
+  product: Product
+  venture: Venture
+  purchaser: Purchaser
+  billing: Billing
+  accessed: DateTime
+  updated: DateTime
+  created: DateTime
+  status: ProjectStatus
+  subscription: EcommSubscription
+  parentAAPSubscriptionId: ID
+
+  """
+  External content is experimental and requests to use it must use the `@experimentalOptIn` directive.
+  """
+  externalContent: [ExternalContent]!
+  subscriptionId: String
+}
+
+enum ProjectStatus {
+  ACTIVE
+  CANCELLED
+  FREE
+  FREEMIUM
+  INACTIVE
+  PENDCANCEL
+  PENDING_CANCEL
+  PENDING_PROVISIONING
+  PENDREG
+  SUSPENDED
+  TRIAL
+}
+
+enum ProjectGroup {
+  aap
+  aigeneratedmedia
+  domain
+  gdconversations
+  gdpayments
+  ltodomain
+  olstore
+  productivity
+  qsc
+  shield
+  sslcert
+  sslmanage
+  vnext
+  woosaas
+  wordpress
+  wst7
+}
+
+interface Product {
+  id: ID!
+  type: ProductType!
+}
+
+interface WAMProduct implements Product {
+  accountId: UUID @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  accountSource: String @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  createDate: DateTime
+  customerId: UUID
+  websiteSessionStats: WebsiteSessionStats
+  data: JSONObject @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  domainName: String
+  entitlementsBlob: JSONObject
+  gcEntity: JSONObject @deprecated(reason: "this field is unstable and may not exist in future versions of product-graph")
+  homepageId: String
+  id: ID!
+  gmb: GMB
+  instagram: BasicSocialConnection
+  yelp: BasicSocialConnection
+  options: BooleanDictionary @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  planType: String
+  properties: StringDictionary @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  purchaser: Purchaser
+  resellerId: Int
+  shopperId: String
+  status: WAMProductStatus!
+  subscriptionId: String @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  type: ProductType!
+  updateDate: DateTime
+  ventureId: UUID
+  billing: Billing
+  venture: Venture
+  project: Project
+}
+
+type WebsiteSessionStats {
+  last7Days: Int
+  last30Days: Int
+  last12Months: Int
+  trendArray: [Int]
+  trendDate: String
+}
+
+scalar JSONObject
+
+type GMB {
+  listingId: String
+  status: String
+  type: String
+}
+
+type BasicSocialConnection {
+  listingId: String
+}
+
+scalar StringDictionary
+
+type Purchaser implements User {
+  email: String
+  contact: UserContact
+  customerId: UUID
+  customerType: String
+  customerTypeAttributes: CustomerTypeAttributes
+  latestVenture: Venture
+  locale: String!
+  projects: [Project] @deprecated(reason: "Use Query.projects")
+  subscriptions(expiresIn: Int): [EcommSubscription]
+  projectCounts(groups: [ProjectGroup]!): JSONObject
+  shopperId: String
+  spendTotal13MonthUSD: Float
+  spendGroup13MonthUSD: SpendGroup
+  unassociatedProjects: [Project]
+  ventures: [Venture] @deprecated(reason: "Use Query.ventures")
+  subscriptionPrice(params: [EcommSubscriptionPriceInput]): [EcommSubscriptionPrice]
+}
+
+interface User {
+  email: String
+  contact: UserContact
+  customerId: UUID
+  customerType: String
+  customerTypeAttributes: CustomerTypeAttributes
+  latestVenture: Venture
+  locale: String!
+
+  """Deprecated in favor of Query.projects which supports pagination."""
+  projects: [Project] @deprecated(reason: "Use CustomerQuery.projects")
+  subscriptions(expiresIn: Int): [EcommSubscription]
+  projectCounts(groups: [ProjectGroup]!): JSONObject
+  shopperId: String
+  spendTotal13MonthUSD: Float
+  spendGroup13MonthUSD: SpendGroup
+  unassociatedProjects: [Project]
+
+  """Deprecated in favor of Query.ventures which supports pagination."""
+  ventures: [Venture] @deprecated(reason: "Use CustomerQuery.ventures")
+  subscriptionPrice(params: [EcommSubscriptionPriceInput]): [EcommSubscriptionPrice]
+}
+
+type Customer implements User {
+  email: String
+  contact: UserContact
+  createdAt: DateTime
+  customerId: UUID
+  customerType: String
+  customerTypeAttributes: CustomerTypeAttributes
+  latestVenture: Venture
+  locale: String!
+  loginName: String
+  parentShopperId: String
+  privateLabelId: Int
+  projects: [Project] @deprecated(reason: "Use Query.projects")
+  subscriptions(expiresIn: Int): [EcommSubscription]
+  subscriptionPrice(params: [EcommSubscriptionPriceInput]): [EcommSubscriptionPrice]
+  projectCounts(groups: [ProjectGroup]!): JSONObject
+  shopperId: String
+  spendTotal13MonthUSD: Float
+  spendGroup13MonthUSD: SpendGroup
+  subaccountExternalId: Int
+  unassociatedProjects: [Project]
+  updatedAt: DateTime
+  updatedBy: String
+  ventures: [Venture] @deprecated(reason: "Use Query.ventures")
+}
+
+enum ProductType {
+  allAccessPass
+  domain
+  external
+  gocentral
+  mwp
+  o365
+  socialMediaManagement
+  undecided
+  wordpress
+}
+
+enum WAMProductStatus {
+  abuse_suspended
+  active
+  initialized
+  provisional
+  removed
+  suspended
+}
+
+type EcommSubscription {
+  autoRenew: Boolean
+  canBeRenewed: Boolean
+  commonName: String
+  domain: String
+  id: ID!
+  paidThroughDate: DateTime
+  offerPlan: String
+  productName: String
+  status: String
+  entitlements: [Entitlement]
+}
+
+type Entitlement {
+  cancellationReason: EntitlementCancellationReason
+  id: ID!
+  prePurchaseKeyMap: PrePurchaseKeyMap
+  product: EntitlementProduct
+  productKey: String
+  status: EntitlementStatus
+  statusUpdatedAt: String
+  subscriptionUri: String
+  suspendReasons: [EntitlementSuspendReason]
+}
+
+enum EntitlementCancellationReason {
+  CROSSGRADE
+  EXPIRED
+  FRAUD
+  OPT_OUT
+  POLICY
+  RESOURCE_PROVIDER
+}
+
+type PrePurchaseKeyMap {
+  custom_data: CustomData
+}
+
+type CustomData {
+  associated_account_id: String
+  associated_account_type: String
+  attach_bundle_id: String
+  parent_account_id: String
+  dify_website: String
+  aapSubscriptionId: String
+}
+
+interface EntitlementProduct {
+  uri: String
+}
+
+type WAMEntitlementProduct implements EntitlementProduct {
+  plan: String
+  productFamily: String
+  productType: String
+  resourceType: String
+  term: WAMEntitlementProductTerm
+  uri: String
+}
+
+type WAMEntitlementProductTerm {
+  numberOfTerms: Float
+  termType: String
+}
+
+enum EntitlementStatus {
+  ACTIVE
+  CANCELED
+  PENDING
+  SUSPENDED
+}
+
+enum EntitlementSuspendReason {
+  FRAUD
+  LEGAL
+  NON_PAYMENT
+  POLICY
+}
+
+type ExternalContent {
+  typeDescription: String
+  contentString: String
+  url: String
+  createdAt: String
+  updatedAt: String
+}
+
+enum SpendGroup {
+  ACCELERATE
+  GROW
+  START
+}
+
+input EcommSubscriptionPriceInput {
+  resourceId: Int!
+  pfid: Int!
+  privateLabelId: Int!
+  productTypeId: Int!
+}
+
+type EcommSubscriptionPrice {
+  price: Float
+  currency: String
+  nonPrecisionPrice: Int
+}
+
+type ProjectNode {
+  id: ID!
+  group: ProjectGroup
+  domain: String
+  domainUnicode: String
+  domainPunycode: String
+  product: Product
+  venture: VentureNode
+  purchaser: Purchaser
+  billing: Billing
+  accessed: DateTime
+  updated: DateTime
+  created: DateTime
+  status: ProjectStatus
+  subscription: EcommSubscription
+  parentAAPSubscriptionId: ID
+
+  """
+  External content is experimental and requests to use it must use the `@experimentalOptIn` directive.
+  """
+  externalContent: [ExternalContent]!
+  subscriptionId: String
+}
+
+type VentureNode {
+  id: ID!
+  intents: BooleanDictionary
+  preloadedIntents: BooleanDictionary
+  salesVolumeIntent: BooleanDictionary
+  profile: Profile
+  projects(first: Int, after: String, last: Int, before: String): VentureProjectsConnection
+  purchaser: Purchaser
+  logoUrl: String @deprecated(reason: "Use profile.logoUrl instead")
+  hasWebsiteProject: Boolean
+  payments: Payments
+  isAAP: Boolean
+  estimatedSpendGroupUSDAnnualized: SpendGroup
+}
+
+type VentureProjectsConnection {
+  edges: [VentureProjectEdge]
+  pageInfo: ConnectionPageInfo
+}
+
+type VentureProjectEdge {
+  node: VentureProject
+  cursor: String
+}
+
+type VentureProject {
+  id: ID!
+  group: ProjectGroup
+  domain: String
+  domainUnicode: String
+  domainPunycode: String
+  product: Product
+  purchaser: Purchaser
+  billing: Billing
+  accessed: DateTime
+  updated: DateTime
+  created: DateTime
+  status: ProjectStatus
+  subscription: EcommSubscription
+  parentAAPSubscriptionId: ID
+
+  """
+  External content is experimental and requests to use it must use the `@experimentalOptIn` directive.
+  """
+  externalContent: [ExternalContent]!
+  subscriptionId: String
+}
+
+type ConnectionPageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type ProjectsConnection {
+  edges: [ProjectEdge]
+  pageInfo: ConnectionPageInfo
+}
+
+type ProjectEdge {
+  node: ProjectNode
+  cursor: String
+}
+
+type VentureProfile {
+  category: String
+  description: String
+  id: ID!
+  locations: [ProfileLocation]
+  logoUrl: String
+  name: String
+  tagLineSlogan: String
+  venture: Venture
+  metadata: ProfileMetadata
+  inferred: ProfileInferredData
+  brands: [Brand]
+  isInfinityStone: Boolean @deprecated(reason: "switch to using aiOnboarded")
+  aiOnboarded: Boolean
+  aapOnboarded: Boolean
+  lastVisited: DateTime
+  numVisits: Int
+  freeformVertical: String
+  compliance: Compliance
+}
+
+type VenturesConnection {
+  edges: [VentureEdge]
+  pageInfo: ConnectionPageInfo
+}
+
+type VentureEdge {
+  node: VentureNode
+  cursor: String
+}
+
+type CustomerMutation {
+  """
+  Update venture profile information
+  Data source: Karyon (Low latency)
+  """
+  ventureProfile(ventureId: UUID!, assetContainerId: UUID, logoUrl: String, lastVisited: DateTime, name: String, numVisits: Int): Boolean
+
+  """
+  Update venture customer intentions
+  Data source: vNext (Medium latency)
+  """
+  ventureIntents(websiteId: UUID!, customerIntentions: JSONObject): String
+
+  """
+  Signal intended domain for AAP subscription
+  Data source: Karyon (Low latency)
+  """
+  aapSignalIntendedDomain(domain: String!, aapSubscriptionId: String!): AAPSignalIntendedDomainResponse
+
+  """
+  Redeem domain for AAP subscription
+  Data source: Karyon (Low latency)
+  """
+  aapDomainRedemption(domain: String!, aapSubscriptionId: String!): Boolean
+}
+
+"""
+Response from signaling an intended domain for AAP subscription
+Data source: Karyon (Medium latency)
+"""
+type AAPSignalIntendedDomainResponse {
+  """Basket ID for domain redemption"""
+  basketId: String
+}
+
+enum ProductFamilies {
+  angelo
+  bizmgmt
+  bundle
+  busaccl
+  calendar
+  campblazer
+  cashpark
+  costco
+  curveball
+  custommgr
+  ddc
+  dedhost
+  diablo
+  diyseo
+  domain
+  domainRep
+  domapprais
+  dommonitor
+  duda
+  easydb
+  eem
+  email
+  emailfwd
+  faxemail
+  free_wst
+  hosting
+  localads
+  locu
+  logodesign
+  madmimi
+  managedseo
+  mdot
+  membership
+  merchacct
+  mthosting
+  mwp2
+  nocfox
+  olstore
+  onlinestor
+  outlook
+  outright
+  paidit
+  partnerPrd
+  phoenix
+  photoalbum
+  proxima
+  prtnremail
+  pvtbckordr
+  pws
+  qsc
+  reseller
+  safesite
+  shield
+  sitelock
+  smm
+  smtprelay
+  sslcert
+  sslmanage
+  sslsupt
+  survey
+  telephony
+  totaldns
+  trafblazer
+  trusteddom
+  vdedhost
+  virhost
+  vps4
+  wpaas
+  wsb
+  wsiemail
+  wst
+  wstdesign
+}
+
+enum MWPProductStatus {
+  Active
+  Inactive
+  Deleted
+  PreProd
+  PendInit
+  PendSetup
+  Error
+  PendRemove
+  RemoveError
+  PendingChangeDomain
+  ChangeDomainError
+  PendingMigration
+  MigrationError
+  UpgradeFailed
+  PendingRestore
+  RestoreFailed
+  PendSync
+  SyncError
+  SyncComplete
+  PendGenerateCSR
+  PendCertInstall
+  PendCertUninstall
+  CertError
+  PendFilerMigration
+  FilerMigrationError
+  PendingUpgrade
+  Suspended
+  PendingSuspend
+  AssignPreprovisionToUser
+  AssignPreprovisionToUserError
+  Reconfigure
+}
+
+input ProjectInput {
+  id: ID!
+  group: ProjectGroup!
+  ventureId: UUID!
+  shopperId: String!
+  customerId: UUID!
+  billing: BillingInput!
+  extras: JSONObject
+  _uri: String!
+}
+
+input AssociatedIdentifiers {
+  type: String!
+  id: UUID
+  associatedAccountId: UUID
+  domain: String
+}
+
+input ProjectedProjectInput {
+  group: ProjectGroup!
+  domain: String
+  ventureId: UUID
+  associationIdentifiers: [AssociatedIdentifiers]
+}
+
+type ChatterboxResponse {
+  ShardId: String!
+  SequenceNumber: String!
+  EncryptionType: String!
+}
+
+input ProfileInferredPayload {
+  name: String
+  vertical: String
+  verticalConfidence: Float
+  freeformVertical: String
+  personalityKeywords: [String]
+  iconKeywords: [String]
+  photoKeywords: [String]
+  photoKeywordPhrases: [String]
+  businessStyles: [String]
+  tagLines: [String]
+  toneOfVoice: String
+  description: String
+  domainInappropriate: Boolean
+  domainAmbiguous: Boolean
+  websiteNeedsStore: Boolean
+  websiteNeedsAppointments: Boolean
+  fullWebsiteHeadline: String
+  fullWebsiteSubhead: String
+  fullWebsiteCTA: String
+  phoneNumber: String
+  emailAddress: String
+  physicalAddress: String
+}
+
+input ProfileInfinityStoneMetadataPayload {
+  domainName: String
+  emailEntitlementId: String
+  websitePlanType: String
+  websiteEntitlementId: String
+  websiteId: String
+  aapEntitlementId: String
+  gdconversationsEntitlementId: String
+  airoPlusEntitlementId: String
+  aapOnboarded: Boolean
+  aiOnboarded: Boolean
+}
+
+input ProfileMetadataPayload {
+  """Deprecated, switch to using the "aiOnboarding" argument"""
+  infinityStone: ProfileInfinityStoneMetadataPayload @deprecated(reason: "Use aiOnboarding")
+  aiOnboarding: ProfileInfinityStoneMetadataPayload
+}
+
+input ComplianceStatusPayload {
+  needsPrivacyPolicy: Boolean
+  needsTermsOfService: Boolean
+}
+
+input CompliancePayload {
+  status: ComplianceStatusPayload
+}
+
+input ProfilePayload {
+  name: String
+  category: String
+  description: String
+  logoUrl: String
+  freeformVertical: String
+  lastUpdated: String
+  tagLineSlogan: String
+  inferred: ProfileInferredPayload
+  metadata: ProfileMetadataPayload
+  compliance: CompliancePayload
+}
+
+type UndecidedProduct implements Product {
+  id: ID!
+  type: ProductType!
+}
+
+type SocialMediaManagementProduct implements WAMProduct & Product {
+  accountId: UUID @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  accountSource: String @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  createDate: DateTime
+  customerId: UUID
+  websiteSessionStats: WebsiteSessionStats
+  data: JSONObject @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  domainName: String
+  entitlementsBlob: JSONObject
+  gcEntity: JSONObject @deprecated(reason: "this field is unstable and may not exist in future versions of product-graph")
+  homepageId: String
+  id: ID!
+  gmb: GMB
+  instagram: BasicSocialConnection
+  yelp: BasicSocialConnection
+  options: BooleanDictionary @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  planType: String
+  properties: StringDictionary @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  purchaser: Purchaser
+  resellerId: Int
+  shopperId: String
+  status: WAMProductStatus!
+  subscriptionId: String @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  type: ProductType!
+  updateDate: DateTime
+  ventureId: UUID
+  billing: Billing
+  venture: Venture
+  project: Project
+}
+
+type DNS {
+  hostingProvider: String!
+  emailProvider: String!
+  hosting_ip: String
+  email_ip: String
+}
+
+type RenewalPrice {
+  listPrice: Long
+  message: String
+  salePrice: Long
+  years: Int
+}
+
+scalar Long
+
+type DomainProduct implements Product {
+  id: ID!
+  type: ProductType!
+  customerId: UUID
+  domainName: String!
+  eligibleForDOP: Boolean
+  eligibleForSale: Boolean
+  estimatedValue: Long
+  privacyLevel: String
+  dns: DNS
+  hasAutoRenew: Boolean
+  expirationDate: String
+  renewalPrice: RenewalPrice
+
+  """ isListedForSaleByOwner: Domain is listed for sale by its owner """
+  isListedForSaleByOwner: Boolean
+
+  """
+   dangerousProtectionPlan: what protection plan does the domain have
+  Any dangerous field is not reliable and is serving a specific use case.
+  """
+  dangerousProtectionPlan: String
+
+  """
+   dangerousHasProtectedRegistration (whether the domain has a protection level)
+  Any dangerous field is not reliable and is serving a specific use case.
+  """
+  dangerousHasProtectedRegistration: Boolean
+
+  """
+   dangerousIsPrivate (used to know if ownership information is presented in the domain)
+  Any dangerous field is not reliable and is serving a specific use case.
+  """
+  dangerousIsPrivate: Boolean
+  protectionPlanName: String
+}
+
+type ExternalProduct implements WAMProduct & Product {
+  accountId: UUID @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  accountSource: String @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  createDate: DateTime
+  customerId: UUID
+  websiteSessionStats: WebsiteSessionStats
+  data: JSONObject @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  domainName: String
+  entitlementsBlob: JSONObject
+  gcEntity: JSONObject @deprecated(reason: "this field is unstable and may not exist in future versions of product-graph")
+  homepageId: String
+  id: ID!
+  gmb: GMB
+  instagram: BasicSocialConnection
+  yelp: BasicSocialConnection
+  options: BooleanDictionary @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  planType: String
+  properties: StringDictionary @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  purchaser: Purchaser
+  resellerId: Int
+  shopperId: String
+  status: WAMProductStatus!
+  subscriptionId: String @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  type: ProductType!
+  updateDate: DateTime
+  ventureId: UUID
+  billing: Billing
+  venture: Venture
+  project: Project
+}
+
+type WebsiteProduct implements WAMProduct & Product {
+  accountId: UUID @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  accountSource: String @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  customerId: UUID
+  websiteSessionStats: WebsiteSessionStats
+  createDate: DateTime
+  data: JSONObject @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  domainName: String
+  entitlementsBlob: JSONObject
+  gcEntity: JSONObject @deprecated(reason: "this field is unstable and may not exist in future versions of product-graph")
+  homepageId: String
+  id: ID!
+  gmb: GMB
+  instagram: BasicSocialConnection
+  yelp: BasicSocialConnection
+  options: BooleanDictionary @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  planType: String
+  properties: StringDictionary @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  businessName: String
+  purchaser: Purchaser
+  resellerId: Int
+  shopperId: String
+  status: WAMProductStatus!
+  subscriptionId: String @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  type: ProductType!
+  updateDate: DateTime
+  ventureId: UUID
+  billing: Billing
+  venture: Venture
+  project: Project
+  isPublished: Boolean
+  lastPublishDate: DateTime
+  firstPublishDate: DateTime
+  backgroundImage: String
+  widgets(types: [String]): [Widget]
+}
+
+type Widget {
+  id: UUID!
+  websiteId: UUID!
+  pageId: UUID!
+  type: String
+  createDate: DateTime
+  updateDate: DateTime
+  properties: JSONObject
+  options: JSONObject
+  data: JSONObject
+}
+
+type DifyMwpProduct implements WAMProduct & Product {
+  accountId: UUID @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  accountSource: String @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  customerId: UUID
+  websiteSessionStats: WebsiteSessionStats
+  createDate: DateTime
+  data: JSONObject @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  domainName: String
+  entitlementsBlob: JSONObject
+  gcEntity: JSONObject @deprecated(reason: "this field is unstable and may not exist in future versions of product-graph")
+  homepageId: String
+  id: ID!
+  gmb: GMB
+  instagram: BasicSocialConnection
+  yelp: BasicSocialConnection
+  options: BooleanDictionary @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  planType: String
+  properties: StringDictionary @deprecated(reason: "Use calculated fields to ensure forward compatibility")
+  purchaser: Purchaser
+  resellerId: Int
+  shopperId: String
+  status: WAMProductStatus!
+  subscriptionId: String @deprecated(reason: "Use the billing property to ensure forward compatibility")
+  type: ProductType!
+  updateDate: DateTime
+  ventureId: UUID
+  billing: Billing
+  venture: Venture
+  project: Project
+  isPublished: Boolean
+  lastPublishDate: DateTime
+  firstPublishDate: DateTime
+  backgroundImage: String
+  wordpressAccount: WordpressProduct
+}
+
+type WordpressProduct implements Product {
+  id: ID!
+  type: ProductType!
+  accountStatus: String!
+  maxSites: Int
+  planName: String!
+  sites: [WordpressSite]!
+}
+
+type WordpressSite {
+  """ siteUid: unique identifier (UUID) for the WordPress site """
+  siteUid: ID!
+
+  """ blogTitle: the title of the WordPress site """
+  blogTitle: String
+
+  """ domain: the domain name used by the WordPress site """
+  domain: String
+
+  """ entity: data from mwp entity API """
+  entity: WordpressEntity
+
+  """ cName: cName entry """
+  cName: String
+
+  """ ipAddress: the IP address of the WordPress server """
+  ipAddress: String
+
+  """ manageWpSiteId: Managed MWP Site ID (this is unique and NOT the siteUid) 
+  """
+  manageWpSiteId: String
+
+  """ published: publication status """
+  published: Boolean
+
+  """ sharedServerIp: IP address of the shared server """
+  sharedServerIp: String
+
+  """ sslCertificateId: SSL certificiate identifier """
+  sslCertificateId: String
+
+  """ status: status of the MWP site """
+  status: MWPProductStatus
+
+  """ visitData: site visits from the last 90 days """
+  visitData: [WordpressStats]
+
+  """ publishData: various metadata about the site """
+  publishData: [WordpressPublishData]
+
+  """ ssoUrl: SSO URL to log into WordPress """
+  ssoUrl: String
+}
+
+type WordpressEntity {
+  id: ID!
+  type: String!
+  productUid: ID!
+  features: WordpressFeatures
+}
+
+type WordpressStats {
+  date: String
+  count: Int
+}
+
+type WordpressPublishData {
+  id: String
+  isUnlocked: Boolean
+  isLastUnlockedLevel: Boolean
+  items: [WpPublishItems]
+}
+
+type WpPublishItems {
+  icon: String
+  isFree: Boolean
+  sameTab: Boolean
+  id: String
+  ctaURL: String
+  requiresSSO: String
+  state: String
+}
+
+type WordpressFeatures {
+  activatedIncludedWoocommercePluginExtensionsCount: Int
+  activatedRecommendedPluginCount: Int
+  activatedRecommendedPlugins: StringDictionary
+  activatedWoocommercePluginsFromExtensions: StringDictionary
+  dateCreated: DateTime
+  domain: String
+  enabledWoocommercePaymentGatewaysCount: Int
+  firstWoocommerceOrderCreated: DateTime
+  firstWoocommerceProductCreated: DateTime
+  goThemeSiteDesignUpdated: DateTime
+  isCdnEnabled: Boolean
+  isDomainAttached: Boolean
+  isFreeSslIncluded: Boolean
+  isFreeSslInstalled: Boolean
+  isNextgen: Boolean
+  lastDomainChange: DateTime
+  pageOnFrontUpdated: DateTime
+  phpVersion: String
+  planName: String
+  siteLogoUpdated: DateTime
+  siteTitleUpdated: DateTime
+  usedWpnux: Boolean
+  wasMigrated: Boolean
+  woocommercePaymentGatewayEnabled: Boolean
+  yoastWizardCompleted: String
+}
+
+type O365Product implements Product {
+  """Mailbox ID"""
+  id: ID!
+
+  """Orion ID of the email account"""
+  orion_account_uid: UUID
+
+  """The type of Product"""
+  type: ProductType!
+
+  """The handle of the email, e.g. 'john' in 'john@email.com'"""
+  email_user: String!
+
+  """data from o365 entity API"""
+  entity: O365Entity
+
+  """The mailbox's email address"""
+  emailAddress: String
+
+  """The mailbox's status"""
+  status: String
+}
+
+type O365Entity {
+  id: ID!
+  type: String!
+  features: O365Features
+  states: O365States
+}
+
+type O365Features {
+  plantype: String
+  pfId: String
+  emailAddress: String
+}
+
+type O365States {
+  activated: Boolean
+  acquired: Boolean
+}
+
+type AllAccessPassProduct implements Product {
+  id: ID!
+  type: ProductType!
+  domainCreditAvailable: Boolean
+}
+
+scalar BigInt
+
+scalar Byte
+
+scalar Date
+
+scalar EmailAddress
+
+scalar GUID
+
+scalar HSL
+
+scalar HSLA
+
+scalar HexColorCode
+
+scalar IPv4
+
+scalar IPv6
+
+scalar ISBN
+
+scalar JSON
+
+scalar MAC
+
+scalar NegativeFloat
+
+scalar NegativeInt
+
+scalar NonNegativeFloat
+
+scalar NonNegativeInt
+
+scalar NonPositiveFloat
+
+scalar NonPositiveInt
+
+scalar PhoneNumber
+
+scalar Port
+
+scalar PositiveFloat
+
+scalar PositiveInt
+
+scalar PostalCode
+
+scalar RGB
+
+scalar RGBA
+
+scalar Time
+
+scalar URL
+
+scalar USCurrency
+
+scalar UnsignedFloat
+
+scalar UnsignedInt
+
+scalar UtcOffset
+
+enum CacheControlScope {
+  PRIVATE
+  PUBLIC
+}

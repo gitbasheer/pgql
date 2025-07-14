@@ -1,0 +1,104 @@
+[
+  {
+    "queryId": "offer-graph-queries-0-FindUnifiedBillDetails",
+    "queryName": "FindUnifiedBillDetails",
+    "error": "Cannot query field \"me\" on type \"CustomerQuery\".",
+    "type": "field",
+    "suggestion": "Field 'me' does not exist on type 'CustomerQuery'. Check the schema for available fields."
+  },
+  {
+    "queryId": "offer-graph-queries-0-FindUnifiedBillDetails",
+    "queryName": "FindUnifiedBillDetails",
+    "error": "Cannot query field \"transitions\" on type \"CustomerQuery\".",
+    "type": "field",
+    "suggestion": "Field 'transitions' does not exist on type 'CustomerQuery'. Check the schema for available fields."
+  },
+  {
+    "queryId": "offer-graph-queries-1-ModifyBasketWithOptions",
+    "queryName": "ModifyBasketWithOptions",
+    "error": "Unknown type \"ModifyBasketWithOptionsInput\".",
+    "type": "type",
+    "suggestion": "Type 'ModifyBasketWithOptionsInput' is not defined in the schema. Check for typos or missing schema definitions."
+  },
+  {
+    "queryId": "offer-graph-queries-1-ModifyBasketWithOptions",
+    "queryName": "ModifyBasketWithOptions",
+    "error": "Cannot query field \"modifyBasketWithOptions\" on type \"CustomerMutation\".",
+    "type": "field",
+    "suggestion": "Field 'modifyBasketWithOptions' does not exist on type 'CustomerMutation'. Check the schema for available fields."
+  },
+  {
+    "queryId": "shared-graph-queries-v1-0-unnamed",
+    "queryName": "QuerySharedGraphQueriesV1",
+    "error": "Unknown fragment \"ventureFields\".",
+    "type": "field"
+  },
+  {
+    "queryId": "shared-graph-queries-v1-5-projectByEntitlement",
+    "queryName": "ProjectByEntitlement",
+    "error": "Cannot query field \"product\" on type \"CustomerQuery\". Did you mean \"project\" or \"projects\"?",
+    "type": "field",
+    "suggestion": "Field 'product' does not exist on type 'CustomerQuery\". Did you mean \"project\" or \"projects'. Check the schema for available fields."
+  },
+  {
+    "queryId": "shared-graph-queries-v1-5-projectByEntitlement",
+    "queryName": "ProjectByEntitlement",
+    "error": "Variable \"$entitlementId\" is never used in operation \"ProjectByEntitlement\".",
+    "type": "schema",
+    "suggestion": "Check that all variables are properly defined and match their expected types."
+  },
+  {
+    "queryId": "shared-graph-queries-v2-0-unnamed",
+    "queryName": "QuerySharedGraphQueriesV2",
+    "error": "Unknown fragment \"ventureFields\".",
+    "type": "field"
+  },
+  {
+    "queryId": "shared-graph-queries-v2-2-unnamed",
+    "queryName": "QuerySharedGraphQueriesV2",
+    "error": "Unknown fragment \"ventureFields\".",
+    "type": "field"
+  },
+  {
+    "queryId": "shared-graph-queries-v3-0-unnamed",
+    "queryName": "QuerySharedGraphQueriesV3",
+    "error": "Unknown fragment \"ventureFields\".",
+    "type": "field"
+  },
+  {
+    "queryId": "shared-graph-queries-v3-1-unnamed",
+    "queryName": "QuerySharedGraphQueriesV3",
+    "error": "Unknown fragment \"ventureFields\".",
+    "type": "field"
+  },
+  {
+    "queryId": "shared-graph-queries-v3-2-unnamed",
+    "queryName": "QuerySharedGraphQueriesV3",
+    "error": "Unknown fragment \"ventureFields\".",
+    "type": "field"
+  },
+  {
+    "queryId": "shared-graph-queries-v3-3-unnamed",
+    "queryName": "QuerySharedGraphQueriesV3",
+    "error": "Unknown fragment \"ventureInfinityStoneDataFields\".",
+    "type": "field"
+  },
+  {
+    "queryId": "shared-graph-queries-v3-4-unnamed",
+    "queryName": "QuerySharedGraphQueriesV3",
+    "error": "Unknown fragment \"ventureInfinityStoneDataFields\".",
+    "type": "field"
+  },
+  {
+    "queryId": "shared-graph-queries-v3-7-unnamed",
+    "queryName": "QuerySharedGraphQueriesV3",
+    "error": "Unknown fragment \"ventureInfinityStoneDataFields\".",
+    "type": "field"
+  },
+  {
+    "queryId": "shared-graph-queries-v3-11-getVentureDomainInfo",
+    "queryName": "GetVentureDomainInfo",
+    "error": "Unknown fragment \"domainProductFields\".",
+    "type": "field"
+  }
+]

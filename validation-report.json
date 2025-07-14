@@ -1,0 +1,21 @@
+{
+  "timestamp": "2025-07-10T18:49:00.219Z",
+  "schema": "./data/schema.graphql",
+  "stages": {
+    "extracted": {
+      "total": 30,
+      "valid": 17,
+      "invalid": 13,
+      "warnings": 23
+    },
+    "transformed": {
+      "error": "No transformed queries file"
+    }
+  },
+  "productionReadiness": {
+    "ready": false,
+    "issues": [
+      "13 invalid extracted queries"
+    ]
+  }
+}

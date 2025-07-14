@@ -1,0 +1,323 @@
+{
+  "timestamp": "2025-06-20T03:33:50.171Z",
+  "directory": "data/sample_data",
+  "totalQueries": 30,
+  "queries": [
+    {
+      "id": "offer-graph-queries.js-0-FindUnifiedBillDetails",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/offer-graph-queries.js",
+      "name": "FindUnifiedBillDetails",
+      "type": "query",
+      "location": {
+        "line": 4,
+        "column": 12
+      },
+      "content": "query FindUnifiedBillDetails(\n  $subscriptionId: String\n  $entitlementId: String\n  $productFilter: String\n  $productQuery: String\n  $discountCodes: String\n  $enableOptimizationFlow: Boolean\n  $iscCode: String\n  $currency: String\n  $market: String\n) {\n  me {\n    customerInfo {\n      market\n    }\n  }\n  transitions(\n    subscriptionId: $subscriptionId\n    entitlementId: $entitlementId\n    filter: $productFilter\n    query: $productQuery\n    discountCodes: $discountCodes\n    enableOptimizationFlow: $enableOptimizationFlow\n    iscCode: $iscCode\n    currency: $currency\n    market: $market\n  ) {\n    subscriptionId\n    paidThroughDate\n    revision\n    displayName\n    billing {\n      commitment\n      status\n      autoRenew\n    }\n    planTerm\n    numberOfTerms\n    pfid\n    resellerId\n    source\n    offers {\n      id\n      catalogInstanceKey\n      storefrontUri\n      isCurrent\n      term {\n        unit\n        count\n      }\n      price {\n        discountCode\n        currency\n        numeric {\n          listing {\n            perTerm {\n              full\n              discounted\n              renewal\n              renewalDiscounted\n            }\n            perMonth {\n              full\n              discounted\n              renewal\n              renewalDiscounted\n            }\n            perYear {\n              full\n              discounted\n              renewal\n              renewalDiscounted\n            }\n          }\n        }\n        formatted {\n          listing {\n            perTerm {\n              full\n              discounted\n              renewal\n              renewalDiscounted\n            }\n            perMonth {\n              full\n              discounted\n              renewal\n              renewalDiscounted\n            }\n            perYear {\n              full\n              discounted\n              renewal\n              renewalDiscounted\n            }\n          }\n        }\n      }\n      capabilities {\n        categoryOrder\n        capabilities {\n          category\n          icon\n          id\n          isBold\n          showOnGrid\n          showOnMobile\n          showOnTiles\n          text\n          value\n        }\n      }\n      display {\n        name\n        usage\n      }\n      plans {\n        id\n        productType\n        productFamily\n        display {\n          fullName\n          intendedUse\n          popularity\n          longDescription\n          marketingContent {\n            title\n            value\n            tooltip\n            emphasize\n          }\n        }\n        productFamily\n        featureValues {\n          featureId\n          dataType\n          booleanValue\n          stringValue\n          numericValue\n        }\n      }\n      availableAddOns {\n        name\n        type\n        localizedName\n        quantifiable\n        values {\n          enable\n          state\n          discountPrice\n          offerPrice\n          discountPriceFormatted\n          offerPriceFormatted\n          taxTotal\n          feeTotal\n          ratingsKey\n          value\n          quantifiableValue\n          localizedName\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "offer-graph-queries.js-1-ModifyBasketWithOptions",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/offer-graph-queries.js",
+      "name": "ModifyBasketWithOptions",
+      "type": "mutation",
+      "location": {
+        "line": 174,
+        "column": 12
+      },
+      "content": "mutation ModifyBasketWithOptions($data: ModifyBasketWithOptionsInput!) {\n  modifyBasketWithOptions(data: $data)\n}"
+    },
+    {
+      "id": "quicklinks.js-0-getQuickLinksData",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/quicklinks.js",
+      "name": "getQuickLinksData",
+      "type": "query",
+      "location": {
+        "line": 3,
+        "column": 27
+      },
+      "content": "query getQuickLinksData($ventureId: UUID!) {\n  venture(ventureId: $ventureId) {\n    projects {\n      id\n      billing {\n        id\n        plan\n      }\n      domain\n      group\n      product {\n        type\n        ...on O365Product {\n          email_user\n        }\n        ...on WordpressProduct {\n          accountStatus\n          id\n          sites {\n            blogTitle\n            siteUid\n            cName\n            status\n            published\n          }\n        }\n        ...on WebsiteProduct{\n          isPublished\n          planType\n          properties\n        }\n      }\n      status\n      subscription {\n        commonName\n        id\n        productName\n        status\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v1.js-0-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v1.js",
+      "type": "query",
+      "location": {
+        "line": 20,
+        "column": 30
+      },
+      "content": "query  {\n  user {\n    ventures {\n      ...ventureFields\n      profile {\n        name\n        aapOnboarded\n        aiOnboarded\n        metadata {\n          createdAt\n          updatedAt\n        }\n      }\n    }\n\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v1.js-1-ventureStates",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v1.js",
+      "name": "ventureStates",
+      "type": "query",
+      "location": {
+        "line": 44,
+        "column": 30
+      },
+      "content": "query ventureStates($ventureId: UUID!) {\n  venture(ventureId: $ventureId) {\n    id\n    projects {\n      id\n      status\n      group\n    }\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v1.js-5-projectByEntitlement",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v1.js",
+      "name": "projectByEntitlement",
+      "type": "query",
+      "location": {
+        "line": 134,
+        "column": 34
+      },
+      "content": "query projectByEntitlement($entitlementId: String!) {\n  product {\n    id\n    type\n\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v1.js-6-allVentures",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v1.js",
+      "name": "allVentures",
+      "type": "query",
+      "location": {
+        "line": 147,
+        "column": 27
+      },
+      "content": "query allVentures {\n  user {\n    ventures {\n      id\n      logoUrl\n      projects {\n        product {\n          id\n          type\n\n        }\n      }\n    }\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v1.js-8-ventureIsInfinityStoneByVentureId",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v1.js",
+      "name": "ventureIsInfinityStoneByVentureId",
+      "type": "query",
+      "location": {
+        "line": 182,
+        "column": 45
+      },
+      "content": "query ventureIsInfinityStoneByVentureId ($ventureId: UUID!) {\n  venture(ventureId: $ventureId) {\n    profile {\n      aiOnboarded\n    }\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v1.js-10-intentsByVenture",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v1.js",
+      "name": "intentsByVenture",
+      "type": "query",
+      "location": {
+        "line": 210,
+        "column": 37
+      },
+      "content": "query intentsByVenture ($ventureId: UUID!) {\n  venture(ventureId: $ventureId) {\n    intents\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v2.js-0-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v2.js",
+      "type": "query",
+      "location": {
+        "line": 25,
+        "column": 12
+      },
+      "content": "query ($ventureId: UUID!) {\n  user {\n    ventures {\n      id\n      projects {\n        group\n        status\n      }\n    }\n\n  }\n  venture(ventureId: $ventureId) { ...ventureFields }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v2.js-1-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v2.js",
+      "type": "query",
+      "location": {
+        "line": 44,
+        "column": 12
+      },
+      "content": "query  {\n  user {\n    ventures {\n      id\n      projects {\n        group\n        status\n        product {\n          type\n        }\n      }\n    }\n\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v2.js-2-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v2.js",
+      "type": "query",
+      "location": {
+        "line": 68,
+        "column": 38
+      },
+      "content": "query ($domainName: String!) {\n  user {\n    ventures {\n      id\n      projects {\n        group\n        status\n      }\n    }\n\n  }\n  venture: ventureByDomainName(domainName: $domainName) { ...ventureFields }\n\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-0-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "location": {
+        "line": 16,
+        "column": 30
+      },
+      "content": "query  {\n  user {\n    ventures {\n      ...ventureFields\n      profile {\n        name\n        aapOnboarded\n        aiOnboarded\n        metadata {\n          createdAt\n          updatedAt\n        }\n      }\n    }\n\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-1-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "location": {
+        "line": 40,
+        "column": 19
+      },
+      "content": "query ($ventureId: UUID!) {\n  venture(ventureId: $ventureId) {\n    ...ventureFields\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-2-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "location": {
+        "line": 52,
+        "column": 19
+      },
+      "content": "query ($domainName: String!) {\n  venture: ventureByDomainName(domainName: $domainName) {\n    ...ventureFields\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-3-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "location": {
+        "line": 64,
+        "column": 19
+      },
+      "content": "query ($ventureId: UUID!) {\n  venture(ventureId: $ventureId) {\n    ...ventureInfinityStoneDataFields\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-4-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "location": {
+        "line": 76,
+        "column": 19
+      },
+      "content": "query ($domainName: String!) {\n  venture: ventureByDomainName(domainName: $domainName) {\n    ...ventureInfinityStoneDataFields\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-6-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "location": {
+        "line": 110,
+        "column": 12
+      },
+      "content": "query  {\n  user {\n    ventures {\n      id\n    }\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-7-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "location": {
+        "line": 122,
+        "column": 19
+      },
+      "content": "query  {\n  user {\n    ventures {\n      ...ventureInfinityStoneDataFields\n    }\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-8-GetUserAccountInfo",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "GetUserAccountInfo",
+      "type": "query",
+      "location": {
+        "line": 136,
+        "column": 19
+      },
+      "content": "query GetUserAccountInfo {\n  user {\n    email\n    customerId\n    contact {\n      nameFirst\n      nameLast\n      phoneWork\n      phoneHome\n      phoneMobile\n    }\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-9-GetUserWebsiteData",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "GetUserWebsiteData",
+      "type": "query",
+      "location": {
+        "line": 155,
+        "column": 19
+      },
+      "content": "query GetUserWebsiteData($websiteId: UUID!) {\n  website(websiteId: $websiteId) {\n    data\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-10-GetAamcUserPreferences",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "GetAamcUserPreferences",
+      "type": "query",
+      "location": {
+        "line": 166,
+        "column": 19
+      },
+      "content": "query GetAamcUserPreferences($ventureId: String!) {\n  aamcUserPreferences(ventureId: $ventureId) @experimentalOptIn {\n    ventureId\n    emailOptedIn\n    smsOptedIn\n    modifiedTime\n    creationTime\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-11-getVentureDomainInfo",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "getVentureDomainInfo",
+      "type": "query",
+      "location": {
+        "line": 182,
+        "column": 19
+      },
+      "content": "query getVentureDomainInfo($ventureId: UUID!) {\n  venture(ventureId: $ventureId) {\n    ...domainProductFields\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-12-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "location": {
+        "line": 194,
+        "column": 12
+      },
+      "content": "query ($ventureId: UUID) {\n  venture: ventureNode(ventureId: $ventureId) {\n    projects {\n      edges {\n        node {\n          group\n          product {\n            ... on DomainProduct {\n              domainName\n            }\n            ... on WebsiteProduct {\n              properties\n            }\n          }\n        }\n      }\n    }\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-13-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "location": {
+        "line": 218,
+        "column": 12
+      },
+      "content": "query  ($ventureId: UUID) {\n  venture: ventureNode(ventureId: $ventureId) {\n    projects {\n      edges {\n        node {\n          subscription {\n            entitlements {\n              status\n            }\n          }\n          group\n        }\n      }\n    }\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-14-unnamed",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "type": "query",
+      "location": {
+        "line": 239,
+        "column": 12
+      },
+      "content": "query  ($ventureId: UUID) {\n  venture: ventureNode(ventureId: $ventureId) {\n    projects {\n      edges {\n        node {\n          group\n          domain\n        }\n      }\n    }\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-15-GetAiroPlusEntitlement",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "GetAiroPlusEntitlement",
+      "type": "query",
+      "location": {
+        "line": 256,
+        "column": 12
+      },
+      "content": "query GetAiroPlusEntitlement {\n  projects {\n    edges {\n      node {\n        group\n        subscription {\n          entitlements {\n            status\n          }\n        }\n        venture {\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-16-getEstimatedSpendGroup",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "getEstimatedSpendGroup",
+      "type": "query",
+      "location": {
+        "line": 280,
+        "column": 12
+      },
+      "content": "query getEstimatedSpendGroup($ventureId: UUID!) {\n  venture: ventureNode(ventureId: $ventureId) {\n    estimatedSpendGroupUSDAnnualized\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-17-VentureSpendGroupByDomain",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "VentureSpendGroupByDomain",
+      "type": "query",
+      "location": {
+        "line": 292,
+        "column": 12
+      },
+      "content": "query VentureSpendGroupByDomain($domainName: String) {\n  venture: ventureNode(domainName: $domainName) {\n    estimatedSpendGroupUSDAnnualized\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    },
+    {
+      "id": "shared-graph-queries-v3.js-18-VentureSpendGroupByAccountId",
+      "file": "/Users/bkh/council/dups/pg-migration/pg-migration-620/data/sample_data/shared-graph-queries-v3.js",
+      "name": "VentureSpendGroupByAccountId",
+      "type": "query",
+      "location": {
+        "line": 302,
+        "column": 12
+      },
+      "content": "query VentureSpendGroupByAccountId($entitlementId: String!) {\n  projectNode(entitlementId: $entitlementId) {\n    venture {\n      estimatedSpendGroupUSDAnnualized\n    }\n  }\n}\n\nfragment ventureProjectGroupsField on Venture {\n  projects {\n    group\n  }\n}\n\nfragment domainProductFields on Venture {\n  projects {\n    product {\n      ... on DomainProduct {\n        id\n        domainName\n        hasAutoRenew\n        expirationDate\n        estimatedValue\n        dangerousProtectionPlan\n        dangerousIsPrivate\n        dangerousHasProtectedRegistration\n        renewalPrice {\n          listPrice\n          message\n          salePrice\n          years\n        }\n      }\n    }\n  }\n}"
+    }
+  ]
+}

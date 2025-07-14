@@ -1,0 +1,211 @@
+{
+  "timestamp": "2025-07-10T19:30:00.000Z",
+  "source": "transformed from data/sample_data",
+  "totalQueries": 40,
+  "totalTransformations": 25,
+  "transformationSummary": {
+    "displayName_to_name": 12,
+    "ventures_pagination": 8,
+    "typename_additions": 15,
+    "logoUrl_restructure": 6
+  },
+  "queries": [
+    {
+      "id": "offer-graph-queries-0-FindUnifiedBillDetails-transformed",
+      "originalId": "offer-graph-queries-0-FindUnifiedBillDetails",
+      "file": "data/sample_data/offer-graph-queries.js",
+      "name": "FindUnifiedBillDetails",
+      "type": "query",
+      "location": {
+        "line": 4,
+        "column": 1,
+        "file": "data/sample_data/offer-graph-queries.js"
+      },
+      "content": "query FindUnifiedBillDetails($subscriptionId: String, $entitlementId: String, $productFilter: ProductFilter, $productQuery: ProductQuery, $discountCodes: [String], $enableOptimizationFlow: Boolean = false, $iscCode: String, $currency: String, $market: String) {\n  me {\n    __typename\n    id\n    shopperId\n    transitions(subscriptionId: $subscriptionId, productFilter: $productFilter, entitlementId: $entitlementId, productQuery: $productQuery, discountCodes: $discountCodes, enableOptimizationFlow: $enableOptimizationFlow, iscCode: $iscCode, currency: $currency, market: $market) {\n      __typename\n      id\n      billingCycleId\n      nextPaymentDate\n      product {\n        __typename\n        id\n        label\n        pricing {\n          sale {\n            price\n            formattedPrice\n            period\n            duration\n          }\n          list {\n            price\n            formattedPrice\n            period\n            duration\n          }\n        }\n      }\n      subscription {\n        __typename\n        id\n        status\n        nextPaymentDate\n        paymentProfile {\n          __typename\n          id\n          status\n          billingContact {\n            __typename\n            nameFirst\n            nameLast\n            email\n            phone\n            organization\n            street\n            city\n            state\n            postalCode\n            country\n          }\n        }\n      }\n      discount {\n        __typename\n        amount\n        percentage\n        discountTotal\n        formattedDiscountTotal\n        type\n        code\n        products {\n          __typename\n          id\n          productId\n          pricing {\n            sale {\n              price\n              formattedPrice\n              period\n              duration\n            }\n            list {\n              price\n              formattedPrice\n              period\n              duration\n            }\n          }\n        }\n      }\n    }\n  }\n}",
+      "originalContent": "query FindUnifiedBillDetails($subscriptionId: String, $entitlementId: String, $productFilter: ProductFilter, $productQuery: ProductQuery, $discountCodes: [String], $enableOptimizationFlow: Boolean = false, $iscCode: String, $currency: String, $market: String) {\n  me {\n    id\n    shopperId\n    transitions(subscriptionId: $subscriptionId, productFilter: $productFilter, entitlementId: $entitlementId, productQuery: $productQuery, discountCodes: $discountCodes, enableOptimizationFlow: $enableOptimizationFlow, iscCode: $iscCode, currency: $currency, market: $market) {\n      id\n      billingCycleId\n      nextPaymentDate\n      product {\n        id\n        label\n        pricing {\n          sale {\n            price\n            formattedPrice\n            period\n            duration\n          }\n          list {\n            price\n            formattedPrice\n            period\n            duration\n          }\n        }\n      }\n      subscription {\n        id\n        status\n        nextPaymentDate\n        paymentProfile {\n          id\n          status\n          billingContact {\n            nameFirst\n            nameLast\n            email\n            phone\n            organization\n            street\n            city\n            state\n            postalCode\n            country\n          }\n        }\n      }\n      discount {\n        amount\n        percentage\n        discountTotal\n        formattedDiscountTotal\n        type\n        code\n        products {\n          id\n          productId\n          pricing {\n            sale {\n              price\n              formattedPrice\n              period\n              duration\n            }\n            list {\n              price\n              formattedPrice\n              period\n              duration\n            }\n          }\n        }\n      }\n    }\n  }\n}",
+      "transformations": [
+        {
+          "type": "add_typename",
+          "description": "Added __typename fields for type safety",
+          "locations": ["me", "transitions", "product", "subscription", "paymentProfile", "billingContact", "discount", "products"]
+        }
+      ],
+      "function": "getTransitionsQuery",
+      "variables": ["$subscriptionId", "$entitlementId", "$productFilter", "$productQuery", "$discountCodes", "$enableOptimizationFlow", "$iscCode", "$currency", "$market"],
+      "fragments": []
+    },
+    {
+      "id": "offer-graph-queries-1-ModifyBasketWithOptions-transformed",
+      "originalId": "offer-graph-queries-1-ModifyBasketWithOptions",
+      "file": "data/sample_data/offer-graph-queries.js",
+      "name": "ModifyBasketWithOptions",
+      "type": "mutation",
+      "location": {
+        "line": 174,
+        "column": 1,
+        "file": "data/sample_data/offer-graph-queries.js"
+      },
+      "content": "mutation ModifyBasketWithOptions($data: ModifyBasketWithOptionsInput!) {\n  modifyBasketWithOptions(data: $data) {\n    __typename\n    success\n  }\n}",
+      "originalContent": "mutation ModifyBasketWithOptions($data: ModifyBasketWithOptionsInput!) {\n  modifyBasketWithOptions(data: $data) {\n    success\n  }\n}",
+      "transformations": [
+        {
+          "type": "add_typename",
+          "description": "Added __typename field for type safety",
+          "locations": ["modifyBasketWithOptions"]
+        }
+      ],
+      "function": "getModifyBasketWithOptionsQuery",
+      "variables": ["$data"],
+      "fragments": []
+    },
+    {
+      "id": "shared-graph-queries-v1-0-getAllVentures-transformed",
+      "originalId": "shared-graph-queries-v1-0-getAllVentures",
+      "file": "data/sample_data/shared-graph-queries-v1.js",
+      "name": "AllVenturesV1",
+      "type": "query",
+      "location": {
+        "line": 20,
+        "column": 1,
+        "file": "data/sample_data/shared-graph-queries-v1.js"
+      },
+      "content": "fragment ventureFields on Venture {\n  __typename\n  id\n  name\n  profile {\n    logoUrl\n  }\n  projects {\n    __typename\n    id\n    status\n    group\n    product {\n      __typename\n      id\n      type\n    }\n  }\n}\n\nquery AllVenturesV1($first: Int = 10, $after: String) {\n  user {\n    __typename\n    ventures(first: $first, after: $after) {\n      pageInfo {\n        hasNextPage\n        endCursor\n      }\n      edges {\n        node {\n          ...ventureFields\n          profile {\n            __typename\n            name\n            aapOnboarded\n            aiOnboarded\n            metadata {\n              createdAt\n              updatedAt\n            }\n          }\n        }\n      }\n    }\n    projectsByGroup {\n      total\n      byStatus {\n        status\n        total\n      }\n      byGroup {\n        group\n        total\n        byStatus {\n          status\n          total\n        }\n      }\n    }\n  }\n}",
+      "originalContent": "fragment ventureFields on Venture {\n  id\n  displayName\n  logoUrl\n  projects {\n    id\n    status\n    group\n    product {\n      id\n      type\n    }\n  }\n}\n\nquery AllVenturesV1 {\n  user {\n    ventures {\n      ...ventureFields\n      profile {\n        name\n        aapOnboarded\n        aiOnboarded\n        metadata {\n          createdAt\n          updatedAt\n        }\n      }\n    }\n    projectsByGroup {\n      total\n      byStatus {\n        status\n        total\n      }\n      byGroup {\n        group\n        total\n        byStatus {\n          status\n          total\n        }\n      }\n    }\n  }\n}",
+      "transformations": [
+        {
+          "type": "field_rename",
+          "description": "Changed displayName to name",
+          "from": "displayName",
+          "to": "name"
+        },
+        {
+          "type": "field_restructure",
+          "description": "Moved logoUrl into profile object",
+          "from": "logoUrl",
+          "to": "profile { logoUrl }"
+        },
+        {
+          "type": "add_pagination",
+          "description": "Added pagination to ventures field",
+          "field": "ventures",
+          "pagination": "first: $first, after: $after"
+        },
+        {
+          "type": "add_variables",
+          "description": "Added pagination variables",
+          "variables": ["$first: Int = 10", "$after: String"]
+        },
+        {
+          "type": "add_typename",
+          "description": "Added __typename fields for type safety",
+          "locations": ["user", "ventures.edges.node", "ventures.edges.node.projects", "ventures.edges.node.product", "ventures.edges.node.profile"]
+        }
+      ],
+      "function": "getAllVenturesQuery",
+      "variables": ["$first", "$after"],
+      "fragments": ["ventureFields", "userFragmentProjectCounts"]
+    },
+    {
+      "id": "shared-graph-queries-v3-0-getUserAccountInfo-transformed",
+      "originalId": "shared-graph-queries-v3-1-getUserAccountInfo",
+      "file": "data/sample_data/shared-graph-queries-v3.js",
+      "name": "GetUserAccountInfo",
+      "type": "query",
+      "location": {
+        "line": 136,
+        "column": 1,
+        "file": "data/sample_data/shared-graph-queries-v3.js"
+      },
+      "content": "query GetUserAccountInfo {\n  user {\n    __typename\n    id\n    shopperId\n    customerId\n    billingProfile {\n      __typename\n      id\n      status\n      billingContact {\n        __typename\n        nameFirst\n        nameLast\n        email\n        phone\n      }\n    }\n  }\n}",
+      "originalContent": "query GetUserAccountInfo {\n  user {\n    id\n    shopperId\n    customerId\n    billingProfile {\n      id\n      status\n      billingContact {\n        nameFirst\n        nameLast\n        email\n        phone\n      }\n    }\n  }\n}",
+      "transformations": [
+        {
+          "type": "add_typename",
+          "description": "Added __typename fields for type safety",
+          "locations": ["user", "billingProfile", "billingContact"]
+        }
+      ],
+      "function": "getClientUserAccountInfoQuery",
+      "variables": [],
+      "fragments": []
+    }
+  ],
+  "fragments": [
+    {
+      "id": "fragments-ventureFields-transformed",
+      "originalId": "fragments-ventureFields",
+      "name": "ventureFields",
+      "type": "fragment",
+      "target": "Venture",
+      "file": "data/sample_data/fragments.js",
+      "content": "fragment ventureFields on Venture {\n  __typename\n  id\n  name\n  profile {\n    logoUrl\n  }\n  projects {\n    __typename\n    id\n    status\n    group\n    product {\n      __typename\n      id\n      type\n    }\n  }\n}",
+      "originalContent": "fragment ventureFields on Venture {\n  id\n  displayName\n  logoUrl\n  projects {\n    id\n    status\n    group\n    product {\n      id\n      type\n    }\n  }\n}",
+      "transformations": [
+        {
+          "type": "field_rename",
+          "description": "Changed displayName to name",
+          "from": "displayName",
+          "to": "name"
+        },
+        {
+          "type": "field_restructure",
+          "description": "Moved logoUrl into profile object",
+          "from": "logoUrl",
+          "to": "profile { logoUrl }"
+        },
+        {
+          "type": "add_typename",
+          "description": "Added __typename fields",
+          "locations": ["Venture", "projects", "product"]
+        }
+      ]
+    },
+    {
+      "id": "fragments-domainProductFields-transformed",
+      "originalId": "fragments-domainProductFields",
+      "name": "domainProductFields",
+      "type": "fragment",
+      "target": "Venture",
+      "file": "data/sample_data/fragments.js",
+      "content": "fragment domainProductFields on Venture {\n  __typename\n  id\n  name\n  profile {\n    logoUrl\n  }\n  projects {\n    __typename\n    id\n    status\n    group\n    product {\n      __typename\n      id\n      type\n      ... on DomainProduct {\n        domain {\n          __typename\n          id\n          name\n          status\n          locked\n          privacy\n        }\n      }\n    }\n  }\n}",
+      "originalContent": "fragment domainProductFields on Venture {\n  id\n  displayName\n  logoUrl\n  projects {\n    id\n    status\n    group\n    product {\n      id\n      type\n      ... on DomainProduct {\n        domain {\n          id\n          name\n          status\n          locked\n          privacy\n        }\n      }\n    }\n  }\n}",
+      "transformations": [
+        {
+          "type": "field_rename",
+          "description": "Changed displayName to name",
+          "from": "displayName",
+          "to": "name"
+        },
+        {
+          "type": "field_restructure",
+          "description": "Moved logoUrl into profile object",
+          "from": "logoUrl",
+          "to": "profile { logoUrl }"
+        },
+        {
+          "type": "add_typename",
+          "description": "Added __typename fields",
+          "locations": ["Venture", "projects", "product", "domain"]
+        }
+      ]
+    }
+  ],
+  "globalTransformations": {
+    "fieldRenames": {
+      "displayName": "name",
+      "logoUrl": "profile.logoUrl"
+    },
+    "paginationFields": {
+      "ventures": {
+        "parameters": "first: $first, after: $after",
+        "wrapper": "pageInfo { hasNextPage endCursor } edges { node { ... } }"
+      }
+    },
+    "typenamePolicyAdded": true,
+    "backwardCompatibility": {
+      "enabled": true,
+      "transformationRequired": true,
+      "transformerUtility": "GraphQLResponseTransformer"
+    }
+  }
+}

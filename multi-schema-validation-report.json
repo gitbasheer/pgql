@@ -1,0 +1,1361 @@
+{
+  "timestamp": "2025-07-10T19:15:30.175Z",
+  "config": {
+    "schemas": {
+      "customer": {
+        "path": "./data/schema.graphql",
+        "endpoint": "https://pg.api.godaddy.com/v1/gql/customer",
+        "description": "Customer API schema for venture, project, and website operations"
+      },
+      "billing": {
+        "path": "./data/billing-schema.graphql",
+        "endpoint": "https://pg.api.godaddy.com/v1/gql/billing",
+        "description": "Billing API schema for subscription, offer, and basket operations"
+      }
+    },
+    "defaultSchema": "customer"
+  },
+  "summary": {
+    "totalQueries": 33,
+    "bySchema": {
+      "customer": {
+        "total": 31,
+        "valid": 1,
+        "invalid": 30,
+        "warnings": 6,
+        "queries": [
+          {
+            "id": "SmartVariantExtractor-0-unnamed",
+            "name": "FragmentSmartVariantExtractor",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "unknown",
+              "confidence": 0
+            }
+          },
+          {
+            "id": "quicklinks-0-getQuickLinksData",
+            "name": "GetQuickLinksData",
+            "valid": true,
+            "errors": 0,
+            "warnings": 2,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.6428571428571429
+            }
+          },
+          {
+            "id": "shared-graph-queries-v1-0-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.5882352941176471
+            }
+          },
+          {
+            "id": "shared-graph-queries-v1-1-singleVentureByVentureId",
+            "name": "SingleVentureByVentureId",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.6666666666666666
+            }
+          },
+          {
+            "id": "shared-graph-queries-v1-2-singleVentureByVentureId",
+            "name": "SingleVentureByVentureId",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.8125
+            }
+          },
+          {
+            "id": "shared-graph-queries-v1-3-unnamed",
+            "name": "Query",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.5909090909090909
+            }
+          },
+          {
+            "id": "shared-graph-queries-v1-4-projectByEntitlement",
+            "name": "ProjectByEntitlement",
+            "valid": false,
+            "errors": 2,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 1
+            }
+          },
+          {
+            "id": "shared-graph-queries-v1-5-allVentures",
+            "name": "AllVentures",
+            "valid": false,
+            "errors": 1,
+            "warnings": 2,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.5833333333333334
+            }
+          },
+          {
+            "id": "shared-graph-queries-v1-6-ventureInfinityStoneDataByVentureId",
+            "name": "VentureInfinityStoneDataByVentureId",
+            "valid": false,
+            "errors": 1,
+            "warnings": 1,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.6923076923076923
+            }
+          },
+          {
+            "id": "shared-graph-queries-v1-7-ventureInfinityStoneDataByDomain",
+            "name": "VentureInfinityStoneDataByDomain",
+            "valid": false,
+            "errors": 3,
+            "warnings": 1,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.5
+            }
+          },
+          {
+            "id": "shared-graph-queries-v2-0-unnamed",
+            "name": "Query",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.7
+            }
+          },
+          {
+            "id": "shared-graph-queries-v2-1-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.5454545454545454
+            }
+          },
+          {
+            "id": "shared-graph-queries-v2-2-unnamed",
+            "name": "Query",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.5217391304347826
+            }
+          },
+          {
+            "id": "shared-graph-queries-v2-3-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.5454545454545454
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-0-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.5882352941176471
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-1-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.8
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-2-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "venture",
+              "confidence": 0.5333333333333333
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-3-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.6470588235294118
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-4-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "venture",
+              "confidence": 0.6470588235294118
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-5-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 1
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-6-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "venture",
+              "confidence": 0.5555555555555556
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-7-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "venture",
+              "confidence": 0.5294117647058824
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-8-getVentureDomainInfo",
+            "name": "GetVentureDomainInfo",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.5555555555555556
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-9-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.6
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-10-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.6666666666666666
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-11-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.6666666666666666
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-12-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 1
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-13-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "venture",
+              "confidence": 0.5555555555555556
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-14-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.6
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-15-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.6666666666666666
+            }
+          },
+          {
+            "id": "shared-graph-queries-v3-16-unnamed",
+            "name": "QueryNames",
+            "valid": false,
+            "errors": 1,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "customer",
+              "confidence": 0.6666666666666666
+            }
+          }
+        ]
+      },
+      "billing": {
+        "total": 2,
+        "valid": 2,
+        "invalid": 0,
+        "warnings": 0,
+        "queries": [
+          {
+            "id": "offer-graph-queries-0-FindUnifiedBillDetails",
+            "name": "FindUnifiedBillDetails",
+            "valid": true,
+            "errors": 0,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "billing",
+              "confidence": 1
+            }
+          },
+          {
+            "id": "offer-graph-queries-1-ModifyBasketWithOptions",
+            "name": "ModifyBasketWithOptions",
+            "valid": true,
+            "errors": 0,
+            "warnings": 0,
+            "classification": {
+              "detectedSchema": "billing",
+              "confidence": 1
+            }
+          }
+        ]
+      }
+    },
+    "summary": {
+      "valid": 3,
+      "invalid": 30,
+      "warnings": 6
+    }
+  },
+  "results": [
+    {
+      "id": "SmartVariantExtractor-0-unnamed",
+      "queryId": "SmartVariantExtractor-0-unnamed",
+      "queryName": "FragmentSmartVariantExtractor",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected single quote character ('), did you mean to use a double quote (\")?",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\n'fragmentA'\n^\nSyntax Error: Unexpected single quote character ('), did you mean to use a double quote (\")?"
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "unknown",
+        "confidence": 0
+      }
+    },
+    {
+      "id": "offer-graph-queries-0-FindUnifiedBillDetails",
+      "queryId": "offer-graph-queries-0-FindUnifiedBillDetails",
+      "queryName": "FindUnifiedBillDetails",
+      "schema": "billing",
+      "validationResult": {
+        "valid": true,
+        "errors": [],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "billing",
+        "confidence": 1
+      }
+    },
+    {
+      "id": "offer-graph-queries-1-ModifyBasketWithOptions",
+      "queryId": "offer-graph-queries-1-ModifyBasketWithOptions",
+      "queryName": "ModifyBasketWithOptions",
+      "schema": "billing",
+      "validationResult": {
+        "valid": true,
+        "errors": [],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "billing",
+        "confidence": 1
+      }
+    },
+    {
+      "id": "quicklinks-0-getQuickLinksData",
+      "queryId": "quicklinks-0-getQuickLinksData",
+      "queryName": "GetQuickLinksData",
+      "schema": "customer",
+      "validationResult": {
+        "valid": true,
+        "errors": [],
+        "warnings": [
+          {
+            "message": "Field 'CustomerQuery.venture' is deprecated: Use ventureNode",
+            "field": "CustomerQuery.venture",
+            "suggestion": "Check the schema documentation for alternatives",
+            "type": "deprecation"
+          },
+          {
+            "message": "Field 'WebsiteProduct.properties' is deprecated: Use calculated fields to ensure forward compatibility",
+            "field": "WebsiteProduct.properties",
+            "suggestion": "Check the schema documentation for alternatives",
+            "type": "deprecation"
+          }
+        ]
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.6428571428571429
+      }
+    },
+    {
+      "id": "shared-graph-queries-v1-0-unnamed",
+      "queryId": "shared-graph-queries-v1-0-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"ventureFragment\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nventureFragment query queryNames.allV1 { user { ventures { ...ventureFields profile { name aapOnboarded aiOnboarded metadata { createdAt updatedAt } } } userFragmentProjectCounts } }\n^\nSyntax Error: Unexpected Name \"ventureFragment\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.5882352941176471
+      }
+    },
+    {
+      "id": "shared-graph-queries-v1-1-singleVentureByVentureId",
+      "queryId": "shared-graph-queries-v1-1-singleVentureByVentureId",
+      "queryName": "SingleVentureByVentureId",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Expected \"on\", found Name \"SingleVentureByVentureId\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 16
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nfragment query SingleVentureByVentureId($ventureId: UUID!) { venture(ventureId: $ventureId) { ...ventureInfinityStoneDataFields } }\n               ^\nSyntax Error: Expected \"on\", found Name \"SingleVentureByVentureId\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.6666666666666666
+      }
+    },
+    {
+      "id": "shared-graph-queries-v1-2-singleVentureByVentureId",
+      "queryId": "shared-graph-queries-v1-2-singleVentureByVentureId",
+      "queryName": "SingleVentureByVentureId",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Expected \"on\", found Name \"SingleVentureByVentureId\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 16
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nfragment query SingleVentureByVentureId($ventureId: UUID!) { venture(ventureId: $ventureId) { ...ventureFields } }\n               ^\nSyntax Error: Expected \"on\", found Name \"SingleVentureByVentureId\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.8125
+      }
+    },
+    {
+      "id": "shared-graph-queries-v1-3-unnamed",
+      "queryId": "shared-graph-queries-v1-3-unnamed",
+      "queryName": "Query",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Expected \"on\", found Name \"queryName\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 16
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nfragment query queryName(queryArgs) { user { userCustomerTypeFragment ventures { ...ventureIsInfinityStoneFields } userFragmentProjectCounts } ventureQuery(ventureArgs) { ...ventureInfinityStoneDataFields } }\n               ^\nSyntax Error: Expected \"on\", found Name \"queryName\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.5909090909090909
+      }
+    },
+    {
+      "id": "shared-graph-queries-v1-4-projectByEntitlement",
+      "queryId": "shared-graph-queries-v1-4-projectByEntitlement",
+      "queryName": "ProjectByEntitlement",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Cannot query field \"product\" on type \"CustomerQuery\". Did you mean \"project\" or \"projects\"?",
+            "locations": [
+              {
+                "line": 2,
+                "column": 3
+              }
+            ],
+            "type": "field",
+            "suggestion": "Field 'product' does not exist on type 'CustomerQuery\". Did you mean \"project\" or \"projects'. Check the schema for available fields."
+          },
+          {
+            "message": "Variable \"$entitlementId\" is never used in operation \"ProjectByEntitlement\".",
+            "locations": [
+              {
+                "line": 1,
+                "column": 28
+              }
+            ],
+            "type": "schema",
+            "suggestion": "Check that all variables are properly defined and match their expected types."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 1
+      }
+    },
+    {
+      "id": "shared-graph-queries-v1-5-allVentures",
+      "queryId": "shared-graph-queries-v1-5-allVentures",
+      "queryName": "AllVentures",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Cannot query field \"websitesFragment\" on type \"Product\".",
+            "locations": [
+              {
+                "line": 10,
+                "column": 11
+              }
+            ],
+            "type": "field",
+            "suggestion": "Field 'websitesFragment' does not exist on type 'Product'. Check the schema for available fields."
+          }
+        ],
+        "warnings": [
+          {
+            "message": "Field 'CurrentUser.ventures' is deprecated: Use CustomerQuery.ventures",
+            "field": "CurrentUser.ventures",
+            "suggestion": "Check the schema documentation for alternatives",
+            "type": "deprecation"
+          },
+          {
+            "message": "Field 'Venture.logoUrl' is deprecated: Use profile.logoUrl instead",
+            "field": "Venture.logoUrl",
+            "suggestion": "Check the schema documentation for alternatives",
+            "type": "deprecation"
+          }
+        ]
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.5833333333333334
+      }
+    },
+    {
+      "id": "shared-graph-queries-v1-6-ventureInfinityStoneDataByVentureId",
+      "queryId": "shared-graph-queries-v1-6-ventureInfinityStoneDataByVentureId",
+      "queryName": "VentureInfinityStoneDataByVentureId",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Cannot query field \"profileInfinityStoneFragment\" on type \"Profile\".",
+            "locations": [
+              {
+                "line": 4,
+                "column": 7
+              }
+            ],
+            "type": "field",
+            "suggestion": "Field 'profileInfinityStoneFragment' does not exist on type 'Profile'. Check the schema for available fields."
+          }
+        ],
+        "warnings": [
+          {
+            "message": "Field 'CustomerQuery.venture' is deprecated: Use ventureNode",
+            "field": "CustomerQuery.venture",
+            "suggestion": "Check the schema documentation for alternatives",
+            "type": "deprecation"
+          }
+        ]
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.6923076923076923
+      }
+    },
+    {
+      "id": "shared-graph-queries-v1-7-ventureInfinityStoneDataByDomain",
+      "queryId": "shared-graph-queries-v1-7-ventureInfinityStoneDataByDomain",
+      "queryName": "VentureInfinityStoneDataByDomain",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Unknown argument \"ventureId\" on field \"CustomerQuery.ventureByDomainName\".",
+            "locations": [
+              {
+                "line": 2,
+                "column": 32
+              }
+            ],
+            "type": "field"
+          },
+          {
+            "message": "Cannot query field \"profileInfinityStoneFragment\" on type \"Profile\".",
+            "locations": [
+              {
+                "line": 4,
+                "column": 7
+              }
+            ],
+            "type": "field",
+            "suggestion": "Field 'profileInfinityStoneFragment' does not exist on type 'Profile'. Check the schema for available fields."
+          },
+          {
+            "message": "Field \"ventureByDomainName\" argument \"domainName\" of type \"String!\" is required, but it was not provided.",
+            "locations": [
+              {
+                "line": 2,
+                "column": 3
+              }
+            ],
+            "type": "field"
+          }
+        ],
+        "warnings": [
+          {
+            "message": "Field 'CustomerQuery.ventureByDomainName' is deprecated: Use ventureNode",
+            "field": "CustomerQuery.ventureByDomainName",
+            "suggestion": "Check the schema documentation for alternatives",
+            "type": "deprecation"
+          }
+        ]
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.5
+      }
+    },
+    {
+      "id": "shared-graph-queries-v2-0-unnamed",
+      "queryId": "shared-graph-queries-v2-0-unnamed",
+      "queryName": "Query",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Expected \"on\", found Name \"queryNames\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 16
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nfragment query queryNames.byIdV2($ventureId: UUID!) { user { ventures { id projects { group status } } userFragmentProjectCounts } venture(ventureId: $ventureId) { ...ventureFields } }\n               ^\nSyntax Error: Expected \"on\", found Name \"queryNames\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.7
+      }
+    },
+    {
+      "id": "shared-graph-queries-v2-1-unnamed",
+      "queryId": "shared-graph-queries-v2-1-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected character: \".\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 17
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nquery queryNames.skeleton { user { ventures { id projects { group status product { type } } } userFragmentProjectCounts } }\n                ^\nSyntax Error: Unexpected character: \".\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.5454545454545454
+      }
+    },
+    {
+      "id": "shared-graph-queries-v2-2-unnamed",
+      "queryId": "shared-graph-queries-v2-2-unnamed",
+      "queryName": "Query",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Expected \"on\", found Name \"queryNames\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 16
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nfragment query queryNames.byDomainV2($domainName: String!) { user { ventures { id projects { group status } } userFragmentProjectCounts } venture: ventureByDomainName(domainName: $domainName) { ...ventureFields } }\n               ^\nSyntax Error: Expected \"on\", found Name \"queryNames\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.5217391304347826
+      }
+    },
+    {
+      "id": "shared-graph-queries-v2-3-unnamed",
+      "queryId": "shared-graph-queries-v2-3-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"gql\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\ngql` query queryNames.skeleton { user { ventures { id projects { group status product { type } } } userFragmentProjectCounts } } `\n^\nSyntax Error: Unexpected Name \"gql\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.5454545454545454
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-0-unnamed",
+      "queryId": "shared-graph-queries-v3-0-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"ventureFragment\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nventureFragment query queryNames.allV1 { user { ventures { ...ventureFields profile { name aapOnboarded aiOnboarded metadata { createdAt updatedAt } } } userFragmentProjectCounts } }\n^\nSyntax Error: Unexpected Name \"ventureFragment\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.5882352941176471
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-1-unnamed",
+      "queryId": "shared-graph-queries-v3-1-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"ventureFragment\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nventureFragment query queryNames.byIdV3($ventureId: UUID!) { venture(ventureId: $ventureId) { ...ventureFields } }\n^\nSyntax Error: Unexpected Name \"ventureFragment\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.8
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-2-unnamed",
+      "queryId": "shared-graph-queries-v3-2-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"ventureFragment\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nventureFragment query queryNames.byDomainV3($domainName: String!) { venture: ventureByDomainName(domainName: $domainName) { ...ventureFields } }\n^\nSyntax Error: Unexpected Name \"ventureFragment\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "venture",
+        "confidence": 0.5333333333333333
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-3-unnamed",
+      "queryId": "shared-graph-queries-v3-3-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"ventureISDataFieldsFragment\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nventureISDataFieldsFragment query queryNames.byIdV3Airo($ventureId: UUID!) { venture(ventureId: $ventureId) { ...ventureInfinityStoneDataFields } }\n^\nSyntax Error: Unexpected Name \"ventureISDataFieldsFragment\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.6470588235294118
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-4-unnamed",
+      "queryId": "shared-graph-queries-v3-4-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"ventureISDataFieldsFragment\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nventureISDataFieldsFragment query queryNames.byDomainV3Airo($domainName: String!) { venture: ventureByDomainName(domainName: $domainName) { ...ventureInfinityStoneDataFields } }\n^\nSyntax Error: Unexpected Name \"ventureISDataFieldsFragment\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "venture",
+        "confidence": 0.6470588235294118
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-5-unnamed",
+      "queryId": "shared-graph-queries-v3-5-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected character: \".\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 17
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nquery queryNames.userV3 { user { userCustomerTypeFragment userFragmentProjectCounts } }\n                ^\nSyntax Error: Unexpected character: \".\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 1
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-6-unnamed",
+      "queryId": "shared-graph-queries-v3-6-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected character: \".\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 17
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nquery queryNames.userV3 { user { ventures { id } } }\n                ^\nSyntax Error: Unexpected character: \".\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "venture",
+        "confidence": 0.5555555555555556
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-7-unnamed",
+      "queryId": "shared-graph-queries-v3-7-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"ventureISDataFieldsFragment\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nventureISDataFieldsFragment query queryNames.clientSideV3 { user { ventures { ...ventureInfinityStoneDataFields } } }\n^\nSyntax Error: Unexpected Name \"ventureISDataFieldsFragment\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "venture",
+        "confidence": 0.5294117647058824
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-8-getVentureDomainInfo",
+      "queryId": "shared-graph-queries-v3-8-getVentureDomainInfo",
+      "queryName": "GetVentureDomainInfo",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"domainProductFragment\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\ndomainProductFragment query GetVentureDomainInfo($ventureId: UUID!) { venture(ventureId: $ventureId) { ...domainProductFields } }\n^\nSyntax Error: Unexpected Name \"domainProductFragment\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.5555555555555556
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-9-unnamed",
+      "queryId": "shared-graph-queries-v3-9-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected character: \".\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 17
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nquery queryNames.aapDomainSuccessPoll($ventureId: UUID) { venture: ventureNode(ventureId: $ventureId) { projects { edges { node { group product { ... on DomainProduct { domainName } ... on WebsiteProduct { properties } } } } } } }\n                ^\nSyntax Error: Unexpected character: \".\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.6
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-10-unnamed",
+      "queryId": "shared-graph-queries-v3-10-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected character: \".\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 17
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nquery queryNames.aapRenewalSuccessPoll ($ventureId: UUID) { venture: ventureNode(ventureId: $ventureId) { projects { edges { node { subscription { entitlements { status } } group } } } } }\n                ^\nSyntax Error: Unexpected character: \".\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.6666666666666666
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-11-unnamed",
+      "queryId": "shared-graph-queries-v3-11-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected character: \".\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 17
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\nquery queryNames.aapEmailClaimPoll ($ventureId: UUID) { venture: ventureNode(ventureId: $ventureId) { projects { edges { node { group domain } } } } }\n                ^\nSyntax Error: Unexpected character: \".\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.6666666666666666
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-12-unnamed",
+      "queryId": "shared-graph-queries-v3-12-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"gql\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\ngql` query queryNames.userV3 { user { userCustomerTypeFragment userFragmentProjectCounts } } `\n^\nSyntax Error: Unexpected Name \"gql\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 1
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-13-unnamed",
+      "queryId": "shared-graph-queries-v3-13-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"gql\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\ngql` query queryNames.userV3 { user { ventures { id } } } `\n^\nSyntax Error: Unexpected Name \"gql\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "venture",
+        "confidence": 0.5555555555555556
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-14-unnamed",
+      "queryId": "shared-graph-queries-v3-14-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"gql\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\ngql` query queryNames.aapDomainSuccessPoll($ventureId: UUID) { venture: ventureNode(ventureId: $ventureId) { projects { edges { node { group product { ... on DomainProduct { domainName } ... on WebsiteProduct { properties } } } } } } } `\n^\nSyntax Error: Unexpected Name \"gql\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.6
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-15-unnamed",
+      "queryId": "shared-graph-queries-v3-15-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"gql\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\ngql` query queryNames.aapRenewalSuccessPoll ($ventureId: UUID) { venture: ventureNode(ventureId: $ventureId) { projects { edges { node { subscription { entitlements { status } } group } } } } } `\n^\nSyntax Error: Unexpected Name \"gql\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.6666666666666666
+      }
+    },
+    {
+      "id": "shared-graph-queries-v3-16-unnamed",
+      "queryId": "shared-graph-queries-v3-16-unnamed",
+      "queryName": "QueryNames",
+      "schema": "customer",
+      "validationResult": {
+        "valid": false,
+        "errors": [
+          {
+            "message": "Syntax error: Syntax Error: Unexpected Name \"gql\".",
+            "type": "syntax",
+            "locations": [
+              {
+                "line": 1,
+                "column": 1
+              }
+            ],
+            "suggestion": "Check for missing brackets, quotes, or invalid GraphQL syntax",
+            "diff": "Line 1:\ngql` query queryNames.aapEmailClaimPoll ($ventureId: UUID) { venture: ventureNode(ventureId: $ventureId) { projects { edges { node { group domain } } } } } `\n^\nSyntax Error: Unexpected Name \"gql\"."
+          }
+        ],
+        "warnings": []
+      },
+      "classification": {
+        "detectedSchema": "customer",
+        "confidence": 0.6666666666666666
+      }
+    }
+  ]
+}
