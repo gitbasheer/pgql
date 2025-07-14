@@ -127,9 +127,39 @@ export async function execGH(
  * Validate branch name to prevent injection
  */
 export function validateBranchName(branch: string): boolean {
-  // Allow alphanumeric, hyphens, underscores, forward slashes
-  const validBranchPattern = /^[a-zA-Z0-9/_-]+$/;
-  return validBranchPattern.test(branch);
+  // Allow alphanumeric, hyphens, underscores, forward slashes, and dots
+  // This matches common branch naming patterns like feature/BA-302, release_v1.0.0
+  const validBranchPattern = /^[a-zA-Z0-9/_.-]+$/;
+  
+  // Additional validation: prevent common injection patterns
+  const dangerousPatterns = [
+    /\$\(/, // Command substitution
+    /`/,    // Backticks
+    /;/,    // Command separator
+    /\|/,   // Pipe
+    /&/,    // Background/chain
+    />/,    // Redirect
+    /</,    // Input redirect
+    /\*/,   // Wildcard (could be dangerous in some contexts)
+    /\?/,   // Wildcard
+    /\[/,   // Character class
+    /\]/,   // Character class
+    /\s/,   // Whitespace (except in paths)
+    /\.\./  // Directory traversal
+  ];
+  
+  if (!validBranchPattern.test(branch)) {
+    return false;
+  }
+  
+  // Check for dangerous patterns
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(branch)) {
+      return false;
+    }
+  }
+  
+  return true;
 }
 
 /**

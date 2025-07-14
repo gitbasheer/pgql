@@ -32,9 +32,11 @@ export class VariantGenerator {
 
   private findQuerySwitches(query: ResolvedQuery, switches: Map<string, VariantSwitch>): VariantSwitch[] {
     const querySwitches: VariantSwitch[] = [];
+    const foundVars = new Set<string>();
     
     // Look for dynamic patterns in the query content
-    const placeholderPattern = /\$\{([^}]+)\}/g;
+    // Updated pattern to match broken expressions too (missing closing brace)
+    const placeholderPattern = /\$\{([^}]*)\}?/g;
     let match;
     
     while ((match = placeholderPattern.exec(query.resolvedContent)) !== null) {
@@ -42,8 +44,15 @@ export class VariantGenerator {
       
       // Check if this expression contains any known switches
       for (const [varName, varSwitch] of switches) {
-        if (expression.includes(varName)) {
-          querySwitches.push(varSwitch);
+        // Normalize expression to handle spaces/newlines
+        const normalizedExpr = expression.replace(/\s+/g, ' ').trim();
+        
+        // Check for exact match (enum case) or if expression contains the variable
+        if (normalizedExpr === varName || normalizedExpr.includes(varName)) {
+          if (!foundVars.has(varName)) {
+            querySwitches.push(varSwitch);
+            foundVars.add(varName);
+          }
         }
       }
     }
@@ -112,15 +121,26 @@ export class VariantGenerator {
       const placeholderPattern = /\$\{([^}]+)\}/g;
       
       variantContent = variantContent.replace(placeholderPattern, (match, expression) => {
-        // Simple ternary evaluation
-        const ternaryMatch = expression.match(/(\w+)\s*\?\s*['"]?(\w+)['"]?\s*:\s*['"]?(\w+)['"]?/);
+        // First check for simple variable replacement (enum case)
+        const trimmedExpr = expression.trim();
+        if (condition.switches[trimmedExpr] !== undefined) {
+          return String(condition.switches[trimmedExpr]);
+        }
+        
+        // Handle ternary expressions with various quote styles and nested content
+        // Match pattern: variable ? trueValue : falseValue
+        // This regex handles quoted strings, nested braces, and complex content
+        const ternaryMatch = expression.match(/(\w+)\s*\?\s*["']?([^"':]*(?:{[^}]*}[^"':]*)?)["']?\s*:\s*["']?([^"'}]*(?:{[^}]*}[^"'}]*)?)["']?/);
         
         if (ternaryMatch) {
           const [, varName, trueValue, falseValue] = ternaryMatch;
           const conditionValue = condition.switches[varName];
           
           if (conditionValue !== undefined) {
-            return conditionValue ? trueValue : falseValue;
+            // For boolean conditions, return the appropriate branch
+            const value = conditionValue ? trueValue : falseValue;
+            // Clean up the value - remove quotes if they were part of the capture
+            return value.trim();
           }
         }
         

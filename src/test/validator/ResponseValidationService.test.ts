@@ -28,6 +28,7 @@ vi.mock('../../core/validator/AlignmentGenerator');
 vi.mock('../../core/validator/ABTestingFramework');
 vi.mock('../../core/validator/ResponseStorage');
 vi.mock('../../core/validator/ValidationReportGenerator');
+vi.mock('fs/promises');
 vi.mock('../../utils/logger');
 
 describe('ResponseValidationService', () => {

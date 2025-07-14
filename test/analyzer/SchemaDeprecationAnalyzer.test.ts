@@ -27,7 +27,7 @@ describe('Endpoint mapping and validation', () => {
     const oldSchema = `
       type Venture {
         id: ID!
-        logoUrl: String @deprecated
+        logoUrl: String @deprecated(reason: "Use profile.logoUrl")
       }
     `;
     const newSchema = `

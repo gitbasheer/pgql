@@ -1,3 +1,41 @@
 import { vi } from 'vitest';
-vi.mock('fs/promises', () => ({ readdir: vi.fn(), readFile: vi.fn() }));
-vi.mock('@apollo/client', () => ({ ApolloClient: vi.fn(), gql: (query: string) => query }));
+
+// Mock fs/promises
+vi.mock('fs/promises', () => ({ 
+  readdir: vi.fn().mockResolvedValue([]),
+  readFile: vi.fn().mockResolvedValue('mock file content'),
+  writeFile: vi.fn().mockResolvedValue(undefined),
+  mkdir: vi.fn().mockResolvedValue(undefined),
+  rm: vi.fn().mockResolvedValue(undefined),
+  rmdir: vi.fn().mockResolvedValue(undefined),
+  stat: vi.fn().mockResolvedValue({ isDirectory: () => true }),
+  access: vi.fn().mockResolvedValue(undefined)
+}));
+
+// Mock Apollo Client
+vi.mock('@apollo/client', () => ({ 
+  ApolloClient: vi.fn().mockImplementation(() => ({
+    query: vi.fn().mockResolvedValue({ data: {} })
+  })),
+  gql: (query: any) => query,
+  InMemoryCache: vi.fn(),
+  HttpLink: vi.fn()
+}));
+
+// Mock simple-git
+vi.mock('simple-git', () => ({
+  default: vi.fn().mockReturnValue({
+    checkout: vi.fn().mockResolvedValue(undefined),
+    checkoutLocalBranch: vi.fn().mockResolvedValue(undefined),
+    add: vi.fn().mockResolvedValue(undefined),
+    commit: vi.fn().mockResolvedValue(undefined),
+    push: vi.fn().mockResolvedValue(undefined),
+    branch: vi.fn().mockResolvedValue({ current: 'main' })
+  })
+}));
+
+// Mock graphql-inspector
+vi.mock('@graphql-inspector/core', () => ({
+  diff: vi.fn().mockReturnValue([]),
+  validate: vi.fn().mockReturnValue([])
+}));

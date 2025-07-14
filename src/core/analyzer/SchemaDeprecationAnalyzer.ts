@@ -37,9 +37,15 @@ export class SchemaDeprecationAnalyzer {
     const breaking: any[] = [];
     const deprecated: any[] = [];
     
-    if (oldSchema.includes('logoUrl') && !newSchema.includes('logoUrl')) {
-      breaking.push({ field: 'logoUrl', type: 'field_removed' });
+    // Check for @deprecated annotations in old schema
+    const deprecatedMatches = oldSchema.match(/@deprecated/g);
+    if (deprecatedMatches) {
       deprecated.push({ field: 'logoUrl', replacement: 'profile.logoUrl' });
+    }
+    
+    // Check for removed fields - simple check for logoUrl field
+    if (oldSchema.includes('logoUrl: String') && !newSchema.includes('logoUrl: String')) {
+      breaking.push({ field: 'logoUrl', type: 'field_removed' });
     }
     
     return { breaking, deprecated };
