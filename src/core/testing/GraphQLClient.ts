@@ -1,8 +1,7 @@
-import { ApolloClient, InMemoryCache, HttpLink, gql, DocumentNode, NormalizedCacheObject } from '@apollo/client';
+import { ApolloClient, InMemoryCache, HttpLink, gql, DocumentNode, NormalizedCacheObject } from '@apollo/client/core';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import fetch from 'node-fetch';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
