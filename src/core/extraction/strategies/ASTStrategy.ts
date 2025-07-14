@@ -1,5 +1,5 @@
 import * as babel from '@babel/parser';
-import traverse from '@babel/traverse/lib/index.js';
+import traverse from '@babel/traverse';
 import { BaseStrategy } from './BaseStrategy';
 import { ExtractedQuery, QueryContext, ImportInfo, OperationType, SourceAST } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';
