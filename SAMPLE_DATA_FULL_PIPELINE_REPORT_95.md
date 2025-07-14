@@ -1,5 +1,6 @@
 # Sample Data Full Pipeline Report - 95% Coverage
 
+**Author:** Z (Integration Lead)
 **Date:** 2025-07-14T23:16:00.000Z
 **Branch:** z-sample-testing
 **Pipeline Coverage:** 95.2%

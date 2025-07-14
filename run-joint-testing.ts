@@ -1,4 +1,6 @@
-/** @fileoverview Joint testing script for vnext-dashboard with real data per CLAUDE.local.md */
+/** @fileoverview Joint testing script for vnext-dashboard with real data per CLAUDE.local.md
+ * @author Z (Integration Lead)
+ */
 
 import { UnifiedExtractor } from './src/core/extraction/engine/UnifiedExtractor.js';
 import { ResponseValidationService } from './src/core/validator/ResponseValidationService.js';

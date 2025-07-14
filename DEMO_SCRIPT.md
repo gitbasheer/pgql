@@ -1,5 +1,6 @@
 # GraphQL Migration Tool - Joint Demo Script
 
+**Author:** Z (Integration Lead)
 **Teams:** X (UI), Y (Backend), Z (Integration)
 **Duration:** 15 minutes
 **Date:** July 14, 2025
