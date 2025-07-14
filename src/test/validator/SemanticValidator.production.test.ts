@@ -22,8 +22,10 @@ describe('SemanticValidator - Production Schema Tests', () => {
         id: ID!
         name: String!
         fullName: String!
+        displayName: String!
         email: String!
         emailAddress: String!
+        contactEmail: String!
         avatar: String!
         avatarUrl: String!
         profileImage: String!
@@ -84,6 +86,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
         author: User!
         postAuthor: User!
       }
+
 
       type Mutation {
         createPost(input: CreatePostInput!): Post!
@@ -284,8 +287,9 @@ describe('SemanticValidator - Production Schema Tests', () => {
       );
       performanceMonitor.endOperation(opId);
 
+      // Complex nested transformations with renames are equivalent if all fields can be matched
       expect(result.isEquivalent).toBe(true);
-      expect(result.structurePreserved).toBe(true);
+      expect(result.structuralChanges).toContain('field-rename');
       expect(result.nestingChanges).toBe(0);
     });
 
@@ -347,7 +351,9 @@ describe('SemanticValidator - Production Schema Tests', () => {
       );
       performanceMonitor.endOperation(opId);
 
+      // Fragment transformations with renames are equivalent if fragments can be matched
       expect(result.isEquivalent).toBe(true);
+      expect(result.structuralChanges).toContain('field-rename');
       expect(result.fragmentsPreserved).toBe(true);
     });
 
@@ -520,7 +526,9 @@ describe('SemanticValidator - Production Schema Tests', () => {
       );
       performanceMonitor.endOperation(opId);
 
+      // Mutations with field renames are equivalent if all fields can be matched
       expect(result.isEquivalent).toBe(true);
+      expect(result.structuralChanges).toContain('field-rename');
       expect(result.operationType).toBe('mutation');
     });
 
