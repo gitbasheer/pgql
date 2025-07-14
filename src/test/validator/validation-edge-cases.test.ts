@@ -9,7 +9,7 @@ import { CapturedResponse } from '../../core/validator/types';
 describe('Validation Edge Cases', () => {
   describe('Dynamic Pattern Validation', () => {
     let validator: SchemaValidator;
-    const schema = buildSchema(`
+    const schemaSDL = `
       type Query {
         getUserV1(id: ID!): User
         getUserV2(id: ID!): User
@@ -29,11 +29,12 @@ describe('Validation Edge Cases', () => {
         domain: String!
         name: String
       }
-    `);
+    `;
+    const schema = buildSchema(schemaSDL);
 
     beforeEach(async () => {
       validator = new SchemaValidator();
-      await validator.loadSchema(schema.toString());
+      await validator.loadSchema(schemaSDL);
     });
 
     it('should validate queries with dynamic pattern names', async () => {
@@ -87,7 +88,7 @@ describe('Validation Edge Cases', () => {
 
     beforeEach(async () => {
       validator = new SchemaValidator();
-      const schema = buildSchema(`
+      const schemaSDL = `
         type Query {
           search(query: String!, filters: SearchFilters): SearchResult
         }
@@ -108,8 +109,9 @@ describe('Validation Edge Cases', () => {
           name: String!
           price: Float!
         }
-      `);
-      await validator.loadSchema(schema.toString());
+      `;
+      const schema = buildSchema(schemaSDL);
+      await validator.loadSchema(schemaSDL);
     });
 
     it('should handle template literals with complex expressions', async () => {

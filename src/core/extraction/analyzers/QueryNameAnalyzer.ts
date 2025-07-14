@@ -22,9 +22,9 @@ export class QueryNameAnalyzer {
 
     // Still apply name enhancement for queries without patterns
     return patternQueries.map(query => {
-      if (!query.namePattern && !query.name) {
+      if (!query.namePattern) {
         const enhancedName = this.enhanceQueryName(query);
-        if (enhancedName) {
+        if (enhancedName && enhancedName !== query.name) {
           query.name = enhancedName;
           logger.debug(`Enhanced static query name to '${enhancedName}'`);
         }
@@ -47,11 +47,20 @@ export class QueryNameAnalyzer {
 
     // Try to infer from context
     if (query.context) {
-      return this.inferNameFromContext(query.context, query.type);
+      const contextName = this.inferNameFromContext(query.context, query.type);
+      if (contextName) {
+        return contextName;
+      }
     }
 
     // Try to infer from file path
-    return this.inferNameFromPath(query.filePath, query.type);
+    const pathName = this.inferNameFromPath(query.filePath, query.type);
+    if (pathName) {
+      return pathName;
+    }
+
+    // Return the original name if nothing better found
+    return query.name;
   }
 
   private extractNameFromContent(content: string): string | undefined {
@@ -65,15 +74,20 @@ export class QueryNameAnalyzer {
 
   private inferNameFromContext(context: QueryContext, type: string): string | undefined {
     if (context.functionName) {
-      return this.formatName(context.functionName, type);
+      return this.formatName(context.functionName, type, 'function');
     }
 
     if (context.componentName) {
-      return this.formatName(`${context.componentName}${this.capitalize(type)}`, type);
+      // For components, add type suffix
+      return `${this.capitalize(context.componentName)}${this.capitalize(type)}`;
     }
 
     if (context.exportName) {
-      return this.formatName(context.exportName, type);
+      // Keep export names as-is if they're all caps, otherwise format
+      if (context.exportName === context.exportName.toUpperCase()) {
+        return context.exportName;
+      }
+      return this.formatName(context.exportName, type, 'export');
     }
 
     return undefined;
@@ -90,16 +104,56 @@ export class QueryNameAnalyzer {
     return this.formatName(fileName, type);
   }
 
-  private formatName(baseName: string, type: string): string {
+  private formatName(baseName: string, type: string, source?: string): string {
+    // Store original to check if it had type suffix
+    const originalName = baseName;
+    const hadTypeSuffix = /(Query|Mutation|Subscription|Fragment)$/i.test(originalName);
+    
     // Remove common suffixes
     baseName = baseName.replace(/(Query|Mutation|Subscription|Fragment)$/i, '');
 
-    // Add type prefix if not present
-    const typePrefix = this.capitalize(type);
-    if (!baseName.toLowerCase().includes(type.toLowerCase())) {
-      return `${typePrefix}${this.capitalize(baseName)}`;
+    // Handle different formatting based on source
+    if (source === 'function') {
+      // For functions, preserve the type suffix if it was there
+      if (hadTypeSuffix) {
+        return this.capitalize(originalName);
+      }
+      // For action names (get, create, etc.), just capitalize
+      const isActionName = baseName.toLowerCase().startsWith('get') ||
+                          baseName.toLowerCase().startsWith('create') ||
+                          baseName.toLowerCase().startsWith('update') ||
+                          baseName.toLowerCase().startsWith('delete') ||
+                          baseName.toLowerCase().startsWith('on');
+      
+      if (isActionName) {
+        return this.capitalize(baseName);
+      }
+      
+      // For non-action function names, add type prefix
+      return `${this.capitalize(type)}${this.capitalize(baseName)}`;
     }
 
+    // For general cases
+    const isActionName = baseName.toLowerCase().startsWith('get') ||
+                        baseName.toLowerCase().startsWith('create') ||
+                        baseName.toLowerCase().startsWith('update') ||
+                        baseName.toLowerCase().startsWith('delete') ||
+                        baseName.toLowerCase().startsWith('on');
+
+    // If original had type suffix and it's an action name, preserve it
+    if (hadTypeSuffix && isActionName) {
+      return this.capitalize(originalName);
+    }
+
+    // Check if type is already in the name
+    const hasType = baseName.toLowerCase().includes(type.toLowerCase());
+
+    if (!hasType && !isActionName) {
+      // For non-action names without type, prepend Query/Mutation/etc
+      return `${this.capitalize(type)}${this.capitalize(baseName)}`;
+    }
+
+    // Otherwise just capitalize
     return this.capitalize(baseName);
   }
 

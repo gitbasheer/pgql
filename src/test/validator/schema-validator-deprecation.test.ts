@@ -5,7 +5,7 @@ import { buildSchema } from 'graphql';
 describe('SchemaValidator - Deprecation Field Checking', () => {
   let validator: SchemaValidator;
 
-  const schemaWithDeprecations = buildSchema(`
+  const schemaSDL = `
     type Query {
       users: [User!]!
       oldUsers: [User!]! @deprecated(reason: "Use users instead")
@@ -35,11 +35,13 @@ describe('SchemaValidator - Deprecation Field Checking', () => {
       INACTIVE
       SUSPENDED
     }
-  `);
+  `;
+
+  const schemaWithDeprecations = buildSchema(schemaSDL);
 
   beforeEach(async () => {
     validator = new SchemaValidator();
-    await validator.loadSchema(schemaWithDeprecations.toString());
+    await validator.loadSchema(schemaSDL);
   });
 
   it('should detect deprecated fields in queries', async () => {

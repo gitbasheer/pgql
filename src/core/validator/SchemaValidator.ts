@@ -258,7 +258,7 @@ export class SchemaValidator {
                 field: `${typeName}.${fieldName}`,
                 suggestion: deprecationInfo.suggestedReplacement
                   ? `Use '${deprecationInfo.suggestedReplacement}' instead`
-                  : 'Check the schema documentation for alternatives',
+                  : this.extractSuggestionFromReason(deprecationInfo.deprecationReason),
                 type: 'deprecation'
               });
             }
