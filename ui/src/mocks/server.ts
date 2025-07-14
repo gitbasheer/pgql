@@ -259,7 +259,7 @@ function simulatePipeline(pipelineId: string, io: Server) {
   setTimeout(() => processNextStage(), 1000);
 }
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`Mock server running on port ${PORT}`);
 });

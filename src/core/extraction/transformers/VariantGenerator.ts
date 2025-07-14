@@ -81,6 +81,13 @@ export class VariantGenerator {
   }
 
   private generateQueryVariants(query: ResolvedQuery, switches: VariantSwitch[]): QueryVariant[] {
+    // EVENT_PLACEHOLDER: Publish variant generation start
+    // e.g., await eventBusClient.publish({ 
+    //   source: 'pgql.pipeline', 
+    //   detailType: 'progress', 
+    //   detail: { stage: 'variant-generation', message: `Generating variants for ${query.name}` } 
+    // });
+    
     const variants: QueryVariant[] = [];
     
     // Generate all combinations
@@ -92,6 +99,13 @@ export class VariantGenerator {
         variants.push(variant);
       }
     }
+    
+    // EVENT_PLACEHOLDER: Publish variant generation completion
+    // e.g., await eventBusClient.publish({ 
+    //   source: 'pgql.pipeline', 
+    //   detailType: 'progress', 
+    //   detail: { stage: 'variant-generation', message: `Generated ${variants.length} variants for ${query.name}` } 
+    // });
     
     return variants;
   }

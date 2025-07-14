@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import '../styles/github-integration.css';
@@ -47,6 +48,7 @@ export default function GitHubIntegration({ onRepoCloned }: GitHubIntegrationPro
   return (
     <div className="github-integration">
       <button 
+        type="button"
         className="github-btn"
         onClick={() => setShowCloneDialog(true)}
       >
@@ -56,10 +58,10 @@ export default function GitHubIntegration({ onRepoCloned }: GitHubIntegrationPro
         Clone from GitHub
       </button>
 
-      {showCloneDialog && (
+      {showCloneDialog && createPortal(
         <div className="clone-dialog-overlay" onClick={() => setShowCloneDialog(false)}>
-          <div className="clone-dialog" onClick={(e) => e.stopPropagation()}>
-            <h3>Clone GitHub Repository</h3>
+          <div className="clone-dialog" role="dialog" aria-labelledby="clone-dialog-title" onClick={(e) => e.stopPropagation()}>
+            <h3 id="clone-dialog-title">Clone GitHub Repository</h3>
             <form onSubmit={handleClone}>
               <input
                 type="text"
@@ -86,7 +88,8 @@ export default function GitHubIntegration({ onRepoCloned }: GitHubIntegrationPro
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

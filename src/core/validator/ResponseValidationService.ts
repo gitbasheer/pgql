@@ -578,6 +578,13 @@ export class ResponseValidationService {
    * Test query on real API
    */
   async testOnRealApi(params: TestParams): Promise<any> {
+    // EVENT_PLACEHOLDER: Publish to Event Bus instead of direct socket
+    // e.g., await eventBusClient.publish({ 
+    //   source: 'pgql.pipeline', 
+    //   detailType: 'progress', 
+    //   detail: { stage: 'testing', message: `Testing query ${params.query.name} on real API` } 
+    // });
+    
     const client = new ApolloClient({
       link: new HttpLink({
         uri: this.getEndpointUrl(params.query.endpoint),
@@ -607,9 +614,23 @@ export class ResponseValidationService {
         JSON.stringify(data, null, 2)
       );
       
+      // EVENT_PLACEHOLDER: Publish test result
+      // e.g., await eventBusClient.publish({ 
+      //   source: 'pgql.pipeline', 
+      //   detailType: 'progress', 
+      //   detail: { stage: 'testing', message: `Test successful for ${params.query.name}` } 
+      // });
+      
       logger.info(`API test successful for ${params.query.name}`);
       return data;
     } catch (error) {
+      // EVENT_PLACEHOLDER: Publish test error
+      // e.g., await eventBusClient.publish({ 
+      //   source: 'pgql.pipeline', 
+      //   detailType: 'error', 
+      //   detail: { stage: 'testing', message: `Test failed for ${params.query.name}: ${error.message}` } 
+      // });
+      
       logger.error('API Test Error:', error);
       throw error;
     }

@@ -255,7 +255,22 @@ export class UnifiedExtractor {
   }
 
   async extractFromRepo(): Promise<ExtractedQuery[]> {
+    // EVENT_PLACEHOLDER: Publish to Event Bus instead of direct socket
+    // e.g., await eventBusClient.publish({ 
+    //   source: 'pgql.pipeline', 
+    //   detailType: 'progress', 
+    //   detail: { stage: 'extraction', message: 'Starting repository extraction' } 
+    // });
+    
     const result = await this.extract();
+    
+    // EVENT_PLACEHOLDER: Publish extraction progress
+    // e.g., await eventBusClient.publish({ 
+    //   source: 'pgql.pipeline', 
+    //   detailType: 'progress', 
+    //   detail: { stage: 'extraction', message: `Found ${result.queries.length} queries` } 
+    // });
+    
     return this.standardizeQueries(result.queries);
   }
 
