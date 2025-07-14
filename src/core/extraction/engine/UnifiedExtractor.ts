@@ -8,6 +8,7 @@ import {
   ExtractedQuery,
   ResolvedQuery
 } from '../types/index';
+import { Endpoint } from '../../../types/pgql.types';
 import { ExtractionContext } from './ExtractionContext';
 import { ExtractionPipeline } from './ExtractionPipeline';
 import { PluckStrategy } from '../strategies/PluckStrategy';
@@ -15,6 +16,7 @@ import { ASTStrategy } from '../strategies/ASTStrategy';
 import { BaseStrategy } from '../strategies/BaseStrategy';
 import { astCache } from '../../cache/CacheManager';
 import { monitor } from '../../monitoring/PerformanceMonitor';
+import { createHash } from 'crypto';
 
 export class UnifiedExtractor {
   // NOTE:what does context present?
@@ -145,7 +147,7 @@ export class UnifiedExtractor {
   }
 
   @monitor('extraction.file')
-  private async extractFromFile(filePath: string): Promise<ExtractedQuery[]> {
+  async extractFromFile(filePath: string): Promise<ExtractedQuery[]> {
     try {
       // Check AST cache first (aggressive caching)
       const cachedQueries = await astCache.get<ExtractedQuery[]>('queries', filePath);
@@ -180,12 +182,19 @@ export class UnifiedExtractor {
         }
       }
 
+      // Enhance queries with endpoint classification
+      const enhancedQueries = queries.map(query => ({
+        ...query,
+        endpoint: this.determineEndpoint(filePath, content),
+        sourceFile: filePath
+      }));
+
       // Cache results (both in-memory and persistent)
-      this.context.setCached('file', filePath, queries);
-      await astCache.set('queries', filePath, queries, 3600000); // 1 hour TTL
+      this.context.setCached('file', filePath, enhancedQueries);
+      await astCache.set('queries', filePath, enhancedQueries, 3600000); // 1 hour TTL
       this.context.incrementStat('processedFiles');
 
-      return queries;
+      return enhancedQueries;
     } catch (error) {
       this.context.addError(
         filePath,
@@ -226,5 +235,70 @@ export class UnifiedExtractor {
 
     // Otherwise use pluck results
     return pluckResults;
+  }
+
+  private determineEndpoint(filePath: string, content: string): Endpoint {
+    // Check file path patterns
+    if (filePath.includes('offer-graph')) {
+      return 'offerGraph';
+    }
+    
+    // Check content patterns for Offer Graph
+    if (content.includes('useOfferGraphMutation') || 
+        content.includes('getClientSideOGClient') ||
+        content.includes('offerGraphClient')) {
+      return 'offerGraph';
+    }
+    
+    // Default to Product Graph
+    return 'productGraph';
+  }
+
+  async extractFromRepo(): Promise<ExtractedQuery[]> {
+    const result = await this.extract();
+    return this.standardizeQueries(result.queries);
+  }
+
+  private standardizeQueries(queries: ResolvedQuery[]): ExtractedQuery[] {
+    return queries.map(q => {
+      const standardized: ExtractedQuery = {
+        query: q.content,
+        fullExpandedQuery: q.resolvedContent || q.content,
+        name: this.generateUniqueName(q),
+        variables: this.extractVariables(q),
+        fragments: q.fragments || [],
+        endpoint: (q as any).endpoint || 'productGraph',
+        sourceFile: q.file
+      };
+      return standardized;
+    });
+  }
+
+  private generateUniqueName(query: ResolvedQuery): string {
+    // Use operation name if available
+    if (query.name) {
+      return query.name;
+    }
+    
+    // Generate hash-based name as fallback
+    const hash = createHash('sha256')
+      .update(query.resolvedContent || query.content)
+      .digest('hex')
+      .slice(0, 10);
+    
+    return `Query_${hash}`;
+  }
+
+  private extractVariables(query: ResolvedQuery): Record<string, string> {
+    const variables: Record<string, string> = {};
+    
+    // Extract from AST if available
+    if (query.ast && query.variables) {
+      query.variables.forEach(v => {
+        variables[v.name] = v.type;
+      });
+    }
+    
+    return variables;
   }
 }

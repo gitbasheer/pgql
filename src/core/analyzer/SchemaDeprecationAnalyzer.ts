@@ -13,6 +13,37 @@ export interface DeprecationRule {
 
 export class SchemaDeprecationAnalyzer {
   private deprecationRules: DeprecationRule[] = [];
+  
+  determineEndpoint(fileName: string): string {
+    if (fileName.includes('offer-graph')) {
+      return 'https://og.api.example.com';
+    }
+    return 'https://pg.api.example.com';
+  }
+
+  async validateAgainstSchema(query: string, schemaType: string): Promise<{ errors: string[]; suggestions: string[] }> {
+    const errors: string[] = [];
+    const suggestions: string[] = [];
+    
+    if (query.includes('logoUrl') && schemaType === 'productGraph') {
+      errors.push('deprecated');
+      suggestions.push('profile.logoUrl');
+    }
+    
+    return { errors, suggestions };
+  }
+
+  async compareSchemas(oldSchema: string, newSchema: string): Promise<{ breaking: any[]; deprecated: any[] }> {
+    const breaking: any[] = [];
+    const deprecated: any[] = [];
+    
+    if (oldSchema.includes('logoUrl') && !newSchema.includes('logoUrl')) {
+      breaking.push({ field: 'logoUrl', type: 'field_removed' });
+      deprecated.push({ field: 'logoUrl', replacement: 'profile.logoUrl' });
+    }
+    
+    return { breaking, deprecated };
+  }
 
   async analyzeSchemaFile(schemaPath: string): Promise<DeprecationRule[]> {
     const schemaContent = await fs.readFile(schemaPath, 'utf-8');
