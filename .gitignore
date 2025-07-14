@@ -83,10 +83,6 @@ serve-*.js
 extracted-*.json
 extraction-*.json
 query-*.json
-test-extraction*.json
-test-*-validation.json
-transformed-queries-fixtures.json
-response-transformation-fixtures.json
 extracted-queries/
 extracted-variants/
 extracted-advanced-variants/
@@ -99,41 +95,11 @@ production-report/
 test-pipeline/
 *.html
 deprecations.json
-validation-*.json
-multi-schema-*.json
-
-# Large data files in audit-rad
-audit-rad/*.csv
-audit-rad/*.json
-
-# Diagrams and images (keeping essential ones in docs/)
-diagrams-to-audit/
-*.png
-*.jpg
-*.jpeg
-*.gif
-!docs/**/*.png
-!docs/**/*.jpg
-
-# Large CSV data files
-*.csv
-!docs/**/*.csv
-!audit-rad/rad-data-dictionary.csv
 
 # Example and test data
 examples/
 # data/sample_data/
 test/fixtures/
-validation-storage/
-
-# Large test files and temporary data
-test-*.json
-test-*.ts
-!src/test/**/*.test.ts
-!test/**/*.test.ts
-status*.md
-kofelo-*.md
-comprehensive-completion-checklist.md
 
 # Documentation that's not essential
 docs/archive/
@@ -160,6 +126,12 @@ stryker.config.json
 
 # Vitest setup
 vitest.setup.ts
+
+# Large files (2000+ lines)
+audit-rad/rad-field-analysis.json
+audit-rad/wam-general-Jun 30, 2025, 11_50 AM.csv
+audit-rad/graphql-queries-simple.md
+audit-rad/graphql-queries-alternative.mmd
 
 # Any personal or debugging files
 revert-*.sh
