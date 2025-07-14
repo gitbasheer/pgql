@@ -9,6 +9,23 @@ const mockedAxios = axios as unknown as {
   create: MockedFunction<typeof axios.create>;
 };
 
+// Mock AuthHelper for SSO tests
+vi.mock('../../core/validator/AuthHelper', () => ({
+  AuthHelper: {
+    getSSOTokens: vi.fn().mockResolvedValue({
+      auth_idp: 'mock-auth-idp',
+      cust_idp: 'mock-cust-idp',
+      info_cust_idp: 'mock-info-cust-idp',
+      info_idp: 'mock-info-idp'
+    }),
+    formatCookies: vi.fn().mockImplementation((tokens) => {
+      return Object.entries(tokens)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('; ');
+    })
+  }
+}));
+
 describe('ResponseCaptureService - Cookie Authentication', () => {
   let service: ResponseCaptureService;
   let mockAxiosInstance: Partial<AxiosInstance>;
@@ -41,7 +58,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
   });
 
   describe('Cookie Authentication Configuration', () => {
-    it('should configure axios with cookie header for cookie auth type', () => {
+    it('should configure axios with cookie header for cookie auth type', async () => {
       const endpoint: EndpointConfig = {
         url: 'https://pg.api.godaddy.com/v1/gql/customer',
         authentication: {
@@ -55,6 +72,16 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       };
 
       service = new ResponseCaptureService([endpoint]);
+      
+      // Trigger client initialization
+      await service.captureBaseline([{
+        id: 'test',
+        content: '{ __typename }',
+        type: 'query',
+        filePath: 'test.ts',
+        location: { line: 1, column: 1 },
+        hash: 'test-hash'
+      }]);
 
       // Verify axios was created with correct config
       expect(mockedAxios.create).toHaveBeenCalledWith(
@@ -69,7 +96,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       );
     });
 
-    it('should handle empty cookies gracefully', () => {
+    it('should handle empty cookies gracefully', async () => {
       const endpoint: EndpointConfig = {
         url: 'https://pg.api.godaddy.com/v1/gql/customer',
         authentication: {
@@ -81,6 +108,16 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       };
 
       service = new ResponseCaptureService([endpoint]);
+      
+      // Trigger client initialization
+      await service.captureBaseline([{
+        id: 'test',
+        content: '{ __typename }',
+        type: 'query',
+        filePath: 'test.ts',
+        location: { line: 1, column: 1 },
+        hash: 'test-hash'
+      }]);
 
       expect(mockedAxios.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -91,7 +128,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       );
     });
 
-    it('should not add cookie header for non-cookie auth types', () => {
+    it('should not add cookie header for non-cookie auth types', async () => {
       const endpoint: EndpointConfig = {
         url: 'https://api.example.com/graphql',
         authentication: {
@@ -101,6 +138,16 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       };
 
       service = new ResponseCaptureService([endpoint]);
+      
+      // Trigger client initialization
+      await service.captureBaseline([{
+        id: 'test',
+        content: '{ __typename }',
+        type: 'query',
+        filePath: 'test.ts',
+        location: { line: 1, column: 1 },
+        hash: 'test-hash'
+      }]);
 
       expect(mockedAxios.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -111,7 +158,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       );
     });
 
-    it('should log info for SSO authentication type', () => {
+    it('should log info for SSO authentication type', async () => {
       const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
       
       const endpoint: EndpointConfig = {
@@ -126,11 +173,23 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       };
 
       service = new ResponseCaptureService([endpoint]);
+      
+      // Trigger client initialization
+      await service.captureBaseline([{
+        id: 'test',
+        content: '{ __typename }',
+        type: 'query',
+        filePath: 'test.ts',
+        location: { line: 1, column: 1 },
+        hash: 'test-hash'
+      }]);
 
-      // SSO logging happens in logger.info which we need to mock properly
-      // For now, just verify the axios config doesn't include cookies
+      // SSO authentication should use cookies from AuthHelper
       expect(mockedAxios.create).toHaveBeenCalledWith(
-        expect.not.objectContaining({
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'Cookie': 'auth_idp=mock-auth-idp; cust_idp=mock-cust-idp; info_cust_idp=mock-info-cust-idp; info_idp=mock-info-idp'
+          }),
           withCredentials: true
         })
       );
@@ -140,7 +199,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
   });
 
   describe('Multiple Endpoints with Different Auth', () => {
-    it('should create separate clients for each endpoint', () => {
+    it('should create separate clients for each endpoint', async () => {
       const endpoints: EndpointConfig[] = [
         {
           url: 'https://pg.api.godaddy.com/v1/gql/customer',
@@ -161,6 +220,16 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       ];
 
       service = new ResponseCaptureService(endpoints);
+      
+      // Trigger client initialization
+      await service.captureBaseline([{
+        id: 'test',
+        content: '{ __typename }',
+        type: 'query',
+        filePath: 'test.ts',
+        location: { line: 1, column: 1 },
+        hash: 'test-hash'
+      }]);
 
       expect(mockedAxios.create).toHaveBeenCalledTimes(2);
       
@@ -186,7 +255,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
   });
 
   describe('Cookie String Formation', () => {
-    it('should format cookies correctly with semicolon separator', () => {
+    it('should format cookies correctly with semicolon separator', async () => {
       const endpoint: EndpointConfig = {
         url: 'https://pg.api.godaddy.com/v1/gql/customer',
         authentication: {
@@ -202,6 +271,16 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       };
 
       service = new ResponseCaptureService([endpoint]);
+      
+      // Trigger client initialization
+      await service.captureBaseline([{
+        id: 'test',
+        content: '{ __typename }',
+        type: 'query',
+        filePath: 'test.ts',
+        location: { line: 1, column: 1 },
+        hash: 'test-hash'
+      }]);
 
       expect(mockedAxios.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -212,7 +291,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       );
     });
 
-    it('should handle special characters in cookie values', () => {
+    it('should handle special characters in cookie values', async () => {
       const endpoint: EndpointConfig = {
         url: 'https://pg.api.godaddy.com/v1/gql/customer',
         authentication: {
@@ -227,6 +306,16 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       };
 
       service = new ResponseCaptureService([endpoint]);
+      
+      // Trigger client initialization
+      await service.captureBaseline([{
+        id: 'test',
+        content: '{ __typename }',
+        type: 'query',
+        filePath: 'test.ts',
+        location: { line: 1, column: 1 },
+        hash: 'test-hash'
+      }]);
 
       expect(mockedAxios.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -239,7 +328,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
   });
 
   describe('Error Handling', () => {
-    it('should handle missing authentication gracefully', () => {
+    it('should handle missing authentication gracefully', async () => {
       const endpoint: EndpointConfig = {
         url: 'https://pg.api.godaddy.com/v1/gql/customer'
       };
@@ -247,6 +336,16 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       expect(() => {
         service = new ResponseCaptureService([endpoint]);
       }).not.toThrow();
+      
+      // Trigger client initialization
+      await service.captureBaseline([{
+        id: 'test',
+        content: '{ __typename }',
+        type: 'query',
+        filePath: 'test.ts',
+        location: { line: 1, column: 1 },
+        hash: 'test-hash'
+      }]);
 
       expect(mockedAxios.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -258,7 +357,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
       );
     });
 
-    it('should handle malformed cookie authentication config', () => {
+    it('should handle malformed cookie authentication config', async () => {
       const endpoint: EndpointConfig = {
         url: 'https://pg.api.godaddy.com/v1/gql/customer',
         authentication: {

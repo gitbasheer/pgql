@@ -149,10 +149,15 @@ export class SchemaValidator {
 
     // Parse the query if it's a string
     let document: DocumentNode;
-    const queryString = typeof query === 'string' ? query : '';
+    let queryString = typeof query === 'string' ? query : '';
+
+    // Preprocess template literals for dynamic patterns
+    if (typeof query === 'string') {
+      queryString = this.preprocessTemplateLiterals(query);
+    }
 
     try {
-      document = typeof query === 'string' ? parse(query) : query;
+      document = typeof query === 'string' ? parse(queryString) : query;
     } catch (error) {
       const syntaxError = error as GraphQLError;
       return {
@@ -415,6 +420,64 @@ export class SchemaValidator {
     } catch (error) {
       throw new Error(`Failed to load schema: ${error instanceof Error ? error.message : String(error)}`);
     }
+  }
+
+  /**
+   * Preprocesses template literals in GraphQL queries for validation
+   * @param query - Raw query string that may contain template literals
+   * @returns Processed query with template literals replaced by valid GraphQL
+   */
+  private preprocessTemplateLiterals(query: string): string {
+    // Replace ${...} patterns with placeholder values based on context
+    let processedQuery = query;
+
+    // Handle query/mutation/subscription name patterns
+    processedQuery = processedQuery.replace(
+      /(\b(?:query|mutation|subscription)\s+)\$\{[^}]+\}/g,
+      '$1DynamicQuery'
+    );
+
+    // Handle string interpolations in quotes: "${expr}" → "placeholder"
+    processedQuery = processedQuery.replace(
+      /"\$\{[^}]+\}"/g,
+      '"placeholder"'
+    );
+
+    // Handle numeric interpolations: ${expr} → 0 (when in numeric context)
+    processedQuery = processedQuery.replace(
+      /:\s*\$\{[^}]+\}/g,
+      ': 0'
+    );
+
+    // Handle field interpolations in GraphQL field position
+    processedQuery = processedQuery.replace(
+      /\n\s*\$\{[^}]*\?[^}]*:[^}]*\}\s*\n/g,
+      (match) => {
+        // Extract the field from ternary: ${condition ? 'field' : ''}
+        const fieldMatch = match.match(/['"`](\w+)['"`]/);
+        return fieldMatch ? `\n            ${fieldMatch[1]}\n` : '\n';
+      }
+    );
+
+    // Handle getUserV${version} patterns → getUserV1
+    processedQuery = processedQuery.replace(
+      /(\w+V)\$\{[^}]+\}/g,
+      '$1_Dynamic'
+    );
+
+    // Handle simple field interpolations: ${fieldName} → fieldName
+    processedQuery = processedQuery.replace(
+      /\$\{(\w+)\}/g,
+      '$1'
+    );
+
+    // Handle any remaining complex expressions: ${...} → placeholder
+    processedQuery = processedQuery.replace(
+      /\$\{[^}]+\}/g,
+      'placeholder'
+    );
+
+    return processedQuery;
   }
 
   /**

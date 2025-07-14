@@ -89,12 +89,11 @@ export class MigrationValidator {
         summary.missingQueries++;
       } else {
         // Query exists, check for modifications
+        summary.matchedQueries++; // Count as matched since it exists in both
         const modifications = await this.compareQueries(beforeQuery, afterQuery, options);
         if (modifications.length > 0) {
           issues.push(...modifications);
           summary.modifiedQueries++;
-        } else {
-          summary.matchedQueries++;
         }
       }
     }
