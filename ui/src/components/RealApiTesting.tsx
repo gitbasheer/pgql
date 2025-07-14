@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { testOnRealApi, getRealApiTestResults, triggerRealApiTests, type TestParams } from '../services/api';
+import type { DifferenceDetail } from '../types/api.types';
 import '../styles/real-api-testing.css';
 
 interface RealApiTestingProps {
@@ -77,11 +78,12 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
               Test Against Real API
             </button>
           ) : (
-            <form onSubmit={handleAuthSubmit} className="auth-form">
+            <form onSubmit={handleAuthSubmit} className="auth-form" aria-label="Authentication form for real API testing">
               <div className="auth-inputs">
                 <input
                   type="password"
                   placeholder="Cookies (session data)"
+                  aria-label="Authentication cookies"
                   value={authConfig.cookies}
                   onChange={(e) => setAuthConfig(prev => ({ ...prev, cookies: e.target.value }))}
                   required
@@ -89,6 +91,7 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
                 <input
                   type="text"
                   placeholder="App Key"
+                  aria-label="Application key"
                   value={authConfig.appKey}
                   onChange={(e) => setAuthConfig(prev => ({ ...prev, appKey: e.target.value }))}
                   required
@@ -108,8 +111,8 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
       </div>
 
       {isLoading ? (
-        <div className="loading-state">
-          <div className="spinner" />
+        <div className="loading-state" role="status" aria-live="polite">
+          <div className="spinner" aria-hidden="true" />
           <p>Loading test results...</p>
         </div>
       ) : testResults ? (
@@ -139,7 +142,7 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
                 <div className="test-info">
                   <span className="query-name">{result.queryName}</span>
                   <div className="test-badges">
-                    <span className={`status-badge ${result.status}`}>
+                    <span className={`status-badge ${result.status}`} role="status" aria-label={`Test status: ${result.status}`}>
                       {result.status}
                     </span>
                     {result.baselineExists && (
@@ -158,7 +161,7 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
                           ⚠ {result.comparisonResult.differences?.length || 0} differences found
                         </summary>
                         <div className="differences-list">
-                          {result.comparisonResult.differences?.map((diff: any, i: number) => (
+                          {result.comparisonResult.differences?.map((diff: DifferenceDetail, i: number) => (
                             <div key={i} className="difference-item">
                               <strong>{diff.path}:</strong> {diff.description}
                             </div>

@@ -2,6 +2,8 @@
  * API service for Dashboard UI - integrates with Y's GraphQLClient
  */
 
+import type { TestingAccount, ApiResponse, DifferenceDetail } from '../types/api.types';
+
 export interface TestParams {
   query: {
     name: string;
@@ -12,15 +14,15 @@ export interface TestParams {
     cookies: string;
     appKey: string;
   };
-  testingAccount?: any;
+  testingAccount?: TestingAccount;
 }
 
 export interface BaselineResult {
   baseline: string;
-  response: any;
+  response: ApiResponse;
   comparison?: {
     matches: boolean;
-    differences: any[];
+    differences: DifferenceDetail[];
   };
 }
 
@@ -68,7 +70,10 @@ export async function getRealApiTestResults(pipelineId: string): Promise<{
     queryName: string;
     status: 'passed' | 'failed' | 'pending';
     baselineExists: boolean;
-    comparisonResult?: any;
+    comparisonResult?: {
+      matches: boolean;
+      differences: DifferenceDetail[];
+    };
   }>;
 }> {
   const response = await fetch(`/api/pipeline/${pipelineId}/real-api-tests`);
