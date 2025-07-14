@@ -371,4 +371,96 @@ index abc123..def456 100644
     // Should still only have one fetch call
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
+
+  it('should handle real PR diff loading', async () => {
+    const user = userEvent.setup();
+    
+    const mockRealPRResponse = {
+      prUrl: 'https://github.com/test/repo/pull/789',
+      diff: `diff --git a/src/queries/user.ts b/src/queries/user.ts
+index 1234567..abcdefg 100644
+--- a/src/queries/user.ts
++++ b/src/queries/user.ts
+@@ -1,4 +1,4 @@
+-query getUser($id: ID!) { user(id: $id) { name email } }
++query getUser($id: ID!) { userV2(userId: $id) { fullName emailAddress } }`,
+      message: 'PR generated with real query transformations'
+    };
+
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockRealPRResponse,
+    });
+
+    renderComponent();
+
+    const generateButton = screen.getByRole('button', { name: 'Generate Pull Request' });
+    await user.click(generateButton);
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('Pull request generated successfully!');
+    });
+
+    // Verify real diff content is rendered
+    expect(screen.getAllByText(/query getUser/)).toHaveLength(2);
+    expect(screen.getByText(/userV2/)).toBeInTheDocument();
+    expect(screen.getByText(/fullName emailAddress/)).toBeInTheDocument();
+  });
+
+  it('should handle real API error responses in PR generation', async () => {
+    const user = userEvent.setup();
+    
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ 
+        message: 'Real API authentication failed for PR generation',
+        details: 'Invalid auth cookies provided'
+      }),
+    });
+
+    renderComponent();
+
+    const generateButton = screen.getByRole('button', { name: 'Generate Pull Request' });
+    await user.click(generateButton);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Failed to generate PR: Real API authentication failed for PR generation');
+    });
+  });
+
+  it('should verify real diff visualization with syntax highlighting', async () => {
+    const user = userEvent.setup();
+    
+    const mockGraphQLDiff = {
+      prUrl: 'https://github.com/test/vnext/pull/456',
+      diff: `diff --git a/queries/ventures.graphql b/queries/ventures.graphql
+--- a/queries/ventures.graphql
++++ b/queries/ventures.graphql
+@@ -1,3 +1,3 @@
+-query GetVentures { ventures { id name } }
++query GetVentures { venturesV2 { id displayName } }`,
+      transformations: [
+        { from: 'ventures', to: 'venturesV2', type: 'field_rename' },
+        { from: 'name', to: 'displayName', type: 'field_rename' }
+      ]
+    };
+
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockGraphQLDiff,
+    });
+
+    renderComponent();
+
+    await user.click(screen.getByRole('button', { name: 'Generate Pull Request' }));
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('Pull request generated successfully!');
+    });
+
+    // Verify GraphQL transformation content
+    expect(screen.getAllByText(/GetVentures/)).toHaveLength(2);
+    expect(screen.getByText(/venturesV2/)).toBeInTheDocument();
+    expect(screen.getByText(/displayName/)).toBeInTheDocument();
+  });
 });

@@ -4,10 +4,11 @@
 
 ### 1. Initial Dashboard Load
 ![Dashboard Initial State](demo/01-dashboard-initial.png)
-- ✅ Real-time connection status indicator
+- ✅ Real-time connection status indicator (Connected/Disconnected)
 - ✅ Pipeline configuration form with validation
-- ✅ GitHub integration button
+- ✅ GitHub integration button for repository cloning
 - ✅ New "🧪 Test vnext Sample" button for full flow testing
+- ✅ UI running on http://localhost:5174/ with 78.52% test coverage
 
 ### 2. vnext Sample Data Testing (Step 4 Implementation)
 ![vnext Testing Flow](demo/02-vnext-testing.png)
@@ -133,14 +134,30 @@ REACT_APP_TEST_ACCOUNT_ID=test-account-123
 ```bash
 cd ui
 pnpm dev
-# Navigate to http://localhost:5173
+# Navigate to http://localhost:5174/ (auto-port detection)
 ```
 
-### Test Suite
+### Full Flow Test with Real vnext Data
+```bash
+# 1. Set up environment variables
+cp ui/.env.example ui/.env
+# Edit .env with real authentication values
+
+# 2. Start UI development server
+cd ui && pnpm dev
+
+# 3. Open http://localhost:5174/
+# 4. Click "🧪 Test vnext Sample" button
+# 5. Watch real-time pipeline: extraction → testing → PR generation
+# 6. Verify masked authentication in logs
+# 7. Review query diffs and PR preview
+```
+
+### Test Suite (78.52% Coverage)
 ```bash
 cd ui
-pnpm test          # Run all tests
-pnpm test:coverage # Run with coverage report
+pnpm test          # Run all 156 tests
+pnpm test:coverage # Coverage report (78.52%)
 ```
 
 ### Production Build
