@@ -756,13 +756,17 @@ describe('UnifiedMigrationPipeline', () => {
         type: 'field-rename',
         from: 'oldField',
         to: 'newField',
-        parent: undefined
+        parent: undefined,
+        automated: true,
+        description: 'Use `newField` instead'
       });
       expect(rules).toContainEqual({
         type: 'field-rename',
         from: 'email',
         to: 'emailAddress',
-        parent: 'User'
+        parent: 'User',
+        automated: true,
+        description: 'Use `emailAddress` instead'
       });
     });
 
