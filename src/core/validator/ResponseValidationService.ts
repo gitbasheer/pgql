@@ -647,15 +647,13 @@ export class ResponseValidationService {
   }
 
   private getEndpointUrl(endpoint: string): string {
-    const rootDomain = process.env.ROOT_DOMAIN || 'example.com';
-    
     if (endpoint === 'productGraph') {
-      return `https://pg.api.${rootDomain}/v1/gql/customer`;
+      return process.env.APOLLO_PG_ENDPOINT || 'https://pg.api.godaddy.com/v1/gql/customer';
     } else if (endpoint === 'offerGraph') {
-      return `https://og.api.${rootDomain}/v1/graphql`;
+      return process.env.APOLLO_OG_ENDPOINT || 'https://og.api.godaddy.com/';
     }
     
-    return `https://pg.api.${rootDomain}/v1/gql/customer`; // Default
+    return process.env.APOLLO_PG_ENDPOINT || 'https://pg.api.godaddy.com/v1/gql/customer'; // Default
   }
 
   /**
