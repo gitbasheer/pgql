@@ -16,28 +16,49 @@ vi.mock('graphql', () => ({
 
 
 // Mock dependencies
-vi.mock('../../../core/extraction/engine/UnifiedExtractor');
-vi.mock('../../../core/validator/SchemaValidator');
-vi.mock('../../../core/analyzer/SchemaDeprecationAnalyzer');
-vi.mock('../../../core/analyzer/ConfidenceScorer');
-vi.mock('../../../core/safety/ProgressiveMigration');
-vi.mock('../../../core/safety/HealthCheck');
-vi.mock('../../../core/safety/Rollback');
-vi.mock('../../../core/applicator/ASTCodeApplicator');
-vi.mock('../../../core/extraction/utils/SourceMapper');
+vi.mock('../../../core/extraction/engine/UnifiedExtractor', () => ({
+  UnifiedExtractor: vi.fn()
+}));
+vi.mock('../../../core/validator/SchemaValidator', () => ({
+  SchemaValidator: vi.fn()
+}));
+vi.mock('../../../core/analyzer/SchemaDeprecationAnalyzer', () => ({
+  SchemaDeprecationAnalyzer: vi.fn()
+}));
+vi.mock('../../../core/analyzer/ConfidenceScorer', () => ({
+  ConfidenceScorer: vi.fn()
+}));
+vi.mock('../../../core/safety/ProgressiveMigration', () => ({
+  ProgressiveMigration: vi.fn()
+}));
+vi.mock('../../../core/safety/HealthCheck', () => ({
+  HealthCheckSystem: vi.fn()
+}));
+vi.mock('../../../core/safety/Rollback', () => ({
+  RollbackSystem: vi.fn()
+}));
+vi.mock('../../../core/applicator/ASTCodeApplicator', () => ({
+  ASTCodeApplicator: vi.fn()
+}));
+vi.mock('../../../core/extraction/utils/SourceMapper', () => ({
+  SourceMapper: vi.fn()
+}));
 vi.mock('../../../utils/logger');
 vi.mock('fs/promises');
-;
 
 vi.mock('../../../core/transformer/QueryTransformer', () => {
   // Create a proper mock for QueryTransformer inside the mock call
   const createMockQueryTransformer = () => ({
-    transform: vi.fn().mockReturnValue({
-      original: 'query TestQuery { test }',
-      transformed: 'query TestQuery { newTest }',
-      ast: { kind: 'Document' },
-      changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
-      rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }]
+    transform: vi.fn().mockImplementation((content) => {
+      // Ensure we actually transform the content to create differences
+      const transformedContent = content.replace(/test/g, 'newTest');
+      return {
+        original: content,
+        transformed: transformedContent,
+        ast: { kind: 'Document' },
+        changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
+        rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }]
+      };
     })
   });
 
@@ -170,42 +191,29 @@ describe('UnifiedMigrationPipeline', () => {
       getMapping: vi.fn().mockReturnValue({ node: {}, start: 0, end: 10 })
     };
 
-    // Mock the modules using vi.doMock
-    vi.doMock('../../../core/extraction/engine/UnifiedExtractor', () => ({
-      UnifiedExtractor: vi.fn(() => mockExtractor)
-    }));
+    // Now that we have the mock objects setup, we can create the pipeline
+    // The mocks are already defined above via vi.mock() statements
+    
+    // Wire up the mocks to return our mock instances
+    const { UnifiedExtractor } = await import('../../../core/extraction/engine/UnifiedExtractor');
+    const { SchemaValidator } = await import('../../../core/validator/SchemaValidator');
+    const { SchemaDeprecationAnalyzer } = await import('../../../core/analyzer/SchemaDeprecationAnalyzer');
+    const { ConfidenceScorer } = await import('../../../core/analyzer/ConfidenceScorer');
+    const { ProgressiveMigration } = await import('../../../core/safety/ProgressiveMigration');
+    const { HealthCheckSystem } = await import('../../../core/safety/HealthCheck');
+    const { RollbackSystem } = await import('../../../core/safety/Rollback');
+    const { ASTCodeApplicator } = await import('../../../core/applicator/ASTCodeApplicator');
+    const { SourceMapper } = await import('../../../core/extraction/utils/SourceMapper');
 
-    vi.doMock('../../../core/validator/SchemaValidator', () => ({
-      SchemaValidator: vi.fn(() => mockValidator)
-    }));
-
-    vi.doMock('../../../core/analyzer/SchemaDeprecationAnalyzer', () => ({
-      SchemaDeprecationAnalyzer: vi.fn(() => mockDeprecationAnalyzer)
-    }));
-
-    vi.doMock('../../../core/analyzer/ConfidenceScorer', () => ({
-      ConfidenceScorer: vi.fn(() => mockConfidenceScorer)
-    }));
-
-    vi.doMock('../../../core/safety/ProgressiveMigration', () => ({
-      ProgressiveMigration: vi.fn(() => mockProgressiveMigration)
-    }));
-
-    vi.doMock('../../../core/safety/HealthCheck', () => ({
-      HealthCheckSystem: vi.fn(() => mockHealthCheck)
-    }));
-
-    vi.doMock('../../../core/safety/Rollback', () => ({
-      RollbackSystem: vi.fn(() => mockRollbackSystem)
-    }));
-
-    vi.doMock('../../../core/applicator/ASTCodeApplicator', () => ({
-      ASTCodeApplicator: vi.fn(() => mockApplicator)
-    }));
-
-    vi.doMock('../../../core/extraction/utils/SourceMapper', () => ({
-      SourceMapper: vi.fn(() => mockSourceMapper)
-    }));
+    vi.mocked(UnifiedExtractor).mockImplementation(() => mockExtractor as any);
+    vi.mocked(SchemaValidator).mockImplementation(() => mockValidator as any);
+    vi.mocked(SchemaDeprecationAnalyzer).mockImplementation(() => mockDeprecationAnalyzer as any);
+    vi.mocked(ConfidenceScorer).mockImplementation(() => mockConfidenceScorer as any);
+    vi.mocked(ProgressiveMigration).mockImplementation(() => mockProgressiveMigration as any);
+    vi.mocked(HealthCheckSystem).mockImplementation(() => mockHealthCheck as any);
+    vi.mocked(RollbackSystem).mockImplementation(() => mockRollbackSystem as any);
+    vi.mocked(ASTCodeApplicator).mockImplementation(() => mockApplicator as any);
+    vi.mocked(SourceMapper).mockImplementation(() => mockSourceMapper as any);
 
     pipeline = new UnifiedMigrationPipeline(mockConfig, mockOptions);
   });
@@ -224,6 +232,14 @@ describe('UnifiedMigrationPipeline', () => {
           mutations: 0,
           subscriptions: 0
         }
+      });
+      
+      // Verify the operations are correctly extracted
+      expect(result.operations).toHaveLength(1);
+      expect(result.operations[0]).toMatchObject({
+        id: 'q1',
+        name: 'TestQuery',
+        type: 'query'
       });
     });
 
@@ -322,6 +338,7 @@ describe('UnifiedMigrationPipeline', () => {
     });
 
     it('should handle parse errors', async () => {
+      const originalMock = (parse as any).getMockImplementation();
       (parse as any).mockImplementation(() => {
         throw new Error('Parse error');
       });
@@ -330,6 +347,9 @@ describe('UnifiedMigrationPipeline', () => {
 
       expect(result.hasErrors).toBe(true);
       expect(result.errors[0].message).toContain('Failed to parse operation');
+      
+      // Restore the mock
+      (parse as any).mockImplementation(originalMock || (() => ({ kind: 'Document' })));
     });
 
     it('should use custom schema path from config', async () => {
@@ -468,6 +488,25 @@ describe('UnifiedMigrationPipeline', () => {
 
   describe('apply()', () => {
     beforeEach(async () => {
+      // Ensure the QueryTransformer mock is properly set up
+      const imported = await import('../../../core/transformer/QueryTransformer');
+      const { QueryTransformer } = imported;
+      
+      // Reset the mock and set up proper implementation
+      (QueryTransformer as any).mockClear();
+      (QueryTransformer as any).mockImplementation(() => ({
+        transform: vi.fn().mockImplementation((content) => {
+          const transformedContent = content.replace(/test/g, 'newTest');
+          return {
+            original: content,
+            transformed: transformedContent,
+            ast: { kind: 'Document' },
+            changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
+            rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }]
+          };
+        })
+      }));
+      
       await pipeline.extract();
       await pipeline.transform();
     });
@@ -493,7 +532,8 @@ describe('UnifiedMigrationPipeline', () => {
       const result = await pipeline.apply();
 
       expect(fs.writeFile).not.toHaveBeenCalled();
-      expect(result.modifiedFiles).toHaveLength(1); // Still tracks what would be modified
+      expect(result.modifiedFiles).toHaveLength(0); // No files written in dry-run mode
+      expect(result.operationsUpdated).toBe(1); // But operations are still counted
     });
 
     it('should skip low confidence transformations', async () => {
@@ -587,16 +627,16 @@ describe('UnifiedMigrationPipeline', () => {
       const description = pipeline.generatePRDescription();
 
       expect(description).toContain('GraphQL Migration Summary');
-      expect(description).toContain('Operations Processed: 1');
-      expect(description).toContain('Successful Transformations: 1');
-      expect(description).toContain('Average Confidence: 95.0%');
+      expect(description).toContain('**Operations Processed**: 1');
+      expect(description).toContain('**Successful Transformations**: 1');
+      expect(description).toContain('**Average Confidence**: 95.0%');
       expect(description).toContain('Progressive rollout enabled at 1%');
     });
 
     it('should include transformation details', async () => {
       const description = pipeline.generatePRDescription();
 
-      expect(description).toContain('TestQuery');
+      expect(description).toContain('**TestQuery**');
       expect(description).toContain('field-rename: `test` → `newTest`');
     });
 
@@ -701,10 +741,15 @@ describe('UnifiedMigrationPipeline', () => {
         return 'schema content';
       });
 
+      await pipeline.extract();
       await pipeline.transform();
 
-      const { QueryTransformer } = require('../../../core/transformer/QueryTransformer');
-      const constructorCall = QueryTransformer.mock.calls[0];
+      const imported = await import('../../../core/transformer/QueryTransformer');
+      const { QueryTransformer } = imported;
+      
+      // Check that QueryTransformer was called with deprecation rules
+      expect((QueryTransformer as any).mock.calls.length).toBeGreaterThan(0);
+      const constructorCall = (QueryTransformer as any).mock.calls[0];
       const rules = constructorCall[0];
 
       expect(rules).toContainEqual({

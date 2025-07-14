@@ -213,12 +213,32 @@ describe('FragmentInliner', () => {
         {
           id: '1',
           name: 'InvalidQuery',
-          content: 'query { this is invalid GraphQL }',
-          resolvedContent: 'query { this is invalid GraphQL }',
+          content: 'query { { invalid syntax }',
+          resolvedContent: 'query { { invalid syntax }',
           filePath: '/src/queries.ts',
           location: { line: 1, column: 1 },
           hash: 'hash1',
-          resolvedFragments: [],
+          resolvedFragments: [{
+            name: 'TestFragment',
+            content: 'fragment TestFragment on User { id name }',
+            ast: {
+              kind: 'Document',
+              definitions: [{
+                kind: 'FragmentDefinition',
+                name: { kind: 'Name', value: 'TestFragment' },
+                typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
+                selectionSet: {
+                  kind: 'SelectionSet',
+                  selections: [
+                    { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    { kind: 'Field', name: { kind: 'Name', value: 'name' } }
+                  ]
+                }
+              }]
+            },
+            filePath: '/src/fragments.ts',
+            dependencies: []
+          }],
           type: 'query',
         },
       ];

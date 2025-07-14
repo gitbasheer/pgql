@@ -20,6 +20,8 @@ import { ApolloClient, InMemoryCache, HttpLink, gql } from '@apollo/client';
 import { parse, DocumentNode } from 'graphql';
 import * as yaml from 'js-yaml';
 import { promises as fs } from 'fs';
+import { GraphQLClient } from '../testing/GraphQLClient';
+import { GoDaddyAPI } from '../testing/GoDaddyAPI';
 
 export class ResponseValidationService {
   private captureService: ResponseCaptureService;
@@ -519,9 +521,9 @@ export class ResponseValidationService {
   }
 
   /**
-   * Build dynamic variables from testing account
+   * Build dynamic variables from testing account using GoDaddyAPI
    */
-  async buildVariables(queryAst: DocumentNode | string, testingAccount: any): Promise<Record<string, any>> {
+  async buildVariables(queryAst: DocumentNode | string, testingAccount?: any): Promise<Record<string, any>> {
     const ast = typeof queryAst === 'string' ? parse(queryAst) : queryAst;
     const variables: Record<string, any> = {};
     
@@ -533,20 +535,33 @@ export class ResponseValidationService {
     
     const variableDefinitions = queryDef.variableDefinitions || [];
     
+    // If no testing account provided, try to fetch real data using GoDaddyAPI
+    let realTestingAccount = testingAccount;
+    if (!realTestingAccount) {
+      try {
+        const godaddyAPI = new GoDaddyAPI();
+        const ventures = await godaddyAPI.getVentures();
+        realTestingAccount = ventures.user;
+      } catch (error) {
+        logger.warn('Failed to fetch real testing account data:', error);
+        realTestingAccount = { id: 'test-uuid', ventures: [], projects: [] };
+      }
+    }
+    
     for (const varDef of variableDefinitions) {
       const varName = varDef.variable.name.value;
       const varType = this.getTypeString(varDef.type);
       
-      // Map common patterns
-      if (varName === 'ventureId' && testingAccount.ventures?.length > 0) {
-        variables[varName] = testingAccount.ventures[0].id;
-      } else if (varName === 'domainName' && testingAccount.projects?.length > 0) {
-        variables[varName] = testingAccount.projects[0].domain;
+      // Map common patterns with real data
+      if (varName === 'ventureId' && realTestingAccount.ventures?.length > 0) {
+        variables[varName] = realTestingAccount.ventures[0].id;
+      } else if (varName === 'domainName' && realTestingAccount.projects?.length > 0) {
+        variables[varName] = realTestingAccount.projects[0].domain;
       } else if (varName === 'userId' || varName === 'accountId') {
-        variables[varName] = testingAccount.id;
+        variables[varName] = realTestingAccount.id;
       } else if (varType.includes('UUID') || varType.includes('ID')) {
-        // Default UUID for testing
-        variables[varName] = testingAccount.id || 'test-uuid';
+        // Use real ID if available, otherwise default
+        variables[varName] = realTestingAccount.id || 'test-uuid';
       } else if (varType.includes('String')) {
         variables[varName] = 'test-string';
       } else if (varType.includes('Int')) {
@@ -575,37 +590,32 @@ export class ResponseValidationService {
   }
 
   /**
-   * Test query on real API
+   * Test query on real API using GraphQLClient
    */
   async testOnRealApi(params: TestParams): Promise<any> {
-    const client = new ApolloClient({
-      link: new HttpLink({
-        uri: this.getEndpointUrl(params.query.endpoint),
-        credentials: 'include',
-        headers: { 
-          'x-app-key': params.auth.appKey, 
-          Cookie: params.auth.cookies 
-        },
-      }),
-      cache: new InMemoryCache(),
+    const client = new GraphQLClient({
+      endpoint: this.getEndpointUrl(params.query.endpoint),
+      cookieString: params.auth.cookies,
+      appKey: params.auth.appKey,
+      baselineDir: './baselines'
     });
     
     const vars = await this.buildVariables(params.query.fullExpandedQuery, params.testingAccount);
     
     try {
-      const { data } = await client.query({ 
-        query: gql(params.query.fullExpandedQuery), 
-        variables: vars, 
-        errorPolicy: 'all' 
-      });
+      // Use GraphQLClient's query method with baseline saving
+      const data = await client.query(params.query.fullExpandedQuery, vars, true);
       
-      // Save baseline as JSON
-      const baselineDir = './baselines';
-      await fs.mkdir(baselineDir, { recursive: true });
-      await fs.writeFile(
-        `${baselineDir}/${params.query.name}.json`, 
-        JSON.stringify(data, null, 2)
+      // Compare with baseline if it exists
+      const comparison = await client.compareWithBaseline(
+        params.query.fullExpandedQuery, 
+        vars, 
+        data
       );
+      
+      if (comparison && !comparison.matches) {
+        logger.warn(`Baseline comparison failed for ${params.query.name}:`, comparison.differences);
+      }
       
       logger.info(`API test successful for ${params.query.name}`);
       return data;

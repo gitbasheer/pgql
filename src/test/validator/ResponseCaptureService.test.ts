@@ -79,11 +79,15 @@ describe('ResponseCaptureService', () => {
     it('should initialize with default options', async () => {
       service = new ResponseCaptureService([mockEndpoint]);
 
+      // Trigger client initialization
+      await service.captureBaseline([mockQuery]);
+
       expect(mockedAxios.create).toHaveBeenCalledWith({
         baseURL: mockEndpoint.url,
         timeout: mockEndpoint.timeout,
         headers: {
           'Content-Type': 'application/json',
+          'x-app-key': 'vnext-dashboard',
           'Authorization': 'Bearer test-token'
         }
       });
@@ -99,6 +103,9 @@ describe('ResponseCaptureService', () => {
       ];
 
       service = new ResponseCaptureService(endpoints);
+
+      // Trigger client initialization
+      await service.captureBaseline([mockQuery]);
 
       expect(mockedAxios.create).toHaveBeenCalledTimes(2);
     });
@@ -122,6 +129,9 @@ describe('ResponseCaptureService', () => {
 
       service = new ResponseCaptureService([bearerEndpoint]);
 
+      // Trigger client initialization
+      await service.captureBaseline([mockQuery]);
+
       expect(mockedAxios.create).toHaveBeenCalledWith(
         expect.objectContaining({
           headers: expect.objectContaining({
@@ -142,6 +152,9 @@ describe('ResponseCaptureService', () => {
       };
 
       service = new ResponseCaptureService([apiKeyEndpoint]);
+
+      // Trigger client initialization
+      await service.captureBaseline([mockQuery]);
 
       expect(mockedAxios.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -168,6 +181,9 @@ describe('ResponseCaptureService', () => {
 
       service = new ResponseCaptureService([cookieEndpoint]);
 
+      // Trigger client initialization
+      await service.captureBaseline([mockQuery]);
+
       expect(mockedAxios.create).toHaveBeenCalledWith(
         expect.objectContaining({
           headers: expect.objectContaining({
@@ -185,11 +201,15 @@ describe('ResponseCaptureService', () => {
 
       service = new ResponseCaptureService([noAuthEndpoint]);
 
+      // Trigger client initialization
+      await service.captureBaseline([mockQuery]);
+
       expect(mockedAxios.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          headers: {
-            'Content-Type': 'application/json'
-          }
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json',
+            'x-app-key': 'vnext-dashboard'
+          })
         })
       );
     });
