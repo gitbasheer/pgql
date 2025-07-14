@@ -277,6 +277,7 @@ export class UnifiedExtractor {
     return this.standardizeQueries(result.queries);
   }
 
+
   private standardizeQueries(queries: ResolvedQuery[]): ExtractedQuery[] {
     return queries.map(q => {
       const standardized: ExtractedQuery = {

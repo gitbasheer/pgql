@@ -1,0 +1,53 @@
+{
+  "timestamp": "2025-07-14T11:05:04.196Z",
+  "summary": {
+    "totalTests": 3,
+    "successful": 0,
+    "failed": 3,
+    "successRate": 0,
+    "averageResponseTime": 687,
+    "baselinesCreated": 0
+  },
+  "results": [
+    {
+      "queryName": "GET_ALL_VENTURES",
+      "endpoint": "productGraph",
+      "success": false,
+      "responseReceived": false,
+      "dataKeys": [],
+      "errors": [
+        "Request failed: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+      ],
+      "timing": 1100,
+      "baselineSaved": false
+    },
+    {
+      "queryName": "SINGLE_VENTURE",
+      "endpoint": "productGraph",
+      "success": false,
+      "responseReceived": false,
+      "dataKeys": [],
+      "errors": [
+        "Request failed: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+      ],
+      "timing": 537,
+      "baselineSaved": false
+    },
+    {
+      "queryName": "VENTURE_STATES",
+      "endpoint": "productGraph",
+      "success": false,
+      "responseReceived": false,
+      "dataKeys": [],
+      "errors": [
+        "Request failed: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+      ],
+      "timing": 423,
+      "baselineSaved": false
+    }
+  ],
+  "authentication": {
+    "cookiesConfigured": true,
+    "cookieCount": 4
+  }
+}
