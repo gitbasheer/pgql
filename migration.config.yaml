@@ -1,0 +1,57 @@
+# GraphQL Migration Configuration
+# Safety-first approach with progressive rollout
+
+source:
+  # Directories to scan for GraphQL operations
+  include:
+    - "./src/**/*.{js,jsx,ts,tsx}"
+    - "./packages/*/src/**/*.{js,jsx,ts,tsx}"
+  
+  # Patterns to exclude
+  exclude:
+    - "**/node_modules/**"
+    - "**/__tests__/**"
+    - "**/*.test.*"
+    - "**/__generated__/**"
+
+confidence:
+  # Minimum confidence scores for each category
+  automatic: 90      # Automatically apply if score >= 90
+  semiAutomatic: 70  # Require review if score >= 70
+  manual: 0          # Always require manual intervention
+
+rollout:
+  # Progressive rollout configuration
+  initial: 1         # Start with 1% of traffic
+  increment: 10      # Increase by 10% each step
+  interval: "1h"     # Wait 1 hour between increases
+  maxErrors: 0.01    # Rollback if error rate > 1%
+
+safety:
+  # Safety mechanisms
+  requireApproval: true      # Require manual approval for production
+  autoRollback: true        # Automatically rollback on errors
+  healthCheckInterval: 60   # Check health every 60 seconds
+
+# Integration with existing scripts
+integration:
+  scriptsPath: "../pg-migration-organized/pipeline"
+  useExistingExtraction: true
+  useExistingTransformation: true
+  useExistingValidation: true
+
+# Monitoring configuration
+monitoring:
+  provider: "console"  # or "datadog", "prometheus"
+  metrics:
+    - successRate
+    - errorRate
+    - latency
+    - rolloutPercentage
+  
+  alerts:
+    errorThreshold: 0.01
+    latencyThreshold: 2000
+    channels:
+      - type: "log"
+        level: "error"
