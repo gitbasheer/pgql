@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useQuery as useApolloQuery, gql } from '@apollo/client';
 import DiffViewer from 'react-diff-viewer-continued';
 import Modal from 'react-modal';
 import { getBaselineComparisons } from '../services/api';
@@ -20,7 +21,8 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
     query: ExtractedQuery;
     transformation?: TransformationResult;
   } | null>(null);
-  const [activeTab, setActiveTab] = useState<'transformation' | 'baseline'>('transformation');
+  const [activeTab, setActiveTab] = useState<'transformation' | 'baseline' | 'validation'>('transformation');
+  const [validationEnabled, setValidationEnabled] = useState(false);
 
   const { data: baselineComparisons } = useQuery({
     queryKey: ['baseline-comparisons', selectedQuery?.query.queryName],
@@ -28,9 +30,20 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
     enabled: !!selectedQuery?.query.queryName && activeTab === 'baseline',
   });
 
+  // GraphQL query validation using Apollo Client
+  const { data: validationResult, error: validationError } = useApolloQuery(
+    selectedQuery?.query.content ? gql(selectedQuery.query.content) : gql`query { __typename }`,
+    {
+      skip: !validationEnabled || !selectedQuery?.query.content || activeTab !== 'validation',
+      errorPolicy: 'all', // Get validation errors without throwing
+      fetchPolicy: 'no-cache', // Always validate fresh
+    }
+  );
+
   const handleCloseModal = () => {
     setSelectedQuery(null);
     setActiveTab('transformation');
+    setValidationEnabled(false); // Reset validation state
   };
 
   const getStatusBadge = (query: ExtractedQuery) => {
@@ -104,6 +117,15 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
                 >
                   Baseline Comparison
                 </button>
+                <button 
+                  className={`tab-btn ${activeTab === 'validation' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveTab('validation');
+                    setValidationEnabled(true);
+                  }}
+                >
+                  GraphQL Validation
+                </button>
               </div>
               <button className="close-btn" onClick={handleCloseModal}>×</button>
             </div>
@@ -163,7 +185,7 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
                   </div>
                 )}
               </>
-            ) : (
+            ) : activeTab === 'baseline' ? (
               <div className="baseline-content">
                 {baselineComparisons && baselineComparisons.length > 0 ? (
                   baselineComparisons.map((baseline, index) => (
@@ -213,6 +235,60 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
                     <p>Run real API tests to generate baselines.</p>
                   </div>
                 )}
+              </div>
+            ) : (
+              <div className="validation-content">
+                <div className="validation-info">
+                  <h3>GraphQL Query Validation</h3>
+                  <p>Test query syntax and execution against the GraphQL schema using Apollo Client.</p>
+                </div>
+                
+                {validationError ? (
+                  <div className="validation-error">
+                    <h4>❌ Validation Failed</h4>
+                    <div className="error-details">
+                      <strong>Error Type:</strong> {validationError.name}
+                      <br />
+                      <strong>Message:</strong> {validationError.message}
+                      {validationError.graphQLErrors?.length > 0 && (
+                        <div className="graphql-errors">
+                          <h5>GraphQL Errors:</h5>
+                          {validationError.graphQLErrors.map((error, index) => (
+                            <div key={index} className="error-item">
+                              <strong>Location:</strong> Line {error.locations?.[0]?.line}, Column {error.locations?.[0]?.column}
+                              <br />
+                              <strong>Message:</strong> {error.message}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : validationResult ? (
+                  <div className="validation-success">
+                    <h4>✅ Query is Valid</h4>
+                    <p>The query passes GraphQL schema validation and can be executed.</p>
+                    {validationResult && (
+                      <div className="validation-preview">
+                        <h5>Schema Response Preview:</h5>
+                        <pre>{JSON.stringify(validationResult, null, 2)}</pre>
+                      </div>
+                    )}
+                  </div>
+                ) : validationEnabled ? (
+                  <div className="validation-loading">
+                    <p>🔄 Validating query against schema...</p>
+                  </div>
+                ) : (
+                  <div className="validation-disabled">
+                    <p>Query validation not started. Switch to this tab to begin validation.</p>
+                  </div>
+                )}
+                
+                <div className="query-source">
+                  <h4>Query Source:</h4>
+                  <pre className="query-code">{selectedQuery.query.content}</pre>
+                </div>
               </div>
             )}
           </div>

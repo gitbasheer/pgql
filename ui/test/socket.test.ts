@@ -26,6 +26,10 @@ describe('Socket Service', () => {
     expect(mockIo).toHaveBeenCalledWith('http://localhost:3001', {
       path: '/socket.io',
       transports: ['websocket'],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5,
+      timeout: 20000,
     });
     
     expect(socket).toBeDefined();
@@ -71,5 +75,43 @@ describe('Socket Service', () => {
     
     expect(socket.on).toHaveBeenCalledWith('connect', expect.any(Function));
     expect(socket.on).toHaveBeenCalledWith('disconnect', expect.any(Function));
+  });
+
+  it('should set up all pipeline event handlers', () => {
+    const socket = socketService.connect();
+    
+    // Check that all expected event handlers are registered
+    const expectedEvents = [
+      'connect',
+      'disconnect', 
+      'connect_error',
+      'reconnect',
+      'reconnect_error',
+      'pipeline:started',
+      'pipeline:stage',
+      'pipeline:log',
+      'pipeline:error',
+      'pipeline:completed',
+      'realapi:test:started',
+      'realapi:test:completed',
+      'realapi:baseline:saved'
+    ];
+
+    expectedEvents.forEach(eventName => {
+      expect(socket.on).toHaveBeenCalledWith(eventName, expect.any(Function));
+    });
+  });
+
+  it('should handle pipeline events with toast notifications', () => {
+    const socket = socketService.connect();
+    
+    // Get the event handlers
+    const connectHandler = socket.on.mock.calls.find(call => call[0] === 'connect')?.[1];
+    const pipelineStartedHandler = socket.on.mock.calls.find(call => call[0] === 'pipeline:started')?.[1];
+    const pipelineErrorHandler = socket.on.mock.calls.find(call => call[0] === 'pipeline:error')?.[1];
+    
+    expect(connectHandler).toBeDefined();
+    expect(pipelineStartedHandler).toBeDefined();
+    expect(pipelineErrorHandler).toBeDefined();
   });
 });

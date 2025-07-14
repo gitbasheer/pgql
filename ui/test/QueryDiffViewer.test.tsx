@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import QueryDiffViewer from '../src/components/QueryDiffViewer';
 import type { ExtractedQuery, TransformationResult } from '@types/pgql.types';
 
@@ -26,6 +27,7 @@ import { getBaselineComparisons } from '../src/services/api';
 
 describe('QueryDiffViewer', () => {
   let queryClient: QueryClient;
+  let apolloClient: ApolloClient<any>;
 
   const mockQueries = [
     {
@@ -64,12 +66,18 @@ describe('QueryDiffViewer', () => {
         queries: { retry: false },
       },
     });
+    apolloClient = new ApolloClient({
+      uri: '/api/graphql',
+      cache: new InMemoryCache(),
+    });
   });
 
   const renderComponent = (queries = mockQueries) => {
     return render(
       <QueryClientProvider client={queryClient}>
-        <QueryDiffViewer queries={queries} />
+        <ApolloProvider client={apolloClient}>
+          <QueryDiffViewer queries={queries} />
+        </ApolloProvider>
       </QueryClientProvider>
     );
   };
@@ -274,4 +282,29 @@ describe('QueryDiffViewer', () => {
     // Should be back on transformation tab
     expect(screen.getByRole('button', { name: 'Transformation' })).toHaveClass('active');
   });
+
+  it('should show validation tab', async () => {
+    const user = userEvent.setup();
+    renderComponent();
+
+    await user.click(screen.getAllByRole('button', { name: 'View Diff' })[0]);
+    await user.click(screen.getByRole('button', { name: 'GraphQL Validation' }));
+
+    expect(screen.getByText('GraphQL Query Validation')).toBeInTheDocument();
+    expect(screen.getByText('Test query syntax and execution against the GraphQL schema using Apollo Client.')).toBeInTheDocument();
+  });
+
+  it('should handle validation tab content', async () => {
+    const user = userEvent.setup();
+
+    renderComponent();
+
+    await user.click(screen.getAllByRole('button', { name: 'View Diff' })[0]);
+    await user.click(screen.getByRole('button', { name: 'GraphQL Validation' }));
+
+    // Check that validation content is present
+    expect(screen.getByText('GraphQL Query Validation')).toBeInTheDocument();
+    expect(screen.getByText('Query Source:')).toBeInTheDocument();
+  });
+
 });

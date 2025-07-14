@@ -78,10 +78,10 @@ describe('Error Handling', () => {
     // Submit form
     await user.click(screen.getByRole('button', { name: 'Start Pipeline' }));
     
-    // Wait for error toast
+    // Wait for error toast (updated message for extraction endpoint)
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
-        'Failed to start pipeline: Invalid repository path: Path does not exist or is not accessible'
+        'Failed to start extraction: Invalid repository path: Path does not exist or is not accessible'
       );
     });
     
@@ -111,7 +111,7 @@ describe('Error Handling', () => {
     
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
-        'Failed to start pipeline: Failed to connect to schema endpoint: ECONNREFUSED'
+        'Failed to start extraction: Failed to connect to schema endpoint: ECONNREFUSED'
       );
     });
   });

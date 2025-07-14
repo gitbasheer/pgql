@@ -16,11 +16,19 @@ export function usePipelineLogs(socket: Socket | null) {
   useEffect(() => {
     if (!socket) return;
 
-    const handleLog = (data: Omit<LogEntry, 'id' | 'timestamp'>) => {
+    const handleLog = (data: any) => {
+      // Validate log data
+      if (!data || typeof data !== 'object' || !data.message) {
+        return; // Skip malformed log data
+      }
+      
       const logEntry: LogEntry = {
-        ...data,
+        stage: data.stage || 'general',
+        level: data.level || 'info',
+        message: data.message,
+        details: data.details,
         id: `${Date.now()}-${Math.random()}`,
-        timestamp: new Date(),
+        timestamp: data.timestamp ? new Date(data.timestamp) : new Date(),
       };
       setLogs((prev) => [...prev, logEntry]);
     };

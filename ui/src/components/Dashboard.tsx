@@ -33,26 +33,36 @@ function Dashboard() {
 
   const startPipeline = useMutation({
     mutationFn: async (config: PipelineConfig) => {
-      const response = await fetch('/api/pipeline/start', {
+      // Call the UnifiedExtractor backend endpoint
+      const response = await fetch('/api/extract', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config),
+        body: JSON.stringify({
+          repoPath: config.repoPath,
+          schemaEndpoint: config.schemaEndpoint,
+          testApiUrl: config.testApiUrl,
+          testAccountId: config.testAccountId,
+          // Additional extraction options per CLAUDE.md guidance
+          strategies: ['hybrid'], // Use both AST and pluck strategies
+          preserveSourceAST: true, // For better context analysis
+          enableVariantDetection: true, // For dynamic query patterns
+        }),
       });
       
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to start pipeline');
+        throw new Error(error.message || 'Failed to start extraction pipeline');
       }
       
       return response.json();
     },
     onSuccess: (data) => {
       setIsPipelineActive(true);
-      setPipelineId(data.pipelineId);
-      toast.success('Pipeline started successfully!');
+      setPipelineId(data.pipelineId || data.extractionId);
+      toast.success('GraphQL extraction pipeline started successfully!');
     },
     onError: (error: Error) => {
-      toast.error(`Failed to start pipeline: ${error.message}`);
+      toast.error(`Failed to start extraction: ${error.message}`);
     },
   });
 
