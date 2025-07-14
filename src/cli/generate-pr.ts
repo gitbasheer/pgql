@@ -24,6 +24,11 @@ interface PRGenerationOptions {
   branch?: string;
   noCommit?: boolean;
   noPush?: boolean;
+  // A/B Testing flags
+  abTest?: boolean;
+  abVariant?: 'control' | 'treatment';
+  abPercentage?: number;
+  abMetadata?: string;
 }
 
 const program = new Command();
@@ -43,6 +48,10 @@ program
   .option('--branch <name>', 'Custom branch name (auto-generated if not provided)')
   .option('--no-commit', 'Skip creating commit')
   .option('--no-push', 'Skip pushing to remote')
+  .option('--ab-test', 'Enable A/B testing for this migration')
+  .option('--ab-variant <variant>', 'A/B test variant (control|treatment)', 'control')
+  .option('--ab-percentage <number>', 'Percentage of traffic for A/B test', '10')
+  .option('--ab-metadata <json>', 'Additional A/B test metadata as JSON string')
   .action(async (options: PRGenerationOptions) => {
     try {
       logger.info('Starting PR generation process...');
@@ -212,13 +221,45 @@ program
       }
 
       // Generate PR title and body
-      const prTitle = options.title ||
+      let prTitle = options.title ||
         `GraphQL Schema Migration: ${summary.transformedQueries} queries updated`;
+      
+      // Add A/B test indicator to title if enabled
+      if (options.abTest) {
+        prTitle += ` [A/B: ${options.abVariant}@${options.abPercentage}%]`;
+      }
 
-      const prBody = githubService.generatePRBody(summary);
+      let prBody = githubService.generatePRBody(summary);
+      
+      // Add A/B test information to PR body
+      if (options.abTest) {
+        let abTestSection = `\n\n## A/B Test Configuration\n` +
+          `- **Enabled**: ✅\n` +
+          `- **Variant**: ${options.abVariant}\n` +
+          `- **Traffic Percentage**: ${options.abPercentage}%\n` +
+          `- **Test Duration**: 14 days (recommended)\n` +
+          `- **Success Metrics**: Error rate, latency, user feedback\n`;
+        
+        if (options.abMetadata) {
+          try {
+            const metadata = JSON.parse(options.abMetadata);
+            abTestSection += `- **Metadata**: ${JSON.stringify(metadata, null, 2)}\n`;
+          } catch (e) {
+            logger.warn('Invalid A/B metadata JSON, skipping');
+          }
+        }
+        
+        prBody += abTestSection;
+      }
 
       // Parse optional parameters
-      const labels = options.labels?.split(',').map(l => l.trim()).filter(l => l);
+      let labels = options.labels?.split(',').map(l => l.trim()).filter(l => l) || [];
+      
+      // Add A/B test labels if enabled
+      if (options.abTest) {
+        labels.push('a/b-test', `variant:${options.abVariant}`, 'experimental');
+      }
+      
       const assignees = options.assignees?.split(',').map(a => a.trim()).filter(a => a);
       const reviewers = options.reviewers?.split(',').map(r => r.trim()).filter(r => r);
 
@@ -242,7 +283,7 @@ program
       console.log(chalk.dim(`   Head: ${pr.headRefName}`));
 
       // Save PR info
-      const prInfo = {
+      const prInfo: any = {
         number: pr.number,
         url: pr.url,
         title: pr.title,
@@ -258,6 +299,18 @@ program
         },
         createdAt: new Date().toISOString()
       };
+      
+      // Add A/B test configuration to PR info
+      if (options.abTest) {
+        prInfo.abTest = {
+          enabled: true,
+          variant: options.abVariant,
+          percentage: parseInt(String(options.abPercentage || '10')),
+          metadata: options.abMetadata ? JSON.parse(options.abMetadata) : null,
+          startDate: new Date().toISOString(),
+          endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() // 14 days
+        };
+      }
 
       await fs.writeFile(
         'pr-info.json',

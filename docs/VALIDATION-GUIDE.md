@@ -137,7 +137,8 @@ import { ResponseComparator } from '@core/validator/ResponseComparator';
 const comparator = new ResponseComparator({
   ignoreFields: ['__typename', 'timestamp'],
   customComparators: {
-    date: (a, b) => new Date(a).getTime() === new Date(b).getTime()
+    'date': { type: 'date-tolerance', options: { tolerance: 60000 } },
+    'score': { type: 'numeric-tolerance', options: { tolerance: 0.01 } }
   }
 });
 
@@ -153,7 +154,14 @@ if (!comparisonResult.equivalent) {
 1. **Exact Match** - Responses must be identical
 2. **Semantic Match** - Values equivalent but structure may differ
 3. **Fuzzy Match** - Allows minor differences (timestamps, IDs)
-4. **Custom Rules** - User-defined comparison logic
+4. **Custom Rules** - Predefined comparator types:
+   - `date-tolerance` - Compare dates with time tolerance
+   - `case-insensitive` - Ignore string case differences
+   - `numeric-tolerance` - Allow numeric values within tolerance
+   - `array-unordered` - Compare arrays ignoring order
+   - `ignore-whitespace` - Normalize whitespace in strings
+   - `type-coercion` - Allow string/number conversions
+   - `deep-partial` - Check subset relationships
 
 ---
 

@@ -12,8 +12,6 @@ import {
 import { MinimalChangeCalculator } from './MinimalChangeCalculator';
 import { logger } from '../../utils/logger';
 
-const traverseDefault = (traverse as any).default || traverse;
-const generateDefault = (generate as any).default || generate;
 
 export class ASTCodeApplicator {
   private changeCalculator: MinimalChangeCalculator;
@@ -83,7 +81,7 @@ export class ASTCodeApplicator {
       let errorMessage: string | undefined;
 
       // Apply transformations using AST traversal
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression: (path: any) => {
           const transformation = this.findMatchingTransformation(
             path.node,
@@ -131,7 +129,7 @@ export class ASTCodeApplicator {
       });
 
       // Generate the updated code
-      const { code } = generateDefault(ast, {
+      const { code } = generate(ast, {
         retainLines: this.options.preserveFormatting,
         retainFunctionParens: true,
         comments: this.options.preserveComments,
@@ -251,7 +249,7 @@ export class ASTCodeApplicator {
       start,
       end,
       originalText: originalContent.substring(start, end),
-      newText: generateDefault(node).code,
+      newText: generate(node).code,
       reason: `Applied transformation: GraphQL query update`
     };
   }
@@ -299,7 +297,7 @@ export class ASTCodeApplicator {
       start,
       end,
       originalText: originalContent.substring(start, end),
-      newText: generateDefault(node).code,
+      newText: generate(node).code,
       reason: `Applied transformation: GraphQL query update`
     };
   }

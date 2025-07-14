@@ -6,7 +6,7 @@ import ora from 'ora';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { GraphQLExtractor } from '../core/scanner/GraphQLExtractor';
-import { DynamicGraphQLExtractor } from '../core/scanner/DynamicGraphQLExtractor';
+import { UnifiedVariantExtractor } from '../core/scanner/UnifiedVariantExtractor';
 import { SchemaValidator } from '../core/validator/SchemaValidator';
 import { FragmentResolver } from '../core/scanner/FragmentResolver';
 import { OperationAnalyzer } from '../core/analyzer/OperationAnalyzer';
@@ -118,7 +118,7 @@ program
       // Step 1: Extract queries
       const extractSpinner = ora('Extracting GraphQL operations...').start();
       // Always use dynamic extractor for production pipeline to catch all variants
-      const extractor = new DynamicGraphQLExtractor();
+      const extractor = new UnifiedVariantExtractor({ enableIncrementalExtraction: true });
       const queries = await extractor.extractFromDirectory(
         directory,
         ['**/*.{js,jsx,ts,tsx}'],

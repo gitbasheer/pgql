@@ -5,23 +5,19 @@ import pLimit from 'p-limit';
 import { ResponseCaptureService } from '../../core/validator/ResponseCaptureService';
 import { EndpointConfig } from '../../core/validator/types';
 import { ResolvedQuery } from '../../core/extraction/types/query.types';
-// Mock modules
-vi.mock('p-limit', () => ({
-  default: () => (fn: Function) => fn()
-}))
-vi.mock('../../core/validator/VariableGenerator', () => ({
-  VariableGeneratorImpl: vi.fn().mockImplementation(() => ({
-    generateForQuery: vi.fn().mockResolvedValue([{}])
-  }))
-
-// Mock modules
-
-
-}));
+import { createMockPRetry } from '../utils/mockRetry';
 
 // Mock all dependencies at the module level
 vi.mock('axios');
 vi.mock('p-retry');
+vi.mock('p-limit', () => ({
+  default: () => (fn: Function) => fn()
+}));
+vi.mock('../../core/validator/VariableGenerator', () => ({
+  VariableGeneratorImpl: vi.fn().mockImplementation(() => ({
+    generateForQuery: vi.fn().mockResolvedValue([{}])
+  }))
+}));
 vi.mock('../../utils/logger');
 
 const createMockAxiosInstance = () => ({
@@ -36,6 +32,7 @@ const createMockAxiosInstance = () => ({
 describe('ResponseCaptureService - Capture Operations', () => {
   let service: ResponseCaptureService;
   let mockAxiosInstance: any;
+  const mockRetry = createMockPRetry();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -87,7 +84,6 @@ describe('ResponseCaptureService - Capture Operations', () => {
   });
 
   beforeEach(async () => {
-    vi.resetModules();
     vi.clearAllMocks();
 
     // Create a fresh axios instance for each test
@@ -98,7 +94,8 @@ describe('ResponseCaptureService - Capture Operations', () => {
     (mockedAxios.isAxiosError as any).mockReturnValue(false);
 
     // Default p-retry behavior - just execute the function
-    mockedPRetry.mockImplementation(async (fn: any) => fn());
+    mockedPRetry.mockImplementation(mockRetry.mockPRetry);
+    mockRetry.setFailTimes(0); // Default: no failures
   });
 
   describe('captureBaseline', () => {
@@ -143,9 +140,16 @@ describe('ResponseCaptureService - Capture Operations', () => {
         { ...mockQuery, id: 'query-3' }
       ];
 
+      // Clear any existing mock state
+      vi.clearAllMocks();
+
+      // Create fresh mock for this test
+      const freshMockAxios = createMockAxiosInstance();
+      (mockedAxios.create as Mock).mockReturnValue(freshMockAxios as any);
+
       // Return fresh data for each call
       let callCount = 0;
-      mockAxiosInstance.post.mockImplementation(() => {
+      freshMockAxios.post.mockImplementation(() => {
         callCount++;
         return Promise.resolve({
           data: { data: { user: { id: String(callCount), name: `User ${callCount}` } } },
@@ -158,16 +162,21 @@ describe('ResponseCaptureService - Capture Operations', () => {
       service = new ResponseCaptureService([mockEndpoint]);
       const result = await service.captureBaseline(queries);
 
-      expect(result.responses.size).toBe(3);
+      // Check that all queries were processed
       expect(result.metadata.totalQueries).toBe(3);
+      expect(freshMockAxios.post).toHaveBeenCalledTimes(3);
+
+      // The actual number of responses depends on how many succeed
+      // Since our mock succeeds, we should get all 3
+      expect(result.responses.size).toBe(3);
       expect(result.metadata.successCount).toBe(3);
-      expect(mockAxiosInstance.post).toHaveBeenCalledTimes(3);
+      expect(result.metadata.errorCount).toBe(0);
     });
 
     it('should handle query capture errors', async () => {
       const queries = [mockQuery, { ...mockQuery, id: 'query-2' }];
 
-      // Make second query fail
+      // Make second query fail with non-Axios error (should not be captured)
       mockAxiosInstance.post
         .mockResolvedValueOnce(createMockResponse())
         .mockRejectedValueOnce(new Error('Network error'));

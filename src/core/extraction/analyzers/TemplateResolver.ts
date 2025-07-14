@@ -5,6 +5,7 @@ import * as babel from '@babel/parser';
 import traverseDefault from '@babel/traverse';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { validateReadPath } from '../../../utils/securePath';
 
 interface TemplateInterpolation {
   start: number;
@@ -66,10 +67,18 @@ export class TemplateResolver {
 
       for (const file of fragmentFiles) {
         const filePath = path.join(baseDir, file);
+        
+        // SECURITY FIX: Validate path to prevent traversal
+        const validatedPath = validateReadPath(filePath);
+        if (!validatedPath) {
+          logger.warn(`Skipping potentially malicious fragment file: ${file}`);
+          continue;
+        }
+        
         try {
-          const content = await fs.readFile(filePath, 'utf-8');
+          const content = await fs.readFile(validatedPath, 'utf-8');
           this.fileCache.set(file, content);
-          await this.extractFragmentsFromFile(filePath, content);
+          await this.extractFragmentsFromFile(validatedPath, content);
         } catch (error) {
           // File might not exist, continue
         }

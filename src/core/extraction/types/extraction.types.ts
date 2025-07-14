@@ -35,6 +35,7 @@ export interface ExtractionOptions {
   cache?: boolean;
   parallel?: boolean;
   maxConcurrency?: number;
+  enableIncrementalExtraction?: boolean;
 }
 
 export type ExtractionStrategy = 'pluck' | 'ast' | 'hybrid';

@@ -20,6 +20,7 @@
 |-------|---------|
 | [**MCP Quick Start**](../README-MCP.md) | Get started with natural language commands |
 | [**CLI Quick Start**](../README.md#quick-start) | Traditional command-line usage |
+| [**Pattern-Based Migration**](../PATTERN-BASED-MIGRATION.md) | New approach preserving dynamic queries |
 | [**API Usage**](./TECHNICAL-OVERVIEW.md#integration-points) | Programmatic integration |
 
 ### Implementation Details

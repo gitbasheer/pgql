@@ -6,6 +6,7 @@ import { ExtractedQuery, ResolvedQuery, FragmentDefinition } from '../types/inde
 import { ExtractionContext } from '../engine/ExtractionContext';
 import { logger } from '../../../utils/logger';
 import { safeParseGraphQL } from '../../../utils/graphqlValidator';
+import { validateReadPath } from '../../../utils/securePath';
 
 export class FragmentResolver {
   private context: ExtractionContext;
@@ -51,7 +52,14 @@ export class FragmentResolver {
 
   private async extractFragmentsFromFile(filePath: string): Promise<void> {
     try {
-      const content = await fs.readFile(filePath, 'utf-8');
+      // SECURITY FIX: Validate path to prevent traversal
+      const validatedPath = validateReadPath(filePath);
+      if (!validatedPath) {
+        logger.warn(`Skipping potentially malicious fragment file: ${filePath}`);
+        return;
+      }
+      
+      const content = await fs.readFile(validatedPath, 'utf-8');
       
       // Try different extraction methods
       const fragments = await this.extractFragmentsFromContent(content, filePath);

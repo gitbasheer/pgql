@@ -4,7 +4,6 @@ import { ExtractedQuery, VariantAnalysisResult, DynamicPattern, VariantSwitch } 
 import { ExtractionContext } from '../engine/ExtractionContext';
 import { logger } from '../../../utils/logger';
 
-const traverseDefault = (traverse as any).default || traverse;
 
 export class VariantAnalyzer {
   private context: ExtractionContext;
@@ -113,7 +112,7 @@ export class VariantAnalyzer {
       // Find the specific query in the AST
       let queryFound = false;
       
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression: (path: any) => {
           if (!queryFound && path.node.loc?.start.line === query.location.line) {
             queryFound = true;

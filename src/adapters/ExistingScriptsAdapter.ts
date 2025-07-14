@@ -6,6 +6,7 @@ import * as fs from 'fs/promises';
 import { parse } from 'graphql';
 import { logger } from '../utils/logger';
 import { ASTCodeApplicator, TransformationMapping, SourceMapping } from '../core/applicator/index';
+import * as diff from 'diff';
 
 const execAsync = promisify(exec);
 
@@ -113,40 +114,63 @@ export class ExistingScriptsAdapter {
     logger.info(`Applying change to ${change.file}`);
     
     try {
-      // TODO: When operations include sourceAST, use AST-based application
-      // For now, we'll use the existing string replacement approach
-      
-      // Read the file content
-      const content = await fs.readFile(change.file, 'utf-8');
-      
-      // Apply the change using simple string replacement
-      const newContent = content.replace(change.oldQuery, change.newQuery);
-      
-      // Validate the change
-      if (!newContent.includes(change.newQuery)) {
-        throw new Error('Failed to apply change - query not found in file');
+      // Use AST-based application if operation includes sourceAST
+      if (change.operation.sourceAST) {
+        const applicator = new ASTCodeApplicator({
+          preserveFormatting: true,
+          preserveComments: true,
+          validateChanges: true,
+          dryRun: false
+        });
+        
+        const sourceMapping: SourceMapping = {
+          astNode: change.operation.sourceAST,
+          filePath: change.file,
+          originalContent: change.oldQuery
+        };
+        
+        const transformationMapping: TransformationMapping = {
+          queryId: change.operation.id,
+          sourceMapping,
+          transformation: {
+            original: change.oldQuery,
+            transformed: change.newQuery,
+            ast: change.operation.ast,
+            changes: diff.diffLines(change.oldQuery, change.newQuery),
+            rules: []
+          },
+          preserveInterpolations: true
+        };
+        
+        const applyResult = await applicator.applyTransformations(change.file, [transformationMapping]);
+        
+        if (applyResult.success) {
+          await fs.writeFile(change.file, applyResult.newContent);
+          logger.info(`Successfully applied change to ${change.file} using AST-based transformation`);
+        } else {
+          throw new Error(applyResult.error || 'Failed to apply AST transformation');
+        }
+      } else {
+        // If no sourceAST, this is a critical error - we don't allow unsafe string replacement
+        throw new Error(`Operation ${change.operation.id} in ${change.file} missing source AST. String replacement is unsafe and not supported.`);
       }
       
-      // Write the updated content
-      await fs.writeFile(change.file, newContent);
-      
-      logger.info(`Successfully applied change to ${change.file} using string replacement`);
-      
-      // Alternative: Use the existing source update engine if available
+      // Alternative: Use the existing source update engine for validation
       try {
         const updateScript = path.join(this.scriptsBasePath, 'framework/SourceUpdateEngine.js');
         await fs.access(updateScript);
         
-        // If script exists, use it as a fallback
+        // If script exists, use it for validation only
         const changeFile = `/tmp/change-${Date.now()}.json`;
         await fs.writeFile(changeFile, JSON.stringify({
           file: change.file,
           oldQuery: change.oldQuery,
-          newQuery: change.newQuery
+          newQuery: change.newQuery,
+          validate: true // Only validate, don't apply
         }));
         
         await execAsync(`node ${updateScript} ${changeFile}`);
-        logger.info('Also applied change using existing source update engine');
+        logger.info('Validated change using existing source update engine');
       } catch {
         // Script not available, that's okay
       }

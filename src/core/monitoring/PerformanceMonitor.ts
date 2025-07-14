@@ -2,7 +2,7 @@ import { performance } from 'perf_hooks';
 import { EventEmitter } from 'events';
 import { logger } from '../../utils/logger';
 import { CacheManager, astCache, validationCache, transformCache, type CacheStats } from '../cache/CacheManager';
-import { writeFileSync, mkdirSync, existsSync } from 'fs';
+import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 interface OperationMetrics {
@@ -47,12 +47,15 @@ export class PerformanceMonitor extends EventEmitter {
   private thresholds: Map<string, PerformanceThresholds> = new Map();
   private trends: Map<string, number[]> = new Map();
   private reportDir: string = '.performance';
-  private isCI: boolean = process.env.CI === 'true';
+  private isCI: boolean;
 
   constructor() {
     super();
+    this.isCI = process.env.CI === 'true';
     this.setupDefaultThresholds();
-    this.setupReportDirectory();
+    if (this.isCI) {
+      this.setupReportDirectory();
+    }
   }
 
   private setupDefaultThresholds() {
@@ -79,7 +82,7 @@ export class PerformanceMonitor extends EventEmitter {
   }
 
   private setupReportDirectory() {
-    if (!existsSync(this.reportDir)) {
+    if (this.isCI && !existsSync(this.reportDir)) {
       mkdirSync(this.reportDir, { recursive: true });
     }
   }
@@ -168,40 +171,46 @@ export class PerformanceMonitor extends EventEmitter {
    */
   private checkThresholds(metrics: OperationMetrics) {
     const threshold = this.findThreshold(metrics.name);
-    if (!threshold || !metrics.duration || !metrics.memory.delta) return;
+    if (!threshold) return;
+    
+    // Check thresholds only if the respective metric exists
 
     // Check duration threshold
-    if (metrics.duration > threshold.duration.error) {
-      this.emit('threshold:exceeded', {
-        type: 'duration',
-        level: 'error',
-        metrics,
-        threshold: threshold.duration.error,
-      });
-    } else if (metrics.duration > threshold.duration.warn) {
-      this.emit('threshold:exceeded', {
-        type: 'duration',
-        level: 'warn',
-        metrics,
-        threshold: threshold.duration.warn,
-      });
+    if (metrics.duration !== undefined && metrics.duration > 0) {
+      if (metrics.duration > threshold.duration.error) {
+        this.emit('threshold:exceeded', {
+          type: 'duration',
+          level: 'error',
+          metrics,
+          threshold: threshold.duration.error,
+        });
+      } else if (metrics.duration > threshold.duration.warn) {
+        this.emit('threshold:exceeded', {
+          type: 'duration',
+          level: 'warn',
+          metrics,
+          threshold: threshold.duration.warn,
+        });
+      }
     }
 
     // Check memory threshold
-    if (metrics.memory.delta > threshold.memory.error) {
-      this.emit('threshold:exceeded', {
-        type: 'memory',
-        level: 'error',
-        metrics,
-        threshold: threshold.memory.error,
-      });
-    } else if (metrics.memory.delta > threshold.memory.warn) {
-      this.emit('threshold:exceeded', {
-        type: 'memory',
-        level: 'warn',
-        metrics,
-        threshold: threshold.memory.warn,
-      });
+    if (metrics.memory.delta !== undefined && metrics.memory.delta > 0) {
+      if (metrics.memory.delta > threshold.memory.error) {
+        this.emit('threshold:exceeded', {
+          type: 'memory',
+          level: 'error',
+          metrics,
+          threshold: threshold.memory.error,
+        });
+      } else if (metrics.memory.delta > threshold.memory.warn) {
+        this.emit('threshold:exceeded', {
+          type: 'memory',
+          level: 'warn',
+          metrics,
+          threshold: threshold.memory.warn,
+        });
+      }
     }
   }
 
@@ -299,7 +308,7 @@ export class PerformanceMonitor extends EventEmitter {
     // Add trend information
     for (const [operation, trend] of trends) {
       report.push(`### ${operation}`);
-      report.push(`- Samples: ${trend.samples}`);
+      report.push(`- Samples: ${trend.samples.length}`);
       report.push(`- Average: ${trend.average.toFixed(2)}ms`);
       report.push(`- Median: ${trend.median.toFixed(2)}ms`);
       report.push(`- P95: ${trend.p95.toFixed(2)}ms`);
@@ -392,7 +401,8 @@ export class PerformanceMonitor extends EventEmitter {
    */
   compareWithBaseline(baselinePath: string): { regressions: string[]; improvements: string[] } {
     try {
-      const baseline = require(baselinePath);
+      const baselineData = readFileSync(baselinePath, 'utf-8');
+      const baseline = JSON.parse(baselineData);
       const currentTrends = this.calculateTrends();
       const regressions: string[] = [];
       const improvements: string[] = [];
@@ -455,7 +465,10 @@ export const performanceMonitor = new PerformanceMonitor();
 
 // Setup threshold exceeded handler
 performanceMonitor.on('threshold:exceeded', ({ type, level, metrics, threshold }) => {
-  const message = `Performance threshold exceeded: ${metrics.name} ${type} (${metrics[type === 'duration' ? 'duration' : 'memory']?.toFixed(2)} > ${threshold})`;
+  const value = type === 'duration' ? metrics.duration : metrics.memory?.delta;
+  if (value === undefined) return;
+  
+  const message = `Performance threshold exceeded: ${metrics.name} ${type} (${value.toFixed(2)} > ${threshold})`;
   
   if (level === 'error') {
     logger.error(message);
@@ -472,7 +485,7 @@ export function monitor(operationName?: string) {
     const originalMethod = descriptor.value;
     const name = operationName || `${target.constructor.name}.${propertyKey}`;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = function (...args: any[]) {
       const operationId = performanceMonitor.startOperation(name, {
         args: args.length,
         className: target.constructor.name,
@@ -480,9 +493,23 @@ export function monitor(operationName?: string) {
       });
 
       try {
-        const result = await originalMethod.apply(this, args);
-        performanceMonitor.endOperation(operationId);
-        return result;
+        const result = originalMethod.apply(this, args);
+        
+        // Handle both sync and async results
+        if (result && typeof result.then === 'function') {
+          return result
+            .then((value: any) => {
+              performanceMonitor.endOperation(operationId);
+              return value;
+            })
+            .catch((error: any) => {
+              performanceMonitor.endOperation(operationId, error as Error);
+              throw error;
+            });
+        } else {
+          performanceMonitor.endOperation(operationId);
+          return result;
+        }
       } catch (error) {
         performanceMonitor.endOperation(operationId, error as Error);
         throw error;

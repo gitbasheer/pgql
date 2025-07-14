@@ -18,6 +18,8 @@ import {
   AlignmentFunction
 } from '../../core/validator/types';
 import { ResolvedQuery } from '../../core/extraction/types/query.types';
+import { logger } from '../../utils/logger';
+import * as fs from 'fs/promises';
 
 // Mock all dependencies
 vi.mock('../../core/validator/ResponseCaptureService');
@@ -618,6 +620,63 @@ describe('ResponseValidationService', () => {
 
       expect(mockCaptureService.destroy).toHaveBeenCalled();
       expect(mockStorage.close).toHaveBeenCalled();
+    });
+  });
+
+  describe('fromConfigFile', () => {
+    it('should load configuration from YAML file', async () => {
+      const yamlContent = `
+validation:
+  strict: false
+  ignorePaths:
+    - data.__typename
+comparison:
+  customComparators:
+    "data.timestamp":
+      type: "date-tolerance"
+      options:
+        tolerance: 60000
+capture:
+  parallel: true
+  maxConcurrency: 5
+`;
+
+      (fs.readFile as Mock).mockResolvedValue(yamlContent);
+
+      const service = await ResponseValidationService.fromConfigFile('test-config.yaml');
+
+      expect(service).toBeDefined();
+      expect(fs.readFile).toHaveBeenCalledWith('test-config.yaml', 'utf-8');
+    });
+
+    it('should warn about embedded JavaScript functions and ignore them', async () => {
+      const yamlContent = `
+validation:
+  strict: false
+comparison:
+  customComparators:
+    "data.createdAt": |
+      function(baseline, transformed) {
+        return Math.abs(new Date(baseline) - new Date(transformed)) < 60000;
+      }
+    "data.status":
+      type: "case-insensitive"
+`;
+
+      (fs.readFile as Mock).mockResolvedValue(yamlContent);
+      const warnSpy = vi.spyOn(logger, 'warn');
+
+      const service = await ResponseValidationService.fromConfigFile('test-config.yaml');
+
+      expect(service).toBeDefined();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Embedded JavaScript functions are no longer supported for path 'data.createdAt'")
+      );
+
+      // Verify that only the valid comparator is loaded
+      const config = (service as any).config;
+      expect(config.comparison.customComparators).toBeDefined();
+      expect(Object.keys(config.comparison.customComparators)).toEqual(['data.status']);
     });
   });
 });

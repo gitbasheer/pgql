@@ -3,6 +3,7 @@ import * as path from 'path';
 import { ExtractionResult } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';
 import { logger } from '../../../utils/logger';
+import { validateWritePath } from '../../../utils/securePath';
 
 export class JSONReporter {
   private context: ExtractionContext;
@@ -12,8 +13,13 @@ export class JSONReporter {
   }
 
   async generate(result: ExtractionResult): Promise<void> {
+    // SECURITY FIX: Validate output path to prevent traversal
     const outputDir = this.context.options.outputDir || '.';
-    const outputPath = path.join(outputDir, 'extraction-result.json');
+    const outputPath = validateWritePath(outputDir, 'extraction-result.json');
+    
+    if (!outputPath) {
+      throw new Error(`Invalid output path for JSON report: ${outputDir}`);
+    }
     
     // Prepare the output
     const output = {

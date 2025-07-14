@@ -289,21 +289,50 @@ export class MinimalChangeCalculator {
    * Cook a raw string (handle escape sequences)
    */
   private cookString(raw: string): string {
-    // Handle special cases where cooked should be null
+    // SECURITY FIX: Remove eval() to prevent code injection
+    // Use safe string parsing instead
+    
+    // Handle Unicode and hex escape sequences safely
     if (raw.includes('\\u') || raw.includes('\\x')) {
-      // For invalid escape sequences, cooked should be null
       try {
-        // Try to evaluate the string
-        return eval(`"${raw.replace(/"/g, '\\"')}"`);
+        // Use JSON.parse for safe string parsing
+        // Wrap in quotes to make it valid JSON
+        return JSON.parse(`"${raw.replace(/"/g, '\\"')}"`);
       } catch {
-        return '';  // Return empty string instead of null for invalid escapes
+        // For invalid escape sequences, process manually
+        let result = raw;
+        
+        // Handle \uXXXX Unicode escapes
+        result = result.replace(/\\u([0-9a-fA-F]{4})/g, (match, hex) => {
+          return String.fromCharCode(parseInt(hex, 16));
+        });
+        
+        // Handle \xXX hex escapes
+        result = result.replace(/\\x([0-9a-fA-F]{2})/g, (match, hex) => {
+          return String.fromCharCode(parseInt(hex, 16));
+        });
+        
+        // Then handle standard escapes
+        return this.processStandardEscapes(result);
       }
     }
     
-    return raw
+    // Handle standard escape sequences
+    return this.processStandardEscapes(raw);
+  }
+  
+  /**
+   * Process standard escape sequences safely
+   */
+  private processStandardEscapes(str: string): string {
+    return str
       .replace(/\\n/g, '\n')
       .replace(/\\r/g, '\r')
       .replace(/\\t/g, '\t')
+      .replace(/\\b/g, '\b')
+      .replace(/\\f/g, '\f')
+      .replace(/\\v/g, '\v')
+      .replace(/\\0/g, '\0')
       .replace(/\\'/g, "'")
       .replace(/\\"/g, '"')
       .replace(/\\\\/g, '\\');

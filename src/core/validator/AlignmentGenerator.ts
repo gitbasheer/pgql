@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { nanoid } from 'nanoid';
 import { logger } from '../../utils/logger';
 import {

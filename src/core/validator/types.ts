@@ -1,6 +1,7 @@
 // Response Validation Types
 import { DocumentNode } from 'graphql';
 import { GraphQLOperation } from '../../types/index';
+import { ComparatorConfig } from './comparators';
 
 // Endpoint Configuration
 export interface EndpointConfig {
@@ -108,16 +109,17 @@ export interface ComparisonResult {
 }
 
 export interface Difference {
-  path: string[];
+  path: string | string[];
   type: DifferenceType;
   baseline: any;
   transformed: any;
   severity: 'low' | 'medium' | 'high' | 'critical';
   description: string;
   fixable: boolean;
+  ignored?: string; // Reason why this difference was ignored
 }
 
-export type DifferenceType = 
+export type DifferenceType =
   | 'missing-field'
   | 'extra-field'
   | 'type-mismatch'
@@ -269,24 +271,54 @@ export interface VariableGenerator {
 export interface ResponseValidationConfig {
   endpoints: EndpointConfig[];
   capture: {
-    parallel: boolean;
-    maxConcurrency: number;
-    timeout: number;
-    variableGeneration: 'auto' | 'manual' | 'examples';
+    parallel?: boolean;
+    maxConcurrency?: number;
+    timeout?: number;
+    variableGeneration?: 'auto' | 'manual' | 'smart';
   };
   comparison: {
-    strict: boolean;
+    strict?: boolean;
     ignorePaths?: string[];
-    customComparators?: Record<string, (a: any, b: any) => boolean>;
+    customComparators?: Record<string, ComparatorConfig>;
   };
-  alignment: AlignmentOptions;
-  storage: StorageOptions;
+  validation?: {
+    ignorePatterns?: Array<{
+      path: string | RegExp;
+      reason?: string;
+      type?: 'value' | 'type' | 'missing' | 'extra' | 'all';
+    }>;
+    expectedDifferences?: Array<{
+      path: string;
+      expectedChange: {
+        from?: any;
+        to?: any;
+        type?: DifferenceType;
+      };
+      reason: string;
+    }>;
+  };
+  alignment: {
+    strict?: boolean;
+    preserveNulls?: boolean;
+    preserveOrder?: boolean;
+  };
+  storage: {
+    type: 'file' | 'database';
+    path?: string;
+    connectionString?: string;
+  };
   abTesting?: {
-    enabled: boolean;
-    defaultSplit: number;
-    monitoring: {
-      provider: 'datadog' | 'prometheus' | 'custom';
-      config: Record<string, any>;
+    enabled?: boolean;
+    defaultSplit?: number;
+    monitoring?: {
+      errorThreshold?: number;
+      latencyThreshold?: number;
     };
   };
-} 
+  reporting?: {
+    outputDir?: string;
+    formats?: Array<'json' | 'html' | 'markdown' | 'csv' | 'junit'>;
+    includeDiffs?: boolean;
+  };
+}
+

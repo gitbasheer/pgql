@@ -1,14 +1,14 @@
 import { gqlPluckFromCodeStringSync } from '@graphql-tools/graphql-tag-pluck';
 import { parse, DocumentNode } from 'graphql';
 import * as babel from '@babel/parser';
-import traverse from '@babel/traverse';
+import traverseDefault from '@babel/traverse';
+const traverse = traverseDefault as any;
 import { BaseStrategy } from './BaseStrategy';
 import { ExtractedQuery, OperationType, SourceAST } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';
 import { safeParseGraphQL } from '../../../utils/graphqlValidator';
 import { SourceMapper } from '../utils/SourceMapper';
 
-const traverseDefault = (traverse as any).default || traverse;
 
 export class PluckStrategy extends BaseStrategy {
   private sourceMapper: SourceMapper;
@@ -28,9 +28,18 @@ export class PluckStrategy extends BaseStrategy {
 
   async extract(filePath: string, content: string): Promise<ExtractedQuery[]> {
     const extracted: ExtractedQuery[] = [];
+    
+    // FIRST: Extract templates with interpolations manually BEFORE graphql-tag-pluck
+    // This prevents graphql-tag-pluck from resolving them to empty strings
+    const manuallyExtracted = this.extractTemplatesWithInterpolations(filePath, content);
+    extracted.push(...manuallyExtracted);
 
     try {
-      const sources = gqlPluckFromCodeStringSync(filePath, content, {
+      // Create a modified content where we've replaced templates with interpolations
+      // with placeholder queries to prevent graphql-tag-pluck from processing them
+      const modifiedContent = this.replaceInterpolatedTemplates(content);
+      
+      const sources = gqlPluckFromCodeStringSync(filePath, modifiedContent, {
         globalGqlIdentifierName: ['gql', 'graphql', 'GraphQL'],
         gqlMagicComment: 'graphql',
         skipIndent: true,
@@ -53,7 +62,12 @@ export class PluckStrategy extends BaseStrategy {
 
         for (let i = 0; i < sources.length; i++) {
           const source = sources[i];
-          // Check if template has interpolations
+          // Skip if this was already extracted manually (it would have been replaced)
+          if (!source.body || source.body.trim() === '') {
+            continue;
+          }
+          
+          // Check if template has interpolations (shouldn't happen now, but just in case)
           const hasInterpolations = source.body.includes('${');
           
           if (hasInterpolations) {
@@ -162,7 +176,7 @@ export class PluckStrategy extends BaseStrategy {
       });
 
       let index = 0;
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression: (path: any) => {
           if (SourceMapper.isGraphQLTag(path.node.tag)) {
             const sourceAST: SourceAST = {
@@ -293,9 +307,16 @@ export class PluckStrategy extends BaseStrategy {
     
     // Look for various GraphQL tag patterns that might contain interpolations
     const patterns = [
+      // Standard gql templates with interpolations
       /gql\s*`([^`]+(?:\$\{[^}]+\}[^`]*)*)`/gs,
       /graphql\s*`([^`]+(?:\$\{[^}]+\}[^`]*)*)`/gs,
-      /GraphQL\s*`([^`]+(?:\$\{[^}]+\}[^`]*)*)`/gs
+      /GraphQL\s*`([^`]+(?:\$\{[^}]+\}[^`]*)*)`/gs,
+      // Computed property patterns like queries[queryName]
+      /queries\s*\[\s*['"`]?([^'"`\]]+)['"`]?\s*\]\s*=\s*gql\s*`([^`]+)`/gs,
+      // Dynamic query name patterns
+      /gql\s*`\s*query\s+\$\{[^}]+\}[^`]*`/gs,
+      // Conditional patterns
+      /\$\{[^}]*\?\s*['"`][^'"`]+['"`]\s*:\s*['"`][^'"`]+['"`]\s*\}/g
     ];
     
     let queryIndex = 0;
@@ -303,15 +324,25 @@ export class PluckStrategy extends BaseStrategy {
     for (const pattern of patterns) {
       let match;
       while ((match = pattern.exec(content)) !== null) {
-        const [fullMatch, queryContent] = match;
-        const matchIndex = match.index;
+        let queryContent = '';
+        let matchIndex = match.index;
+        
+        // Handle different pattern types
+        if (pattern.source.includes('queries')) {
+          // For computed property patterns
+          const [fullMatch, propertyName, templateContent] = match;
+          queryContent = templateContent;
+        } else {
+          // For regular patterns
+          queryContent = match[1] || match[0];
+        }
         
         // Calculate line number by counting newlines before the match
         const beforeMatch = content.substring(0, matchIndex);
         const lineNumber = (beforeMatch.match(/\n/g) || []).length + 1;
         
-        // Check if this template has interpolations
-        if (queryContent.includes('${')) {
+        // Check if this template has interpolations or is a dynamic construction
+        if (queryContent.includes('${') || match[0].includes('queries[')) {
           const type = this.detectOperationTypeFromString(queryContent) || 'query';
           const name = this.extractOperationNameFromString(queryContent);
           
@@ -329,11 +360,53 @@ export class PluckStrategy extends BaseStrategy {
             type,
             metadata: {
               hasInterpolations: true,
-              needsResolution: true
+              needsResolution: true,
+              isDynamic: true
             }
           });
           
           queryIndex++;
+        }
+      }
+    }
+    
+    // Also look for object literals with GraphQL queries
+    const objectPattern = /const\s+queries\s*=\s*\{[\s\S]*?\}/gm;
+    const objectMatches = content.match(objectPattern);
+    
+    if (objectMatches) {
+      for (const objectMatch of objectMatches) {
+        // Extract individual queries from the object
+        const queryPattern = /(\w+)\s*:\s*gql\s*`([^`]+)`/g;
+        let queryMatch;
+        
+        while ((queryMatch = queryPattern.exec(objectMatch)) !== null) {
+          const [, queryName, queryContent] = queryMatch;
+          
+          if (queryContent.includes('${')) {
+            const type = this.detectOperationTypeFromString(queryContent) || 'query';
+            
+            extracted.push({
+              id: this.generateQueryId(filePath, queryIndex, queryName),
+              filePath,
+              content: queryContent,
+              ast: null,
+              location: {
+                line: 1, // Would need proper line calculation
+                column: 1,
+                file: filePath
+              },
+              name: queryName,
+              type,
+              metadata: {
+                hasInterpolations: true,
+                needsResolution: true,
+                fromObject: true
+              }
+            });
+            
+            queryIndex++;
+          }
         }
       }
     }
@@ -358,5 +431,28 @@ export class PluckStrategy extends BaseStrategy {
       // If resolution fails, return original content
       return content;
     }
+  }
+
+  /**
+   * Replace interpolated templates with placeholders to prevent graphql-tag-pluck from processing them
+   */
+  private replaceInterpolatedTemplates(content: string): string {
+    // Pattern to match GraphQL templates with interpolations
+    const patterns = [
+      /gql\s*`([^`]+\$\{[^}]+\}[^`]*)+`/g,
+      /graphql\s*`([^`]+\$\{[^}]+\}[^`]*)+`/g,
+      /GraphQL\s*`([^`]+\$\{[^}]+\}[^`]*)+`/g
+    ];
+    
+    let modifiedContent = content;
+    
+    for (const pattern of patterns) {
+      modifiedContent = modifiedContent.replace(pattern, (match) => {
+        // Replace with a placeholder that graphql-tag-pluck will ignore
+        return `/* EXTRACTED_TEMPLATE_WITH_INTERPOLATION */`;
+      });
+    }
+    
+    return modifiedContent;
   }
 }

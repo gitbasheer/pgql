@@ -8,7 +8,6 @@ import * as os from 'os';
 import * as babel from '@babel/parser';
 import traverse from '@babel/traverse';
 
-const traverseDefault = (traverse as any).default || traverse;
 
 describe('ASTCodeApplicator', () => {
   let applicator: ASTCodeApplicator;
@@ -57,7 +56,7 @@ const query = gql\`
       });
 
       let sourceNode: any;
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNode = path.node;
         }
@@ -120,7 +119,7 @@ const query = gql\`
       });
 
       let sourceNode: any;
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNode = path.node;
         }
@@ -193,7 +192,7 @@ const query2 = gql\`
       });
 
       const sourceNodes: any[] = [];
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNodes.push(path.node);
         }
@@ -276,7 +275,7 @@ const query = graphql(\`
       });
 
       let sourceNode: any;
-      traverseDefault(ast, {
+      traverse(ast, {
         CallExpression(path: any) {
           if (path.node.callee.name === 'graphql') {
             sourceNode = path.node;
@@ -337,7 +336,7 @@ const query = gql\`
       });
 
       let sourceNode: any;
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNode = path.node;
         }
@@ -404,7 +403,7 @@ const query = gql\`
       });
 
       let sourceNode: any;
-      traverseDefault(ast, {
+      traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNode = path.node;
         }

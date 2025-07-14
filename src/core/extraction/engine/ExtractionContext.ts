@@ -1,18 +1,21 @@
 import { ExtractionOptions, ExtractionError, ExtractionStats } from '../types/index';
 import { logger } from '../../../utils/logger';
+import { QueryNamingService } from '../services/QueryNamingService';
 
 export class ExtractionContext {
   public readonly options: ExtractionOptions;
+  public readonly projectRoot: string;
   public readonly cache: Map<string, any>;
   public readonly fragments: Map<string, string>;
   public readonly queryNames: Record<string, string>;
   public readonly errors: ExtractionError[];
   public readonly stats: Partial<ExtractionStats>;
-  private readonly seenQueryNames: Map<string, string>;
+  private readonly queryNamingService: QueryNamingService;
   private startTime: number;
 
-  constructor(options: ExtractionOptions) {
+  constructor(options: ExtractionOptions, queryNamingService?: QueryNamingService) {
     this.options = this.normalizeOptions(options);
+    this.projectRoot = options.directory || process.cwd();
     logger.debug('Normalized options:', this.options);
     this.cache = new Map();
     this.fragments = new Map();
@@ -27,7 +30,7 @@ export class ExtractionContext {
       totalErrors: 0,
       strategy: options.strategies?.[0] || 'hybrid'
     };
-    this.seenQueryNames = new Map();
+    this.queryNamingService = queryNamingService || new QueryNamingService();
     this.startTime = Date.now();
   }
 
@@ -50,7 +53,8 @@ export class ExtractionContext {
       reporters: options.reporters || ['json'],
       cache: options.cache ?? true,
       parallel: options.parallel ?? true,
-      maxConcurrency: options.maxConcurrency || 4
+      maxConcurrency: options.maxConcurrency || 4,
+      enableIncrementalExtraction: options.enableIncrementalExtraction ?? false
     };
   }
 
@@ -80,38 +84,29 @@ export class ExtractionContext {
     this.cache.set(this.getCacheKey(type, key), value);
   }
 
-  normalizeQueryName(name: string | undefined, content: string): string | undefined {
-    if (!name || !this.options.normalizeNames) return name;
-    
-    const existingContent = this.seenQueryNames.get(name);
-    if (!existingContent) {
-      this.seenQueryNames.set(name, this.normalizeContent(content));
-      return name;
-    }
-    
-    const normalizedContent = this.normalizeContent(content);
-    if (existingContent === normalizedContent) {
-      return name;
-    }
-    
-    // Generate unique name for different query
-    let suffix = 1;
-    let newName = `${name}_${suffix}`;
-    
-    while (this.seenQueryNames.has(newName)) {
-      suffix++;
-      newName = `${name}_${suffix}`;
-    }
-    
-    this.seenQueryNames.set(newName, normalizedContent);
-    return newName;
+    /**
+   * Get the query naming service for pattern-based operations
+   */
+  getQueryNamingService(): QueryNamingService {
+    return this.queryNamingService;
   }
 
-  private normalizeContent(content: string): string {
-    return content
-      .replace(/#.*$/gm, '') // Remove comments
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .trim();
+  /**
+   * @deprecated Use getQueryNamingService().processQuery() instead
+   * This method is kept for backward compatibility but will be removed
+   */
+  normalizeQueryName(name: string | undefined, content: string): string | undefined {
+    logger.warn('normalizeQueryName is deprecated. Use QueryNamingService.processQuery() instead');
+    return name; // Just return the name as-is for now
+  }
+
+  /**
+   * Initialize the query naming service
+   */
+  async initializeQueryNaming(): Promise<void> {
+    if (!this.queryNamingService.isInitialized()) {
+      await this.queryNamingService.initialize(this.options);
+    }
   }
 
   finalizeStats(): ExtractionStats {

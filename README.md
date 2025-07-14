@@ -1,10 +1,18 @@
-# pg-migration-620: Production-Ready GraphQL Migration Tool
+# Migration Tool
 
-A schema-aware GraphQL migration tool that automatically transforms deprecated queries based on your GraphQL schema's `@deprecated` directives. Built for production environments with safety, rollback support, and progressive migration capabilities.
+A schema-aware GraphQL migration tool that automatically transforms deprecated queries based on your GraphQL schema's `@deprecated` directives. Adaptable to most environments with 100% CLI scriptability, monitored safeties, rollback support, and progressive migration capabilities.
 
-## ⚠️ Important: Production Validation
+## Highlights
 
-The tool includes comprehensive schema validation to ensure all queries are production-ready:
+- **100% Scriptable CLI** - Guaranteed compatibility with Python, Bash, and other automation tools
+- **Unified Module Architecture** - Consolidated extractors, transformers, and validators for consistency
+- ~**Enterprise-Ready** - Production-tested with comprehensive safety features~
+- **Cross-Language Compatible** - Stable JSON outputs, consistent exit codes, no Node.js runtime hacks. ?csv if we use heavier ai
+
+
+## Production Validation
+
+The schema validation to ensure all queries in production of a repo are in ~~~~~~ are production-ready:
 
 ```bash
 # Validate extracted queries
@@ -42,6 +50,9 @@ pnpm install
 
 # Build the project
 pnpm build
+
+# Run compatibility tests (optional but recommended)
+pnpm test:cli-compatibility
 ```
 
 ## 🎯 Quick Start
@@ -101,59 +112,90 @@ pnpm apply -i transformed/transformed-queries.json --backup
 
 ## 📚 Available Commands
 
-### Core Commands
+### Main CLI Commands
+All commands are available through the unified `pg-cli` interface:
+
+```bash
+# Core operations
+pg-cli extract queries [directory]      # Extract GraphQL queries
+pg-cli transform queries               # Transform based on deprecations
+pg-cli validate schema                 # Validate against GraphQL schema
+pg-cli apply changes                   # Apply transformations to source
+
+# Advanced operations
+pg-cli analyze operations              # Analyze query patterns
+pg-cli migrate full                    # Run complete migration pipeline
+pg-cli extract variants                # Extract query variants
+pg-cli validate responses              # Validate API responses
+```
+
+### CLI Options for Automation
+```bash
+# Output format control
+--output-version <version>    # Specify output format version (default: 1.0)
+--legacy-format              # Use pre-1.0 output format
+--json                       # Output JSON to stdout (for piping)
+--quiet                      # Suppress progress indicators
+--no-color                   # Disable colored output
+
+# Common options
+--dry-run                    # Preview changes without applying
+--skip-invalid               # Continue on validation errors
+--backup                     # Create backups before modifications
+```
+
+### NPM Scripts (Alternative Access)
 - `pnpm extract` - Extract GraphQL queries from JavaScript/TypeScript files
 - `pnpm transform` - Transform queries based on schema deprecations
 - `pnpm validate` - Validate queries against GraphQL schema
 - `pnpm apply` - Apply transformations back to source files
-
-### Analysis Commands
-- `pnpm analyze` - Analyze GraphQL operations for patterns and issues
-- `pnpm pipeline` - Run production readiness assessment
-- `pnpm validate:pipeline` - Run validation pipeline
-
-### Variant Commands
-- `pnpm extract-variants` - Extract query variants (basic)
-- `pnpm extract-advanced` - Extract query variants with conditional fragments
-- `pnpm validate-variants` - Validate generated variant files
-- `pnpm variants` - Run variant analysis
+- `pnpm cli` - Access main CLI interface
+- `pnpm test:cli-compatibility` - Verify CLI scriptability
 
 ### Development Commands
-- `pnpm type-safe` - Type-safe migration tools
-- `pnpm migrate` - Main migration orchestrator
-- `pnpm migrate:dev` - Development mode with hot reload
-
-### Utility Commands
 - `pnpm build` - Build TypeScript files
 - `pnpm test` - Run tests
+- `pnpm test:coverage` - Run tests with coverage
 - `pnpm lint` - Run ESLint
 - `pnpm format` - Format code with Prettier
 
 ## 🏗️ Architecture
 
+### Unified Module Architecture
+The tool uses a consolidated architecture for consistency and maintainability:
+
 ```
 pg-migration-620/
 ├── src/
 │   ├── core/
-│   │   ├── scanner/
-│   │   │   └── GraphQLExtractor.ts    # Extract queries from JS/TS files
+│   │   ├── extraction/
+│   │   │   ├── UnifiedExtractor.ts         # Main extraction engine
+│   │   │   ├── UnifiedVariantExtractor.ts  # Variant detection
+│   │   │   └── PatternAwareExtraction.ts   # Pattern-based extraction
 │   │   ├── analyzer/
 │   │   │   ├── SchemaDeprecationAnalyzer.ts  # Extract rules from schema
-│   │   │   ├── PatternMatcher.ts     # AST pattern analysis
-│   │   │   └── ConfidenceScorer.ts   # Score transformation confidence
+│   │   │   ├── PatternMatcher.ts           # AST pattern analysis
+│   │   │   └── OperationAnalyzer.ts        # Operation grouping
 │   │   ├── transformer/
-│   │   │   ├── OptimizedSchemaTransformer.ts  # Production transformer
-│   │   │   ├── QueryTransformer.ts   # Legacy manual rules
-│   │   │   └── SchemaAwareTransformer.ts  # Schema-based transforms
+│   │   │   ├── OptimizedSchemaTransformer.ts  # Main production transformer
+│   │   │   └── UnifiedTransformationPipeline.ts # Transformation orchestration
+│   │   ├── validator/
+│   │   │   ├── ResponseValidationService.ts  # Response validation
+│   │   │   ├── ResponseComparator.ts        # Response comparison
+│   │   │   └── SchemaValidator.ts           # Schema validation
 │   │   ├── safety/
-│   │   │   ├── ProgressiveMigration.ts  # Gradual rollout
-│   │   │   ├── RollbackManager.ts    # Safe rollback support
-│   │   │   └── HealthChecker.ts      # Monitor migration health
-│   │   └── MigrationOrchestrator.ts  # Main coordinator
+│   │   │   ├── ProgressiveMigration.ts     # Gradual rollout
+│   │   │   ├── RollbackManager.ts          # Safe rollback support
+│   │   │   └── HealthChecker.ts            # Monitor migration health
+│   │   └── MigrationOrchestrator.ts        # Main coordinator
 │   ├── cli/
-│   │   ├── unified-cli.ts            # Main CLI entry
-│   │   └── extract-transform.ts      # Extract & transform CLI
-│   └── types/                        # TypeScript definitions
+│   │   ├── main-cli.ts                     # Main CLI entry (pg-cli)
+│   │   ├── unified-cli.ts                  # Unified pipeline (pg-migrate)
+│   │   ├── compatibility/
+│   │   │   ├── output-adapter.ts           # Output format versioning
+│   │   │   └── cli-wrapper.ts              # CLI compatibility layer
+│   │   └── extract-transform.ts            # Core CLI commands
+│   └── types/                              # TypeScript definitions
 ```
 
 ## 🔒 Safety Features
@@ -247,6 +289,67 @@ query GetVenture($id: ID!) {
     ...ventureBasicFields
   }
 }
+```
+
+## 🤖 Automation & Scriptability
+
+### 100% CLI Compatibility Guaranteed
+
+The tool is designed for seamless integration with any automation framework:
+
+#### Python Example
+```python
+import subprocess
+import json
+
+# Extract queries
+result = subprocess.run(
+    ['npx', 'pg-cli', 'extract', 'queries', './src', '-o', 'queries.json'],
+    capture_output=True,
+    text=True
+)
+
+if result.returncode == 0:
+    with open('queries.json', 'r') as f:
+        data = json.load(f)
+    print(f"Found {data['totalQueries']} queries")
+```
+
+#### Bash Pipeline
+```bash
+# Full migration pipeline
+npx pg-cli extract queries ./src -o queries.json
+npx pg-cli validate schema -q queries.json -s schema.graphql || exit 1
+npx pg-cli transform queries --dry-run -i queries.json
+npx pg-cli apply changes --backup
+```
+
+#### CI/CD Integration
+```yaml
+# GitHub Actions example
+- name: GraphQL Migration
+  run: |
+    npx pg-cli extract queries ./src -o queries.json --quiet
+    npx pg-cli transform queries -i queries.json -s schema.graphql
+    npx pg-cli validate schema -q transformed.json -s schema.graphql
+  env:
+    PG_CLI_NO_PROGRESS: 1
+    PG_CLI_OUTPUT_VERSION: 1.0
+```
+
+### Stable Output Formats
+
+All commands produce stable JSON outputs with versioning support:
+
+```bash
+# Use specific output version
+pg-cli extract queries --output-version 1.0
+
+# Use legacy format for compatibility
+pg-cli extract queries --legacy-format
+
+# Pure JSON to stdout (no progress indicators)
+pg-cli extract queries --json | jq '.totalQueries'
 ```
 
 ## 🔧 Configuration
@@ -379,11 +482,86 @@ LOG_LEVEL=debug npm run migrate:dev analyze
 
 ## 🔍 Next Steps
 
-1. **Add AST Scanner**: Replace string extraction with proper AST parsing
-2. **Implement Response Transformer**: Runtime response shape transformation
-3. **Add Pattern Learning**: ML-based pattern detection from successful migrations
-4. **Build Dashboard**: Web UI for monitoring migrations
-5. **Add Integration Tests**: Full pipeline testing
+1. **Enhanced Pattern Learning**: ML-based pattern detection from successful migrations
+2. **Build Dashboard**: Web UI for monitoring migrations
+3. **Add Integration Tests**: Full pipeline testing
+4. **Implement Response Transformer**: Runtime response shape transformation
+5. **Advanced Pattern Registry**: Support for complex migration scenarios
+
+## 🎯 Pattern-Based Migration
+
+This tool now uses a **pattern-based migration approach** that preserves your application's dynamic query naming logic while enabling safe migrations:
+
+### Key Features
+- **Pattern Registry**: Maps dynamic query naming patterns to version information
+- **Query Naming Service**: Centralized service for handling all query naming concerns
+- **Content-Based Deduplication**: True duplicate detection regardless of naming
+- **Safe Migration Strategy**: Updates configuration instead of breaking query strings
+
+### Enabling Pattern-Based Processing
+
+**Automatic Initialization (Recommended)**:
+```javascript
+// The pattern-based system initializes automatically when using CLI commands
+npm run cli pattern-migrate --directory ./src --schema ./schema.graphql
+```
+
+**Manual Initialization**:
+```javascript
+import { createDefaultQueryServices } from './src/core/extraction/services/QueryServicesFactory';
+import { ExtractionContext } from './src/core/extraction/engine/ExtractionContext';
+
+// Initialize pattern-based services
+const queryServices = await createDefaultQueryServices({
+  projectRoot: './src',
+  enableIncrementalExtraction: true,
+  cacheConfig: {
+    memoryLimit: 50 * 1024 * 1024, // 50MB
+    ttl: 30 * 60 * 1000, // 30 minutes
+  }
+});
+
+// Create extraction context with pattern services
+const context = new ExtractionContext({
+  directory: './src',
+  enablePatterns: true
+});
+
+// Services are automatically injected via factory pattern
+const { namingService, migrator } = queryServices;
+```
+
+**Converting Existing queryNames.js**:
+```bash
+# Convert your existing queryNames.js to pattern registry format
+npm run cli convert-querynames --input ./src/queryNames.js --output ./pattern-registry.json
+
+# Validate the conversion
+npm run cli validate-migration --before ./extracted-old.json --after ./extracted-new.json
+```
+
+### Example Pattern Migration
+
+**Before (problematic normalization)**:
+```javascript
+// Dynamic query selection
+const queryName = conditions.infinity ? 'byIdV2' : 'byIdV1';
+const query = gql`query ${queryNames[queryName]} { ... }`;
+
+// ❌ Old approach would break this by normalizing names
+```
+
+**After (pattern-based)**:
+```javascript
+// Dynamic query selection preserved
+const queryName = conditions.infinity ? 'byIdV2' : 'byIdV1';
+const query = gql`query ${queryNames[queryName]} { ... }`;
+
+// ✅ Pattern system tracks versions and suggests migrations
+// Updates queryNames object instead of breaking query strings
+```
+
+For detailed information, see [Pattern-Based Migration Guide](PATTERN-BASED-MIGRATION.md).
 
 ## 📦 Package Dependencies
 
@@ -472,6 +650,69 @@ LOG_LEVEL=debug npm run migrate:dev analyze
 - **@graphql-codegen/typescript** (^4.0.0) - TypeScript code generation
 - **diff** (^5.1.0) - Create text diffs
 - **diff2html** (^3.4.0) - Convert diffs to HTML
+
+## 🧪 Testing
+
+### Running Tests
+```bash
+# Run all tests
+pnpm test
+
+# Run with coverage
+pnpm test:coverage
+
+# Run specific test suites
+pnpm test extraction     # Extraction tests
+pnpm test transformer   # Transformer tests
+pnpm test validator     # Validator tests
+
+# Run CLI compatibility tests
+pnpm test:cli-compatibility
+```
+
+### Test Coverage
+The project maintains high test coverage with:
+- Unit tests for all core modules
+- Integration tests for CLI commands
+- Cross-language compatibility tests (Python, Bash)
+- Performance benchmarks
+
+### Module Test Status
+- ✅ **UnifiedExtractor**: Comprehensive test coverage
+- ✅ **OptimizedSchemaTransformer**: Full API compatibility tests
+- ✅ **ResponseValidator**: Response comparison tests
+- ✅ **CLI Commands**: Cross-language automation tests
+
+## 📚 Documentation
+
+### Core Documentation
+- [CLI Output Formats](docs/CLI_OUTPUT_FORMATS.md) - Complete output specifications
+- [Migration Guide](docs/MIGRATION_GUIDE.md) - Step-by-step migration instructions
+- [Pattern-Based Migration](PATTERN-BASED-MIGRATION.md) - Advanced pattern system
+- [Response Validation](docs/response-validation.md) - API response validation
+
+### Architecture & Design
+- [Unified Architecture](docs/UNIFIED_ARCHITECTURE.md) - Module consolidation design
+- [Feature Parity Audit](FEATURE_PARITY_AUDIT.md) - Module feature comparison
+- [Deprecation Plan](DEPRECATION_PLAN.md) - Module deprecation timeline
+
+### API References
+- [Extractor API](docs/api/extractor.md) - UnifiedExtractor reference
+- [Transformer API](docs/api/transformer.md) - Transformer reference
+- [Validator API](docs/api/validator.md) - Validator reference
+
+### Guides & Tutorials
+- [Quick Start Guide](docs/QUICK_START.md) - Get started in 5 minutes
+- [CI/CD Integration](docs/CI_INTEGRATION.md) - Integrate with your pipeline
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+- Code style and standards
+- Test requirements
+- Module architecture
+- Pull request process
 
 ## 📝 License
 

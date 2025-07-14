@@ -13,7 +13,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
       const strategy = new PluckStrategy(context);
       const code = `
         import { gql } from 'graphql-tag';
-        
+
         const USER_QUERY = gql\`
           query GetUser($id: ID!) {
             user(id: $id) {
@@ -29,13 +29,17 @@ describe('PluckStrategy with Source AST Preservation', () => {
       const query = queries[0];
       expect(query.sourceAST).toBeDefined();
       expect(query.sourceAST?.node).toBeDefined();
+      // NOTE: what does sourceAST.node represent? is it the AST node of the query?
       expect(query.sourceAST?.start).toBeGreaterThanOrEqual(0);
+      // NOTE: what does sourceAST.start number represent? is it the start position of the query in the file?
       expect(query.sourceAST?.end).toBeGreaterThan(query.sourceAST?.start || 0);
+      // NOTE: what does sourceAST.end represent? is it the end position of the query in the file?
       expect(query.sourceAST?.parent).toBeDefined();
     });
     it('should not preserve source AST when disabled', async () => {
       const options: ExtractionOptions = {
         directory: '.',
+        // NOTE:when do we exactly decide to disable source AST preservation?
         preserveSourceAST: false
       };
       const context = new ExtractionContext(options);
@@ -78,6 +82,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
       // The interpolations are preserved in the sourceAST but not in the content
       expect(query.content).toContain('query');
       expect(query.sourceAST).toBeDefined();
+      // NOTE:what are templateLiteral? what are they in this example?
       expect(query.sourceAST?.templateLiteral).toBeDefined();
 
       // Check interpolations
@@ -88,7 +93,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
     });
   });
   describe('multiple GraphQL modules support', () => {
-    it('should extract from @apollo/client imports', async () => {
+    it('should extract from @apollo/client imports', async () => { // NOTE: why do extrat from @apollo/client?
       const options: ExtractionOptions = {
         directory: '.',
         preserveSourceAST: true
@@ -97,7 +102,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
       const strategy = new PluckStrategy(context);
       const code = `
         import { gql } from '@apollo/client';
-        
+
         const APOLLO_QUERY = gql\`
           query ApolloQuery {
             apolloData {
@@ -111,6 +116,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
       expect(queries[0].sourceAST).toBeDefined();
     });
     it('should extract from react-relay imports', async () => {
+      // NOTE: do we have any examples of react-relay queries in gdcorp?
       const options: ExtractionOptions = {
         directory: '.',
         preserveSourceAST: true
@@ -119,7 +125,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
       const strategy = new PluckStrategy(context);
       const code = `
         import { graphql } from 'react-relay';
-        
+
         const RELAY_QUERY = graphql\`
           query RelayQuery {
             relayData {
@@ -143,6 +149,8 @@ describe('PluckStrategy with Source AST Preservation', () => {
       const strategy = new PluckStrategy(context);
 
       // This might fail in graphql-tag-pluck but should be caught by manual extraction
+
+      // NOTE: what's the determining factor for complex interpolations?
       const code = `
         const COMPLEX = gql\`
           query ComplexQuery {
@@ -172,6 +180,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
       const queries = await strategy.extract('multi.ts', code);
       const sourceMapper = strategy.getSourceMapper();
       expect(queries).toHaveLength(3);
+      // NOTE: can we capture the source AST for each query? and test the value for each?
 
       // Each query should have unique source AST
       const astNodes = new Set();
@@ -182,6 +191,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
         astNodes.add(query.sourceAST?.node);
       });
 
+      // NOTE: can we capture the astNodes for each query? and test the value for each?
       // All AST nodes should be different
       expect(astNodes.size).toBe(3);
     });
@@ -227,6 +237,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
     });
   });
   describe('source mapper statistics', () => {
+    // NOTE: explain the source mapper statistics and provide examples
     it('should track statistics correctly', async () => {
       const options: ExtractionOptions = {
         directory: '.',
@@ -242,7 +253,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
             data
           }
         \`;
-        
+
         // Query with interpolations - PluckStrategy can extract this
         const Q2 = gql\`
           query Query2 {

@@ -29,7 +29,8 @@ describe('GitHubService', () => {
     // Clear all mocks
     vi.clearAllMocks();
 
-    // Reset mock implementation
+    // Reset the mock function completely
+    mockExecAsync.mockReset();
     mockExecAsync.mockResolvedValue({ stdout: '', stderr: '' });
 
     // Setup logger mocks
@@ -61,6 +62,7 @@ describe('GitHubService', () => {
       }
     }
     vi.clearAllMocks();
+    mockExecAsync.mockReset();
   });
 
   describe('validateGitHub', () => {
@@ -306,6 +308,9 @@ describe('GitHubService', () => {
     });
 
     it('should handle PR options', async () => {
+      // Clear previous mock calls to avoid contamination
+      mockExecAsync.mockClear();
+
       mockExecAsync
         .mockResolvedValueOnce({ stdout: 'Logged in', stderr: '' })
         .mockResolvedValueOnce({ stdout: 'https://github.com/user/repo/pull/456', stderr: '' })
@@ -331,11 +336,8 @@ describe('GitHubService', () => {
         reviewers: ['reviewer1']
       });
 
-      // Find the PR create call (should be the second call after auth check)
-      const prCreateCall = mockExecAsync.mock.calls.find((call: any[]) =>
-        call[0].includes('gh pr create')
-      );
-
+      // Check the second call which should be the PR creation
+      const prCreateCall = mockExecAsync.mock.calls[1];
       expect(prCreateCall).toBeDefined();
       const createCommand = prCreateCall[0];
 

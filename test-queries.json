@@ -1,0 +1,14 @@
+{
+  "queries": [
+    {
+      "id": "test-query-1",
+      "name": "TestQuery",
+      "type": "query",
+      "content": "query TestQuery { __typename }",
+      "resolvedContent": "query TestQuery { __typename }",
+      "filePath": "test.ts",
+      "variables": [],
+      "fragments": []
+    }
+  ]
+}

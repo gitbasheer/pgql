@@ -4,6 +4,7 @@ import pRetry from 'p-retry';
 import { ResponseCaptureService } from '../../core/validator/ResponseCaptureService';
 import { EndpointConfig } from '../../core/validator/types';
 import { ResolvedQuery } from '../../core/extraction/types/query.types';
+import { createMockPRetry } from '../utils/mockRetry';
 // Mock modules
 vi.mock('p-limit', () => ({
   default: () => (fn: Function) => fn()
@@ -37,6 +38,7 @@ describe('ResponseCaptureService - Error Handling', () => {
   let mockAxiosInstance: ReturnType<typeof createMockAxiosInstance>;
   const mockedAxios = vi.mocked(axios);
   const mockedPRetry = vi.mocked(pRetry);
+  const mockRetry = createMockPRetry();
 
   const mockEndpoint: EndpointConfig = {
     url: 'https://api.example.com/graphql',
@@ -79,7 +81,8 @@ describe('ResponseCaptureService - Error Handling', () => {
     (mockedAxios.isAxiosError as any).mockReturnValue(false);
 
     // Default p-retry behavior - just execute the function
-    mockedPRetry.mockImplementation(async (fn: any) => fn());
+    mockedPRetry.mockImplementation(mockRetry.mockPRetry);
+    mockRetry.setFailTimes(0); // Default: no failures
   });
 
   afterEach(() => {
@@ -87,14 +90,20 @@ describe('ResponseCaptureService - Error Handling', () => {
   });
 
   it('should retry on failure', async () => {
-    const retryError = new Error('Temporary failure');
+    vi.clearAllMocks();
+    mockRetry.setFailTimes(2); // Fail first 2 times
     let callCount = 0;
 
+    // Create completely fresh mock instance
+    const freshMockAxios = createMockAxiosInstance();
+    (mockedAxios.create as Mock).mockReturnValue(freshMockAxios as any);
+    (mockedAxios.isAxiosError as any).mockReturnValue(false);
+
     // Mock axios to fail first 2 times, then succeed
-    mockAxiosInstance.post.mockImplementation(() => {
+    freshMockAxios.post.mockImplementation(() => {
       callCount++;
       if (callCount < 3) {
-        return Promise.reject(retryError);
+        return Promise.reject(new Error('Temporary failure'));
       }
       return Promise.resolve(mockResponse);
     });
@@ -130,12 +139,16 @@ describe('ResponseCaptureService - Error Handling', () => {
     const result = await service.captureBaseline([mockQuery]);
 
     expect(callCount).toBe(3);
+    expect(mockRetry.getCallCount()).toBe(3);
     expect(result.responses.size).toBe(1);
     expect(result.metadata.successCount).toBe(1);
     expect(result.metadata.errorCount).toBe(0);
   });
 
   it('should capture axios errors as responses', async () => {
+    // Clear all previous mocks completely
+    vi.clearAllMocks();
+
     const axiosError = {
       message: 'Request failed',
       response: {
@@ -147,10 +160,19 @@ describe('ResponseCaptureService - Error Handling', () => {
       code: 'ERR_BAD_REQUEST'
     };
 
-    mockAxiosInstance.post.mockRejectedValue(axiosError);
+    // Create completely fresh mock instance
+    const freshMockAxios = createMockAxiosInstance();
+    (mockedAxios.create as Mock).mockReturnValue(freshMockAxios as any);
+
+    freshMockAxios.post.mockRejectedValue(axiosError);
 
     // Make sure isAxiosError returns true when checking our error
     (mockedAxios.isAxiosError as any).mockImplementation((err: any) => err === axiosError);
+
+    // Mock pRetry to just execute the function once (no retries for this test)
+    mockedPRetry.mockImplementation(async (fn: any) => {
+      return await fn();
+    });
 
     service = new ResponseCaptureService([mockEndpoint]);
     const result = await service.captureBaseline([mockQuery]);
@@ -171,21 +193,36 @@ describe('ResponseCaptureService - Error Handling', () => {
   });
 
   it('should handle non-axios errors', async () => {
+    // Clear all previous mocks completely
+    vi.clearAllMocks();
+
     const genericError = new Error('Unknown error');
 
-    mockAxiosInstance.post.mockRejectedValue(genericError);
+    // Create completely fresh mock instance
+    const freshMockAxios = createMockAxiosInstance();
+    (mockedAxios.create as Mock).mockReturnValue(freshMockAxios as any);
+
+    freshMockAxios.post.mockRejectedValue(genericError);
     (mockedAxios.isAxiosError as any).mockImplementation(() => false);
+
+    // Mock pRetry to pass through the error (let it throw)
+    mockedPRetry.mockImplementation(async (fn: any) => {
+      return await fn();
+    });
 
     service = new ResponseCaptureService([mockEndpoint]);
     const result = await service.captureBaseline([mockQuery]);
 
-    // Non-axios errors should not be captured as responses
+    // Non-axios errors should not be captured as responses (they throw and get caught in captureBaseline)
     expect(result.responses.size).toBe(0);
     expect(result.metadata.errorCount).toBe(1);
     expect(result.metadata.successCount).toBe(0);
   });
 
   it('should handle network timeout errors', async () => {
+    // Clear all previous mocks completely
+    vi.clearAllMocks();
+
     const timeoutError = {
       message: 'timeout of 30000ms exceeded',
       code: 'ECONNABORTED',
@@ -193,8 +230,17 @@ describe('ResponseCaptureService - Error Handling', () => {
       isAxiosError: true
     };
 
-    mockAxiosInstance.post.mockRejectedValue(timeoutError);
+    // Create completely fresh mock instance
+    const freshMockAxios = createMockAxiosInstance();
+    (mockedAxios.create as Mock).mockReturnValue(freshMockAxios as any);
+
+    freshMockAxios.post.mockRejectedValue(timeoutError);
     (mockedAxios.isAxiosError as any).mockImplementation((err: any) => err === timeoutError);
+
+    // Mock pRetry to just execute the function once (no retries for this test)
+    mockedPRetry.mockImplementation(async (fn: any) => {
+      return await fn();
+    });
 
     service = new ResponseCaptureService([mockEndpoint]);
     const result = await service.captureBaseline([mockQuery]);

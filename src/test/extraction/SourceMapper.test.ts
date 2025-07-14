@@ -15,7 +15,11 @@ describe('SourceMapper', () => {
 
   describe('register and retrieval', () => {
     it('should register and retrieve source AST by query ID', () => {
-      const code = 'const x = 42;';
+      const code = 'const x = 42;'; 
+      // NOTE: what does the code represent? is it a query or just a piece of code?
+      // NOTE: what does the sourceMapper do with the code? does it parse it to an AST?
+      // NOTE: what does the sourceMapper do with the AST? does it register it with a query ID?
+      // NOTE: what does the sourceMapper do with the query ID? does it allow retrieval of the AST by the query ID?
       const ast = babel.parse(code);
       const node = ast.program.body[0];
       
@@ -31,6 +35,7 @@ describe('SourceMapper', () => {
       const retrieved = sourceMapper.getSourceAST('query-1');
       expect(retrieved).toBeDefined();
       expect(retrieved).toEqual(sourceAST);
+      // NOTE: lets check the value of node ?
     });
 
     it('should retrieve query ID by AST node', () => {

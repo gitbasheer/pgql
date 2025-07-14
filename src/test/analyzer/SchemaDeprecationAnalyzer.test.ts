@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SchemaDeprecationAnalyzer } from '../../core/analyzer/SchemaDeprecationAnalyzer';
 
 describe('SchemaDeprecationAnalyzer', () => {
@@ -16,9 +16,9 @@ type CustomerQuery {
   venture(ventureId: UUID!): Venture @deprecated(reason: "Use ventureNode")
   ventureNode(ventureId: UUID): VentureNode
 }`;
-      
+
       const rules = analyzer.analyzeSchema(schema);
-      
+
       expect(rules).toHaveLength(1);
       expect(rules[0]).toMatchObject({
         type: 'field',
@@ -38,9 +38,9 @@ type Venture {
   logoUrl: String @deprecated(reason: "Use profile.logoUrl instead")
   profile: Profile
 }`;
-      
+
       const rules = analyzer.analyzeSchema(schema);
-      
+
       expect(rules).toHaveLength(1);
       expect(rules[0]).toMatchObject({
         type: 'field',
@@ -60,9 +60,9 @@ type WAMProduct {
   data: JSONObject @deprecated(reason: "Use calculated fields to ensure forward compatibility")
   billing: Billing
 }`;
-      
+
       const rules = analyzer.analyzeSchema(schema);
-      
+
       expect(rules).toHaveLength(2);
       expect(rules[0]).toMatchObject({
         fieldName: 'accountId',
@@ -84,9 +84,9 @@ type Profile {
   isInfinityStone: Boolean @deprecated(reason: "switch to using aiOnboarded")
   aiOnboarded: Boolean
 }`;
-      
+
       const rules = analyzer.analyzeSchema(schema);
-      
+
       expect(rules).toHaveLength(1);
       expect(rules[0]).toMatchObject({
         fieldName: 'isInfinityStone',
@@ -107,15 +107,15 @@ type CurrentUser implements User {
   email: String
   projects: [Project] @deprecated(reason: "Use CustomerQuery.projects")
 }`;
-      
+
       const rules = analyzer.analyzeSchema(schema);
-      
+
       // Should find deprecations in both interface and implementation
       expect(rules.length).toBeGreaterThanOrEqual(1);
-      
+
       const interfaceRule = rules.find(r => r.objectType === 'User');
       expect(interfaceRule).toBeDefined();
-      
+
       const implRule = rules.find(r => r.objectType === 'CurrentUser');
       expect(implRule).toBeDefined();
     });
@@ -130,13 +130,13 @@ type Query {
 type Mutation {
   user: User @deprecated(reason: "Use me")
 }`;
-      
+
       const rules = analyzer.analyzeSchema(schema);
-      
+
       // Should have rules for both Query.user and Mutation.user
       const queryRule = rules.find(r => r.objectType === 'Query' && r.fieldName === 'user');
       const mutationRule = rules.find(r => r.objectType === 'Mutation' && r.fieldName === 'user');
-      
+
       expect(queryRule).toBeDefined();
       expect(mutationRule).toBeDefined();
       expect(rules.length).toBe(2);
@@ -152,9 +152,9 @@ type Project {
   )
   billing: Billing
 }`;
-      
+
       const rules = analyzer.analyzeSchema(schema);
-      
+
       // Multi-line deprecations are currently not handled perfectly
       // This test documents current behavior
       expect(rules.length).toBeGreaterThanOrEqual(0);
@@ -171,10 +171,10 @@ type Test {
   newField1: String
   newField2: String
 }`;
-      
+
       analyzer.analyzeSchema(schema);
       const summary = analyzer.getSummary();
-      
+
       expect(summary.total).toBe(3);
       expect(summary.replaceable).toBe(2);
       expect(summary.vague).toBe(1);
@@ -209,7 +209,7 @@ type Test {
       testCases.forEach(({ schema, expected }) => {
         const fullSchema = `type Test { ${schema} }`;
         const rules = analyzer.analyzeSchema(fullSchema);
-        
+
         expect(rules).toHaveLength(1);
         expect(rules[0].replacement).toBe(expected.replacement);
         expect(rules[0].isVague).toBe(expected.isVague);

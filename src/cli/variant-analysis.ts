@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { EnhancedDynamicExtractor } from '../core/scanner/EnhancedDynamicExtractor';
+import { UnifiedVariantExtractor } from '../core/scanner/UnifiedVariantExtractor';
 import { OperationAnalyzer } from '../core/analyzer/OperationAnalyzer';
 import { logger } from '../utils/logger';
 
@@ -23,7 +23,7 @@ program
     
     try {
       // Extract with variant awareness
-      const extractor = new EnhancedDynamicExtractor();
+      const extractor = new UnifiedVariantExtractor({ enableIncrementalExtraction: true });
       const queries = await extractor.extractFromDirectory(
         directory,
         options.pattern,
@@ -36,8 +36,8 @@ program
       const variantReport = await extractor.generateVariantReport();
       
       // Separate original queries from variants
-      const originalQueries = queries.filter(q => !(q as any).variantMetadata);
-      const variants = queries.filter(q => (q as any).variantMetadata);
+      const originalQueries = queries.filter(q => !(q as any).variantMetadata?.isVariant);
+      const variants = queries.filter(q => (q as any).variantMetadata?.isVariant);
       
       console.log(chalk.blue('\n📊 Variant Analysis Summary:\n'));
       console.log(`  Original queries: ${originalQueries.length}`);

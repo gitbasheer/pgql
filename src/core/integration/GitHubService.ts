@@ -1,6 +1,7 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { logger } from '../../utils/logger';
+import { execGit, execGH, validateBranchName, validateFilePath, gitCommitSecure } from '../../utils/secureCommand';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -53,9 +54,13 @@ export class GitHubService {
    */
   async validateGitHub(): Promise<boolean> {
     try {
-      const { stdout } = await execAsync('gh auth status', {
+      const result = await execGH(['auth', 'status'], {
         cwd: this.workingDirectory
       });
+      
+      if (result.exitCode !== 0) {
+        throw new Error('GitHub CLI not authenticated');
+      }
       logger.info('GitHub CLI authenticated successfully');
       return true;
     } catch (error) {
@@ -72,28 +77,35 @@ export class GitHubService {
 
     try {
       // Check if it's a git repository
-      await execAsync('git rev-parse --git-dir', {
+      const result = await execGit(['rev-parse', '--git-dir'], {
         cwd: this.workingDirectory
       });
+      
+      if (result.exitCode !== 0) {
+        throw new Error('Not a git repository');
+      }
       status.isGitRepo = true;
 
       // Get current branch
-      const { stdout: branch } = await execAsync('git branch --show-current', {
+      const branchResult = await execGit(['branch', '--show-current'], {
         cwd: this.workingDirectory
       });
+      const branch = branchResult.stdout;
       status.currentBranch = branch.trim();
 
       // Check for uncommitted changes
-      const { stdout: gitStatus } = await execAsync('git status --porcelain', {
+      const statusResult = await execGit(['status', '--porcelain'], {
         cwd: this.workingDirectory
       });
+      const gitStatus = statusResult.stdout;
       status.hasUncommittedChanges = gitStatus.trim().length > 0;
 
       // Get remote URL
       try {
-        const { stdout: remote } = await execAsync('git remote get-url origin', {
+        const remoteResult = await execGit(['remote', 'get-url', 'origin'], {
           cwd: this.workingDirectory
         });
+        const remote = remoteResult.stdout;
         status.remoteUrl = remote.trim();
       } catch {
         // Remote might not be configured
@@ -122,9 +134,18 @@ export class GitHubService {
 
     // Create and checkout new branch
     try {
-      await execAsync(`git checkout -b ${branchName}`, {
+      // Validate branch name to prevent injection
+      if (!validateBranchName(branchName)) {
+        throw new Error('Invalid branch name: contains unsafe characters');
+      }
+      
+      const result = await execGit(['checkout', '-b', branchName], {
         cwd: this.workingDirectory
       });
+      
+      if (result.exitCode !== 0) {
+        throw new Error(`Failed to create branch: ${result.stderr}`);
+      }
       logger.info(`Created and checked out branch: ${branchName}`);
       return branchName;
     } catch (error: any) {
@@ -146,9 +167,18 @@ export class GitHubService {
     // Stage files one by one to handle errors better
     for (const filePath of filePaths) {
       try {
-        await execAsync(`git add "${filePath}"`, {
+        // Validate file path to prevent traversal
+        if (!validateFilePath(filePath, this.workingDirectory)) {
+          throw new Error(`Invalid file path: ${filePath}`);
+        }
+        
+        const result = await execGit(['add', filePath], {
           cwd: this.workingDirectory
         });
+        
+        if (result.exitCode !== 0) {
+          throw new Error(`Failed to stage file: ${result.stderr}`);
+        }
         logger.debug(`Staged: ${filePath}`);
       } catch (error) {
         logger.error(`Failed to stage file: ${filePath}`, error);
@@ -168,10 +198,16 @@ export class GitHubService {
       : message;
 
     try {
-      const { stdout } = await execAsync(
-        `git commit -m "${fullMessage.replace(/"/g, '\\"')}"`,
-        { cwd: this.workingDirectory }
-      );
+      // Use secure commit with message via stdin
+      const result = await gitCommitSecure(fullMessage, {
+        cwd: this.workingDirectory
+      });
+      
+      if (result.exitCode !== 0) {
+        throw new Error(`Commit failed: ${result.stderr}`);
+      }
+      
+      const { stdout } = result;
 
       // Extract commit hash
       const match = stdout.match(/\[[\w-]+ ([\w]+)\]/);
@@ -198,16 +234,34 @@ export class GitHubService {
     }
 
     try {
-      await execAsync(`git push -u origin ${branch}`, {
+      // Validate branch name
+      if (!validateBranchName(branch)) {
+        throw new Error('Invalid branch name for push');
+      }
+      
+      const pushResult = await execGit(['push', '-u', 'origin', branch], {
         cwd: this.workingDirectory
       });
+      
+      if (pushResult.exitCode !== 0) {
+        throw new Error(`Push failed: ${pushResult.stderr}`);
+      }
       logger.info(`Pushed branch '${branch}' to remote`);
     } catch (error: any) {
       if (error.message.includes('no upstream branch')) {
         // Try setting upstream
-        await execAsync(`git push --set-upstream origin ${branch}`, {
+        // Validate branch name
+        if (!validateBranchName(branch)) {
+          throw new Error('Invalid branch name for push');
+        }
+        
+        const pushResult = await execGit(['push', '--set-upstream', 'origin', branch], {
           cwd: this.workingDirectory
         });
+        
+        if (pushResult.exitCode !== 0) {
+          throw new Error(`Push failed: ${pushResult.stderr}`);
+        }
         logger.info(`Pushed branch '${branch}' to remote with upstream`);
       } else {
         throw error;
@@ -242,31 +296,41 @@ export class GitHubService {
 
     logger.info('Creating pull request...');
 
-    // Build the command
-    let command = `gh pr create --title "${options.title}" --body "${options.body}"`;
+    // Build the command arguments safely
+    const args = ['pr', 'create', '--title', options.title, '--body', options.body];
 
     if (options.base) {
-      command += ` --base ${options.base}`;
+      // Validate base branch name
+      if (!validateBranchName(options.base)) {
+        throw new Error('Invalid base branch name');
+      }
+      args.push('--base', options.base);
     }
 
     if (options.draft) {
-      command += ' --draft';
+      args.push('--draft');
     }
 
     if (options.labels && options.labels.length > 0) {
-      command += ` --label ${options.labels.join(',')}`;
+      args.push('--label', options.labels.join(','));
     }
 
     if (options.assignees && options.assignees.length > 0) {
-      command += ` --assignee ${options.assignees.join(',')}`;
+      args.push('--assignee', options.assignees.join(','));
     }
 
     if (options.reviewers && options.reviewers.length > 0) {
-      command += ` --reviewer ${options.reviewers.join(',')}`;
+      args.push('--reviewer', options.reviewers.join(','));
     }
 
     try {
-      const { stdout } = await execAsync(command, { cwd: this.workingDirectory });
+      const result = await execGH(args, { cwd: this.workingDirectory });
+      
+      if (result.exitCode !== 0) {
+        throw new Error(`PR creation failed: ${result.stderr}`);
+      }
+      
+      const { stdout } = result;
       logger.info(`Pull request created: ${stdout.trim()}`);
 
       // Get PR details
@@ -278,8 +342,16 @@ export class GitHubService {
       }
 
       // Fetch PR details using gh api
-      const { stdout: prDetailsJson } = await execAsync(`gh pr view ${prNumber} --json number,url,title,body,baseRefName,headRefName`, { cwd: this.workingDirectory });
-      const prDetails = JSON.parse(prDetailsJson);
+      const detailsResult = await execGH([
+        'pr', 'view', prNumber,
+        '--json', 'number,url,title,body,baseRefName,headRefName'
+      ], { cwd: this.workingDirectory });
+      
+      if (detailsResult.exitCode !== 0) {
+        throw new Error(`Failed to fetch PR details: ${detailsResult.stderr}`);
+      }
+      
+      const prDetails = JSON.parse(detailsResult.stdout);
 
       return prDetails;
     } catch (error: any) {

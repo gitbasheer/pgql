@@ -40,7 +40,8 @@ export class GoDaddyEndpointConfig {
       headers: {
         'User-Agent': 'pg-migration-620/1.0.0',
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-app-key': 'vnext-dashboard'
       }
     };
 

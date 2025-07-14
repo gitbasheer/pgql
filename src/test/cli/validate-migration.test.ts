@@ -1,0 +1,566 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { MigrationValidator } from '../../cli/validate-migration';
+import { ExtractedQuery } from '../../types';
+import { PatternExtractedQuery } from '../../core/extraction/types/pattern.types';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import { tmpdir } from 'os';
+
+describe('MigrationValidator', () => {
+  let validator: MigrationValidator;
+  let tempDir: string;
+  let beforeFile: string;
+  let afterFile: string;
+
+  beforeEach(async () => {
+    validator = new MigrationValidator();
+    tempDir = await fs.mkdtemp(path.join(tmpdir(), 'validator-test-'));
+    beforeFile = path.join(tempDir, 'before-queries.json');
+    afterFile = path.join(tempDir, 'after-queries.json');
+  });
+
+  afterEach(async () => {
+    try {
+      await fs.rm(tempDir, { recursive: true, force: true });
+    } catch (error) {
+      // Ignore cleanup errors
+    }
+  });
+
+  describe('validateMigration', () => {
+    it('should pass validation when queries are identical', async () => {
+      const queries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      await fs.writeFile(beforeFile, JSON.stringify(queries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(queries), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.status).toBe('passed');
+      expect(report.summary.matchedQueries).toBe(1);
+      expect(report.summary.missingQueries).toBe(0);
+      expect(report.summary.extraQueries).toBe(0);
+      expect(report.issues).toHaveLength(0);
+    });
+
+    it('should detect missing queries', async () => {
+      const beforeQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        },
+        {
+          id: 'query2',
+          name: 'GetVenture',
+          source: 'query GetVenture { venture { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      const afterQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(afterQueries), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.status).toBe('failed');
+      expect(report.summary.missingQueries).toBe(1);
+      expect(report.issues).toHaveLength(1);
+      expect(report.issues[0].type).toBe('missing');
+      expect(report.issues[0].severity).toBe('error');
+      expect(report.issues[0].queryId).toBe('query2');
+    });
+
+    it('should detect extra queries', async () => {
+      const beforeQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      const afterQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        },
+        {
+          id: 'query2',
+          name: 'GetVenture',
+          source: 'query GetVenture { venture { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(afterQueries), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.status).toBe('warning');
+      expect(report.summary.extraQueries).toBe(1);
+      expect(report.issues).toHaveLength(1);
+      expect(report.issues[0].type).toBe('extra');
+      expect(report.issues[0].severity).toBe('warning');
+    });
+
+    it('should detect name changes', async () => {
+      const beforeQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      const afterQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUserNew',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(afterQueries), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.status).toBe('warning');
+      expect(report.summary.modifiedQueries).toBe(1);
+      expect(report.issues.find(i => i.type === 'naming')).toBeDefined();
+      expect(report.issues.find(i => i.type === 'naming')?.message).toContain('GetUser');
+      expect(report.issues.find(i => i.type === 'naming')?.message).toContain('GetUserNew');
+    });
+
+    it('should detect structural changes', async () => {
+      const beforeQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      const afterQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name email } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(afterQueries), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.status).toBe('warning');
+      expect(report.issues.find(i => i.type === 'structural')).toBeDefined();
+      expect(report.issues.find(i => i.type === 'structural')?.message).toContain('structure changed');
+    });
+
+    it('should detect type changes as errors', async () => {
+      const beforeQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      const afterQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'mutation GetUser { user { id name } }',
+          type: 'mutation',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(afterQueries), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.status).toBe('failed');
+      expect(report.issues.find(i => i.severity === 'error')).toBeDefined();
+      expect(report.issues.find(i => i.message.includes('type changed'))).toBeDefined();
+    });
+
+    it('should handle strict mode', async () => {
+      const beforeQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      const afterQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUserNew',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(afterQueries), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile,
+        strictMode: true
+      });
+
+      expect(report.status).toBe('failed');
+      expect(report.issues.find(i => i.severity === 'error')).toBeDefined();
+    });
+
+    it('should validate pattern-specific fields', async () => {
+      const beforeQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query ${queryNames.getUserById} { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      const afterQueries: PatternExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query ${queryNames.getUserById} { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: [],
+          namePattern: '${queryNames.getUserById}',
+          resolvedName: 'GetUser',
+          contentFingerprint: 'abc123',
+          patternMetadata: {
+            isDynamic: true,
+            hasInterpolation: true,
+            confidence: 1.0
+          }
+        }
+      ];
+
+      await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(afterQueries), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.status).toBe('passed');
+      expect(report.summary.matchedQueries).toBe(1);
+    });
+
+    it('should detect interpolation detection mismatch', async () => {
+      const beforeQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query ${queryNames.getUserById} { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      const afterQueries: PatternExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query ${queryNames.getUserById} { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: [],
+          namePattern: '${queryNames.getUserById}',
+          resolvedName: 'GetUser',
+          contentFingerprint: 'abc123',
+          patternMetadata: {
+            isDynamic: true,
+            hasInterpolation: false, // Mismatch here
+            confidence: 1.0
+          }
+        }
+      ];
+
+      await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(afterQueries), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.status).toBe('warning');
+      expect(report.issues.find(i => i.message.includes('Interpolation detection mismatch'))).toBeDefined();
+    });
+
+    it('should handle different file formats', async () => {
+      const beforeData = {
+        queries: [
+          {
+            id: 'query1',
+            name: 'GetUser',
+            source: 'query GetUser { user { id name } }',
+            type: 'query',
+            filePath: 'test.ts',
+            fragments: []
+          }
+        ]
+      };
+
+      const afterData = {
+        extractedQueries: [
+          {
+            id: 'query1',
+            name: 'GetUser',
+            source: 'query GetUser { user { id name } }',
+            type: 'query',
+            filePath: 'test.ts',
+            fragments: []
+          }
+        ]
+      };
+
+      await fs.writeFile(beforeFile, JSON.stringify(beforeData), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(afterData), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.status).toBe('passed');
+      expect(report.summary.matchedQueries).toBe(1);
+    });
+
+    it('should generate detailed report file', async () => {
+      const queries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      await fs.writeFile(beforeFile, JSON.stringify(queries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(queries), 'utf-8');
+
+      const reportFile = path.join(tempDir, 'validation-report.json');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile,
+        output: reportFile
+      });
+
+      expect(report.status).toBe('passed');
+
+      // Check report file was created
+      const reportContent = await fs.readFile(reportFile, 'utf-8');
+      const savedReport = JSON.parse(reportContent);
+      expect(savedReport.status).toBe('passed');
+      expect(savedReport.summary.matchedQueries).toBe(1);
+    });
+
+    it('should handle malformed JSON gracefully', async () => {
+      await fs.writeFile(beforeFile, 'invalid json', 'utf-8');
+      await fs.writeFile(afterFile, '[]', 'utf-8');
+
+      await expect(validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      })).rejects.toThrow();
+    });
+
+    it('should measure performance', async () => {
+      const queries: ExtractedQuery[] = Array.from({ length: 50 }, (_, i) => ({
+        id: `query${i}`,
+        name: `GetQuery${i}`,
+        source: `query GetQuery${i} { data${i} { id } }`,
+        type: 'query',
+        filePath: 'test.ts',
+        fragments: []
+      }));
+
+      await fs.writeFile(beforeFile, JSON.stringify(queries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(queries), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.performance.validationTime).toBeGreaterThan(0);
+      expect(report.performance.queriesPerSecond).toBeGreaterThan(0);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle empty query arrays', async () => {
+      await fs.writeFile(beforeFile, JSON.stringify([]), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify([]), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.status).toBe('passed');
+      expect(report.summary.totalQueries).toBe(0);
+    });
+
+    it('should handle queries with no names', async () => {
+      const queries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: undefined,
+          source: 'query { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      await fs.writeFile(beforeFile, JSON.stringify(queries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(queries), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.status).toBe('passed');
+    });
+
+    it('should handle content fingerprint matching', async () => {
+      const beforeQueries: ExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: []
+        }
+      ];
+
+      const afterQueries: PatternExtractedQuery[] = [
+        {
+          id: 'query1',
+          name: 'GetUser',
+          source: 'query GetUser { user { id name } }',
+          type: 'query',
+          filePath: 'test.ts',
+          fragments: [],
+          namePattern: undefined,
+          resolvedName: 'GetUser',
+          contentFingerprint: 'fingerprint123',
+          patternMetadata: {
+            isDynamic: false,
+            hasInterpolation: false,
+            confidence: 1.0
+          }
+        }
+      ];
+
+      await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
+      await fs.writeFile(afterFile, JSON.stringify(afterQueries), 'utf-8');
+
+      const report = await validator.validateMigration({
+        before: beforeFile,
+        after: afterFile
+      });
+
+      expect(report.status).toBe('passed');
+    });
+  });
+});

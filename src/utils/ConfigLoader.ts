@@ -3,16 +3,23 @@ import * as path from 'path';
 import * as yaml from 'yaml';
 import { MigrationConfig } from '../types/index';
 import { logger } from './logger';
+import { validateReadPath } from './securePath';
 
 export class ConfigLoader {
   static async load(configPath: string): Promise<MigrationConfig> {
     try {
+      // SECURITY FIX: Validate path to prevent traversal
+      const validatedPath = validateReadPath(configPath);
+      if (!validatedPath) {
+        logger.error(`Invalid config path: ${configPath}`);
+        throw new Error('Invalid configuration file path');
+      }
+      
       // Check if config file exists
-      const absolutePath = path.resolve(configPath);
-      await fs.access(absolutePath);
+      await fs.access(validatedPath);
       
       // Read config file
-      const content = await fs.readFile(absolutePath, 'utf-8');
+      const content = await fs.readFile(validatedPath, 'utf-8');
       
       // Parse based on extension
       let config: MigrationConfig;
@@ -34,7 +41,14 @@ export class ConfigLoader {
 
   static async loadSchema(schemaPath: string): Promise<string> {
     try {
-      const schemaContent = await fs.readFile(schemaPath, 'utf-8');
+      // SECURITY FIX: Validate path to prevent traversal
+      const validatedPath = validateReadPath(schemaPath);
+      if (!validatedPath) {
+        logger.error(`Invalid schema path: ${schemaPath}`);
+        throw new Error('Invalid schema file path');
+      }
+      
+      const schemaContent = await fs.readFile(validatedPath, 'utf-8');
       return schemaContent;
     } catch (error: any) {
       logger.error(`Failed to load schema from ${schemaPath}`, error);
