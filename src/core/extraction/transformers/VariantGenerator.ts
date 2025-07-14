@@ -35,7 +35,7 @@ export class VariantGenerator {
     const foundVars = new Set<string>();
     
     // Look for dynamic patterns in the query content
-    // Pattern that handles nested braces and broken expressions
+    // Pattern that handles nested braces properly
     const placeholderPattern = /\$\{([^${}]*(?:\{[^{}]*\}[^${}]*)*)\}/g;
     let match;
     
@@ -54,6 +54,21 @@ export class VariantGenerator {
         // Use word boundary to avoid partial matches
         const varRegex = new RegExp(`\\b${varName}\\b`);
         if (normalizedExpr === varName || varRegex.test(normalizedExpr)) {
+          if (!foundVars.has(varName)) {
+            querySwitches.push(varSwitch);
+            foundVars.add(varName);
+          }
+        }
+      }
+    }
+    
+    // Also handle broken expressions (missing closing brace)
+    const brokenPattern = /\$\{([^}]+)$/g;
+    let brokenMatch;
+    while ((brokenMatch = brokenPattern.exec(query.resolvedContent)) !== null) {
+      const brokenExpr = brokenMatch[1];
+      for (const [varName, varSwitch] of switches) {
+        if (brokenExpr.includes(varName)) {
           if (!foundVars.has(varName)) {
             querySwitches.push(varSwitch);
             foundVars.add(varName);
@@ -102,8 +117,9 @@ export class VariantGenerator {
       
       const sw = validSwitches[index];
       for (const value of sw.possibleValues) {
-        current[sw.variable] = value;
-        generateCombination(index + 1, current);
+        const newCurrent = { ...current };
+        newCurrent[sw.variable] = value;
+        generateCombination(index + 1, newCurrent);
       }
     };
     
@@ -127,17 +143,19 @@ export class VariantGenerator {
       let variantContent = query.resolvedContent;
       
       // Replace dynamic patterns based on condition
-      // Pattern that handles nested braces and broken expressions
+      // Pattern that handles nested braces
       const placeholderPattern = /\$\{([^${}]*(?:\{[^{}]*\}[^${}]*)*)\}/g;
+      
+      // First check for broken expressions and throw error
+      const brokenPattern = /\$\{([^}]+)$/g;
+      const brokenMatch = brokenPattern.exec(variantContent);
+      if (brokenMatch) {
+        throw new Error(`Broken placeholder expression: ${brokenMatch[0]}`);
+      }
       
       variantContent = variantContent.replace(placeholderPattern, (match, expression) => {
         // Normalize expression to handle spaces/newlines
         const normalizedExpr = expression.replace(/\s+/g, ' ').trim();
-        
-        // Check if this is a broken expression (missing closing brace)
-        if (match.endsWith('{' + expression)) {
-          throw new Error(`Broken placeholder expression: ${match}`);
-        }
         
         // First check for simple variable replacement (enum case)
         if (condition.switches[normalizedExpr] !== undefined) {
@@ -166,6 +184,14 @@ export class VariantGenerator {
         
         return match; // Keep original if can't resolve
       });
+      
+      // Clean up whitespace to fix invalid GraphQL
+      variantContent = variantContent.replace(/\s+/g, ' ').trim();
+      
+      // Handle edge case of empty selection set
+      if (variantContent.includes('{ }')) {
+        variantContent = variantContent.replace(/\{\s*\}/g, '{ __typename }');
+      }
       
       // Parse and validate the variant
       const ast = parse(variantContent);
