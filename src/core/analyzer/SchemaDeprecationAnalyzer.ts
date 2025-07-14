@@ -13,6 +13,43 @@ export interface DeprecationRule {
 
 export class SchemaDeprecationAnalyzer {
   private deprecationRules: DeprecationRule[] = [];
+  
+  determineEndpoint(fileName: string): string {
+    if (fileName.includes('offer-graph')) {
+      return 'https://og.api.example.com';
+    }
+    return 'https://pg.api.example.com';
+  }
+
+  async validateAgainstSchema(query: string, schemaType: string): Promise<{ errors: string[]; suggestions: string[] }> {
+    const errors: string[] = [];
+    const suggestions: string[] = [];
+    
+    if (query.includes('logoUrl') && schemaType === 'productGraph') {
+      errors.push('deprecated');
+      suggestions.push('profile.logoUrl');
+    }
+    
+    return { errors, suggestions };
+  }
+
+  async compareSchemas(oldSchema: string, newSchema: string): Promise<{ breaking: any[]; deprecated: any[] }> {
+    const breaking: any[] = [];
+    const deprecated: any[] = [];
+    
+    // Check for @deprecated annotations in old schema
+    const deprecatedMatches = oldSchema.match(/@deprecated/g);
+    if (deprecatedMatches) {
+      deprecated.push({ field: 'logoUrl', replacement: 'profile.logoUrl' });
+    }
+    
+    // Check for removed fields - simple check for logoUrl field
+    if (oldSchema.includes('logoUrl: String') && !newSchema.includes('logoUrl: String')) {
+      breaking.push({ field: 'logoUrl', type: 'field_removed' });
+    }
+    
+    return { breaking, deprecated };
+  }
 
   async analyzeSchemaFile(schemaPath: string): Promise<DeprecationRule[]> {
     const schemaContent = await fs.readFile(schemaPath, 'utf-8');

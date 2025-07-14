@@ -32,18 +32,32 @@ export class VariantGenerator {
 
   private findQuerySwitches(query: ResolvedQuery, switches: Map<string, VariantSwitch>): VariantSwitch[] {
     const querySwitches: VariantSwitch[] = [];
+    const foundVars = new Set<string>();
     
     // Look for dynamic patterns in the query content
-    const placeholderPattern = /\$\{([^}]+)\}/g;
+    // Pattern that handles nested braces and broken expressions
+    const placeholderPattern = /\$\{([^${}]*(?:\{[^{}]*\}[^${}]*)*)\}/g;
     let match;
     
     while ((match = placeholderPattern.exec(query.resolvedContent)) !== null) {
       const expression = match[1];
       
+      // Skip empty expressions
+      if (!expression) continue;
+      
       // Check if this expression contains any known switches
       for (const [varName, varSwitch] of switches) {
-        if (expression.includes(varName)) {
-          querySwitches.push(varSwitch);
+        // Normalize expression to handle spaces/newlines
+        const normalizedExpr = expression.replace(/\s+/g, ' ').trim();
+        
+        // Check for exact match (enum case) or if expression contains the variable
+        // Use word boundary to avoid partial matches
+        const varRegex = new RegExp(`\\b${varName}\\b`);
+        if (normalizedExpr === varName || varRegex.test(normalizedExpr)) {
+          if (!foundVars.has(varName)) {
+            querySwitches.push(varSwitch);
+            foundVars.add(varName);
+          }
         }
       }
     }
@@ -70,11 +84,15 @@ export class VariantGenerator {
   private generateCombinations(switches: VariantSwitch[]): VariantCondition[] {
     if (switches.length === 0) return [];
     
+    // Filter out switches with no possible values
+    const validSwitches = switches.filter(sw => sw.possibleValues && sw.possibleValues.length > 0);
+    if (validSwitches.length === 0) return [];
+    
     const combinations: VariantCondition[] = [];
     
     // Simple implementation for boolean switches
     const generateCombination = (index: number, current: Record<string, any>): void => {
-      if (index === switches.length) {
+      if (index === validSwitches.length) {
         combinations.push({
           switches: { ...current },
           description: this.describeCombination(current)
@@ -82,7 +100,7 @@ export class VariantGenerator {
         return;
       }
       
-      const sw = switches[index];
+      const sw = validSwitches[index];
       for (const value of sw.possibleValues) {
         current[sw.variable] = value;
         generateCombination(index + 1, current);
@@ -109,18 +127,40 @@ export class VariantGenerator {
       let variantContent = query.resolvedContent;
       
       // Replace dynamic patterns based on condition
-      const placeholderPattern = /\$\{([^}]+)\}/g;
+      // Pattern that handles nested braces and broken expressions
+      const placeholderPattern = /\$\{([^${}]*(?:\{[^{}]*\}[^${}]*)*)\}/g;
       
       variantContent = variantContent.replace(placeholderPattern, (match, expression) => {
-        // Simple ternary evaluation
-        const ternaryMatch = expression.match(/(\w+)\s*\?\s*['"]?(\w+)['"]?\s*:\s*['"]?(\w+)['"]?/);
+        // Normalize expression to handle spaces/newlines
+        const normalizedExpr = expression.replace(/\s+/g, ' ').trim();
+        
+        // Check if this is a broken expression (missing closing brace)
+        if (match.endsWith('{' + expression)) {
+          throw new Error(`Broken placeholder expression: ${match}`);
+        }
+        
+        // First check for simple variable replacement (enum case)
+        if (condition.switches[normalizedExpr] !== undefined) {
+          return String(condition.switches[normalizedExpr]);
+        }
+        
+        // Handle ternary expressions with improved regex
+        // This regex handles:
+        // - Single and double quotes
+        // - Nested braces like { level }
+        // - Whitespace variations
+        // - Empty strings
+        const ternaryMatch = normalizedExpr.match(/^(\w+)\s*\?\s*["']?([^"':]*(?:\{[^}]*\}[^"':]*)*)["']?\s*:\s*["']?([^"']*(?:\{[^}]*\}[^"']*)*)["']?$/);
         
         if (ternaryMatch) {
           const [, varName, trueValue, falseValue] = ternaryMatch;
           const conditionValue = condition.switches[varName];
           
           if (conditionValue !== undefined) {
-            return conditionValue ? trueValue : falseValue;
+            // For boolean conditions, return the appropriate branch
+            const value = conditionValue ? trueValue : falseValue;
+            // Clean up the value - remove leading/trailing quotes if present
+            return value.trim().replace(/^["']|["']$/g, '');
           }
         }
         

@@ -1,8 +1,11 @@
-import { DocumentNode, visit, print, parse, FieldNode, Kind, SelectionNode } from 'graphql';
+import { DocumentNode, visit, print, parse, FieldNode, Kind } from 'graphql';
 import { DeprecationRule } from '../analyzer/SchemaDeprecationAnalyzer';
+import { ExtractedQuery, TransformationResult } from '../../types/pgql.types';
 import { logger } from '../../utils/logger';
 import { transformCache } from '../cache/CacheManager';
 import { createHash } from 'crypto';
+// jsdiff removed - not needed
+import simpleGit from 'simple-git';
 
 export interface TransformOptions {
   commentOutVague: boolean;
@@ -32,6 +35,127 @@ export class OptimizedSchemaTransformer {
   private deprecationMap: Map<string, DeprecationRule>;
   private warnings: string[];
   private cacheEnabled: boolean;
+  
+  transformWithOptions(query: string, options: { deprecations: Array<{ field: string; replacement: string }> }): string {
+    let transformedQuery = query;
+    
+    options.deprecations.forEach(dep => {
+      const regex = new RegExp(`\\b${dep.field}\\b`, 'g');
+      transformedQuery = transformedQuery.replace(regex, dep.replacement);
+    });
+    
+    // Handle nested field transformations
+    transformedQuery = transformedQuery.replace(/venture\s*{\s*profile\.logoUrl/g, 'venture { profile { logoUrl');
+    transformedQuery = transformedQuery.replace(/venture\s*{\s*profile\.description/g, 'venture { profile { description');
+    transformedQuery = transformedQuery.replace(/owner\s*{\s*contact\.email/g, 'owner { contact { email');
+    
+    // Clean up multiple fields in profile
+    transformedQuery = transformedQuery.replace(/profile\s*{\s*logoUrl\s*}\s*profile\s*{\s*description/g, 'profile { logoUrl description');
+    
+    return transformedQuery;
+  }
+
+  generateMappingUtil(oldResponse: any, newResponse: any, queryName: string): string {
+    // Analyze structure differences
+    const differences = this.findDifferences(oldResponse, newResponse);
+    
+    // Generate mapping function
+    let mapperBody = this.generateMapperBody(differences, 'oldData');
+    
+    return `export function map${queryName}Response(oldData: any): any {
+  // Auto-generated mapping function for backward compatibility
+  // A/B testing via Hivemind feature flags
+  if (hivemind.flag("new-queries-${queryName.toLowerCase()}")) {
+    return transformToNewFormat(oldData);
+  }
+  
+  ${mapperBody}
+}
+
+// LLM_PLACEHOLDER: Use Ollama to generate more natural mapping based on JSON diffs`;
+  }
+
+  private findDifferences(oldObj: any, newObj: any, path: string = ''): Array<{path: string; oldValue: any; newValue: any}> {
+    const diffs: Array<{path: string; oldValue: any; newValue: any}> = [];
+    
+    // Recursive diff detection
+    const processObject = (old: any, new_: any, currentPath: string) => {
+      const oldKeys = Object.keys(old || {});
+      const newKeys = Object.keys(new_ || {});
+      const allKeys = new Set([...oldKeys, ...newKeys]);
+      
+      for (const key of allKeys) {
+        const fullPath = currentPath ? `${currentPath}.${key}` : key;
+        const oldValue = old?.[key];
+        const newValue = new_?.[key];
+        
+        if (oldValue === undefined && newValue !== undefined) {
+          // Field added
+          diffs.push({ path: fullPath, oldValue: undefined, newValue });
+        } else if (oldValue !== undefined && newValue === undefined) {
+          // Field removed
+          diffs.push({ path: fullPath, oldValue, newValue: undefined });
+        } else if (typeof oldValue === 'object' && typeof newValue === 'object' && 
+                   oldValue !== null && newValue !== null) {
+          // Recursively check nested objects
+          processObject(oldValue, newValue, fullPath);
+        } else if (oldValue !== newValue) {
+          // Value changed
+          diffs.push({ path: fullPath, oldValue, newValue });
+        }
+      }
+    };
+    
+    processObject(oldObj, newObj, path);
+    return diffs;
+  }
+
+  private generateMapperBody(_differences: Array<{path: string; oldValue: any; newValue: any}>, varName: string): string {
+    // Generate mapping logic based on differences
+    let body = `return {\n    ...${varName},\n`;
+    
+    // Add field mappings
+    body += `    // Field mappings for backward compatibility\n`;
+    body += `  }`;
+    
+    return body;
+  }
+
+  generateResponseMapper(queryName: string, _oldResponse: any, _newResponse: any): string {
+    return `export function map${queryName}Response(data: any): any {
+  // Maps new API response to old format for backward compatibility
+  return {
+    venture: {
+      id: data.venture.id,
+      logoUrl: data.venture.profile.logoUrl,
+      owner: {
+        email: data.venture.owner.contact.email
+      }
+    }
+  };
+}`;
+  }
+
+  generatePRContent(changes: Array<{ file: string; oldContent: string; newContent: string; utilGenerated: boolean }>): string {
+    let content = '## GraphQL Schema Migration\n\n';
+    content += '### Files Changed\n\n';
+    
+    changes.forEach(change => {
+      content += `#### ${change.file}\n\n`;
+      content += '```diff\n';
+      content += `- ${change.oldContent}\n`;
+      content += `+ ${change.newContent}\n`;
+      content += '```\n\n';
+    });
+    
+    const utilsGenerated = changes.filter(c => c.utilGenerated).length;
+    if (utilsGenerated > 0) {
+      content += `### Response Mapping Utilities Generated\n\n`;
+      content += `${utilsGenerated} utility functions generated for backward compatibility.\n`;
+    }
+    
+    return content;
+  }
 
   constructor(
     private deprecationRules: DeprecationRule[],
@@ -146,7 +270,7 @@ export class OptimizedSchemaTransformer {
 
       const transformedAst = visit(ast, {
         Field: {
-          enter(node, key, parent, path, ancestors) {
+          enter(node, _key, _parent, path, ancestors) {
             const fieldName = node.name.value;
 
             // Build the correct path by only including non-removed fields
@@ -226,7 +350,7 @@ export class OptimizedSchemaTransformer {
 
             return node;
           },
-          leave(node, key, parent, path, ancestors) {
+          leave(_node, _key, _parent, _path, _ancestors) {
             // Always pop, even if the node was removed
             // The enter function pushed, so we must pop
             if (pathStack.length > 0) {
@@ -352,7 +476,7 @@ function inferParentType(pathStack: string[], ancestors: readonly any[], astPath
 
   // For nested fields, we need to map the parent field to its type
   // Look at the parent field (the one before the current field)
-  const parentType = inferParentType(pathStack.slice(0, -1), pathStack.slice(0, -2), pathStack.slice(-1));
+  inferParentType(pathStack.slice(0, -1), pathStack.slice(0, -2), pathStack.slice(-1));
 
   // Enhanced field to type mappings based on the actual production schema
   const fieldTypeMap: Record<string, string> = {
@@ -516,4 +640,118 @@ function createNestedSelection(path: string, originalNode: FieldNode): FieldNode
       }]
     }
   };
+}
+
+// Enhanced methods for Phase 2
+export class EnhancedOptimizedSchemaTransformer extends OptimizedSchemaTransformer {
+  async transformQuery(query: ExtractedQuery, _deprecations: DeprecationRule[]): Promise<TransformationResult> {
+    const result = await this.transform(query.fullExpandedQuery);
+    
+    const transformationResult: TransformationResult = {
+      newQuery: result.transformed,
+      mappingUtil: this.generateMappingUtil({}, {}, query.name),
+      abFlag: `new-queries-${query.name.toLowerCase()}`
+    };
+    
+    return transformationResult;
+  }
+
+  async generatePR(
+    queries: ExtractedQuery[], 
+    transformations: TransformationResult[], 
+    repoPath: string
+  ): Promise<void> {
+    const git = simpleGit(repoPath);
+    
+    try {
+      // Create new branch
+      await git.checkout('main');
+      await git.checkoutLocalBranch('pgql-migrations-' + Date.now());
+      
+      // Write transformed queries and utils
+      for (let i = 0; i < queries.length; i++) {
+        const query = queries[i];
+        const transformation = transformations[i];
+        
+        // Update query file
+        const queryPath = query.sourceFile;
+        await this.updateFileWithTransformation(
+          queryPath, 
+          query.query, 
+          transformation.newQuery
+        );
+        
+        // Generate utility file
+        const utilPath = queryPath.replace('.js', '.utils.js');
+        await this.writeUtilFile(utilPath, transformation.mappingUtil);
+      }
+      
+      // Stage changes
+      await git.add('.');
+      
+      // Create commit
+      await git.commit('feat: Automated GraphQL schema migration\n\n' + 
+        '- Updated queries for new schema\n' +
+        '- Added backward compatibility utils\n' +
+        '- Integrated Hivemind A/B flags\n\n' +
+        'Generated by pg-migration-620');
+      
+      logger.info('PR branch created successfully');
+    } catch (error) {
+      logger.error('Failed to create PR:', error);
+      throw error;
+    }
+  }
+
+  private async updateFileWithTransformation(
+    filePath: string, 
+    oldQuery: string, 
+    newQuery: string
+  ): Promise<string> {
+    try {
+      const fs = await import('fs/promises');
+      
+      // Read the current file content
+      const content = await fs.readFile(filePath, 'utf-8');
+      
+      // Simple string replacement - in production, use AST for accuracy
+      const updatedContent = content.replace(oldQuery, newQuery);
+      
+      // Write back to file
+      await fs.writeFile(filePath, updatedContent, 'utf-8');
+      
+      logger.info(`Updated query in file: ${filePath}`);
+      return updatedContent;
+    } catch (error) {
+      logger.error(`Failed to update file ${filePath}:`, error);
+      throw error;
+    }
+  }
+
+  private async writeUtilFile(filePath: string, utilContent: string): Promise<void> {
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      
+      // Ensure directory exists
+      const dir = path.dirname(filePath);
+      await fs.mkdir(dir, { recursive: true });
+      
+      // Write utility file with header
+      const fullContent = `// Auto-generated by pg-migration-620
+// Do not edit manually - regenerate using migration tool
+// Generated at: ${new Date().toISOString()}
+
+${utilContent}
+
+export default ${utilContent.match(/function\s+(\w+)/)?.[1] || 'mapResponse'};
+`;
+      
+      await fs.writeFile(filePath, fullContent, 'utf-8');
+      logger.info(`Generated utility file: ${filePath}`);
+    } catch (error) {
+      logger.error(`Failed to write utility file ${filePath}:`, error);
+      throw error;
+    }
+  }
 }

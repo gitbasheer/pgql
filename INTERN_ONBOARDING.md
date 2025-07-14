@@ -153,11 +153,15 @@ pg-migration-620/
 **Purpose**: Update queries to use new schema fields
 
 **Key Classes**:
+// testing fixtures from what to what does this step do?
 - `QueryTransformer`: Applies field transformations
+// MigrationEngine orchestrates?
 - `MigrationEngine`: Orchestrates transformations
+// based on what? how determined?
 - `TransformationRules`: Defines field mappings
 
-**Transformations**:
+// NEED TO FIX THIS SECTION? Lets undestand the code behind transformations 
+**Transformations**: 
 - `displayName` → `name`
 - `ventures` → `ventures(first: 10)`
 - Adds `__typename` fields
@@ -165,8 +169,10 @@ pg-migration-620/
 
 ### 3. Schema Validation (`src/core/validator/`)
 **Purpose**: Ensure queries work with GraphQL schemas
+uses? libraries?
 
-**Key Classes**:
+// which comes first?
+**Key Classes**: 
 - `SchemaValidator`: Single schema validation
 - `MultiSchemaValidator`: Routes to correct schema
 - `QuerySchemaClassifier`: Detects which API a query uses

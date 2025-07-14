@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { logger } from '../../utils/logger';
 import { ResolvedQuery } from '../extraction/types/query.types';
+import { ExtractedQuery, TestParams } from '../../types/pgql.types';
 import {
   ResponseValidationConfig,
   EndpointConfig,
@@ -15,6 +16,8 @@ import { AlignmentGenerator } from './AlignmentGenerator';
 import { ABTestingFramework } from './ABTestingFramework';
 import { ResponseStorage } from './ResponseStorage';
 import { ValidationReportGenerator } from './ValidationReportGenerator';
+import { ApolloClient, InMemoryCache, HttpLink, gql } from '@apollo/client';
+import { parse, DocumentNode } from 'graphql';
 import * as yaml from 'js-yaml';
 import { promises as fs } from 'fs';
 
@@ -513,5 +516,131 @@ export class ResponseValidationService {
   async destroy(): Promise<void> {
     this.captureService.destroy();
     await this.storage.close();
+  }
+
+  /**
+   * Build dynamic variables from testing account
+   */
+  async buildVariables(queryAst: DocumentNode | string, testingAccount: any): Promise<Record<string, any>> {
+    const ast = typeof queryAst === 'string' ? parse(queryAst) : queryAst;
+    const variables: Record<string, any> = {};
+    
+    // Extract variable definitions from AST
+    const queryDef = ast.definitions.find(d => d.kind === 'OperationDefinition');
+    if (!queryDef || queryDef.kind !== 'OperationDefinition') {
+      return variables;
+    }
+    
+    const variableDefinitions = queryDef.variableDefinitions || [];
+    
+    for (const varDef of variableDefinitions) {
+      const varName = varDef.variable.name.value;
+      const varType = this.getTypeString(varDef.type);
+      
+      // Map common patterns
+      if (varName === 'ventureId' && testingAccount.ventures?.length > 0) {
+        variables[varName] = testingAccount.ventures[0].id;
+      } else if (varName === 'domainName' && testingAccount.projects?.length > 0) {
+        variables[varName] = testingAccount.projects[0].domain;
+      } else if (varName === 'userId' || varName === 'accountId') {
+        variables[varName] = testingAccount.id;
+      } else if (varType.includes('UUID') || varType.includes('ID')) {
+        // Default UUID for testing
+        variables[varName] = testingAccount.id || 'test-uuid';
+      } else if (varType.includes('String')) {
+        variables[varName] = 'test-string';
+      } else if (varType.includes('Int')) {
+        variables[varName] = 1;
+      } else if (varType.includes('Boolean')) {
+        variables[varName] = true;
+      }
+      
+      // LLM_PLACEHOLDER: Use llm-ls to infer var values from code context
+    }
+    
+    return variables;
+  }
+
+  private getTypeString(typeNode: any): string {
+    if (typeNode.kind === 'NonNullType') {
+      return this.getTypeString(typeNode.type) + '!';
+    }
+    if (typeNode.kind === 'ListType') {
+      return '[' + this.getTypeString(typeNode.type) + ']';
+    }
+    if (typeNode.kind === 'NamedType') {
+      return typeNode.name.value;
+    }
+    return 'Unknown';
+  }
+
+  /**
+   * Test query on real API
+   */
+  async testOnRealApi(params: TestParams): Promise<any> {
+    const client = new ApolloClient({
+      link: new HttpLink({
+        uri: this.getEndpointUrl(params.query.endpoint),
+        credentials: 'include',
+        headers: { 
+          'x-app-key': params.auth.appKey, 
+          Cookie: params.auth.cookies 
+        },
+      }),
+      cache: new InMemoryCache(),
+    });
+    
+    const vars = await this.buildVariables(params.query.fullExpandedQuery, params.testingAccount);
+    
+    try {
+      const { data } = await client.query({ 
+        query: gql(params.query.fullExpandedQuery), 
+        variables: vars, 
+        errorPolicy: 'all' 
+      });
+      
+      // Save baseline as JSON
+      const baselineDir = './baselines';
+      await fs.mkdir(baselineDir, { recursive: true });
+      await fs.writeFile(
+        `${baselineDir}/${params.query.name}.json`, 
+        JSON.stringify(data, null, 2)
+      );
+      
+      logger.info(`API test successful for ${params.query.name}`);
+      return data;
+    } catch (error) {
+      logger.error('API Test Error:', error);
+      throw error;
+    }
+  }
+
+  private getEndpointUrl(endpoint: string): string {
+    const rootDomain = process.env.ROOT_DOMAIN || 'example.com';
+    
+    if (endpoint === 'productGraph') {
+      return `https://pg.api.${rootDomain}/v1/gql/customer`;
+    } else if (endpoint === 'offerGraph') {
+      return `https://og.api.${rootDomain}/v1/graphql`;
+    }
+    
+    return `https://pg.api.${rootDomain}/v1/gql/customer`; // Default
+  }
+
+  /**
+   * Validate query against schema
+   */
+  async validateAgainstSchema(query: string, endpoint: string): Promise<{ valid: boolean; errors: string[] }> {
+    try {
+      // In production, use graphql-inspector to validate
+      // For now, basic validation
+      const ast = parse(query);
+      return { valid: true, errors: [] };
+    } catch (error) {
+      return { 
+        valid: false, 
+        errors: [error instanceof Error ? error.message : 'Invalid query'] 
+      };
+    }
   }
 }

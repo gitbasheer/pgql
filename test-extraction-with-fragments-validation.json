@@ -1,0 +1,926 @@
+{
+  "total": 30,
+  "valid": 1,
+  "invalid": 29,
+  "warnings": 0,
+  "summary": [
+    {
+      "id": "offer-graph-queries.js-0-FindUnifiedBillDetails",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Cannot query field \"me\" on type \"CustomerQuery\".",
+          "locations": [
+            {
+              "line": 12,
+              "column": 3
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Cannot query field \"transitions\" on type \"CustomerQuery\".",
+          "locations": [
+            {
+              "line": 17,
+              "column": 3
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "offer-graph-queries.js-1-ModifyBasketWithOptions",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Unknown type \"ModifyBasketWithOptionsInput\".",
+          "locations": [
+            {
+              "line": 1,
+              "column": 41
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Cannot query field \"modifyBasketWithOptions\" on type \"CustomerMutation\".",
+          "locations": [
+            {
+              "line": 2,
+              "column": 3
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "quicklinks.js-0-getQuickLinksData",
+      "valid": true,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "id": "shared-graph-queries-v1.js-0-unnamed",
+      "valid": false,
+      "errorCount": 3,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Unknown fragment \"ventureFields\".",
+          "locations": [
+            {
+              "line": 4,
+              "column": 10
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 19,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 25,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v1.js-1-ventureStates",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 12,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 18,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v1.js-5-projectByEntitlement",
+      "valid": false,
+      "errorCount": 4,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Cannot query field \"product\" on type \"CustomerQuery\". Did you mean \"project\" or \"projects\"?",
+          "locations": [
+            {
+              "line": 2,
+              "column": 3
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Variable \"$entitlementId\" is never used in operation \"projectByEntitlement\".",
+          "locations": [
+            {
+              "line": 1,
+              "column": 28
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 9,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 15,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v1.js-6-allVentures",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 17,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 23,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v1.js-8-ventureIsInfinityStoneByVentureId",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 9,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 15,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v1.js-10-intentsByVenture",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 7,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 13,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v2.js-0-unnamed",
+      "valid": false,
+      "errorCount": 3,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Unknown fragment \"ventureFields\".",
+          "locations": [
+            {
+              "line": 12,
+              "column": 39
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 15,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 21,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v2.js-1-unnamed",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 17,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 23,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v2.js-2-unnamed",
+      "valid": false,
+      "errorCount": 3,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Unknown fragment \"ventureFields\".",
+          "locations": [
+            {
+              "line": 12,
+              "column": 62
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 16,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 22,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-0-unnamed",
+      "valid": false,
+      "errorCount": 3,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Unknown fragment \"ventureFields\".",
+          "locations": [
+            {
+              "line": 4,
+              "column": 10
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 19,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 25,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-1-unnamed",
+      "valid": false,
+      "errorCount": 3,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Unknown fragment \"ventureFields\".",
+          "locations": [
+            {
+              "line": 3,
+              "column": 8
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 7,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 13,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-2-unnamed",
+      "valid": false,
+      "errorCount": 3,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Unknown fragment \"ventureFields\".",
+          "locations": [
+            {
+              "line": 3,
+              "column": 8
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 7,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 13,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-3-unnamed",
+      "valid": false,
+      "errorCount": 3,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Unknown fragment \"ventureInfinityStoneDataFields\".",
+          "locations": [
+            {
+              "line": 3,
+              "column": 8
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 7,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 13,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-4-unnamed",
+      "valid": false,
+      "errorCount": 3,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Unknown fragment \"ventureInfinityStoneDataFields\".",
+          "locations": [
+            {
+              "line": 3,
+              "column": 8
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 7,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 13,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-6-unnamed",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 9,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 15,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-7-unnamed",
+      "valid": false,
+      "errorCount": 3,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Unknown fragment \"ventureInfinityStoneDataFields\".",
+          "locations": [
+            {
+              "line": 4,
+              "column": 10
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 9,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 15,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-8-GetUserAccountInfo",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 15,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 21,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-9-GetUserWebsiteData",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 7,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 13,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-10-GetAamcUserPreferences",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 11,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 17,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-11-getVentureDomainInfo",
+      "valid": false,
+      "errorCount": 1,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 7,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-12-unnamed",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 21,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 27,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-13-unnamed",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 18,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 24,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-14-unnamed",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 14,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 20,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-15-GetAiroPlusEntitlement",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 19,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 25,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-16-getEstimatedSpendGroup",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 7,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 13,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-17-VentureSpendGroupByDomain",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 7,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 13,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    },
+    {
+      "id": "shared-graph-queries-v3.js-18-VentureSpendGroupByAccountId",
+      "valid": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "errors": [
+        {
+          "message": "Fragment \"ventureProjectGroupsField\" is never used.",
+          "locations": [
+            {
+              "line": 9,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        },
+        {
+          "message": "Fragment \"domainProductFields\" is never used.",
+          "locations": [
+            {
+              "line": 15,
+              "column": 1
+            }
+          ],
+          "type": "schema"
+        }
+      ]
+    }
+  ]
+}
