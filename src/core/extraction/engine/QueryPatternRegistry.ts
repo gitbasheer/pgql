@@ -98,7 +98,13 @@ export class QueryPatternService {
         deprecated: patternInfo.isDeprecated
       });
     } else {
-      // For static queries, still generate fingerprint for duplicate detection
+      // Try to detect patterns from query content even without sourceAST
+      const contentPatternInfo = this.detectPatternFromContent(query);
+      if (contentPatternInfo) {
+        query.namePattern = contentPatternInfo;
+      }
+      
+      // For all queries, generate fingerprint for duplicate detection
       query.contentFingerprint = this.generateContentFingerprint(query);
     }
 
@@ -142,6 +148,35 @@ export class QueryPatternService {
           };
         }
       }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Detect patterns from query content (fallback when no sourceAST)
+   */
+  private detectPatternFromContent(query: PatternExtractedQuery): PatternExtractedQuery['namePattern'] | undefined {
+    // Look for ${queryNames.xxx} patterns in the content
+    const patternMatch = query.content.match(/\$\{queryNames\.(\w+)\}/);
+    if (!patternMatch) return undefined;
+
+    const propertyName = patternMatch[1];
+    const template = `\${queryNames.${propertyName}}`;
+
+    // Find the corresponding pattern in registry
+    const patternInfo = this.findPatternByProperty(propertyName);
+
+    if (patternInfo) {
+      return {
+        template,
+        resolvedName: patternInfo.resolvedName,
+        possibleValues: patternInfo.possibleValues,
+        patternKey: patternInfo.patternKey,
+        version: patternInfo.version,
+        isDeprecated: patternInfo.isDeprecated,
+        migrationPath: patternInfo.migrationPath
+      };
     }
 
     return undefined;
@@ -202,20 +237,27 @@ export class QueryPatternService {
    * Generate content fingerprint for duplicate detection
    */
   generateContentFingerprint(query: PatternExtractedQuery): string {
-    if (!query.ast) {
-      // Fallback to content hash if no AST
-      return this.hashContent(query.content);
+    // For pattern queries, normalize by removing the dynamic parts
+    let normalizedContent = query.content;
+    
+    // Replace pattern interpolations with a placeholder for fingerprinting
+    normalizedContent = normalizedContent.replace(/\$\{[^}]+\}/g, '${PATTERN}');
+    
+    // If we have an AST, try to use it for better normalization
+    if (query.ast) {
+      try {
+        // Normalize the AST by removing names and locations
+        const normalizedAST = this.normalizeAST(query.ast);
+        normalizedContent = print(normalizedAST);
+        // Still replace any remaining patterns after AST normalization
+        normalizedContent = normalizedContent.replace(/\$\{[^}]+\}/g, '${PATTERN}');
+      } catch (error) {
+        logger.warn(`Failed to generate AST fingerprint for query: ${error}`);
+        // Fall back to string normalization
+      }
     }
-
-    try {
-      // Normalize the AST by removing names and locations
-      const normalizedAST = this.normalizeAST(query.ast);
-      const normalizedContent = print(normalizedAST);
-      return this.hashContent(normalizedContent);
-    } catch (error) {
-      logger.warn(`Failed to generate AST fingerprint for query: ${error}`);
-      return this.hashContent(query.content);
-    }
+    
+    return this.hashContent(normalizedContent);
   }
 
   /**
@@ -286,11 +328,17 @@ export class QueryPatternService {
       return { shouldMigrate: false };
     }
 
+    // Convert old/new structure to from/to for compatibility with tests
+    const fragmentChanges = migration.fragments ? {
+      from: migration.fragments.old,
+      to: migration.fragments.new
+    } : undefined;
+
     return {
       shouldMigrate: true,
       targetPattern: migration.to,
       reason: migration.deprecationReason,
-      fragmentChanges: migration.fragments
+      fragmentChanges
     };
   }
 

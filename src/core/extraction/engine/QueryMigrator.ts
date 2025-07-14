@@ -87,7 +87,7 @@ export class QueryMigrator {
         type: 'queryNames',
         from: namePattern.template,
         to: recommendations.targetPattern,
-        reason: recommendations.reason || 'Version migration'
+        reason: recommendations.reason || `${namePattern.version} is deprecated, use ${this.extractVersionFromPattern(recommendations.targetPattern)}`
       });
     }
 
@@ -235,9 +235,12 @@ export class QueryMigrator {
         summary.staticMigrations++;
       }
 
-      // Track version progression
-      const progression = `${migrationNotes.currentVersion} → ${migrationNotes.targetVersion}`;
-      summary.versionProgression[progression] = (summary.versionProgression[progression] || 0) + 1;
+      // Track version progression for pattern-based migrations
+      if (migrationNotes.action === 'Update queryNames object' && 
+          migrationNotes.currentVersion !== migrationNotes.targetVersion) {
+        const progression = `${migrationNotes.currentVersion} → ${migrationNotes.targetVersion}`;
+        summary.versionProgression[progression] = (summary.versionProgression[progression] || 0) + 1;
+      }
 
       // Count changes by type
       for (const change of migrationNotes.changes) {
@@ -284,24 +287,52 @@ export class QueryMigrator {
 
     // Apply migrations
     for (const result of results) {
+      // Check if this query has a deprecated pattern
+      if (result.query.namePattern?.isDeprecated) {
+        const pattern = result.query.namePattern;
+        const propertyName = this.getPropertyName(pattern.patternKey, pattern.version);
+        
+        if (propertyName !== 'unknown' && currentQueryNames[propertyName]) {
+          // Find the target property name
+          const targetVersion = pattern.migrationPath || 'V3';
+          const targetProperty = this.getPropertyName(pattern.patternKey, targetVersion);
+          
+          if (targetProperty !== 'unknown' && currentQueryNames[targetProperty]) {
+            changes.push({
+              property: propertyName,
+              from: currentQueryNames[propertyName],
+              to: currentQueryNames[targetProperty],
+              reason: `${pattern.version} is deprecated, use ${targetVersion}`
+            });
+            // Update the property to point to the new version
+            updatedQueryNames[propertyName] = currentQueryNames[targetProperty];
+          }
+        }
+      }
+      
+      // Also apply explicit migration changes
       for (const change of result.migrationNotes.changes) {
         if (change.type === 'queryNames') {
           const fromMatch = change.from.match(/\${queryNames\.(\w+)}/);
-          const toMatch = change.to.match(/\${queryNames\.(\w+)}/);
+          const toMatch = change.to.match(/queryNames\.(\w+)/); // Remove ${} from pattern
 
           if (fromMatch && toMatch) {
             const fromProperty = fromMatch[1];
             const toProperty = toMatch[1];
 
             if (currentQueryNames[fromProperty] && currentQueryNames[toProperty]) {
-              changes.push({
-                property: fromProperty,
-                from: currentQueryNames[fromProperty],
-                to: currentQueryNames[toProperty],
-                reason: change.reason
-              });
-              // Update the target property to be used instead
-              updatedQueryNames[fromProperty] = currentQueryNames[toProperty];
+              // Only add if not already added above
+              const existingChange = changes.find(c => c.property === fromProperty);
+              if (!existingChange) {
+                changes.push({
+                  property: fromProperty,
+                  from: currentQueryNames[fromProperty],
+                  to: currentQueryNames[toProperty],
+                  reason: change.reason
+                });
+                // Update the target property to be used instead
+                updatedQueryNames[fromProperty] = currentQueryNames[toProperty];
+              }
             }
           }
         }
@@ -321,10 +352,19 @@ export class QueryMigrator {
   private extractVersionFromPattern(pattern?: string): string {
     if (!pattern) return 'unknown';
 
-    const match = pattern.match(/\${queryNames\.(\w+)}/);
-    if (!match) return 'unknown';
+    // Handle both ${queryNames.xxx} and queryNames.xxx formats
+    let property: string;
+    const fullMatch = pattern.match(/\${queryNames\.(\w+)}/);
+    const simpleMatch = pattern.match(/queryNames\.(\w+)/);
+    
+    if (fullMatch) {
+      property = fullMatch[1];
+    } else if (simpleMatch) {
+      property = simpleMatch[1];
+    } else {
+      return 'unknown';
+    }
 
-    const property = match[1];
     // Extract version from property name (e.g., byIdV3 -> V3)
     const versionMatch = property.match(/V(\d+(?:\w+)?)/);
     return versionMatch ? versionMatch[0] : 'unknown';
