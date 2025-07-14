@@ -1,7 +1,5 @@
-// @ts-nocheck
 import * as babel from '@babel/parser';
-import traverseDefault from '@babel/traverse';
-const traverse = traverseDefault as any;
+import traverse from '@babel/traverse/lib/index.js';
 import { BaseStrategy } from './BaseStrategy';
 import { ExtractedQuery, QueryContext, ImportInfo, OperationType, SourceAST } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';

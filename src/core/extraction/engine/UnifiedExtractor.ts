@@ -182,8 +182,11 @@ export class UnifiedExtractor {
         }
       }
 
+      // Resolve template variables before enhancement
+      const resolvedQueries = await this.resolveTemplateVariables(queries, filePath);
+      
       // Enhance queries with endpoint classification
-      const enhancedQueries = queries.map(query => ({
+      const enhancedQueries = resolvedQueries.map(query => ({
         ...query,
         endpoint: this.determineEndpoint(filePath, content),
         sourceFile: filePath
@@ -201,6 +204,70 @@ export class UnifiedExtractor {
         `Failed to process file: ${error instanceof Error ? error.message : String(error)}`
       );
       return [];
+    }
+  }
+
+  private async resolveTemplateVariables(queries: ExtractedQuery[], filePath: string): Promise<ExtractedQuery[]> {
+    try {
+      // Load queryNames.js from the same directory or parent directories
+      const queryNames = await this.loadQueryNamesForFile(filePath);
+      
+      if (!queryNames || Object.keys(queryNames).length === 0) {
+        return queries;
+      }
+
+      return queries.map(query => {
+        let resolvedContent = query.content;
+        
+        // Replace ${queryNames.xxx} patterns
+        Object.entries(queryNames).forEach(([key, value]) => {
+          const pattern = new RegExp(`\\$\\{queryNames\\.${key}\\}`, 'g');
+          resolvedContent = resolvedContent.replace(pattern, value as string);
+        });
+        
+        // Only update if changes were made
+        if (resolvedContent !== query.content) {
+          return {
+            ...query,
+            content: resolvedContent,
+            fullExpandedQuery: resolvedContent
+          };
+        }
+        
+        return query;
+      });
+    } catch (error) {
+      logger.warn(`Failed to resolve template variables for ${filePath}:`, error);
+      return queries;
+    }
+  }
+
+  private async loadQueryNamesForFile(filePath: string): Promise<Record<string, string> | null> {
+    try {
+      const directory = path.dirname(filePath);
+      const queryNamesPath = path.join(directory, 'queryNames.js');
+      
+      // Check if queryNames.js exists in the same directory
+      try {
+        await fs.access(queryNamesPath);
+        const queryNamesModule = await import(queryNamesPath);
+        return queryNamesModule.queryNames || queryNamesModule.default || null;
+      } catch {
+        // Try parent directory
+        const parentDir = path.dirname(directory);
+        const parentQueryNamesPath = path.join(parentDir, 'queryNames.js');
+        
+        try {
+          await fs.access(parentQueryNamesPath);
+          const queryNamesModule = await import(parentQueryNamesPath);
+          return queryNamesModule.queryNames || queryNamesModule.default || null;
+        } catch {
+          return null;
+        }
+      }
+    } catch (error) {
+      logger.debug(`Could not load queryNames for ${filePath}:`, error);
+      return null;
     }
   }
 
