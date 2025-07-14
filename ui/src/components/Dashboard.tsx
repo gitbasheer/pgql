@@ -6,6 +6,7 @@ import { usePipelineLogs } from '../hooks/usePipelineLogs';
 import PipelineProgress from './PipelineProgress';
 import LogViewer from './LogViewer';
 import QueryResults from './QueryResults';
+import RealApiTesting from './RealApiTesting';
 import GitHubIntegration from './GitHubIntegration';
 import PRPreview from './PRPreview';
 import '../styles/dashboard.css';
@@ -163,6 +164,8 @@ function Dashboard() {
         </section>
 
         <QueryResults pipelineId={pipelineId} isActive={isPipelineActive} />
+        
+        <RealApiTesting pipelineId={pipelineId} isActive={isPipelineActive} />
         
         <PRPreview pipelineId={pipelineId} isActive={isPipelineActive} />
       </main>

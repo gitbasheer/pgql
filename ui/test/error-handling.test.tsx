@@ -211,6 +211,10 @@ describe('Error Handling', () => {
         json: async () => ([]),
       })
       .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ total: 0, tested: 0, passed: 0, failed: 0, results: [] }),
+      })
+      .mockResolvedValueOnce({
         ok: false,
         json: async () => ({ 
           message: 'Pipeline must complete transformation before generating PR' 

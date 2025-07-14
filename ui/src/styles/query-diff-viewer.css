@@ -115,6 +115,32 @@
   border-bottom: 1px solid #e1e4e8;
 }
 
+.modal-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tab-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e1e4e8;
+  background: #f6f8fa;
+  color: #586069;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+}
+
+.tab-btn:hover {
+  background: #e1e4e8;
+}
+
+.tab-btn.active {
+  background: #0366d6;
+  color: white;
+  border-color: #0366d6;
+}
+
 .modal-header h2 {
   margin: 0;
   font-size: 1.5rem;
@@ -194,4 +220,84 @@
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 0.875rem;
   line-height: 1.5;
+}
+
+/* Baseline Comparison Styles */
+.baseline-content {
+  flex: 1;
+  overflow: auto;
+  padding: 1.5rem;
+}
+
+.baseline-comparison {
+  margin-bottom: 2rem;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.baseline-comparison h4 {
+  margin: 0;
+  padding: 1rem;
+  background: #f6f8fa;
+  border-bottom: 1px solid #e1e4e8;
+  font-size: 1rem;
+}
+
+.comparison-result {
+  padding: 1rem;
+}
+
+.comparison-status {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.comparison-status.success {
+  background: #e6ffed;
+  color: #28a745;
+  border: 1px solid #34d058;
+}
+
+.comparison-status.warning {
+  background: #fffbdd;
+  color: #735c0f;
+  border: 1px solid #f9ea9a;
+}
+
+.baseline-diff {
+  margin-top: 1rem;
+}
+
+.baseline-only {
+  padding: 1rem;
+}
+
+.baseline-only h5 {
+  margin: 0 0 1rem 0;
+  color: #24292e;
+}
+
+.baseline-only pre {
+  background: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 4px;
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  max-height: 400px;
+}
+
+.no-baselines {
+  text-align: center;
+  padding: 3rem;
+  color: #586069;
+}
+
+.no-baselines p {
+  margin: 0.5rem 0;
 }

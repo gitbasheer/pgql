@@ -39,6 +39,51 @@ describe('GraphQL Migration Dashboard E2E', () => {
       ]
     }).as('getQueries');
 
+    cy.intercept('GET', '/api/pipeline/test-pipeline-123/real-api-tests', {
+      statusCode: 200,
+      body: {
+        total: 2,
+        tested: 1,
+        passed: 1,
+        failed: 0,
+        results: [
+          {
+            queryName: 'getUser',
+            status: 'passed',
+            baselineExists: true,
+            comparisonResult: {
+              matches: true,
+              differences: []
+            }
+          },
+          {
+            queryName: 'listPosts',
+            status: 'pending',
+            baselineExists: false
+          }
+        ]
+      }
+    }).as('getRealApiTests');
+
+    cy.intercept('POST', '/api/pipeline/test-pipeline-123/trigger-real-api-tests', {
+      statusCode: 200,
+      body: { message: 'Tests triggered successfully' }
+    }).as('triggerRealApiTests');
+
+    cy.intercept('GET', '/api/pipeline/baselines/getUser', {
+      statusCode: 200,
+      body: [
+        {
+          baseline: { user: { name: 'John Doe', email: 'john@example.com' } },
+          response: { user: { name: 'John Doe', email: 'john@example.com' } },
+          comparison: {
+            matches: true,
+            differences: []
+          }
+        }
+      ]
+    }).as('getBaselines');
+
     cy.intercept('POST', '/api/pipeline/test-pipeline-123/generate-pr', {
       statusCode: 200,
       body: {
@@ -204,5 +249,83 @@ describe('GraphQL Migration Dashboard E2E', () => {
     // Verify stages have correct initial state
     cy.get('.pipeline-stage').should('have.length', 6);
     cy.get('.pipeline-stage.pending').should('have.length.at.least', 5);
+  });
+
+  it('should test against real API with GraphQL client integration', () => {
+    // Start pipeline first
+    cy.startPipeline({
+      repoPath: '/test/repo',
+      schemaEndpoint: 'https://api.example.com/graphql'
+    });
+
+    cy.wait('@startPipeline');
+    cy.wait('@getQueries');
+    cy.wait('@getRealApiTests');
+
+    // Verify Real API Testing section appears
+    cy.contains('Real API Testing').should('be.visible');
+    cy.contains('Tests queries against real API with baseline comparison').should('be.visible');
+
+    // Check test results summary
+    cy.contains('Total Queries').should('be.visible');
+    cy.contains('2').should('be.visible'); // total
+    cy.contains('Tested').should('be.visible');
+    cy.contains('1').should('be.visible'); // tested
+    cy.contains('Passed').should('be.visible');
+
+    // Check individual test results
+    cy.contains('getUser').should('be.visible');
+    cy.contains('passed').should('be.visible');
+    cy.contains('Baseline Available').should('be.visible');
+    cy.contains('✓ Matches baseline').should('be.visible');
+
+    cy.contains('listPosts').should('be.visible');
+    cy.contains('pending').should('be.visible');
+
+    // Test triggering new API tests
+    cy.contains('button', 'Test Against Real API').click();
+
+    // Fill authentication form
+    cy.get('input[placeholder="Cookies (session data)"]').type('test-session-cookies');
+    cy.get('input[placeholder="App Key"]').type('test-app-key');
+
+    // Submit tests
+    cy.contains('button', 'Start Tests').click();
+    cy.wait('@triggerRealApiTests');
+
+    // Verify success message
+    cy.contains('Real API tests triggered successfully!').should('be.visible');
+  });
+
+  it('should view baseline comparisons in query diff viewer', () => {
+    // Start pipeline and get queries
+    cy.startPipeline({
+      repoPath: '/test/repo',
+      schemaEndpoint: 'https://api.example.com/graphql'
+    });
+
+    cy.wait('@startPipeline');
+    cy.wait('@getQueries');
+
+    // Click View Diff for first query
+    cy.contains('button', 'View Diff').first().click();
+
+    // Verify modal opens with tabs
+    cy.get('[role="dialog"]').should('be.visible');
+    cy.contains('Query Analysis').should('be.visible');
+    cy.contains('Transformation').should('be.visible');
+    cy.contains('Baseline Comparison').should('be.visible');
+
+    // Switch to baseline comparison tab
+    cy.contains('button', 'Baseline Comparison').click();
+    cy.wait('@getBaselines');
+
+    // Verify baseline content appears
+    cy.contains('Baseline 1').should('be.visible');
+    cy.contains('✓ Matches baseline').should('be.visible');
+
+    // Close modal
+    cy.get('.close-btn').click();
+    cy.get('[role="dialog"]').should('not.exist');
   });
 });
