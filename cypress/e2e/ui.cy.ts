@@ -328,4 +328,156 @@ describe('GraphQL Migration Dashboard E2E', () => {
     cy.get('.close-btn').click();
     cy.get('[role="dialog"]').should('not.exist');
   });
+
+  it('should display real-time event placeholders during pipeline execution', () => {
+    // Mock additional API calls for event simulation
+    cy.intercept('GET', '/api/pipeline/test-pipeline-123/events', {
+      statusCode: 200,
+      body: [
+        { stage: 'extraction', message: 'Starting repository extraction', timestamp: Date.now() },
+        { stage: 'variant-generation', message: 'Generating variants for GetUser', timestamp: Date.now() + 1000 },
+        { stage: 'testing', message: 'Testing query GetUser on real API', timestamp: Date.now() + 2000 }
+      ]
+    }).as('getEvents');
+
+    cy.startPipeline({
+      repoPath: '/test/repo',
+      schemaEndpoint: 'https://api.example.com/graphql'
+    });
+
+    cy.wait('@startPipeline');
+
+    // Verify logs section shows event placeholder messages
+    cy.contains('Real-time Logs').should('be.visible');
+    cy.get('.log-viewer').should('be.visible');
+    
+    // In real implementation with WebSocket, we would see:
+    // cy.contains('Starting repository extraction').should('be.visible');
+    // cy.contains('Generating variants for GetUser').should('be.visible');
+    // cy.contains('Testing query GetUser on real API').should('be.visible');
+  });
+
+  it('should complete full vnext-dashboard flow with baseline comparison', () => {
+    // Mock vnext-dashboard specific responses
+    cy.intercept('POST', '/api/github/clone', {
+      statusCode: 200,
+      body: {
+        localPath: '/tmp/vnext-dashboard',
+        message: 'Repository cloned successfully'
+      }
+    }).as('cloneVnext');
+
+    cy.intercept('GET', '/api/pipeline/test-pipeline-123/queries', {
+      statusCode: 200,
+      body: [
+        {
+          query: {
+            queryName: 'GetVentures',
+            content: 'query GetVentures($userId: ID!) { user(id: $userId) { ventures { id name } } }',
+            filePath: '/vnext-dashboard/queries/ventures.graphql',
+            lineNumber: 5,
+            operation: 'query',
+            hasVariables: true,
+            isNested: true
+          },
+          transformation: {
+            transformedQuery: 'query GetVentures($userId: ID!) { userV2(userId: $userId) { venturesV2 { id displayName } } }',
+            warnings: ['Field "ventures" renamed to "venturesV2"', 'Field "name" renamed to "displayName"'],
+            mappingCode: '// Auto-generated mapping for ventures'
+          }
+        }
+      ]
+    }).as('getVnextQueries');
+
+    // Clone vnext-dashboard
+    cy.contains('button', 'Clone from GitHub').click();
+    cy.get('[role="dialog"]').should('be.visible');
+    cy.get('input[placeholder="https://github.com/owner/repo"]').type('https://github.com/test/vnext-dashboard');
+    cy.get('[role="dialog"]').contains('button', 'Clone').click();
+    cy.wait('@cloneVnext');
+
+    // Start pipeline
+    cy.get('input[id="schema-endpoint"]').clear().type('https://api.example.com/graphql/v2');
+    cy.get('button[type="submit"]').contains('Start Pipeline').click();
+    cy.wait('@startPipeline');
+    cy.wait('@getVnextQueries');
+
+    // Verify venture query appears
+    cy.contains('GetVentures').should('be.visible');
+    cy.contains('/vnext-dashboard/queries/ventures.graphql').should('be.visible');
+
+    // Test real API with auth
+    cy.wait('@getRealApiTests');
+    cy.contains('Real API Testing').should('be.visible');
+    cy.contains('button', 'Test Against Real API').click();
+    cy.get('input[placeholder="Cookies (session data)"]').type('vnext-session-cookies');
+    cy.get('input[placeholder="App Key"]').type('vnext-app-key-123');
+    cy.contains('button', 'Start Tests').click();
+    cy.wait('@triggerRealApiTests');
+
+    // Verify baseline comparison is available
+    cy.contains('button', 'View Diff').first().click();
+    cy.contains('button', 'Baseline Comparison').click();
+    cy.wait('@getBaselines');
+    
+    cy.get('.baseline-content').should('be.visible');
+    cy.contains('Comparison complete').should('be.visible');
+  });
+
+  it('should handle baseline differences and display detailed diff', () => {
+    // Mock baseline with differences
+    cy.intercept('GET', '/api/pipeline/baselines/GetUser', {
+      statusCode: 200,
+      body: [
+        {
+          baseline: { 
+            user: { 
+              id: '123', 
+              name: 'John Doe',
+              email: 'john@example.com',
+              lastLogin: '2024-01-01T00:00:00Z'
+            } 
+          },
+          response: { 
+            user: { 
+              id: '123', 
+              name: 'John Doe Updated',
+              email: 'john.doe@example.com',
+              lastLogin: '2024-01-15T12:30:00Z'
+            } 
+          },
+          comparison: {
+            matches: false,
+            differences: [
+              { path: 'user.name', description: 'Value changed from "John Doe" to "John Doe Updated"' },
+              { path: 'user.email', description: 'Value changed from "john@example.com" to "john.doe@example.com"' },
+              { path: 'user.lastLogin', description: 'Timestamp difference within acceptable range' }
+            ]
+          }
+        }
+      ]
+    }).as('getBaselinesWithDiff');
+
+    cy.startPipeline({
+      repoPath: '/test/repo',
+      schemaEndpoint: 'https://api.example.com/graphql'
+    });
+
+    cy.wait('@startPipeline');
+    cy.wait('@getQueries');
+
+    // Open diff viewer
+    cy.contains('button', 'View Diff').first().click();
+    cy.contains('button', 'Baseline Comparison').click();
+    cy.wait('@getBaselinesWithDiff');
+
+    // Verify differences are displayed
+    cy.contains('⚠ Differences found').should('be.visible');
+    cy.contains('Value changed from "John Doe" to "John Doe Updated"').should('be.visible');
+    
+    // Verify diff viewer shows the comparison
+    cy.get('.baseline-diff').should('be.visible');
+    cy.contains('Baseline Response').should('be.visible');
+    cy.contains('Current Response').should('be.visible');
+  });
 });

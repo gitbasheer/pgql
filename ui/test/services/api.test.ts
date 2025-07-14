@@ -149,6 +149,17 @@ describe('API Service', () => {
         'Not found'
       );
     });
+
+    it('should throw default error message when none provided', async () => {
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({}),
+      });
+
+      await expect(getRealApiTestResults('invalid-id')).rejects.toThrow(
+        'Failed to fetch real API test results'
+      );
+    });
   });
 
   describe('triggerRealApiTests', () => {
@@ -187,6 +198,42 @@ describe('API Service', () => {
           appKey: 'test',
         })
       ).rejects.toThrow('Failed to trigger real API tests');
+    });
+  });
+
+  describe('error handling edge cases', () => {
+    it('should handle getBaselineComparisons error with no message', async () => {
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({}),
+      });
+
+      await expect(getBaselineComparisons('TestQuery')).rejects.toThrow(
+        'Failed to fetch baseline comparisons'
+      );
+    });
+
+    it('should handle testOnRealApi error with no message', async () => {
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({}),
+      });
+
+      const params = {
+        query: {
+          name: 'TestQuery',
+          fullExpandedQuery: 'query Test { test }',
+          endpoint: 'productGraph',
+        },
+        auth: {
+          cookies: 'test-cookies',
+          appKey: 'test-key',
+        },
+      };
+
+      await expect(testOnRealApi(params)).rejects.toThrow(
+        'Failed to test on real API'
+      );
     });
   });
 });

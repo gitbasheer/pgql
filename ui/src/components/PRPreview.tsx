@@ -42,11 +42,19 @@ export default function PRPreview({ pipelineId, isActive }: PRPreviewProps) {
   });
 
   if (!isActive || !pipelineId) {
-    return null;
+    return (
+      <div className="pr-preview">
+        <h3>Pull Request Preview</h3>
+        <div className="empty-state">
+          <p>Pull request will be available after pipeline completes</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="pr-preview">
+      <h3>Pull Request Preview</h3>
       <div className="pr-actions">
         <button
           onClick={() => generatePR.mutate()}
@@ -69,7 +77,6 @@ export default function PRPreview({ pipelineId, isActive }: PRPreviewProps) {
 
       {showPreview && prDiff && (
         <div className="pr-diff-container">
-          <h3>Pull Request Preview</h3>
           <div className="diff-wrapper">
             <DiffViewer
               oldValue=""

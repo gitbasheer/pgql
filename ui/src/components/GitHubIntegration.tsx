@@ -40,6 +40,13 @@ export default function GitHubIntegration({ onRepoCloned }: GitHubIntegrationPro
 
   const handleClone = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate GitHub URL format
+    if (!repoUrl.match(/^https?:\/\/github\.com\/[\w-]+\/[\w.-]+$/)) {
+      toast.error('Please enter a valid GitHub repository URL');
+      return;
+    }
+    
     if (repoUrl) {
       cloneRepo.mutate(repoUrl);
     }
