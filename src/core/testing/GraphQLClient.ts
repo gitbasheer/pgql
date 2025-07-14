@@ -20,10 +20,18 @@ export class GraphQLClient {
   private endpoint: string;
 
   constructor(config: GraphQLClientConfig = {}) {
-    this.endpoint = config.endpoint || 'https://pg.api.godaddy.com/v1/gql/customer';
+    this.endpoint = config.endpoint || process.env.APOLLO_PG_ENDPOINT || 'https://pg.api.godaddy.com/v1/gql/customer';
     this.baselineDir = config.baselineDir || './baselines';
     
-    const cookieString = config.cookieString || process.env.GODADDY_COOKIES || '';
+    // Build cookie string from individual env vars
+    const authIdp = process.env.auth_idp || '';
+    const custIdp = process.env.cust_idp || '';
+    const infoCustIdp = process.env.info_cust_idp || '';
+    const infoIdp = process.env.info_idp || '';
+    
+    const cookieString = config.cookieString || 
+      `auth_idp=${authIdp}; cust_idp=${custIdp}; info_cust_idp=${infoCustIdp}; info_idp=${infoIdp}` || '';
+    
     const appKey = config.appKey || 'vnext-dashboard';
     const clientName = config.clientName || 'vnext-dashboard';
 
@@ -121,7 +129,13 @@ export class GraphQLClient {
     query: string,
     variables: Record<string, any> = {}
   ): Promise<any> {
-    const cookieString = process.env.GODADDY_COOKIES || '';
+    // Build cookie string from individual env vars
+    const authIdp = process.env.auth_idp || '';
+    const custIdp = process.env.cust_idp || '';
+    const infoCustIdp = process.env.info_cust_idp || '';
+    const infoIdp = process.env.info_idp || '';
+    
+    const cookieString = `auth_idp=${authIdp}; cust_idp=${custIdp}; info_cust_idp=${infoCustIdp}; info_idp=${infoIdp}`;
     
     const response = await fetch(this.endpoint, {
       method: 'POST',
