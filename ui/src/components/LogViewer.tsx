@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, memo, useCallback } from 'react';
 import { LogEntry } from '../hooks/usePipelineLogs';
 import '../styles/log-viewer.css';
 
@@ -6,7 +6,7 @@ interface LogViewerProps {
   logs: LogEntry[];
 }
 
-export default function LogViewer({ logs }: LogViewerProps) {
+const LogViewer = memo(function LogViewer({ logs }: LogViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
     }
   }, [logs]);
 
-  const formatTimestamp = (date: Date) => {
+  const formatTimestamp = useCallback((date: Date) => {
     return date.toLocaleTimeString('en-US', { 
       hour12: false,
       hour: '2-digit',
@@ -23,14 +23,21 @@ export default function LogViewer({ logs }: LogViewerProps) {
       second: '2-digit',
       fractionalSecondDigits: 3
     });
-  };
+  }, []);
 
-  const getLogLevelClass = (level: LogEntry['level']) => {
+  const getLogLevelClass = useCallback((level: LogEntry['level']) => {
     return `log-entry log-${level}`;
-  };
+  }, []);
 
   return (
-    <div className="log-viewer" ref={containerRef}>
+    <div 
+      className="log-viewer" 
+      ref={containerRef}
+      role="log"
+      aria-label="Pipeline execution logs"
+      aria-live="polite"
+      aria-relevant="additions"
+    >
       {logs.length === 0 ? (
         <div className="log-empty">
           Waiting for logs...
@@ -49,4 +56,6 @@ export default function LogViewer({ logs }: LogViewerProps) {
       )}
     </div>
   );
-}
+});
+
+export default LogViewer;

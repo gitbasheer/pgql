@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useSocket } from '../hooks/useSocket';
@@ -142,22 +142,22 @@ function Dashboard() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     clearLogs();
     startPipeline.mutate(config);
-  };
+  }, [config, clearLogs, startPipeline]);
 
-  const handleVnextTest = () => {
+  const handleVnextTest = useCallback(() => {
     clearLogs();
     testVnextSampleData.mutate();
-  };
+  }, [clearLogs, testVnextSampleData]);
 
-  const handleInputChange = (field: keyof PipelineConfig) => (
+  const handleInputChange = useCallback((field: keyof PipelineConfig) => (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setConfig(prev => ({ ...prev, [field]: e.target.value }));
-  };
+  }, []);
 
   return (
     <div className="dashboard">

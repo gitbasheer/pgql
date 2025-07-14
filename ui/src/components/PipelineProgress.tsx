@@ -63,13 +63,15 @@ export default function PipelineProgress({ socket, isActive }: PipelineProgressP
     }
   };
 
+  const completedStages = stages.filter(s => s.status === 'completed').length;
+
   return (
-    <div className="pipeline-progress">
+    <div className="pipeline-progress" role="progressbar" aria-label="Pipeline progress" aria-valuenow={completedStages} aria-valuemin={0} aria-valuemax={stages.length}>
       <div className="pipeline-stages">
         {stages.map((stage, index) => (
           <div key={stage.name} className={`pipeline-stage ${stage.status}`}>
             <div className="stage-connector" />
-            <div className="stage-icon">
+            <div className="stage-icon" aria-label={`${stage.name}: ${stage.status}`}>
               {getStageIcon(stage.status)}
             </div>
             <div className="stage-info">
@@ -77,13 +79,13 @@ export default function PipelineProgress({ socket, isActive }: PipelineProgressP
               {stage.message && <p className="stage-message">{stage.message}</p>}
               {stage.progress !== undefined && stage.status === 'in_progress' && (
                 <div className="stage-progress">
-                  <div className="progress-bar">
+                  <div className="progress-bar" role="progressbar" aria-valuenow={stage.progress} aria-valuemin={0} aria-valuemax={100}>
                     <div 
                       className="progress-fill" 
                       style={{ width: `${stage.progress}%` }}
                     />
                   </div>
-                  <span className="progress-text">{stage.progress}%</span>
+                  <span className="progress-text" aria-label={`${stage.name} progress: ${stage.progress}%`}>{stage.progress}%</span>
                 </div>
               )}
             </div>

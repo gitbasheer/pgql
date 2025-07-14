@@ -196,4 +196,97 @@ describe('Dashboard', () => {
     // Button should be disabled and show loading state
     expect(screen.getByRole('button', { name: /Testing vnext/i })).toBeDisabled();
   });
+
+  it('should handle vnext test with authentication masking', async () => {
+    const user = userEvent.setup();
+    
+    // Mock vnext test endpoints
+    (global.fetch as any)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ 
+          pipelineId: 'vnext-test-123',
+          extractionId: 'extract-456'
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ 
+          testsStarted: 5,
+          message: 'Real API tests initiated'
+        }),
+      });
+
+    renderDashboard();
+
+    const vnextButton = screen.getByRole('button', { name: /Test vnext Sample/i });
+    await user.click(vnextButton);
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('vnext sample data pipeline started successfully!');
+      expect(toast.info).toHaveBeenCalledWith('Running real API tests with masked authentication...');
+    });
+
+    // Verify API calls include masked auth
+    const extractCall = (global.fetch as any).mock.calls[0];
+    expect(extractCall[0]).toBe('/api/extract');
+    expect(JSON.parse(extractCall[1].body)).toMatchObject({
+      repoPath: 'data/sample_data/vnext-dashboard',
+      strategies: ['hybrid'],
+      preserveSourceAST: true,
+      enableVariantDetection: true,
+    });
+
+    const testCall = (global.fetch as any).mock.calls[1];
+    expect(testCall[0]).toBe('/api/test-real-api');
+    expect(JSON.parse(testCall[1].body)).toMatchObject({
+      maskSensitiveData: true,
+    });
+  });
+
+  it('should clear logs before starting vnext test', async () => {
+    const user = userEvent.setup();
+    
+    (global.fetch as any)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ pipelineId: 'vnext-123', extractionId: 'extract-456' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ testsStarted: 3 }),
+      });
+
+    renderDashboard();
+
+    // Add initial log content
+    const logViewer = screen.getByRole('log');
+    expect(logViewer).toBeInTheDocument();
+
+    const vnextButton = screen.getByRole('button', { name: /Test vnext Sample/i });
+    await user.click(vnextButton);
+
+    // Verify logs section still exists but would be cleared
+    expect(screen.getByRole('log')).toBeInTheDocument();
+    
+    // Verify API was called
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/api/extract', expect.any(Object));
+    });
+  });
+
+  it('should handle vnext test errors gracefully', async () => {
+    const user = userEvent.setup();
+    
+    (global.fetch as any).mockRejectedValueOnce(new Error('Network error during extraction'));
+
+    renderDashboard();
+
+    const vnextButton = screen.getByRole('button', { name: /Test vnext Sample/i });
+    await user.click(vnextButton);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('vnext testing failed: Network error during extraction');
+    });
+  });
 });

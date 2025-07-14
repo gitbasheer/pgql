@@ -15,6 +15,8 @@
 - ✅ Automatically loads Z's mock data from `data/sample_data/vnext-dashboard`
 - ✅ Triggers extraction → real API testing pipeline
 - ✅ Uses masked authentication cookies from environment variables
+- ✅ Full flow: extractFromRepo → testOnRealApi → PR generation
+- ✅ Environment integration: REACT_APP_AUTH_IDP, REACT_APP_CUST_IDP cookies
 
 ### 3. Real-time Pipeline Progress
 ![Pipeline Progress](demo/03-pipeline-progress.png)
