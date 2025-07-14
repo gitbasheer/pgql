@@ -4,7 +4,7 @@ import { ExtractedQuery, TransformationResult } from '../../types/pgql.types';
 import { logger } from '../../utils/logger';
 import { transformCache } from '../cache/CacheManager';
 import { createHash } from 'crypto';
-import * as jsdiff from 'jsdiff';
+// jsdiff removed - not needed
 import simpleGit from 'simple-git';
 
 export interface TransformOptions {
@@ -36,7 +36,7 @@ export class OptimizedSchemaTransformer {
   private warnings: string[];
   private cacheEnabled: boolean;
   
-  transform(query: string, options: { deprecations: Array<{ field: string; replacement: string }> }): string {
+  transformWithOptions(query: string, options: { deprecations: Array<{ field: string; replacement: string }> }): string {
     let transformedQuery = query;
     
     options.deprecations.forEach(dep => {
@@ -78,33 +78,35 @@ export class OptimizedSchemaTransformer {
   private findDifferences(oldObj: any, newObj: any, path: string = ''): Array<{path: string; oldValue: any; newValue: any}> {
     const diffs: Array<{path: string; oldValue: any; newValue: any}> = [];
     
-    // Simple diff detection
-    const oldKeys = Object.keys(oldObj || {});
-    const newKeys = Object.keys(newObj || {});
-    
-    // Check for moved/renamed fields
-    for (const key of oldKeys) {
-      if (!newKeys.includes(key)) {
-        // Field was removed or moved
-        diffs.push({
-          path: path ? `${path}.${key}` : key,
-          oldValue: oldObj[key],
-          newValue: undefined
-        });
+    // Recursive diff detection
+    const processObject = (old: any, new_: any, currentPath: string) => {
+      const oldKeys = Object.keys(old || {});
+      const newKeys = Object.keys(new_ || {});
+      const allKeys = new Set([...oldKeys, ...newKeys]);
+      
+      for (const key of allKeys) {
+        const fullPath = currentPath ? `${currentPath}.${key}` : key;
+        const oldValue = old?.[key];
+        const newValue = new_?.[key];
+        
+        if (oldValue === undefined && newValue !== undefined) {
+          // Field added
+          diffs.push({ path: fullPath, oldValue: undefined, newValue });
+        } else if (oldValue !== undefined && newValue === undefined) {
+          // Field removed
+          diffs.push({ path: fullPath, oldValue, newValue: undefined });
+        } else if (typeof oldValue === 'object' && typeof newValue === 'object' && 
+                   oldValue !== null && newValue !== null) {
+          // Recursively check nested objects
+          processObject(oldValue, newValue, fullPath);
+        } else if (oldValue !== newValue) {
+          // Value changed
+          diffs.push({ path: fullPath, oldValue, newValue });
+        }
       }
-    }
+    };
     
-    for (const key of newKeys) {
-      if (!oldKeys.includes(key)) {
-        // New field added
-        diffs.push({
-          path: path ? `${path}.${key}` : key,
-          oldValue: undefined,
-          newValue: newObj[key]
-        });
-      }
-    }
-    
+    processObject(oldObj, newObj, path);
     return diffs;
   }
 

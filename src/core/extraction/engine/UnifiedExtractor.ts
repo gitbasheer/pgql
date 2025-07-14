@@ -268,7 +268,7 @@ export class UnifiedExtractor {
         variables: this.extractVariables(q),
         fragments: q.fragments || [],
         endpoint: (q as any).endpoint || 'productGraph',
-        sourceFile: q.file
+        sourceFile: q.filePath || 'unknown.js'
       };
       return standardized;
     });
