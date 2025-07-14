@@ -1,0 +1,122 @@
+.pipeline-progress {
+  padding: 1rem 0;
+}
+
+.pipeline-stages {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  padding: 2rem 0;
+}
+
+.pipeline-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.stage-connector {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  right: -50%;
+  height: 2px;
+  background-color: #e0e0e0;
+  z-index: 0;
+}
+
+.pipeline-stage:last-child .stage-connector {
+  display: none;
+}
+
+.pipeline-stage.completed .stage-connector,
+.pipeline-stage.completed + .pipeline-stage .stage-connector {
+  background-color: #4caf50;
+}
+
+.stage-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background-color: white;
+  border: 3px solid #e0e0e0;
+  position: relative;
+  z-index: 1;
+}
+
+.pipeline-stage.completed .stage-icon {
+  border-color: #4caf50;
+  color: #4caf50;
+}
+
+.pipeline-stage.in_progress .stage-icon {
+  border-color: #2196f3;
+  color: #2196f3;
+  animation: pulse 1.5s infinite;
+}
+
+.pipeline-stage.error .stage-icon {
+  border-color: #f44336;
+  color: #f44336;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.stage-info {
+  margin-top: 0.5rem;
+  text-align: center;
+  max-width: 150px;
+}
+
+.stage-info h4 {
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.stage-message {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.stage-progress {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #2196f3;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.75rem;
+  color: #666;
+}

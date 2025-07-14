@@ -1,0 +1,120 @@
+# Dependencies
+node_modules/*
+pnpm-lock.yaml
+package-lock.json
+
+# Build outputs
+dist/*
+build/*
+*.tsbuildinfo
+
+# Testing
+coverage/*
+coverage-summary.json
+*.log
+test-results/*
+test-output*.txt
+test-results*.txt
+test-results*.json
+test-fix-report.json
+test-analysis-report.json
+test-summary*.txt
+full-test-output.txt
+test_failures.log
+
+# Logs
+logs/*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/*
+.idea/*
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+tmp/*
+temp/*
+
+# Git
+.git/*
+
+# Extracted queries and variants
+extracted-*.json
+extraction-*.json
+query-*.json
+extracted-queries/*
+extracted-variants/*
+extracted-advanced-variants/*
+test-variants/*
+variant-analysis/*
+test-queries.json
+test-dynamic-extraction.json
+test-extraction*.json
+response-transformation-fixtures.json
+transformed-queries-fixtures.json
+
+# Reports and documentation
+audit/*
+audit-rad/*
+production-report/*
+test-pipeline/*
+*.html
+deprecations.json
+
+# Example and test data
+examples/logs/*
+validation-storage/*
+
+# Scripts that are for debugging/fixing
+scripts/debug-*.ts
+scripts/fix-*.ts
+test-*.js
+serve-*.js
+
+# Stryker mutation testing
+stryker.config.json
+
+# PR directory (untracked)
+pr-first/*
+
+# Large audit files
+audit_security_findings.md
+build_errors.txt
+migration-summary.json
+multi-schema-validation-report.json
+validation-errors.json
+validation-output.log
+validation-report.json
+
+# Test classification reports
+query-classification-report.json
+
+# Other temporary/generated files
+*.old.md
+status*.md
+handoff*.md
+kofelo-*.md
+migration-blocker.md
+migration_complete_collab.md
+suggested-fixes.md
+logs.md
