@@ -31,6 +31,7 @@ type CacheValue = any;
 export class CacheManager {
   private memoryCache: LRUCache<string, CacheValue>;
   private persistentCache?: Level<string, string>;
+  private namespaceKeys: Map<string, Set<string>> = new Map(); // Track keys by namespace
   private stats: CacheStats = {
     hits: 0,
     misses: 0,
@@ -144,6 +145,12 @@ export class CacheManager {
     const start = performance.now();
     const cacheKey = this.generateKey(namespace, key);
 
+    // Track key by namespace
+    if (!this.namespaceKeys.has(namespace)) {
+      this.namespaceKeys.set(namespace, new Set());
+    }
+    this.namespaceKeys.get(namespace)!.add(cacheKey);
+
     // Set in memory cache
     this.memoryCache.set(cacheKey, value, { ttl });
 
@@ -171,6 +178,15 @@ export class CacheManager {
 
     this.memoryCache.delete(cacheKey);
 
+    // Remove from namespace tracking
+    const namespaceSet = this.namespaceKeys.get(namespace);
+    if (namespaceSet) {
+      namespaceSet.delete(cacheKey);
+      if (namespaceSet.size === 0) {
+        this.namespaceKeys.delete(namespace);
+      }
+    }
+
     if (this.persistentCache) {
       try {
         await this.persistentCache.del(cacheKey);
@@ -193,16 +209,15 @@ export class CacheManager {
   async clear(namespace?: string): Promise<void> {
     if (namespace) {
       // Clear specific namespace
-      const keysToDelete: string[] = [];
-      this.memoryCache.forEach((_value: CacheValue, key: string) => {
-        if (key.startsWith(namespace)) {
-          keysToDelete.push(key);
-        }
-      });
-      keysToDelete.forEach(key => this.memoryCache.delete(key));
+      const keysToDelete = this.namespaceKeys.get(namespace);
+      if (keysToDelete) {
+        keysToDelete.forEach(key => this.memoryCache.delete(key));
+        this.namespaceKeys.delete(namespace);
+      }
     } else {
       // Clear entire cache
       this.memoryCache.clear();
+      this.namespaceKeys.clear();
     }
 
     if (this.persistentCache && !namespace) {

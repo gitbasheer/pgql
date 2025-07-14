@@ -137,6 +137,12 @@ export class UnifiedMigrationPipeline {
     
     const results = await this.extractor.extract();
 
+    // Handle case where extractor returns undefined or malformed results
+    if (!results || !results.queries) {
+      logger.error('Extractor returned invalid results');
+      throw new Error('Extractor returned invalid results - missing queries property');
+    }
+
     this.extractedOperations = results.queries;
     
     // Build source mapping

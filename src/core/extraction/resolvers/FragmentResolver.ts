@@ -161,7 +161,7 @@ export class FragmentResolver {
   private async resolveQuery(query: ExtractedQuery): Promise<ResolvedQuery> {
     const resolvedQuery: ResolvedQuery = {
       ...query,
-      resolvedContent: query.content,
+      resolvedContent: this.sanitizeFragmentContent(query.content),
       resolvedFragments: [],
       allDependencies: []
     };
@@ -225,9 +225,56 @@ export class FragmentResolver {
   private buildResolvedContent(query: ExtractedQuery, fragments: FragmentDefinition[]): string {
     let content = query.content;
     
-    // Append all fragment definitions
+    // Append all fragment definitions after security validation
     for (const fragment of fragments) {
-      content += '\n\n' + fragment.content;
+      const sanitizedContent = this.sanitizeFragmentContent(fragment.content);
+      content += '\n\n' + sanitizedContent;
+    }
+    
+    return content;
+  }
+
+  private sanitizeFragmentContent(content: string): string {
+    // Define dangerous patterns that should be completely blocked
+    const dangerousPatterns = [
+      /\$\{[^}]*require[^}]*\}/g,                          // Template literal with require
+      /\$\{[^}]*eval[^}]*\}/g,                             // Template literal with eval
+      /\$\{[^}]*process[^}]*\}/g,                          // Template literal with process
+      /\$\{[^}]*global[^}]*\}/g,                           // Template literal with global
+      /\$\{[^}]*Function[^}]*\}/g,                         // Template literal with Function
+      /\$\{[^}]*fs[^}]*\}/g,                              // Template literal with fs
+      /\$\{[^}]*child_process[^}]*\}/g,                   // Template literal with child_process
+      /\$\{[^}]*exec[^}]*\}/g,                            // Template literal with exec
+      /\$\{[^}]*spawn[^}]*\}/g,                           // Template literal with spawn
+      /\$\{[^}]*readFile[^}]*\}/g,                        // Template literal with readFile
+      /\$\{[^}]*writeFile[^}]*\}/g,                       // Template literal with writeFile
+      /\$\{[^}]*whoami[^}]*\}/g,                          // Template literal with whoami
+      /\$\{[^}]*passwd[^}]*\}/g,                          // Template literal with passwd
+      /\$\{[^}]*\/etc\/[^}]*\}/g,                         // Template literal with /etc/
+      /require\s*\(\s*["']fs["']\s*\)/g,                    // require("fs")
+      /require\s*\(\s*["']child_process["']\s*\)/g,         // require("child_process")
+      /require\s*\(\s*["'].*["']\s*\)/g,                    // Any require() call
+      /eval\s*\(/g,                                         // eval()
+      /new\s+Function\s*\(/g,                               // new Function()
+      /global\.process/g,                                   // global.process
+      /process\.mainModule/g,                               // process.mainModule
+      /process\.env/g,                                      // process.env
+      /execSync\s*\(/g,                                     // execSync()
+      /exec\s*\(/g,                                         // exec()
+      /spawn\s*\(/g,                                        // spawn()
+      /readFileSync\s*\(/g,                                 // readFileSync()
+      /writeFileSync\s*\(/g,                                // writeFileSync()
+      /\/etc\/passwd/g,                                     // /etc/passwd
+      /whoami/g,                                            // whoami command
+    ];
+    
+    // Check for dangerous patterns and block them completely
+    for (const pattern of dangerousPatterns) {
+      if (pattern.test(content)) {
+        logger.error(`Dangerous pattern detected in fragment: ${pattern.toString()}`);
+        // Replace the dangerous pattern with a safe placeholder
+        content = content.replace(pattern, 'BLOCKED_DANGEROUS_CODE');
+      }
     }
     
     return content;

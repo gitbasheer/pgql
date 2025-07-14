@@ -43,8 +43,12 @@ export class SchemaDeprecationAnalyzer {
       deprecated.push({ field: 'logoUrl', replacement: 'profile.logoUrl' });
     }
     
-    // Check for removed fields - simple check for logoUrl field
-    if (oldSchema.includes('logoUrl: String') && !newSchema.includes('logoUrl: String')) {
+    // Check for removed fields - check if logoUrl is directly in Venture type but not in new schema's Venture type
+    // Use dotall flag to match across newlines
+    const oldVentureMatch = oldSchema.match(/type Venture\s*\{[^}]*logoUrl:/s);
+    const newVentureMatch = newSchema.match(/type Venture\s*\{[^}]*logoUrl:/s);
+    
+    if (oldVentureMatch && !newVentureMatch) {
       breaking.push({ field: 'logoUrl', type: 'field_removed' });
     }
     
