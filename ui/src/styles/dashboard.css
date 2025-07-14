@@ -51,12 +51,42 @@
   color: #555;
 }
 
-.start-pipeline {
+.button-group {
+  display: flex;
+  gap: 1rem;
   margin-top: 1rem;
-  width: 100%;
+}
+
+.start-pipeline {
+  flex: 1;
   padding: 0.75rem;
   font-size: 1.1rem;
   font-weight: 500;
+}
+
+.test-vnext-btn {
+  flex: 0 0 auto;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.test-vnext-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.test-vnext-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .pipeline-placeholder,

@@ -29,7 +29,11 @@ describe('Socket Service', () => {
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: 5,
+      reconnectionDelayMax: 5000,
+      maxReconnectionAttempts: 5,
       timeout: 20000,
+      forceNew: false,
+      autoConnect: true,
     });
     
     expect(socket).toBeDefined();

@@ -49,6 +49,89 @@ describe('PRPreview', () => {
     expect(screen.getByRole('button', { name: 'Generate Pull Request' })).toBeInTheDocument();
   });
 
+  it('should handle generate PR button click - success case', async () => {
+    const user = userEvent.setup();
+    const mockPRResponse = {
+      prUrl: 'https://github.com/test/repo/pull/123',
+      prNumber: 123,
+      title: 'GraphQL Migration - Automated Update',
+      files: ['src/queries/user.ts', 'src/queries/posts.ts'],
+    };
+
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockPRResponse,
+    });
+
+    renderComponent();
+
+    const generateButton = screen.getByRole('button', { name: 'Generate Pull Request' });
+    await user.click(generateButton);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/api/pipeline/test-pipeline/generate-pr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      expect(toast.success).toHaveBeenCalledWith('Pull request generated successfully!');
+    });
+
+    expect(screen.getByRole('link', { name: /View on GitHub/i })).toHaveAttribute('href', 'https://github.com/test/repo/pull/123');
+  });
+
+  it('should handle generate PR button click - error case', async () => {
+    const user = userEvent.setup();
+
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ message: 'Pipeline not ready for PR generation' }),
+    });
+
+    renderComponent();
+
+    const generateButton = screen.getByRole('button', { name: 'Generate Pull Request' });
+    await user.click(generateButton);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Failed to generate PR: Pipeline not ready for PR generation');
+    });
+  });
+
+  it('should handle network error during PR generation', async () => {
+    const user = userEvent.setup();
+
+    (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
+
+    renderComponent();
+
+    const generateButton = screen.getByRole('button', { name: 'Generate Pull Request' });
+    await user.click(generateButton);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Failed to generate PR: Network error');
+    });
+  });
+
+  it('should disable button while PR generation is in progress', async () => {
+    const user = userEvent.setup();
+
+    // Mock a slow response
+    (global.fetch as any).mockImplementationOnce(() => 
+      new Promise(resolve => setTimeout(() => resolve({
+        ok: true,
+        json: async () => ({ prUrl: 'https://github.com/test/repo/pull/123' }),
+      }), 1000))
+    );
+
+    renderComponent();
+
+    const generateButton = screen.getByRole('button', { name: 'Generate Pull Request' });
+    await user.click(generateButton);
+
+    // Button should be disabled during request
+    expect(screen.getByRole('button', { name: 'Generating PR...' })).toBeDisabled();
+  });
+
   it('should generate PR successfully', async () => {
     const user = userEvent.setup();
     

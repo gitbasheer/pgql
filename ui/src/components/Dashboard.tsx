@@ -66,10 +66,91 @@ function Dashboard() {
     },
   });
 
+  // Step 4: Full Flow Test with Z's mock vnext-dashboard
+  const testVnextSampleData = useMutation({
+    mutationFn: async () => {
+      // Load Z's sample data path and trigger full pipeline
+      const vnextConfig = {
+        repoPath: 'data/sample_data/vnext-dashboard', // Z's mock data
+        schemaEndpoint: process.env.REACT_APP_APOLLO_PG_ENDPOINT || 'https://api.example.com/graphql',
+        testApiUrl: process.env.REACT_APP_TEST_API_URL || 'https://test-api.example.com',
+        testAccountId: process.env.REACT_APP_TEST_ACCOUNT_ID || 'test-vnext-123',
+      };
+
+      // First, extract from repo
+      const extractResponse = await fetch('/api/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...vnextConfig,
+          strategies: ['hybrid'],
+          preserveSourceAST: true,
+          enableVariantDetection: true,
+        }),
+      });
+
+      if (!extractResponse.ok) {
+        const error = await extractResponse.json();
+        throw new Error(error.message || 'Failed to extract from vnext sample data');
+      }
+
+      const extractData = await extractResponse.json();
+      
+      // Then, trigger real API testing with auth cookies
+      const authCookies = [
+        process.env.REACT_APP_AUTH_IDP,
+        process.env.REACT_APP_CUST_IDP,
+        process.env.REACT_APP_SESSION_COOKIE
+      ].filter(Boolean).join('; ');
+
+      const testResponse = await fetch('/api/test-real-api', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.REACT_APP_API_TOKEN || ''}`,
+        },
+        body: JSON.stringify({
+          pipelineId: extractData.pipelineId || extractData.extractionId,
+          endpoint: vnextConfig.testApiUrl,
+          auth: {
+            cookies: authCookies,
+            accountId: vnextConfig.testAccountId,
+          },
+          // Mask sensitive data in logs
+          maskSensitiveData: true,
+        }),
+      });
+
+      if (!testResponse.ok) {
+        const error = await testResponse.json();
+        throw new Error(error.message || 'Failed to test on real API');
+      }
+
+      return {
+        extraction: extractData,
+        testing: await testResponse.json(),
+      };
+    },
+    onSuccess: (data) => {
+      setIsPipelineActive(true);
+      setPipelineId(data.extraction.pipelineId || data.extraction.extractionId);
+      toast.success('vnext sample data pipeline started successfully!');
+      toast.info('Running real API tests with masked authentication...');
+    },
+    onError: (error: Error) => {
+      toast.error(`vnext testing failed: ${error.message}`);
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     clearLogs();
     startPipeline.mutate(config);
+  };
+
+  const handleVnextTest = () => {
+    clearLogs();
+    testVnextSampleData.mutate();
   };
 
   const handleInputChange = (field: keyof PipelineConfig) => (
@@ -140,13 +221,25 @@ function Dashboard() {
                 placeholder="test-account-123"
               />
             </div>
-            <button 
-              type="submit"
-              className="start-pipeline"
-              disabled={!config.repoPath || !config.schemaEndpoint || startPipeline.isPending}
-            >
-              {startPipeline.isPending ? 'Starting...' : 'Start Pipeline'}
-            </button>
+            <div className="button-group">
+              <button 
+                type="submit"
+                className="start-pipeline"
+                disabled={!config.repoPath || !config.schemaEndpoint || startPipeline.isPending}
+              >
+                {startPipeline.isPending ? 'Starting...' : 'Start Pipeline'}
+              </button>
+              
+              <button 
+                type="button"
+                className="test-vnext-btn"
+                onClick={handleVnextTest}
+                disabled={testVnextSampleData.isPending || startPipeline.isPending}
+                title="Test with Z's vnext sample data + real API endpoints"
+              >
+                {testVnextSampleData.isPending ? 'Testing vnext...' : '🧪 Test vnext Sample'}
+              </button>
+            </div>
           </form>
         </section>
 

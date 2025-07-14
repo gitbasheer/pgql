@@ -9,11 +9,15 @@ class SocketService {
       this.socket = io('http://localhost:3001', {
         path: '/socket.io',
         transports: ['websocket'],
-        // Enhanced reconnection logic per requirements
+        // Step 5: Enhanced WebSocket reconnection for stability
         reconnection: true,
         reconnectionDelay: 1000,
         reconnectionAttempts: 5,
+        reconnectionDelayMax: 5000,
+        maxReconnectionAttempts: 5,
         timeout: 20000,
+        forceNew: false,
+        autoConnect: true,
       });
 
       this.socket.on('connect', () => {

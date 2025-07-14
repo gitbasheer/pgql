@@ -136,4 +136,64 @@ describe('Dashboard', () => {
     
     expect(screen.getByText('Real-time Logs')).toBeInTheDocument();
   });
+
+  it('should handle vnext sample data test button', async () => {
+    const user = userEvent.setup();
+    
+    // Mock successful vnext test responses
+    (global.fetch as any)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ pipelineId: 'vnext-test-123', extractionId: 'vnext-test-123' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ testResults: 'success', baselinesSaved: 3 }),
+      });
+
+    renderDashboard();
+
+    const vnextButton = screen.getByRole('button', { name: /Test vnext Sample/i });
+    expect(vnextButton).toBeInTheDocument();
+    expect(vnextButton).toBeEnabled();
+
+    await user.click(vnextButton);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/api/extract', expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: expect.stringContaining('data/sample_data/vnext-dashboard'),
+      }));
+    });
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/api/test-real-api', expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          'Content-Type': 'application/json',
+        }),
+      }));
+    });
+  });
+
+  it('should disable vnext button during testing', async () => {
+    const user = userEvent.setup();
+    
+    // Mock slow response
+    (global.fetch as any).mockImplementationOnce(() => 
+      new Promise(resolve => setTimeout(() => resolve({
+        ok: true,
+        json: async () => ({ pipelineId: 'test-123' }),
+      }), 1000))
+    );
+
+    renderDashboard();
+
+    const vnextButton = screen.getByRole('button', { name: /Test vnext Sample/i });
+    await user.click(vnextButton);
+
+    // Button should be disabled and show loading state
+    expect(screen.getByRole('button', { name: /Testing vnext/i })).toBeDisabled();
+  });
 });
