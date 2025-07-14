@@ -283,4 +283,92 @@ index abc123..def456 100644
       expect(diffWrapper).toBeInTheDocument();
     });
   });
+
+  it('should show PR generation progress after button click', async () => {
+    const user = userEvent.setup();
+    
+    (global.fetch as any).mockImplementationOnce(() => 
+      new Promise(resolve => setTimeout(() => resolve({
+        ok: true,
+        json: async () => mockPRResponse,
+      }), 100))
+    );
+
+    renderComponent();
+
+    const generateButton = screen.getByRole('button', { name: 'Generate Pull Request' });
+    await user.click(generateButton);
+
+    // Check that button shows loading state
+    expect(screen.getByText('Generating PR...')).toBeInTheDocument();
+    expect(generateButton).toBeDisabled();
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('Pull request generated successfully!');
+    });
+  });
+
+  it('should handle button click when pipeline is inactive', async () => {
+    const user = userEvent.setup();
+    
+    render(
+      <QueryClientProvider client={queryClient}>
+        <PRPreview pipelineId={undefined} isActive={false} />
+      </QueryClientProvider>
+    );
+
+    expect(screen.queryByRole('button', { name: 'Generate Pull Request' })).not.toBeInTheDocument();
+  });
+
+  it('should verify PR generation success flow', async () => {
+    const user = userEvent.setup();
+    
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockPRResponse,
+    });
+
+    renderComponent();
+
+    const generateButton = screen.getByRole('button', { name: 'Generate Pull Request' });
+    expect(generateButton).toBeEnabled();
+    
+    await user.click(generateButton);
+
+    // Verify API was called
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/api/pipeline/test-pipeline/generate-pr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+    });
+  });
+
+  it('should handle rapid button clicks', async () => {
+    const user = userEvent.setup();
+    
+    // Mock slow response
+    (global.fetch as any).mockImplementationOnce(() => 
+      new Promise(resolve => setTimeout(() => resolve({
+        ok: true,
+        json: async () => mockPRResponse,
+      }), 100))
+    );
+
+    renderComponent();
+
+    const generateButton = screen.getByRole('button', { name: 'Generate Pull Request' });
+    
+    // First click
+    await user.click(generateButton);
+    
+    // Button should be disabled during request
+    expect(generateButton).toBeDisabled();
+    
+    // Try clicking again while disabled
+    await user.click(generateButton);
+    
+    // Should still only have one fetch call
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
 });

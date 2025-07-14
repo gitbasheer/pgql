@@ -248,6 +248,128 @@ describe('GraphQL Migration Dashboard E2E', () => {
 
     // Verify stages have correct initial state
     cy.get('.pipeline-stage').should('have.length', 6);
+  });
+
+  it('should test vnext sample data with real API mocking', () => {
+    // Mock vnext extraction endpoint
+    cy.intercept('POST', '/api/extract', {
+      statusCode: 200,
+      body: {
+        pipelineId: 'vnext-test-123',
+        extractionId: 'extract-456',
+        queriesExtracted: 15
+      }
+    }).as('vnextExtract');
+
+    // Mock real API testing endpoint with env variables
+    cy.intercept('POST', '/api/test-real-api', {
+      statusCode: 200,
+      body: {
+        testsStarted: 15,
+        message: 'Real API tests initiated with masked auth',
+        endpoint: Cypress.env('REACT_APP_APOLLO_PG_ENDPOINT') || 'https://pg.api.example.com',
+        authMasked: true
+      }
+    }).as('vnextRealApiTest');
+
+    cy.visit('/');
+
+    // Click vnext test button
+    cy.get('button').contains('🧪 Test vnext Sample').click();
+
+    // Verify extraction call with correct sample data path
+    cy.wait('@vnextExtract').then((interception) => {
+      expect(interception.request.body).to.include({
+        repoPath: 'data/sample_data/vnext-dashboard',
+        strategies: ['hybrid'],
+        preserveSourceAST: true,
+        enableVariantDetection: true
+      });
+    });
+
+    // Verify real API test call with masked auth
+    cy.wait('@vnextRealApiTest').then((interception) => {
+      expect(interception.request.body).to.have.property('maskSensitiveData', true);
+      expect(interception.request.body).to.have.property('pipelineId', 'vnext-test-123');
+    });
+
+    // Verify success messages
+    cy.contains('vnext sample data pipeline started successfully!').should('be.visible');
+    cy.contains('Running real API tests with masked authentication...').should('be.visible');
+  });
+
+  it('should handle real API testing with environment variables', () => {
+    // Set up environment variables for testing
+    const testEndpoint = Cypress.env('REACT_APP_APOLLO_PG_ENDPOINT') || 'https://test-pg.api.example.com';
+    const testAccountId = Cypress.env('REACT_APP_TEST_ACCOUNT_ID') || 'test-vnext-123';
+
+    // Mock real API test results endpoint
+    cy.intercept('GET', '/api/pipeline/*/real-api-tests', {
+      statusCode: 200,
+      body: {
+        total: 15,
+        tested: 12,
+        passed: 10,
+        failed: 2,
+        results: [
+          {
+            queryName: 'GetUser',
+            status: 'passed',
+            baselineExists: true,
+            comparisonResult: {
+              matches: true,
+              differences: []
+            }
+          },
+          {
+            queryName: 'GetVentures',
+            status: 'failed',
+            baselineExists: true,
+            comparisonResult: {
+              matches: false,
+              differences: [
+                {
+                  path: 'data.ventures[0].name',
+                  type: 'field-missing',
+                  description: 'Field missing in new response',
+                  oldValue: 'Test Venture',
+                  newValue: null
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }).as('realApiResults');
+
+    cy.visit('/');
+
+    // Start a pipeline to enable real API testing section
+    cy.startPipeline({
+      repoPath: '/test/repo',
+      schemaEndpoint: testEndpoint
+    });
+
+    cy.wait('@startPipeline');
+
+    // Navigate to Real API Testing section
+    cy.contains('Real API Testing').should('be.visible');
+
+    // In a real scenario, results would load automatically
+    cy.wait('@realApiResults');
+
+    // Verify test results display
+    cy.contains('Total Queries: 15').should('be.visible');
+    cy.contains('Passed: 10').should('be.visible');
+    cy.contains('Failed: 2').should('be.visible');
+
+    // Verify individual query results
+    cy.contains('GetUser').should('be.visible');
+    cy.contains('GetVentures').should('be.visible');
+    cy.contains('✓ Matches baseline').should('be.visible');
+    cy.contains('⚠ 1 differences found').should('be.visible');
+  });
+    cy.get('.pipeline-stage').should('have.length', 6);
     cy.get('.pipeline-stage.pending').should('have.length.at.least', 5);
   });
 
