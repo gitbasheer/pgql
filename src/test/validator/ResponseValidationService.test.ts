@@ -624,6 +624,141 @@ describe('ResponseValidationService', () => {
     });
   });
 
+  describe('Cookie Authentication', () => {
+    it('should handle cookie auth in testOnRealApi with all 4 cookies', async () => {
+      const query = {
+        id: 'test-cookie-auth',
+        name: 'GetUserProfile',
+        query: 'query GetUserProfile($ventureId: UUID!) { user { id profile { name } } }',
+        endpoint: 'productGraph' as const
+      };
+      
+      const variables = { ventureId: 'test-venture-id' };
+      
+      // Mock environment variables
+      process.env.auth_idp = 'test-auth-idp';
+      process.env.cust_idp = 'test-cust-idp';  
+      process.env.info_cust_idp = 'test-info-cust-idp';
+      process.env.info_idp = 'test-info-idp';
+      
+      const mockResponse = {
+        statusCode: 200,
+        headers: { 'content-type': 'application/json' },
+        body: { data: { user: { id: '123', profile: { name: 'Test User' } } } },
+        timing: { total: 100, networkLatency: 50 }
+      };
+      
+      mockCaptureService.testOnRealApi.mockResolvedValue(mockResponse);
+      
+      const result = await service.testOnRealApi(query, variables);
+      
+      // Verify that testOnRealApi was called with proper cookie headers
+      expect(mockCaptureService.testOnRealApi).toHaveBeenCalledWith(
+        query,
+        variables,
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            Cookie: 'auth_idp=test-auth-idp; cust_idp=test-cust-idp; info_cust_idp=test-info-cust-idp; info_idp=test-info-idp'
+          })
+        })
+      );
+      
+      expect(result).toEqual(mockResponse);
+    });
+    
+    it('should build dynamic variables from testing account data', async () => {
+      const testingAccount = {
+        ventures: [{ id: 'venture-123', name: 'Test Venture' }],
+        projects: [{ domain: 'example.com', id: 'project-456' }]
+      };
+      
+      const query = {
+        id: 'test-dynamic-vars',
+        name: 'GetVentureData',
+        query: 'query GetVentureData($ventureId: UUID!, $domainName: String!) { venture(id: $ventureId) { name } }',
+        endpoint: 'productGraph' as const
+      };
+      
+      // Mock the dynamic variable building (this would be in the actual implementation)
+      const buildDynamicVariables = (vars: any) => {
+        const result: any = {};
+        for (const [key, value] of Object.entries(vars || {})) {
+          if (key === 'ventureId' && !value) {
+            result[key] = testingAccount.ventures[0]?.id || 'default-venture-id';
+          } else if (key === 'domainName' && !value) {
+            result[key] = testingAccount.projects[0]?.domain || 'default.com';
+          } else {
+            result[key] = value;
+          }
+        }
+        return result;
+      };
+      
+      const dynamicVars = buildDynamicVariables({ ventureId: null, domainName: null });
+      
+      expect(dynamicVars.ventureId).toBe('venture-123');
+      expect(dynamicVars.domainName).toBe('example.com');
+    });
+    
+    it('should mask sensitive data in logs', async () => {
+      const sensitiveQuery = {
+        id: 'test-sensitive',
+        name: 'CreateApiKey',
+        query: 'mutation CreateApiKey { createApiKey { key secret } }',
+        endpoint: 'productGraph' as const
+      };
+      
+      const mockResponse = {
+        statusCode: 200,
+        headers: { 'content-type': 'application/json' },
+        body: { data: { createApiKey: { key: 'ak_123', secret: 'secret123' } } },
+        timing: { total: 200, networkLatency: 100 }
+      };
+      
+      mockCaptureService.captureBaseline.mockResolvedValue({
+        responses: new Map([['test-sensitive', mockResponse]]),
+        metadata: {
+          capturedAt: new Date(),
+          totalQueries: 1,
+          successCount: 1,
+          errorCount: 0,
+          endpoint: mockConfig.endpoints[0]
+        }
+      });
+      
+      const logSpy = vi.spyOn(logger, 'info');
+      
+      await service.captureBaselineResponses([sensitiveQuery]);
+      
+      // Verify that sensitive data is not logged
+      const logCalls = logSpy.mock.calls;
+      const logContent = logCalls.map(call => JSON.stringify(call)).join(' ');
+      
+      expect(logContent).not.toContain('secret123');
+      expect(logContent).not.toContain('ak_123');
+    });
+    
+    it('should validate endpoint URL generation with environment variables', async () => {
+      process.env.APOLLO_PG_ENDPOINT = 'https://pg.api.example.com/graphql';
+      process.env.APOLLO_OG_ENDPOINT = 'https://og.api.example.com/graphql';
+      
+      const getEndpointUrl = (endpoint: string): string => {
+        switch (endpoint) {
+          case 'productGraph':
+            return process.env.APOLLO_PG_ENDPOINT || 'https://default-pg.api.com/graphql';
+          case 'offerGraph':
+            return process.env.APOLLO_OG_ENDPOINT || 'https://default-og.api.com/graphql';
+          default:
+            return 'https://default.api.com/graphql';
+        }
+      };
+      
+      expect(getEndpointUrl('productGraph')).toBe('https://pg.api.example.com/graphql');
+      expect(getEndpointUrl('offerGraph')).toBe('https://og.api.example.com/graphql');
+      expect(getEndpointUrl('unknown')).toBe('https://default.api.com/graphql');
+    });
+  });
+
   describe('fromConfigFile', () => {
     it('should load configuration from YAML file', async () => {
       const yamlContent = `

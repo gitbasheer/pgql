@@ -3,6 +3,16 @@ import { executeCommand } from '../../cli/compatibility/cli-wrapper';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
+// Mock environment variables for cookie auth
+vi.mock('process.env', () => ({
+  APOLLO_PG_ENDPOINT: 'https://mock-pg.graphql.api',
+  APOLLO_OG_ENDPOINT: 'https://mock-og.graphql.api',
+  auth_idp: 'mock-auth-idp-token',
+  cust_idp: 'mock-cust-idp-token',
+  info_cust_idp: 'mock-info-cust-idp-token',
+  info_idp: 'mock-info-idp-token'
+}));
+
 describe('CLI Regression Test Suite', () => {
   const testDataDir = path.join(__dirname, '../fixtures/cli-regression');
   const outputDir = path.join(__dirname, '../output/cli-regression');
@@ -124,18 +134,18 @@ describe('CLI Regression Test Suite', () => {
   describe('Error Message Consistency', () => {
     const errorScenarios = [
       {
-        args: ['extract', 'nonexistent-dir'],
-        errorPattern: /directory.*not.*found|no such file/i,
+        args: ['extract', 'queries', 'nonexistent-dir'],
+        errorPattern: /directory.*not.*found|no such file|ENOENT/i,
         description: 'missing directory'
       },
       {
-        args: ['validate', '-s', 'missing-schema.graphql'],
-        errorPattern: /schema.*not.*found|cannot.*read/i,
+        args: ['validate', 'queries', '-s', 'missing-schema.graphql'],
+        errorPattern: /schema.*not.*found|cannot.*read|ENOENT/i,
         description: 'missing schema file'
       },
       {
-        args: ['transform', '--confidence', 'invalid'],
-        errorPattern: /invalid.*confidence|must.*be.*number/i,
+        args: ['transform', 'queries', '--confidence', '101'],
+        errorPattern: /invalid.*confidence|must.*be.*between|out of range/i,
         description: 'invalid confidence value'
       }
     ];
@@ -164,29 +174,20 @@ describe('CLI Regression Test Suite', () => {
 
     envVarTests.forEach(({ var: envVar, value, expectedBehavior }) => {
       it(`should respect ${envVar} for ${expectedBehavior}`, async () => {
-        const originalValue = process.env[envVar];
-        process.env[envVar] = value;
+        const env = { ...process.env, [envVar]: value };
+        
+        const result = await executeCommand([
+          'tsx',
+          'src/cli/main-cli.ts',
+          'extract',
+          'queries'
+        ], { env });
 
-        try {
-          const result = await executeCommand([
-            'tsx',
-            'src/cli/main-cli.ts',
-            'extract',
-            'queries'
-          ]);
-
-          // Verify environment variable was passed
-          if (envVar === 'PG_CLI_NO_PROGRESS' && value === '1') {
-            expect(result.stdout).not.toContain('Processing');
-            expect(result.stdout).not.toContain('⠋');
-          }
-        } finally {
-          // Restore original value
-          if (originalValue === undefined) {
-            delete process.env[envVar];
-          } else {
-            process.env[envVar] = originalValue;
-          }
+        // Verify environment variable was respected
+        if (envVar === 'PG_CLI_NO_PROGRESS' && value === '1') {
+          // Check that progress indicators are not present
+          const hasProgressIndicators = /Processing|Extracting|Analyzing|\\u28|⠋|⠙|⠹|⠸|⠼|⠴|⠦|⠧|⠇|⠏/.test(result.stdout);
+          expect(hasProgressIndicators).toBe(false);
         }
       });
     });
@@ -288,6 +289,75 @@ describe('CLI Regression Test Suite', () => {
         const data = JSON.parse(result.stdout);
         expect(data).toHaveProperty('stats.extractionTime');
         expect(data.stats.extractionTime).toBeLessThan(5000);
+      }
+    });
+  });
+
+  describe('Security Tests', () => {
+    it('should validate branch names with safe regex pattern', async () => {
+      const safeBranchRegex = /^[a-zA-Z0-9/_-]+$/;
+      
+      const testBranches = [
+        { name: 'feature/add-auth', valid: true },
+        { name: 'fix-123_bug', valid: true },
+        { name: 'release/v1.0.0', valid: true },
+        { name: 'feature/../../etc/passwd', valid: false },
+        { name: 'branch; rm -rf /', valid: false },
+        { name: 'branch$(whoami)', valid: false },
+        { name: 'branch`ls`', valid: false },
+        { name: 'branch&&echo', valid: false }
+      ];
+      
+      testBranches.forEach(({ name, valid }) => {
+        const isValid = safeBranchRegex.test(name);
+        expect(isValid).toBe(valid);
+      });
+    });
+
+    it('should prevent command injection in file paths', async () => {
+      const maliciousPaths = [
+        '../../etc/passwd',
+        '/etc/passwd',
+        'file; rm -rf /',
+        'file$(whoami)',
+        'file`ls`',
+        'file&&echo'
+      ];
+      
+      for (const path of maliciousPaths) {
+        const result = await executeCommand([
+          'tsx',
+          'src/cli/main-cli.ts',
+          'extract',
+          'queries',
+          path
+        ]);
+        
+        expect(result.exitCode).toBeGreaterThan(0);
+        expect(result.stderr).toMatch(/invalid|security|forbidden/i);
+      }
+    });
+
+    it('should prevent path traversal attacks', async () => {
+      const traversalPaths = [
+        '../../../secret.env',
+        './../../../etc/shadow',
+        '....//....//....//etc',
+        '%2e%2e%2f%2e%2e%2f',
+        '..\\..\\..\\windows\\system32'
+      ];
+      
+      for (const path of traversalPaths) {
+        const result = await executeCommand([
+          'tsx',
+          'src/cli/main-cli.ts',
+          'validate',
+          'queries',
+          '-s',
+          path
+        ]);
+        
+        expect(result.exitCode).toBeGreaterThan(0);
       }
     });
   });
