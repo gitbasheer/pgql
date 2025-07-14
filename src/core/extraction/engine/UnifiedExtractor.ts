@@ -17,8 +17,11 @@ import { astCache } from '../../cache/CacheManager';
 import { monitor } from '../../monitoring/PerformanceMonitor';
 
 export class UnifiedExtractor {
+  // NOTE:what does context present?
   private context: ExtractionContext;
+  // pipeline for what? all items its an entry point to?
   private pipeline: ExtractionPipeline;
+  // list all strategies available and when does each one get used?
   private strategies: Map<string, BaseStrategy>;
 
   constructor(options: ExtractionOptions) {
@@ -34,6 +37,7 @@ export class UnifiedExtractor {
     strategies.set('pluck', new PluckStrategy(this.context));
     strategies.set('ast', new ASTStrategy(this.context));
 
+    // NOTE: only 2 potential strategies? how do they get selected? per query per file?
     return strategies;
   }
 

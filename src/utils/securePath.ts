@@ -21,18 +21,58 @@ export function validatePath(baseDir: string | null, userPath: string): string |
     return null;
   }
   
-  // Reject obvious traversal attempts
-  if (userPath.includes('..') || userPath.includes('~') || userPath.includes('\0')) {
+  // SECURITY FIX: Decode URL encoding (including double encoding) before validation
+  let decodedPath = userPath;
+  let previousPath = '';
+  let decodeAttempts = 0;
+  
+  // Recursively decode until no more encoding is found (max 5 iterations to prevent DoS)
+  while (decodedPath !== previousPath && decodeAttempts < 5) {
+    previousPath = decodedPath;
+    try {
+      decodedPath = decodeURIComponent(decodedPath);
+    } catch (e) {
+      // If decoding fails, use the current state
+      break;
+    }
+    decodeAttempts++;
+  }
+  
+  // SECURITY FIX: Block absolute paths OUTSIDE the project (Windows and Unix)
+  const projectRoot = path.normalize(process.cwd());
+  
+  if (path.isAbsolute(decodedPath)) {
+    // For absolute paths, check if they're within the project
+    const normalized = path.normalize(decodedPath);
+    
+    if (!normalized.startsWith(projectRoot)) {
+      logger.warn(`Absolute path outside project blocked: ${userPath}`);
+      return null;
+    }
+    
+    // If absolute path is within project, continue with validation
+    // but use the normalized path
+    decodedPath = path.relative(projectRoot, normalized);
+  }
+  
+  // Check for Windows absolute paths that might not be caught by path.isAbsolute
+  if (/^[a-zA-Z]:[\\/]/.test(decodedPath) || decodedPath.startsWith('\\\\')) {
+    logger.warn(`Windows absolute path blocked: ${userPath}`);
+    return null;
+  }
+  
+  // Reject obvious traversal attempts (check both encoded and decoded)
+  if (decodedPath.includes('..') || decodedPath.includes('~') || decodedPath.includes('\0') ||
+      userPath.includes('..') || userPath.includes('~') || userPath.includes('\0')) {
     logger.warn(`Potential path traversal attempt blocked: ${userPath}`);
     return null;
   }
   
-  // Use project root if no base directory specified
-  const projectRoot = path.normalize(process.cwd());
+  // Use already-defined project root if no base directory specified
   const effectiveBase = baseDir ? path.normalize(baseDir) : projectRoot;
   
-  // Normalize and resolve the path
-  const resolved = path.resolve(effectiveBase, userPath);
+  // Normalize and resolve the path (use decoded path)
+  const resolved = path.resolve(effectiveBase, decodedPath);
   const normalized = path.normalize(resolved);
   
   // Ensure the resolved path is within allowed directories
@@ -79,6 +119,55 @@ export function validatePath(baseDir: string | null, userPath: string): string |
  * @returns Validated path or null if invalid
  */
 export function validateReadPath(filePath: string): string | null {
+  // SECURITY: Additional pre-check for absolute paths before general validation
+  if (!filePath || typeof filePath !== 'string') {
+    return null;
+  }
+  
+  // Decode URL encoding first to catch encoded absolute paths
+  let decodedPath = filePath;
+  try {
+    // Decode up to 5 times to catch double/triple encoding
+    for (let i = 0; i < 5; i++) {
+      const prev = decodedPath;
+      decodedPath = decodeURIComponent(decodedPath);
+      if (prev === decodedPath) break;
+    }
+  } catch (e) {
+    // Continue with original if decode fails
+  }
+  
+  // SECURITY FIX: Allow absolute paths IF they are within the project directory
+  // This is needed because glob returns absolute paths
+  const projectRoot = path.normalize(process.cwd());
+  
+  if (path.isAbsolute(decodedPath)) {
+    // For absolute paths, ensure they're within the project
+    const normalized = path.normalize(decodedPath);
+    
+    // Check if it's within project boundaries
+    if (!normalized.startsWith(projectRoot)) {
+      logger.warn(`Absolute path outside project blocked: ${filePath}`);
+      return null;
+    }
+    
+    // Check for sensitive directories even within project
+    const relative = path.relative(projectRoot, normalized);
+    const relativeLower = relative.toLowerCase();
+    const sensitiveDirs = ['node_modules', '.git', '.env'];
+    
+    for (const sensitive of sensitiveDirs) {
+      if (relativeLower.includes(sensitive)) {
+        logger.warn(`Access to sensitive directory blocked: ${filePath}`);
+        return null;
+      }
+    }
+    
+    // Absolute path within project is OK
+    return normalized;
+  }
+  
+  // For relative paths, use the general validation
   const validated = validatePath(null, filePath);
   
   if (!validated) {

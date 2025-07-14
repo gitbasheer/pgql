@@ -1,0 +1,181 @@
+# Billing API Schema (Inferred from queries)
+# This is a temporary schema file based on the queries that failed validation
+
+schema {
+  query: BillingQuery
+  mutation: BillingMutation
+}
+
+type BillingQuery {
+  # Current authenticated user with billing context
+  me: Me!
+  
+  # Get available transitions for a subscription
+  transitions(
+    subscriptionId: String
+    entitlementId: String
+    filter: String
+    query: String
+    discountCodes: String
+    enableOptimizationFlow: Boolean
+    iscCode: String
+    currency: String
+    market: String
+  ): [Transition!]!
+}
+
+type BillingMutation {
+  # Modify basket with options
+  modifyBasketWithOptions(data: ModifyBasketWithOptionsInput!): String
+}
+
+type Me {
+  customerInfo: CustomerInfo!
+}
+
+type CustomerInfo {
+  market: String
+}
+
+type Transition {
+  subscriptionId: String!
+  paidThroughDate: String
+  revision: String
+  displayName: String
+  billing: TransitionBilling
+  planTerm: String
+  numberOfTerms: Int
+  pfid: String
+  resellerId: String
+  source: String
+  offers: [Offer!]!
+}
+
+type TransitionBilling {
+  commitment: String
+  status: String
+  autoRenew: Boolean
+}
+
+type Offer {
+  id: ID!
+  catalogInstanceKey: String
+  storefrontUri: String
+  isCurrent: Boolean
+  term: Term
+  price: Price
+  capabilities: Capabilities
+  display: OfferDisplay
+  plans: [Plan!]!
+  availableAddOns: [AddOn!]!
+}
+
+type Term {
+  unit: String
+  count: Int
+}
+
+type Price {
+  discountCode: String
+  currency: String
+  numeric: PriceValues
+  formatted: PriceValues
+}
+
+type PriceValues {
+  listing: PriceListing
+}
+
+type PriceListing {
+  perTerm: PriceDetail
+  perMonth: PriceDetail
+  perYear: PriceDetail
+}
+
+type PriceDetail {
+  full: String
+  discounted: String
+  renewal: String
+  renewalDiscounted: String
+}
+
+type Capabilities {
+  categoryOrder: [String!]
+  capabilities: [Capability!]!
+}
+
+type Capability {
+  category: String
+  icon: String
+  id: String
+  isBold: Boolean
+  showOnGrid: Boolean
+  showOnMobile: Boolean
+  showOnTiles: Boolean
+  text: String
+  value: String
+}
+
+type OfferDisplay {
+  name: String
+  usage: String
+}
+
+type Plan {
+  id: ID!
+  productType: String
+  productFamily: String
+  display: PlanDisplay
+  featureValues: [FeatureValue!]!
+}
+
+type PlanDisplay {
+  fullName: String
+  intendedUse: String
+  popularity: String
+  longDescription: String
+  marketingContent: [MarketingContent!]
+}
+
+type MarketingContent {
+  title: String
+  value: String
+  tooltip: String
+  emphasize: Boolean
+}
+
+type FeatureValue {
+  featureId: String!
+  dataType: String
+  booleanValue: Boolean
+  stringValue: String
+  numericValue: Float
+}
+
+type AddOn {
+  name: String!
+  type: String
+  localizedName: String
+  quantifiable: Boolean
+  values: [AddOnValue!]!
+}
+
+type AddOnValue {
+  enable: Boolean
+  state: String
+  discountPrice: String
+  offerPrice: String
+  discountPriceFormatted: String
+  offerPriceFormatted: String
+  taxTotal: String
+  feeTotal: String
+  ratingsKey: String
+  value: String
+  quantifiableValue: String
+  localizedName: String
+}
+
+input ModifyBasketWithOptionsInput {
+  # Input fields would be defined based on actual requirements
+  options: String
+}

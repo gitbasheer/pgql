@@ -9,7 +9,7 @@ export class ConfigLoader {
   static async load(configPath: string): Promise<MigrationConfig> {
     try {
       // SECURITY FIX: Validate path to prevent traversal
-      const validatedPath = validateReadPath(process.cwd(), configPath);
+      const validatedPath = validateReadPath(configPath);
       if (!validatedPath) {
         logger.error(`Invalid config path: ${configPath}`);
         throw new Error('Invalid configuration file path');
@@ -42,7 +42,7 @@ export class ConfigLoader {
   static async loadSchema(schemaPath: string): Promise<string> {
     try {
       // SECURITY FIX: Validate path to prevent traversal
-      const validatedPath = validateReadPath(process.cwd(), schemaPath);
+      const validatedPath = validateReadPath(schemaPath);
       if (!validatedPath) {
         logger.error(`Invalid schema path: ${schemaPath}`);
         throw new Error('Invalid schema file path');

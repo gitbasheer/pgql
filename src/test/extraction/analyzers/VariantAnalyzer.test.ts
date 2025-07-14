@@ -77,9 +77,12 @@ describe('VariantAnalyzer', () => {
       expect(result.patterns).toHaveLength(1);
       expect(result.patterns[0]).toMatchObject({
         type: 'ternary',
+        // NOTE: can we classify patterns by type?
         pattern: '${includeEmail ? "email" : ""}',
+        // NOTE: can we split between deciding variables (in this case includeEmail) and fragment variables (in this case either email or null) have the variables be exactly logically defined? in this case it's either email or nothing. so 2 variants. var
         variables: ['includeEmail ? "email" : ""'],
       });
+      expect(result.possibleVariants).toBe(2);
     });
 
     it('should detect multiple placeholders', async () => {
@@ -146,7 +149,7 @@ describe('VariantAnalyzer', () => {
 
       expect(result.isVariant).toBe(false);
       expect(result.patterns).toHaveLength(0);
-      expect(result.possibleVariants).toBe(0);
+      expect(result.possibleVariants).toBe(0); // NOTE: should we make the default value 1? 
     });
   });
 
@@ -184,6 +187,7 @@ describe('VariantAnalyzer', () => {
 
       expect(result.isVariant).toBe(true);
       expect(fs.readFile).toHaveBeenCalledWith('/src/query.ts', 'utf-8');
+      // NOTE: do we have to add more tests to check if the file content is parsed correctly?
     });
 
     it('should handle file read errors gracefully', async () => {
@@ -211,7 +215,7 @@ describe('VariantAnalyzer', () => {
 
     it('should handle parsing errors gracefully', async () => {
       const invalidContent = 'this is not valid javascript {{{';
-      (fs.readFile as jest.Mock).mockResolvedValue(invalidContent);
+      vi.mocked(fs.readFile).mockResolvedValue(invalidContent);
 
       const query: ExtractedQuery = {
         id: '1',
@@ -252,7 +256,7 @@ describe('VariantAnalyzer', () => {
         variable: 'isAdmin ? "role" : ""',
         type: 'boolean',
         possibleValues: [true, false],
-        location: 'fragment',
+        location: 'fragment', // NOTE: is this intended? should we specify the location?
       });
     });
 
@@ -379,7 +383,7 @@ line4`;
     });
   });
 
-  describe('validateOperation and analyzeOperation', () => {
+  describe('validateOperation and analyzeOperation', () => { // Note: based on what? should we test for invalid?  
     it('should validate operations', () => {
       const operation = { query: 'test' };
       expect(analyzer.validateOperation(operation)).toBe(true);
@@ -417,6 +421,7 @@ line4`;
       const result = results[0];
 
       expect(result.isVariant).toBe(true);
+      // NOTE: we should test for the nested patterns, number of variants, etc.
       expect(result.patterns.length).toBeGreaterThan(0);
     });
 

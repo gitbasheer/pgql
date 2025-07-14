@@ -84,7 +84,9 @@
     "cli:validate-migration": "tsx src/cli/validate-migration.ts",
     "cli:status": "tsx src/cli/main-cli.ts status",
     "cli:quick-start": "tsx src/cli/main-cli.ts quick-start",
-    "update:deprecated-imports": "tsx scripts/update-deprecated-imports.ts"
+    "update:deprecated-imports": "tsx scripts/update-deprecated-imports.ts",
+    "kofelo:extract": "tsx scripts/kofelo-manual-extractor.ts",
+    "kofelo:analyze-fields": "tsx scripts/kofelo-field-mapper.ts"
   },
   "dependencies": {
     "@graphql-tools/graphql-file-loader": "^8.0.0",

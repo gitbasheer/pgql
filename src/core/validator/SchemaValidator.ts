@@ -231,7 +231,7 @@ export class SchemaValidator {
 
     // Visit the query AST
     visit(document, visitWithTypeInfo(typeInfo, {
-      Field(node) {
+      Field: (node) => {
         const fieldDef = typeInfo.getFieldDef();
         const parentType = typeInfo.getParentType();
 

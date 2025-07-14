@@ -30,16 +30,23 @@ export class ResponseCaptureService {
   ) {
     this.variableGenerator = new VariableGeneratorImpl();
     this.concurrencyLimit = pLimit(options.maxConcurrency || 10);
-    this.initializeClients();
+    // Don't initialize clients in constructor since it's now async
   }
 
-  private initializeClients(): void {
+  private async ensureClientsInitialized(): Promise<void> {
+    if (this.clients.size === 0) {
+      await this.initializeClients();
+    }
+  }
+
+  private async initializeClients(): Promise<void> {
     for (const endpoint of this.endpoints) {
       const axiosConfig: any = {
         baseURL: endpoint.url,
         timeout: endpoint.timeout || this.options.timeout || 30000,
         headers: {
           'Content-Type': 'application/json',
+          'x-app-key': 'vnext-dashboard',
           ...endpoint.headers,
           ...this.getAuthHeaders(endpoint.authentication)
         }
@@ -55,10 +62,27 @@ export class ResponseCaptureService {
         axiosConfig.withCredentials = true;
       }
 
-      // Handle SSO authentication (placeholder for now)
+      // Handle SSO authentication - get real cookies from SSO service
       if (endpoint.authentication?.type === 'sso') {
         logger.info(`SSO authentication configured for ${endpoint.url}`);
-        // SSO will be handled by a separate service
+        
+        try {
+          // Import AuthHelper dynamically to avoid circular dependency
+          const { AuthHelper } = await import('./AuthHelper');
+          
+          // Get SSO tokens using credentials from env
+          const ssoTokens = await AuthHelper.getSSOTokens();
+          
+          const cookieString = AuthHelper.formatCookies(ssoTokens);
+          
+          axiosConfig.headers['Cookie'] = cookieString;
+          axiosConfig.withCredentials = true;
+          
+          logger.info('Successfully configured SSO authentication');
+        } catch (error) {
+          logger.error('Failed to get SSO tokens:', error);
+          throw new Error('SSO authentication failed');
+        }
       }
 
       const client = axios.create(axiosConfig);
@@ -81,14 +105,20 @@ export class ResponseCaptureService {
 
     switch (auth.type) {
       case 'bearer':
-        return { Authorization: `Bearer ${auth.token}` };
+        // MVP: Support Apollo auth token from env
+        const token = auth.token || process.env.APOLLO_AUTH_TOKEN;
+        if (!token) {
+          logger.warn('No bearer token configured, using test token');
+          return { Authorization: `Bearer ${process.env.APOLLO_AUTH_TOKEN || 'test_apollo_token'}` };
+        }
+        return { Authorization: `Bearer ${token}` };
       case 'api-key':
-        return { [auth.header || 'X-API-Key']: auth.token || '' };
+        return { [auth.header || 'X-API-Key']: auth.token || process.env.APOLLO_API_KEY || '' };
       case 'cookie':
         // Cookies are handled in axios config, not headers
         return {};
       case 'sso':
-        // SSO will be handled by the SSO service
+        // SSO is now handled in initializeClients with MVP implementation
         return {};
       case 'custom':
         // Custom auth should be handled by the customAuth function
@@ -102,6 +132,9 @@ export class ResponseCaptureService {
     queries: ResolvedQuery[],
     endpoint?: EndpointConfig
   ): Promise<BaselineResponses> {
+    // Ensure clients are initialized
+    await this.ensureClientsInitialized();
+    
     const targetEndpoint = endpoint || this.endpoints[0];
     logger.info(`Capturing baseline responses from ${targetEndpoint.url}`);
 

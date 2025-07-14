@@ -69,7 +69,7 @@ export class TemplateResolver {
         const filePath = path.join(baseDir, file);
         
         // SECURITY FIX: Validate path to prevent traversal
-        const validatedPath = validateReadPath(baseDir, file);
+        const validatedPath = validateReadPath(filePath);
         if (!validatedPath) {
           logger.warn(`Skipping potentially malicious fragment file: ${file}`);
           continue;

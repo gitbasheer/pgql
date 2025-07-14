@@ -98,7 +98,7 @@ deprecations.json
 
 # Example and test data
 examples/
-data/sample_data/
+# data/sample_data/
 test/fixtures/
 
 # Documentation that's not essential
@@ -153,7 +153,7 @@ MCP_PRODUCTION_FILES.md
 MIGRATION_CHECKLIST_TEMPLATE.md
 migration_complete_collab.md
 MIGRATION_GUIDE_EXTERNAL.md
-MIGRATION_PROCESS_DIAGRAM_UPDATED.md
+# MIGRATION_PROCESS_DIAGRAM_UPDATED.mdMIGRATION_PROCESS_DIAGRAM_UPDATED.md
 MIGRATION_PROCESS_DIAGRAM.md
 MIGRATION_SCRIPT_SECURITY_AUDIT.md
 migration-blocker.md

@@ -1,17 +1,18 @@
-# GraphQL Migration Tool
+# Migration Tool
 
-A production-grade, schema-aware GraphQL migration tool that automatically transforms deprecated queries based on your GraphQL schema's `@deprecated` directives. Built for enterprise environments with 100% CLI scriptability, safety guarantees, rollback support, and progressive migration capabilities.
+A schema-aware GraphQL migration tool that automatically transforms deprecated queries based on your GraphQL schema's `@deprecated` directives. Adaptable to most environments with 100% CLI scriptability, monitored safeties, rollback support, and progressive migration capabilities.
 
-## 🎯 Key Highlights
+## Highlights
 
 - **100% Scriptable CLI** - Guaranteed compatibility with Python, Bash, and other automation tools
 - **Unified Module Architecture** - Consolidated extractors, transformers, and validators for consistency
-- **Enterprise-Ready** - Production-tested with comprehensive safety features
-- **Cross-Language Compatible** - Stable JSON outputs, consistent exit codes, no Node.js runtime hacks
+- ~**Enterprise-Ready** - Production-tested with comprehensive safety features~
+- **Cross-Language Compatible** - Stable JSON outputs, consistent exit codes, no Node.js runtime hacks. ?csv if we use heavier ai
 
-## ⚠️ Important: Production Validation
 
-The tool includes comprehensive schema validation to ensure all queries are production-ready:
+## Production Validation
+
+The schema validation to ensure all queries in production of a repo are in ~~~~~~ are production-ready:
 
 ```bash
 # Validate extracted queries

@@ -28,7 +28,7 @@ export class DynamicGraphQLExtractor extends GraphQLExtractor {
    */
   async extractFromFile(filePath: string): Promise<ExtractedQuery[]> {
     // SECURITY FIX: Validate path to prevent traversal
-    const validatedPath = validateReadPath(process.cwd(), filePath);
+    const validatedPath = validateReadPath(filePath);
     if (!validatedPath) {
       logger.warn(`Skipping potentially malicious file path: ${filePath}`);
       return [];

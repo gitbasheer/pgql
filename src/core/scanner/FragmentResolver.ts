@@ -7,6 +7,7 @@ import { safeParseGraphQL, logParsingError } from '../../utils/graphqlValidator'
 import * as babel from '@babel/parser';
 import traverse from '@babel/traverse';
 import glob from 'fast-glob';
+import { validatePath, validateReadPath } from '../../utils/securePath';
 
 export interface ResolvedQuery {
   id: string;
@@ -123,7 +124,14 @@ export class FragmentResolver {
 
   private async extractImports(filePath: string): Promise<string[]> {
     try {
-      const content = await fs.readFile(filePath, 'utf-8');
+      // SECURITY FIX: Validate path to prevent traversal
+      const validatedPath = validateReadPath(filePath);
+      if (!validatedPath) {
+        logger.warn(`Skipping potentially malicious file in extractImports: ${filePath}`);
+        return [];
+      }
+      
+      const content = await fs.readFile(validatedPath, 'utf-8');
       const imports: string[] = [];
       
       // Match require statements
@@ -164,7 +172,14 @@ export class FragmentResolver {
         filePath = filePath + '.js';
       }
       
-      const content = await fs.readFile(filePath, 'utf-8');
+      // SECURITY FIX: Validate path to prevent traversal
+      const validatedPath = validateReadPath(filePath);
+      if (!validatedPath) {
+        logger.warn(`Skipping potentially malicious file in loadFragmentsFromFile: ${filePath}`);
+        return [];
+      }
+      
+      const content = await fs.readFile(validatedPath, 'utf-8');
       const fragments = await this.extractFragmentsFromJavaScript(content, filePath);
       
       this.fragmentCache.set(filePath, fragments);
@@ -601,8 +616,15 @@ export class FragmentResolver {
           resolvedPath += '.js';
         }
         
+        // SECURITY FIX: Validate path to prevent traversal
+        const validatedPath = validateReadPath(resolvedPath);
+        if (!validatedPath) {
+          logger.warn(`Skipping potentially malicious import path: ${importPath}`);
+          continue;
+        }
+        
         // Read the imported file
-        const importedContent = await fs.readFile(resolvedPath, 'utf-8');
+        const importedContent = await fs.readFile(validatedPath, 'utf-8');
         const importedVars = this.extractExportedVariables(importedContent);
         
         // Add only the imported names to our map
@@ -668,33 +690,8 @@ export class FragmentResolver {
    * @returns Resolved path if safe, null if potentially malicious
    */
   private validateAndResolvePath(baseDir: string, userPath: string): string | null {
-    // SECURITY: Prevent directory traversal attacks
-    
-    // Reject obvious traversal attempts
-    if (userPath.includes('..') || userPath.includes('~')) {
-      return null;
-    }
-    
-    // Normalize and resolve the path
-    const resolved = path.resolve(baseDir, userPath);
-    const normalized = path.normalize(resolved);
-    
-    // Ensure the resolved path is within the base directory or a safe location
-    const normalizedBase = path.normalize(baseDir);
-    const projectRoot = path.normalize(process.cwd());
-    
-    // Allow paths within the base directory or project root
-    if (!normalized.startsWith(normalizedBase) && !normalized.startsWith(projectRoot)) {
-      return null;
-    }
-    
-    // Additional check: ensure no sneaky traversals after normalization
-    const relative = path.relative(projectRoot, normalized);
-    if (relative.startsWith('..')) {
-      return null;
-    }
-    
-    return normalized;
+    // SECURITY: Use centralized path validation from securePath module
+    return validatePath(baseDir, userPath);
   }
 
   async findAndLoadFragmentFiles(directory: string): Promise<Map<string, FragmentDefinitionNode[]>> {
