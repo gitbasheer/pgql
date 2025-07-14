@@ -1,0 +1,82 @@
+.log-viewer {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.875rem;
+  padding: 1rem;
+  border-radius: 4px;
+  height: 400px;
+  overflow-y: auto;
+  line-height: 1.4;
+}
+
+.log-empty {
+  color: #666;
+  text-align: center;
+  padding: 2rem;
+}
+
+.log-entry {
+  margin-bottom: 0.25rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.log-timestamp {
+  color: #858585;
+  margin-right: 0.5rem;
+}
+
+.log-stage {
+  color: #569cd6;
+  margin-right: 0.5rem;
+  font-weight: 500;
+}
+
+.log-message {
+  color: #d4d4d4;
+}
+
+.log-info .log-message {
+  color: #d4d4d4;
+}
+
+.log-success .log-message {
+  color: #4ec9b0;
+}
+
+.log-warn .log-message {
+  color: #dcdcaa;
+}
+
+.log-error .log-message {
+  color: #f48771;
+}
+
+.log-details {
+  margin-top: 0.25rem;
+  margin-left: 2rem;
+  font-size: 0.8rem;
+  color: #858585;
+  background-color: #2d2d2d;
+  padding: 0.5rem;
+  border-radius: 2px;
+  overflow-x: auto;
+}
+
+.log-viewer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.log-viewer::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+.log-viewer::-webkit-scrollbar-thumb {
+  background: #464647;
+  border-radius: 4px;
+}
+
+.log-viewer::-webkit-scrollbar-thumb:hover {
+  background: #565657;
+}
