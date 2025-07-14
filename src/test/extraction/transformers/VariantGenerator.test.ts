@@ -346,8 +346,8 @@ describe('VariantGenerator', () => {
         {
           id: '1',
           name: 'QuotedQuery',
-          content: `query { user { ${`flag ? 'field1' : "field2"`} } }`,
-          resolvedContent: `query { user { ${`flag ? 'field1' : "field2"`} } }`,
+          content: 'query { user { ${flag ? \'field1\' : "field2"} } }',
+          resolvedContent: 'query { user { ${flag ? \'field1\' : "field2"} } }',
           filePath: '/src/queries.ts',
           location: { line: 1, column: 1 },
           hash: 'hash1',
