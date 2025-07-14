@@ -246,7 +246,10 @@ export class UnifiedExtractor {
     // Check content patterns for Offer Graph
     if (content.includes('useOfferGraphMutation') || 
         content.includes('getClientSideOGClient') ||
-        content.includes('offerGraphClient')) {
+        content.includes('offerGraphClient') ||
+        content.includes('transitions') ||
+        content.includes('modifyBasket') ||
+        content.includes('FindUnifiedBillDetails')) {
       return 'offerGraph';
     }
     
