@@ -1,4 +1,4 @@
-import { ExtractedQuery } from './GraphQLExtractor';
+import { ExtractedQuery } from './GraphQLExtractor.js';
 import { DocumentNode, parse, print, visit, Kind, FragmentSpreadNode } from 'graphql';
 import { logger } from '../../utils/logger.js';
 import * as fs from 'fs/promises';

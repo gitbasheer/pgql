@@ -1,3 +1,3 @@
-export { JSONReporter } from './JSONReporter';
-export { HTMLReporter } from './HTMLReporter';
-export { FileReporter } from './FileReporter';
+export { JSONReporter } from './JSONReporter.js';
+export { HTMLReporter } from './HTMLReporter.js';
+export { FileReporter } from './FileReporter.js';

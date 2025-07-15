@@ -1,9 +1,9 @@
 import { describe, bench, beforeAll } from 'vitest';
-import { QueryNamesConverter } from '../../cli/convert-querynames';
-import { MigrationValidator } from '../../cli/validate-migration';
-import { createDefaultQueryServices } from '../../core/extraction/services/QueryServicesFactory';
-import { PatternExtractedQuery } from '../../core/extraction/types/pattern.types';
-import { GraphQLExtractor } from '../../core/scanner/GraphQLExtractor';
+import { QueryNamesConverter } from '../../cli/convert-querynames.js';
+import { MigrationValidator } from '../../cli/validate-migration.js';
+import { createDefaultQueryServices } from '../../core/extraction/services/QueryServicesFactory.js';
+import { PatternExtractedQuery } from '../../core/extraction/types/pattern.types.js';
+import { GraphQLExtractor } from '../../core/scanner/GraphQLExtractor.js';
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 import * as path from 'path';

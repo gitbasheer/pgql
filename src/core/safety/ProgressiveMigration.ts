@@ -1,4 +1,4 @@
-import { FeatureFlag, GraphQLOperation } from '../../types';
+import { FeatureFlag, GraphQLOperation } from '../../types/index.js';
 import { logger } from '../../utils/logger.js';
 
 export class ProgressiveMigration {

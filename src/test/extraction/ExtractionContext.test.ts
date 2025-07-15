@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext';
-import { ExtractionOptions } from '../../core/extraction/types/index';
+import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext.js';
+import { ExtractionOptions } from '../../core/extraction/types/index.js';
 
 describe('ExtractionContext', () => {
   describe('option normalization', () => {

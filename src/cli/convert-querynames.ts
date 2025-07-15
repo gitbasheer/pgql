@@ -7,7 +7,7 @@ import * as path from 'path';
 import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
 import { logger } from '../utils/logger.js';
-import { QueryPattern } from '../core/extraction/types/pattern.types';
+import { QueryPattern } from '../core/extraction/types/pattern.types.js';
 
 interface ConversionOptions {
   input: string;
@@ -143,7 +143,7 @@ export class QueryNamesConverter {
     return `// Auto-generated pattern registry from queryNames.js
 // Generated at: ${registry.metadata.convertedAt}
 
-import { QueryPattern } from '../core/extraction/types/pattern.types';
+import { QueryPattern } from '../core/extraction/types/pattern.types.js';
 
 export const queryPatternRegistry: QueryPattern[] = ${JSON.stringify(registry.patterns, null, 2)};
 

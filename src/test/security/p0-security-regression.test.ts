@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { FragmentResolver } from '../../core/extraction/resolvers/FragmentResolver';
+import { FragmentResolver } from '../../core/extraction/resolvers/FragmentResolver.js';
 // MinimalChangeCalculator is removed or doesn't exist, skip its tests
-import { GitHubService } from '../../core/integration/GitHubService';
-import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext';
-import { ExtractedQuery } from '../../core/extraction/types';
+import { GitHubService } from '../../core/integration/GitHubService.js';
+import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext.js';
+import { ExtractedQuery } from '../../core/extraction/types.js';
 import { parse } from 'graphql';
 
 /**

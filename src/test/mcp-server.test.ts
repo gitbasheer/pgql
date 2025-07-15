@@ -79,16 +79,20 @@ describe('MCP Server Integration Tests', () => {
     const queriesJson = {
       queries: [
         {
+          id: "GetUser",
           name: "GetUser",
-          query: "query GetUser($id: ID!) { user(id: $id) { id name email profile { avatar bio } } }",
+          content: "query GetUser($id: ID!) { user(id: $id) { id name email profile { avatar bio } } }",
           filePath: join(testFixturesDir, 'queries.ts'),
-          line: 5
+          line: 5,
+          type: "query"
         },
         {
+          id: "UpdateUser",
           name: "UpdateUser",
-          query: "mutation UpdateUser($id: ID!, $input: UserInput!) { updateUser(id: $id, input: $input) { id name email } }",
+          content: "mutation UpdateUser($id: ID!, $input: UserInput!) { updateUser(id: $id, input: $input) { id name email } }",
           filePath: join(testFixturesDir, 'queries.ts'),
-          line: 18
+          line: 18,
+          type: "mutation"
         }
       ]
     };

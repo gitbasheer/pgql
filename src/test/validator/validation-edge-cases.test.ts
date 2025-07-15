@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { SchemaValidator } from '../../core/validator/SchemaValidator';
-import { MigrationValidator } from '../../cli/validate-migration';
-import { ResponseComparator } from '../../core/validator/ResponseComparator';
+import { SchemaValidator } from '../../core/validator/SchemaValidator.js';
+import { MigrationValidator } from '../../cli/validate-migration.js';
+import { ResponseComparator } from '../../core/validator/ResponseComparator.js';
 import { buildSchema } from 'graphql';
-import { ExtractedQuery } from '../../types';
-import { CapturedResponse } from '../../core/validator/types';
+import { ExtractedQuery } from '../../types/index.js';
+import { CapturedResponse } from '../../core/validator/types.js';
 
 describe('Validation Edge Cases', () => {
   describe('Dynamic Pattern Validation', () => {

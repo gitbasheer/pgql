@@ -1,5 +1,5 @@
-import { SchemaValidator, ValidationResult } from './SchemaValidator';
-import { QuerySchemaClassifier } from './QuerySchemaClassifier';
+import { SchemaValidator, ValidationResult } from './SchemaValidator.js';
+import { QuerySchemaClassifier } from './QuerySchemaClassifier.js';
 import { logger } from '../../utils/logger.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';

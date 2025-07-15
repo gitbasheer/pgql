@@ -25,13 +25,13 @@ describe('generate-pr CLI', () => {
     it('should import without errors', async () => {
       // Test that the CLI module can be imported without throwing
       expect(async () => {
-        const cliModule = await import('../../cli/generate-pr');
+        const cliModule = await import('../../cli/generate-pr.js');
         expect(cliModule.program).toBeDefined();
       }).not.toThrow();
     });
 
     it('should have correct program structure', async () => {
-      const cliModule = await import('../../cli/generate-pr');
+      const cliModule = await import('../../cli/generate-pr.js');
       const program = cliModule.program;
 
       expect(program).toBeDefined();
@@ -44,7 +44,7 @@ describe('generate-pr CLI', () => {
 
   describe('Option Parsing', () => {
     it('should define required schema option', async () => {
-      const cliModule = await import('../../cli/generate-pr');
+      const cliModule = await import('../../cli/generate-pr.js');
       const program = cliModule.program;
 
       // Verify that requiredOption was called with schema
@@ -53,7 +53,7 @@ describe('generate-pr CLI', () => {
     });
 
     it('should define optional PR options', async () => {
-      const cliModule = await import('../../cli/generate-pr');
+      const cliModule = await import('../../cli/generate-pr.js');
       const program = cliModule.program;
 
       // Verify program is properly configured
@@ -64,7 +64,7 @@ describe('generate-pr CLI', () => {
   describe('Integration with GitHubService', () => {
     it('should be able to import GitHubService', async () => {
       // Test that dependencies can be imported
-      const imported = await import('../../core/integration/GitHubService');
+      const imported = await import('../../core/integration/GitHubService.js');
     const { GitHubService } = imported;
       expect(GitHubService).toBeDefined();
       expect(typeof GitHubService).toBe('function');
@@ -82,7 +82,7 @@ describe('generate-pr CLI', () => {
 
   describe('Logging', () => {
     it('should be able to import logger', async () => {
-      const imported = await import('../../utils/logger');
+      const imported = await import('../../utils/logger.js');
     const { logger } = imported;
       expect(logger).toBeDefined();
       expect(typeof logger.info).toBe('function');
@@ -106,7 +106,7 @@ describe('generate-pr CLI', () => {
 
       try {
         // Import should not trigger CLI execution
-        await import('../../cli/generate-pr');
+        await import('../../cli/generate-pr.js');
         expect(process.exit).not.toHaveBeenCalled();
       } finally {
         process.argv = originalArgv;
@@ -115,7 +115,7 @@ describe('generate-pr CLI', () => {
 
     it('should show help when no arguments provided', async () => {
       // This test verifies the help functionality exists
-      const cliModule = await import('../../cli/generate-pr');
+      const cliModule = await import('../../cli/generate-pr.js');
       const program = cliModule.program;
 
       expect(typeof program.outputHelp).toBe('function');

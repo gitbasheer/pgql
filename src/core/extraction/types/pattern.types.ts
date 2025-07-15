@@ -1,5 +1,5 @@
 import { DocumentNode } from 'graphql';
-import { ExtractedQuery } from './query.types';
+import { ExtractedQuery } from './query.types.js';
 
 export interface QueryPattern {
   templatePattern: string;  // e.g., "query ${queryNames.byIdV1}"

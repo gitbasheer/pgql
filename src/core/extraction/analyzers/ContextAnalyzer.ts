@@ -1,5 +1,5 @@
-import { ExtractedQuery, QueryContext } from '../types/index';
-import { ExtractionContext } from '../engine/ExtractionContext';
+import { ExtractedQuery, QueryContext } from '../types/index.js';
+import { ExtractionContext } from '../engine/ExtractionContext.js';
 
 export class ContextAnalyzer {
   private context: ExtractionContext;

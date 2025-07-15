@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { HealthCheckSystem } from '../../core/safety/HealthCheck';
-import { GraphQLOperation } from '../../types';
+import { HealthCheckSystem } from '../../core/safety/HealthCheck.js';
+import { GraphQLOperation } from '../../types/index.js';
 
 describe('HealthCheckSystem', () => {
   let healthCheck: HealthCheckSystem;

@@ -8,8 +8,8 @@ import {
   AppliedChange, 
   MinimalChange,
   ASTApplicatorOptions 
-} from './types';
-import { MinimalChangeCalculator } from './MinimalChangeCalculator';
+} from './types.js';
+import { MinimalChangeCalculator } from './MinimalChangeCalculator.js';
 import { logger } from '../../utils/logger.js';
 
 

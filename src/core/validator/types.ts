@@ -1,7 +1,7 @@
 // Response Validation Types
 import { DocumentNode } from 'graphql';
-import { GraphQLOperation } from '../../types/index';
-import { ComparatorConfig } from './comparators';
+import { GraphQLOperation } from '../../types/index.js';
+import { ComparatorConfig } from './comparators/index.js';
 
 // Endpoint Configuration
 export interface EndpointConfig {

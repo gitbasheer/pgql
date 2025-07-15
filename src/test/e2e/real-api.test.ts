@@ -1,7 +1,7 @@
 /** @fileoverview E2E tests for real API with curl-like headers per CLAUDE.local.md best practices */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { GraphQLClient } from '../../core/testing/GraphQLClient';
+import { GraphQLClient } from '../../core/testing/GraphQLClient.js';
 
 describe('Real API E2E Tests', () => {
   let client: GraphQLClient;

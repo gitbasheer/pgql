@@ -2,10 +2,10 @@
 
 import { Command } from 'commander';
 import { logger } from '../utils/logger.js';
-import { QueryPatternService } from '../core/extraction/engine/QueryPatternRegistry';
-import { QueryMigrator } from '../core/extraction/engine/QueryMigrator';
-import { PatternAwareASTStrategy } from '../core/extraction/strategies/PatternAwareASTStrategy';
-import { PatternExtractedQuery } from '../core/extraction/types/pattern.types';
+import { QueryPatternService } from '../core/extraction/engine/QueryPatternRegistry.js';
+import { QueryMigrator } from '../core/extraction/engine/QueryMigrator.js';
+import { PatternAwareASTStrategy } from '../core/extraction/strategies/PatternAwareASTStrategy.js';
+import { PatternExtractedQuery } from '../core/extraction/types/pattern.types.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { glob } from 'glob';

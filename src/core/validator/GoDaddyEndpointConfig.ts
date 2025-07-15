@@ -1,4 +1,4 @@
-import { EndpointConfig } from './types';
+import { EndpointConfig } from './types.js';
 import { logger } from '../../utils/logger.js';
 
 export interface GoDaddySSO {

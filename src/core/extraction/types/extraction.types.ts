@@ -1,5 +1,5 @@
-import { ExtractedQuery, ResolvedQuery } from './query.types';
-import { QueryVariant, VariantSwitch } from './variant.types';
+import { ExtractedQuery, ResolvedQuery } from './query.types.js';
+import { QueryVariant, VariantSwitch } from './variant.types.js';
 
 export interface ExtractionOptions {
   // Source options

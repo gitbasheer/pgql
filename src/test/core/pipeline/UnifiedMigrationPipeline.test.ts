@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { UnifiedMigrationPipeline } from '../../../core/pipeline/UnifiedMigrationPipeline';
-import { MigrationConfig } from '../../../types';
+import { UnifiedMigrationPipeline } from '../../../core/pipeline/UnifiedMigrationPipeline.js';
+import { MigrationConfig } from '../../../types.js';
 import * as fs from 'fs/promises';
 import { parse } from 'graphql';
 // Mock modules
@@ -195,15 +195,15 @@ describe('UnifiedMigrationPipeline', () => {
     // The mocks are already defined above via vi.mock() statements
     
     // Wire up the mocks to return our mock instances
-    const { UnifiedExtractor } = await import('../../../core/extraction/engine/UnifiedExtractor');
-    const { SchemaValidator } = await import('../../../core/validator/SchemaValidator');
-    const { SchemaDeprecationAnalyzer } = await import('../../../core/analyzer/SchemaDeprecationAnalyzer');
-    const { ConfidenceScorer } = await import('../../../core/analyzer/ConfidenceScorer');
-    const { ProgressiveMigration } = await import('../../../core/safety/ProgressiveMigration');
-    const { HealthCheckSystem } = await import('../../../core/safety/HealthCheck');
-    const { RollbackSystem } = await import('../../../core/safety/Rollback');
-    const { ASTCodeApplicator } = await import('../../../core/applicator/ASTCodeApplicator');
-    const { SourceMapper } = await import('../../../core/extraction/utils/SourceMapper');
+    const { UnifiedExtractor } = await import('../../../core/extraction/engine/UnifiedExtractor.js');
+    const { SchemaValidator } = await import('../../../core/validator/SchemaValidator.js');
+    const { SchemaDeprecationAnalyzer } = await import('../../../core/analyzer/SchemaDeprecationAnalyzer.js');
+    const { ConfidenceScorer } = await import('../../../core/analyzer/ConfidenceScorer.js');
+    const { ProgressiveMigration } = await import('../../../core/safety/ProgressiveMigration.js');
+    const { HealthCheckSystem } = await import('../../../core/safety/HealthCheck.js');
+    const { RollbackSystem } = await import('../../../core/safety/Rollback.js');
+    const { ASTCodeApplicator } = await import('../../../core/applicator/ASTCodeApplicator.js');
+    const { SourceMapper } = await import('../../../core/extraction/utils/SourceMapper.js');
 
     vi.mocked(UnifiedExtractor).mockImplementation(() => mockExtractor as any);
     vi.mocked(SchemaValidator).mockImplementation(() => mockValidator as any);
@@ -377,7 +377,7 @@ describe('UnifiedMigrationPipeline', () => {
     });
 
     it('should categorize transformations by confidence', async () => {
-      const imported = await import('../../../core/transformer/QueryTransformer');
+      const imported = await import('../../../core/transformer/QueryTransformer.js');
     const { QueryTransformer } = imported;
 
       // Create two different mock transformers for the two queries
@@ -431,7 +431,7 @@ describe('UnifiedMigrationPipeline', () => {
     });
 
     it('should skip unchanged operations', async () => {
-      const imported = await import('../../../core/transformer/QueryTransformer');
+      const imported = await import('../../../core/transformer/QueryTransformer.js');
     const { QueryTransformer } = imported;
       (QueryTransformer as any).mockImplementation(() => ({
         transform: vi.fn().mockReturnValue({
@@ -450,7 +450,7 @@ describe('UnifiedMigrationPipeline', () => {
     });
 
     it('should handle transformation errors', async () => {
-      const imported = await import('../../../core/transformer/QueryTransformer');
+      const imported = await import('../../../core/transformer/QueryTransformer.js');
     const { QueryTransformer } = imported;
       (QueryTransformer as any).mockImplementation(() => ({
         transform: vi.fn().mockImplementation(() => {
@@ -489,7 +489,7 @@ describe('UnifiedMigrationPipeline', () => {
   describe('apply()', () => {
     beforeEach(async () => {
       // Ensure the QueryTransformer mock is properly set up
-      const imported = await import('../../../core/transformer/QueryTransformer');
+      const imported = await import('../../../core/transformer/QueryTransformer.js');
       const { QueryTransformer } = imported;
       
       // Reset the mock and set up proper implementation
@@ -744,7 +744,7 @@ describe('UnifiedMigrationPipeline', () => {
       await pipeline.extract();
       await pipeline.transform();
 
-      const imported = await import('../../../core/transformer/QueryTransformer');
+      const imported = await import('../../../core/transformer/QueryTransformer.js');
       const { QueryTransformer } = imported;
       
       // Check that QueryTransformer was called with deprecation rules
@@ -771,7 +771,7 @@ describe('UnifiedMigrationPipeline', () => {
     });
 
     it('should detect transformation patterns', async () => {
-      const imported = await import('../../../core/transformer/QueryTransformer');
+      const imported = await import('../../../core/transformer/QueryTransformer.js');
     const { QueryTransformer } = imported;
       (QueryTransformer as any).mockImplementation(() => ({
         transform: vi.fn().mockReturnValue({

@@ -1,6 +1,6 @@
 import { parse, print, visit } from 'graphql';
-import { ResolvedQuery, QueryVariant, VariantSwitch, VariantCondition } from '../types/index';
-import { ExtractionContext } from '../engine/ExtractionContext';
+import { ResolvedQuery, QueryVariant, VariantSwitch, VariantCondition } from '../types/index.js';
+import { ExtractionContext } from '../engine/ExtractionContext.js';
 import { logger } from '../../../utils/logger.js';
 
 export class VariantGenerator {

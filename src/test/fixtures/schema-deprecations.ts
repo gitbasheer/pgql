@@ -1,4 +1,4 @@
-import { DeprecationRule } from '../../core/analyzer/SchemaDeprecationAnalyzer';
+import { DeprecationRule } from '../../core/analyzer/SchemaDeprecationAnalyzer.js';
 
 export const sampleDeprecationRules: DeprecationRule[] = [
   // Clear replacements

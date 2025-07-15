@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 // Import vm is mocked below
 import * as fs from 'fs/promises';
-import { FragmentResolver } from '../../core/extraction/resolvers/FragmentResolver';
-import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext';
-import { ExtractionOptions, ExtractedQuery } from '../../core/extraction/types';
-import { safeParseGraphQL } from '../../utils/graphqlValidator';
+import { FragmentResolver } from '../../core/extraction/resolvers/FragmentResolver.js';
+import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext.js';
+import { ExtractionOptions, ExtractedQuery } from '../../core/extraction/types.js';
+import { safeParseGraphQL } from '../../utils/graphqlValidator.js';
 
 // Mock vm module before any usage
 vi.mock('vm', () => ({
@@ -48,7 +48,7 @@ describe('FragmentResolver RCE Security Tests', () => {
         warnings: []
       } as unknown as ExtractionContext;
       
-      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver');
+      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver.js');
       const resolver = new FragmentResolver(mockContext);
 
       for (const fragment of maliciousFragments) {
@@ -94,7 +94,7 @@ describe('FragmentResolver RCE Security Tests', () => {
         warnings: []
       } as unknown as ExtractionContext;
       
-      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver');
+      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver.js');
       const resolver = new FragmentResolver(mockContext);
 
       // Spy on file system operations
@@ -149,7 +149,7 @@ describe('FragmentResolver RCE Security Tests', () => {
         warnings: []
       } as unknown as ExtractionContext;
       
-      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver');
+      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver.js');
       const resolver = new FragmentResolver(mockContext);
 
       // Mock network modules
@@ -199,7 +199,7 @@ describe('FragmentResolver RCE Security Tests', () => {
         warnings: []
       } as unknown as ExtractionContext;
       
-      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver');
+      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver.js');
       const resolver = new FragmentResolver(mockContext);
 
       // Set a test env variable
@@ -247,7 +247,7 @@ describe('FragmentResolver RCE Security Tests', () => {
         warnings: []
       } as unknown as ExtractionContext;
       
-      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver');
+      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver.js');
       const resolver = new FragmentResolver(mockContext);
 
       const safeFragment = `
@@ -308,7 +308,7 @@ describe('FragmentResolver RCE Security Tests', () => {
         warnings: []
       } as unknown as ExtractionContext;
       
-      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver');
+      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver.js');
       const resolver = new FragmentResolver(mockContext);
 
       const fragments = `

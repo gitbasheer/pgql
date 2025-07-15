@@ -1,7 +1,7 @@
-import { ConfidenceScorer } from './core/analyzer/ConfidenceScorer';
-import { ProgressiveMigration } from './core/safety/ProgressiveMigration';
-import { HealthCheckSystem } from './core/safety/HealthCheck';
-import { GraphQLOperation, CodeChange } from './types';
+import { ConfidenceScorer } from './core/analyzer/ConfidenceScorer.js';
+import { ProgressiveMigration } from './core/safety/ProgressiveMigration.js';
+import { HealthCheckSystem } from './core/safety/HealthCheck.js';
+import { GraphQLOperation, CodeChange } from './types/index.js';
 import { parse } from 'graphql';
 
 // Test the safety systems

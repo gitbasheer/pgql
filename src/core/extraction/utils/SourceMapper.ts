@@ -1,5 +1,5 @@
 import * as babel from '@babel/types';
-import { SourceAST } from '../types/query.types';
+import { SourceAST } from '../types/query.types.js';
 
 /**
  * Service for managing bidirectional mapping between Query IDs and Source ASTs

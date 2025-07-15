@@ -1,5 +1,5 @@
-import { DynamicGraphQLExtractor } from './DynamicGraphQLExtractor';
-import { ExtractedQuery } from './GraphQLExtractor';
+import { DynamicGraphQLExtractor } from './DynamicGraphQLExtractor.js';
+import { ExtractedQuery } from './GraphQLExtractor.js';
 import { DocumentNode, parse, print, visit, Kind } from 'graphql';
 import { logger } from '../../utils/logger.js';
 import * as fs from 'fs/promises';

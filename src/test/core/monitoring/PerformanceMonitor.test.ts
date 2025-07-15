@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { PerformanceMonitor, performanceMonitor, monitor as monitorDecorator } from '../../../core/monitoring/PerformanceMonitor';
+import { PerformanceMonitor, performanceMonitor, monitor as monitorDecorator } from '../../../core/monitoring/PerformanceMonitor.js';
 import { logger } from '../../../utils/logger.js';
 import { EventEmitter } from 'events';
 import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'fs';

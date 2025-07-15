@@ -6,7 +6,7 @@ import {
   QueryPattern,
   MigrationManifest,
   QueryFingerprint
-} from '../types/pattern.types';
+} from '../types/pattern.types.js';
 import { createHash } from 'crypto';
 import { DocumentNode, print, visit } from 'graphql';
 

@@ -1,6 +1,6 @@
-import { ExtractionOptions, ExtractionError, ExtractionStats } from '../types/index';
+import { ExtractionOptions, ExtractionError, ExtractionStats } from '../types/index.js';
 import { logger } from '../../../utils/logger.js';
-import { QueryNamingService } from '../services/QueryNamingService';
+import { QueryNamingService } from '../services/QueryNamingService.js';
 
 export class ExtractionContext {
   public readonly options: ExtractionOptions;

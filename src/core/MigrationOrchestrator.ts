@@ -1,10 +1,10 @@
-import { MigrationConfig, GraphQLOperation, HealthStatus } from '../types';
-import { ConfidenceScorer } from './analyzer/ConfidenceScorer';
-import { ProgressiveMigration } from './safety/ProgressiveMigration';
-import { RollbackSystem } from './safety/Rollback';
-import { HealthCheckSystem } from './safety/HealthCheck';
+import { MigrationConfig, GraphQLOperation, HealthStatus } from '../types/index.js';
+import { ConfidenceScorer } from './analyzer/ConfidenceScorer.js';
+import { ProgressiveMigration } from './safety/ProgressiveMigration.js';
+import { RollbackSystem } from './safety/Rollback.js';
+import { HealthCheckSystem } from './safety/HealthCheck.js';
 import { logger } from '../utils/logger.js';
-import { ExistingScriptsAdapter } from '../adapters/ExistingScriptsAdapter';
+import { ExistingScriptsAdapter } from '../adapters/ExistingScriptsAdapter.js';
 
 export class MigrationOrchestrator {
   private confidenceScorer: ConfidenceScorer;

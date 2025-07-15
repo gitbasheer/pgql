@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { HealthCheckSystem } from '../../../core/safety/HealthCheck';
-import { GraphQLOperation } from '../../../types';
+import { HealthCheckSystem } from '../../../core/safety/HealthCheck.js';
+import { GraphQLOperation } from '../../../types.js';
 import { logger } from '../../../utils/logger.js';
 
 // Mock logger

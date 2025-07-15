@@ -1,5 +1,5 @@
-import { ExtractedQuery } from '../types/index';
-import { ExtractionContext } from '../engine/ExtractionContext';
+import { ExtractedQuery } from '../types/index.js';
+import { ExtractionContext } from '../engine/ExtractionContext.js';
 
 export abstract class BaseStrategy {
   protected context: ExtractionContext;

@@ -1,4 +1,4 @@
-import { GraphQLOperation, CodeChange, ConfidenceScore, ConfidenceFactors } from '../../types';
+import { GraphQLOperation, CodeChange, ConfidenceScore, ConfidenceFactors } from '../../types/index.js';
 import { logger } from '../../utils/logger.js';
 
 export class ConfidenceScorer {

@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import * as babel from '@babel/parser';
 import * as babelTypes from '@babel/types';
-import { SourceMapper } from '../../core/extraction/utils/SourceMapper';
-import { SourceAST } from '../../core/extraction/types/query.types';
+import { SourceMapper } from '../../core/extraction/utils/SourceMapper.js';
+import { SourceAST } from '../../core/extraction/types/query.types.js';
 
 describe('SourceMapper', () => {
   let sourceMapper: SourceMapper;

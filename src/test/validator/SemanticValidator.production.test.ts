@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
-import { SemanticValidator } from '../../core/validator/SemanticValidator';
-import { performanceMonitor } from '../../core/monitoring/PerformanceMonitor';
-import { validationCache, astCache } from 'from '../../core/cache/CacheManager'.js';
+import { SemanticValidator } from '../../core/validator/SemanticValidator.js';
+import { performanceMonitor } from '../../core/monitoring/PerformanceMonitor.js';
+import { validationCache, astCache } from 'from '../../core/cache/CacheManager.js'.js';
 import { logger } from '../../utils/logger.js';
 import { parse, print, buildSchema } from 'graphql';
 

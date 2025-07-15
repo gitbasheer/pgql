@@ -5,8 +5,8 @@ import chalk from 'chalk';
 import ora from 'ora';
 import * as fs from 'fs/promises';
 import path from 'node:path';
-import { UnifiedVariantExtractor } from '../core/scanner/UnifiedVariantExtractor';
-import { ExtractedQueryWithVariant } from '../core/extraction/types/variant-extractor.types';
+import { UnifiedVariantExtractor } from '../core/scanner/UnifiedVariantExtractor.js';
+import { ExtractedQueryWithVariant } from '../core/extraction/types/variant-extractor.types.js';
 import { logger } from '../utils/logger.js';
 
 const program = new Command();

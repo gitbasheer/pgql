@@ -1,4 +1,4 @@
-import { MinimalChangeCalculator } from '../../core/applicator/MinimalChangeCalculator';
+import { MinimalChangeCalculator } from '../../core/applicator/MinimalChangeCalculator.js';
 import * as t from '@babel/types';
 import { vi } from 'vitest';
 

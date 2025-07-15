@@ -1,3 +1,3 @@
-export { BaseStrategy } from './BaseStrategy';
-export { PluckStrategy } from './PluckStrategy';
-export { ASTStrategy } from './ASTStrategy';
+export { BaseStrategy } from './BaseStrategy.js';
+export { PluckStrategy } from './PluckStrategy.js';
+export { ASTStrategy } from './ASTStrategy.js';

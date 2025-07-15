@@ -1,9 +1,9 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as yaml from 'yaml';
-import { MigrationConfig } from '../types/index';
-import { logger } from './logger';
-import { validateReadPath } from './securePath';
+import { MigrationConfig } from '../types/index.js';
+import { logger } from './logger.js';
+import { validateReadPath } from './securePath.js';
 
 export class ConfigLoader {
   static async load(configPath: string): Promise<MigrationConfig> {

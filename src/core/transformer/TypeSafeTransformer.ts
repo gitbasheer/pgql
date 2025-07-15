@@ -1,7 +1,7 @@
 import { Result, ok, err } from 'neverthrow';
 import { DocumentNode, visit, print, parse, validate } from 'graphql';
 import { GraphQLSchema } from 'graphql';
-import { MigrationRule } from '../analyzer/SchemaAnalyzer';
+import { MigrationRule } from '../analyzer/SchemaAnalyzer.js';
 
 export type TransformError =
   | { type: 'PARSE_ERROR'; message: string; location: SourceLocation }

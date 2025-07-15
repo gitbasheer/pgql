@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { MigrationOrchestrator } from '../../core/MigrationOrchestrator';
-import { ConfidenceScorer } from '../../core/analyzer/ConfidenceScorer';
-import { ProgressiveMigration } from '../../core/safety/ProgressiveMigration';
-import { RollbackSystem } from '../../core/safety/Rollback';
-import { HealthCheckSystem } from '../../core/safety/HealthCheck';
-import { ExistingScriptsAdapter } from '../../adapters/ExistingScriptsAdapter';
-import { MigrationConfig, GraphQLOperation } from '../../types';
+import { MigrationOrchestrator } from '../../core/MigrationOrchestrator.js';
+import { ConfidenceScorer } from '../../core/analyzer/ConfidenceScorer.js';
+import { ProgressiveMigration } from '../../core/safety/ProgressiveMigration.js';
+import { RollbackSystem } from '../../core/safety/Rollback.js';
+import { HealthCheckSystem } from '../../core/safety/HealthCheck.js';
+import { ExistingScriptsAdapter } from '../../adapters/ExistingScriptsAdapter.js';
+import { MigrationConfig, GraphQLOperation } from '../../types/index.js';
 
 // Mock dependencies
 vi.mock('../../core/analyzer/ConfidenceScorer');

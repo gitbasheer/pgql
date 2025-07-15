@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { SchemaValidator } from '../../core/validator/SchemaValidator';
+import { SchemaValidator } from '../../core/validator/SchemaValidator.js';
 import { buildSchema } from 'graphql';
 
 describe('SchemaValidator - Deprecation Field Checking', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { SchemaDeprecationAnalyzer } from '../../core/analyzer/SchemaDeprecationAnalyzer';
+import { SchemaDeprecationAnalyzer } from '../../core/analyzer/SchemaDeprecationAnalyzer.js';
 import { join } from 'path';
 
 // Unmock fs/promises for this test to read the actual schema file

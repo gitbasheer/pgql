@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { logger } from './logger';
+import { logger } from './logger.js';
 
 /**
  * Secure path validation utility to prevent directory traversal attacks

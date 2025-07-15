@@ -1,9 +1,9 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { ExtractionResult } from '../types/index';
-import { ExtractionContext } from '../engine/ExtractionContext';
+import { ExtractionResult } from '../types/index.js';
+import { ExtractionContext } from '../engine/ExtractionContext.js';
 import { logger } from '../../../utils/logger.js';
-import { validateWritePath } from '../../../utils/securePath';
+import { validateWritePath } from '../../../utils/securePath.js';
 
 export class HTMLReporter {
   private context: ExtractionContext;

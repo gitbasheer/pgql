@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ResponseComparator } from '../../core/validator/ResponseComparator';
-import { CapturedResponse, ComparisonResult } from '../../core/validator/types';
+import { ResponseComparator } from '../../core/validator/ResponseComparator.js';
+import { CapturedResponse, ComparisonResult } from '../../core/validator/types.js';
 
 describe('ResponseComparator', () => {
   let comparator: ResponseComparator;

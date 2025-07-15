@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 import { Command } from 'commander';
 import * as fs from 'fs/promises';
-import { ResponseValidationService } from '../../core/validator/index';
-import { GoDaddyEndpointConfig } from '../../core/validator/GoDaddyEndpointConfig';
-import { SSOService } from '../../core/validator/SSOService';
+import { ResponseValidationService } from '../../core/validator/index.js';
+import { GoDaddyEndpointConfig } from '../../core/validator/GoDaddyEndpointConfig.js';
+import { SSOService } from '../../core/validator/SSOService.js';
 // Mock modules
 vi.mock('ora', () => ({
   default: () => {

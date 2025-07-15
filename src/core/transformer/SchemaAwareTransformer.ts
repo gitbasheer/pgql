@@ -1,5 +1,5 @@
 import { DocumentNode, visit, print, parse, FieldNode, Kind } from 'graphql';
-import { DeprecationRule } from '../analyzer/SchemaDeprecationAnalyzer';
+import { DeprecationRule } from '../analyzer/SchemaDeprecationAnalyzer.js';
 import { logger } from '../../utils/logger.js';
 
 export interface TransformOptions {

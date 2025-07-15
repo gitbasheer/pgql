@@ -1,6 +1,6 @@
-import { RollbackPlan, Checkpoint, GraphQLOperation } from '../../types';
+import { RollbackPlan, Checkpoint, GraphQLOperation } from '../../types/index.js';
 import { logger } from '../../utils/logger.js';
-import { ProgressiveMigration } from './ProgressiveMigration';
+import { ProgressiveMigration } from './ProgressiveMigration.js';
 
 export class RollbackSystem {
   private checkpoints: Map<string, Checkpoint> = new Map();

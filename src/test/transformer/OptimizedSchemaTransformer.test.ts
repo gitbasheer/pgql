@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { OptimizedSchemaTransformer } from '../../core/transformer/OptimizedSchemaTransformer';
-import { sampleDeprecationRules, testQueries } from '../fixtures/schema-deprecations';
+import { OptimizedSchemaTransformer } from '../../core/transformer/OptimizedSchemaTransformer.js';
+import { sampleDeprecationRules, testQueries } from '../fixtures/schema-deprecations.js';
 import { parse, print } from 'graphql';
 
 describe('OptimizedSchemaTransformer', () => {

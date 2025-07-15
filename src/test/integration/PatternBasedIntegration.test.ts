@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { PatternAwareExtraction } from '../../core/extraction/PatternAwareExtraction';
-import { QueryNamingService } from '../../core/extraction/services/QueryNamingService';
-import { QueryPatternService } from '../../core/extraction/engine/QueryPatternRegistry';
-import { QueryMigrator } from '../../core/extraction/engine/QueryMigrator';
-import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext';
-import { PatternExtractedQuery } from '../../core/extraction/types/pattern.types';
+import { PatternAwareExtraction } from '../../core/extraction/PatternAwareExtraction.js';
+import { QueryNamingService } from '../../core/extraction/services/QueryNamingService.js';
+import { QueryPatternService } from '../../core/extraction/engine/QueryPatternRegistry.js';
+import { QueryMigrator } from '../../core/extraction/engine/QueryMigrator.js';
+import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext.js';
+import { PatternExtractedQuery } from '../../core/extraction/types/pattern.types.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { tmpdir } from 'os';

@@ -1,7 +1,7 @@
 import { vi, type MockedFunction } from 'vitest';
-import type { UnifiedMigrationPipeline, PipelineOptions, ExtractionResult, ValidationResult, TransformationResult, ApplicationResult } from '../../core/pipeline/UnifiedMigrationPipeline';
-import type { MigrationConfig } from '../../types/index';
-import type { GitHubService } from '../../core/integration/GitHubService';
+import type { UnifiedMigrationPipeline, PipelineOptions, ExtractionResult, ValidationResult, TransformationResult, ApplicationResult } from '../../core/pipeline/UnifiedMigrationPipeline.js';
+import type { MigrationConfig } from '../../types/index.js';
+import type { GitHubService } from '../../core/integration/GitHubService.js';
 
 // Mock implementations
 export interface MockPipeline {

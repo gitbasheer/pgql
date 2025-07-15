@@ -1,4 +1,4 @@
-import { HealthStatus, HealthIssue, GraphQLOperation } from '../../types';
+import { HealthStatus, HealthIssue, GraphQLOperation } from '../../types/index.js';
 import { logger } from '../../utils/logger.js';
 
 interface OperationMetrics {

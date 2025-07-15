@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { FragmentInliner } from '../../../core/extraction/transformers/FragmentInliner';
-import { ExtractionContext } from '../../../core/extraction/engine/ExtractionContext';
-import { ResolvedQuery } from '../../../core/extraction/types/index';
+import { FragmentInliner } from '../../../core/extraction/transformers/FragmentInliner.js';
+import { ExtractionContext } from '../../../core/extraction/engine/ExtractionContext.js';
+import { ResolvedQuery } from '../../../core/extraction/types/index.js';
 import { parse, print } from 'graphql';
 import { logger } from '../../../utils/logger.js';
 

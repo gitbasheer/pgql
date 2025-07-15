@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { logger } from '../../utils/logger.js';
-import { ResolvedQuery } from '../extraction/types/query.types';
-import { ExtractedQuery, TestParams } from '../../types/pgql.types';
+import { ResolvedQuery } from '../extraction/types/query.types.js';
+import { ExtractedQuery, TestParams } from '../../types/pgql.types.js';
 import {
   ResponseValidationConfig,
   EndpointConfig,
@@ -9,19 +9,19 @@ import {
   ComparisonResult,
   AlignmentFunction,
   ABTestConfig
-} from './types';
-import { ResponseCaptureService } from './ResponseCaptureService';
-import { ResponseComparator, IgnorePattern, ExpectedDifference } from './ResponseComparator';
-import { AlignmentGenerator } from './AlignmentGenerator';
-import { ABTestingFramework } from './ABTestingFramework';
-import { ResponseStorage } from './ResponseStorage';
-import { ValidationReportGenerator } from './ValidationReportGenerator';
+} from './types.js';
+import { ResponseCaptureService } from './ResponseCaptureService.js';
+import { ResponseComparator, IgnorePattern, ExpectedDifference } from './ResponseComparator.js';
+import { AlignmentGenerator } from './AlignmentGenerator.js';
+import { ABTestingFramework } from './ABTestingFramework.js';
+import { ResponseStorage } from './ResponseStorage.js';
+import { ValidationReportGenerator } from './ValidationReportGenerator.js';
 import { ApolloClient, InMemoryCache, HttpLink, gql } from '@apollo/client';
 import { parse, DocumentNode } from 'graphql';
 import * as yaml from 'js-yaml';
 import { promises as fs } from 'fs';
-import { GraphQLClient } from '../testing/GraphQLClient';
-import { GoDaddyAPI } from '../testing/GoDaddyAPI';
+import { GraphQLClient } from '../testing/GraphQLClient.js';
+import { GoDaddyAPI } from '../testing/GoDaddyAPI.js';
 
 export class ResponseValidationService {
   private captureService: ResponseCaptureService;

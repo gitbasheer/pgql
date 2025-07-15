@@ -1,5 +1,5 @@
 import { parse, DocumentNode } from 'graphql';
-import { logger } from './logger';
+import { logger } from './logger.js';
 
 export interface ValidationResult {
   isValid: boolean;

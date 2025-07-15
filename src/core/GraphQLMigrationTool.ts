@@ -1,10 +1,10 @@
 import { GraphQLSchema, buildSchema } from 'graphql';
-import { GraphQLExtractor } from './scanner/GraphQLExtractor';
-import { SchemaAnalyzer } from './analyzer/SchemaAnalyzer';
-import { TypeSafeTransformer } from './transformer/TypeSafeTransformer';
-import { PatternMatcher } from './analyzer/PatternMatcher';
-import { Config, loadConfig } from './config/ConfigValidator';
-import { ASTCodeApplicator, TransformationMapping, SourceMapping } from './applicator/index';
+import { GraphQLExtractor } from './scanner/GraphQLExtractor.js';
+import { SchemaAnalyzer } from './analyzer/SchemaAnalyzer.js';
+import { TypeSafeTransformer } from './transformer/TypeSafeTransformer.js';
+import { PatternMatcher } from './analyzer/PatternMatcher.js';
+import { Config, loadConfig } from './config/ConfigValidator.js';
+import { ASTCodeApplicator, TransformationMapping, SourceMapping } from './applicator/index.js';
 import * as fs from 'fs/promises';
 import { logger } from '../utils/logger.js';
 

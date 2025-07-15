@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SchemaDeprecationAnalyzer } from '../../core/analyzer/SchemaDeprecationAnalyzer';
+import { SchemaDeprecationAnalyzer } from '../../core/analyzer/SchemaDeprecationAnalyzer.js';
 
 describe('SchemaDeprecationAnalyzer', () => {
   let analyzer: SchemaDeprecationAnalyzer;

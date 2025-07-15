@@ -8,8 +8,8 @@ import { logger } from '../../utils/logger.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import { GraphQLExtractor, ExtractedQuery } from './GraphQLExtractor';
-import { ErrorHandler, ErrorContext } from '../extraction/utils/ErrorHandler';
+import { GraphQLExtractor, ExtractedQuery } from './GraphQLExtractor.js';
+import { ErrorHandler, ErrorContext } from '../extraction/utils/ErrorHandler.js';
 import {
   VariantMetadata,
   ExtractedQueryWithVariant,
@@ -17,7 +17,7 @@ import {
   VariantSwitch,
   VariantExtractionResult,
   VariantReport
-} from '../extraction/types/variant-extractor.types';
+} from '../extraction/types/variant-extractor.types.js';
 
 interface VariantPattern {
   fullMatch: string;

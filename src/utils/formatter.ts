@@ -1,5 +1,5 @@
 import * as prettier from 'prettier';
-import { logger } from './logger';
+import { logger } from './logger.js';
 
 /**
  * Format GraphQL query using prettier

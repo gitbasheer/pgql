@@ -6,7 +6,7 @@
  */
 
 import { Command } from 'commander';
-import { createOutputAdapter, OutputOptions } from './output-adapter';
+import { createOutputAdapter, OutputOptions } from './output-adapter.js';
 
 export interface CliWrapperOptions {
   preserveExitCodes?: boolean;

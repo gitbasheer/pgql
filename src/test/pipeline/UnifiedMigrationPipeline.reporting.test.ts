@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { UnifiedMigrationPipeline } from '../../core/pipeline/UnifiedMigrationPipeline';
-import { MigrationConfig } from '../../types';
+import { UnifiedMigrationPipeline } from '../../core/pipeline/UnifiedMigrationPipeline.js';
+import { MigrationConfig } from '../../types/index.js';
 import * as fs from 'fs/promises';
 import { parse } from 'graphql';
 // Mock modules
@@ -202,44 +202,44 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
     };
 
     // Set up mocked implementations
-    const extractorImport = await import('../../core/extraction/engine/UnifiedExtractor');
+    const extractorImport = await import('../../core/extraction/engine/UnifiedExtractor.js');
     const { UnifiedExtractor } = extractorImport;
     (UnifiedExtractor as any).mockImplementation(() => mockExtractor as any);
 
-    const validatorImport = await import('../../core/validator/SchemaValidator');
+    const validatorImport = await import('../../core/validator/SchemaValidator.js');
     const { SchemaValidator } = validatorImport;
     (SchemaValidator as any).mockImplementation(() => mockValidator as any);
 
-    const analyzerImport = await import('../../core/analyzer/SchemaDeprecationAnalyzer');
+    const analyzerImport = await import('../../core/analyzer/SchemaDeprecationAnalyzer.js');
     const { SchemaDeprecationAnalyzer } = analyzerImport;
     (SchemaDeprecationAnalyzer as any).mockImplementation(() => mockDeprecationAnalyzer as any);
 
-    const scorerImport = await import('../../core/analyzer/ConfidenceScorer');
+    const scorerImport = await import('../../core/analyzer/ConfidenceScorer.js');
     const { ConfidenceScorer } = scorerImport;
     (ConfidenceScorer as any).mockImplementation(() => mockConfidenceScorer as any);
 
-    const migrationImport = await import('../../core/safety/ProgressiveMigration');
+    const migrationImport = await import('../../core/safety/ProgressiveMigration.js');
     const { ProgressiveMigration } = migrationImport;
     (ProgressiveMigration as any).mockImplementation(() => mockProgressiveMigration as any);
 
-    const healthImport = await import('../../core/safety/HealthCheck');
+    const healthImport = await import('../../core/safety/HealthCheck.js');
     const { HealthCheckSystem } = healthImport;
     (HealthCheckSystem as any).mockImplementation(() => mockHealthCheck as any);
 
-    const rollbackImport = await import('../../core/safety/Rollback');
+    const rollbackImport = await import('../../core/safety/Rollback.js');
     const { RollbackSystem } = rollbackImport;
     (RollbackSystem as any).mockImplementation(() => mockRollbackSystem as any);
 
-    const applicatorImport = await import('../../core/applicator/ASTCodeApplicator');
+    const applicatorImport = await import('../../core/applicator/ASTCodeApplicator.js');
     const { ASTCodeApplicator } = applicatorImport;
     (ASTCodeApplicator as any).mockImplementation(() => mockApplicator as any);
 
-    const sourceMapperImport = await import('../../core/extraction/utils/SourceMapper');
+    const sourceMapperImport = await import('../../core/extraction/utils/SourceMapper.js');
     const { SourceMapper } = sourceMapperImport;
     (SourceMapper as any).mockImplementation(() => mockSourceMapper as any);
 
     // Create a proper mock for QueryTransformer
-    const transformerImport = await import('../../core/transformer/QueryTransformer');
+    const transformerImport = await import('../../core/transformer/QueryTransformer.js');
     const { QueryTransformer } = transformerImport;
     (QueryTransformer as any).mockImplementation(() => ({
       transform: vi.fn().mockReturnValue({

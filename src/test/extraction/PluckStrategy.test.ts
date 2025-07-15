@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { PluckStrategy } from '../../core/extraction/strategies/PluckStrategy';
-import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext';
-import { ExtractionOptions } from '../../core/extraction/types/index';
+import { PluckStrategy } from '../../core/extraction/strategies/PluckStrategy.js';
+import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext.js';
+import { ExtractionOptions } from '../../core/extraction/types/index.js';
 describe('PluckStrategy with Source AST Preservation', () => {
   describe('basic source AST preservation', () => {
     it('should preserve source AST when enabled', async () => {

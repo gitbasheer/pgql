@@ -7,7 +7,7 @@ import inquirer from 'inquirer';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { spawn } from 'child_process';
-import { formatGraphQL } from '../utils/formatter';
+import { formatGraphQL } from '../utils/formatter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

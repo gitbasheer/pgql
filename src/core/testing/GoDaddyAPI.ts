@@ -1,4 +1,4 @@
-import { GraphQLClient } from './GraphQLClient';
+import { GraphQLClient } from './GraphQLClient.js';
 
 interface GoDaddyAPIConfig {
   cookies?: string;

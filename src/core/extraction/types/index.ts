@@ -1,10 +1,10 @@
 // @ts-nocheck
-export * from './query.types';
-export * from './variant.types';
-export * from './extraction.types';
+export * from './query.types.js';
+export * from './variant.types.js';
+export * from './extraction.types.js';
 
 // Pattern-based types
-export * from './pattern.types';
+export * from './pattern.types.js';
 
 // Re-export commonly used types
 export {
@@ -13,4 +13,4 @@ export {
   type QueryPattern,
   type QueryPatternRegistry,
   type MigrationManifest
-} from './pattern.types';
+} from './pattern.types.js';

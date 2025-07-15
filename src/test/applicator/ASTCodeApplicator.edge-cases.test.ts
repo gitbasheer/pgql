@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { ASTCodeApplicator } from '../../core/applicator/ASTCodeApplicator';
-import { TransformationMapping, SourceMapping } from '../../core/applicator/types';
-import { SourceAST } from '../../core/extraction/types/query.types';
+import { ASTCodeApplicator } from '../../core/applicator/ASTCodeApplicator.js';
+import { TransformationMapping, SourceMapping } from '../../core/applicator/types.js';
+import { SourceAST } from '../../core/extraction/types/query.types.js';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import * as os from 'os';

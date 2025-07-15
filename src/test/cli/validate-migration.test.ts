@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { MigrationValidator } from '../../cli/validate-migration';
-import { ExtractedQuery } from '../../types';
-import { PatternExtractedQuery } from '../../core/extraction/types/pattern.types';
+import { MigrationValidator } from '../../cli/validate-migration.js';
+import { ExtractedQuery } from '../../types/index.js';
+import { PatternExtractedQuery } from '../../core/extraction/types/pattern.types.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 

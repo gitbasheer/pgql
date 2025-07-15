@@ -5,13 +5,13 @@ import chalk from 'chalk';
 import ora from 'ora';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { GraphQLExtractor } from '../core/scanner/GraphQLExtractor';
-import { UnifiedVariantExtractor } from '../core/scanner/UnifiedVariantExtractor';
-import { SchemaValidator } from '../core/validator/SchemaValidator';
-import { FragmentResolver } from '../core/scanner/FragmentResolver';
-import { OperationAnalyzer } from '../core/analyzer/OperationAnalyzer';
-import { SchemaDeprecationAnalyzer } from '../core/analyzer/SchemaDeprecationAnalyzer';
-import { OptimizedSchemaTransformer } from '../core/transformer/OptimizedSchemaTransformer';
+import { GraphQLExtractor } from '../core/scanner/GraphQLExtractor.js';
+import { UnifiedVariantExtractor } from '../core/scanner/UnifiedVariantExtractor.js';
+import { SchemaValidator } from '../core/validator/SchemaValidator.js';
+import { FragmentResolver } from '../core/scanner/FragmentResolver.js';
+import { OperationAnalyzer } from '../core/analyzer/OperationAnalyzer.js';
+import { SchemaDeprecationAnalyzer } from '../core/analyzer/SchemaDeprecationAnalyzer.js';
+import { OptimizedSchemaTransformer } from '../core/transformer/OptimizedSchemaTransformer.js';
 import { logger } from '../utils/logger.js';
 
 interface PipelineOptions {

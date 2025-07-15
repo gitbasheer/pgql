@@ -1,11 +1,11 @@
-import { ExtractedQuery } from '../types/index';
-import { ExtractionContext } from '../engine/ExtractionContext';
+import { ExtractedQuery } from '../types/index.js';
+import { ExtractionContext } from '../engine/ExtractionContext.js';
 import { logger } from '../../../utils/logger.js';
 import * as babel from '@babel/parser';
 import traverseDefault from '@babel/traverse';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { validateReadPath } from '../../../utils/securePath';
+import { validateReadPath } from '../../../utils/securePath.js';
 
 interface TemplateInterpolation {
   start: number;

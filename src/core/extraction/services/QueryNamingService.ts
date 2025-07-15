@@ -1,8 +1,8 @@
 import { logger } from '../../../utils/logger.js';
-import { QueryPatternService } from '../engine/QueryPatternRegistry';
-import { PatternExtractedQuery } from '../types/pattern.types';
-import { ExtractedQuery } from '../types/query.types';
-import { ExtractionOptions } from '../types/extraction.types';
+import { QueryPatternService } from '../engine/QueryPatternRegistry.js';
+import { PatternExtractedQuery } from '../types/pattern.types.js';
+import { ExtractedQuery } from '../types/query.types.js';
+import { ExtractionOptions } from '../types/extraction.types.js';
 
 /**
  * Centralized service for handling all query naming concerns

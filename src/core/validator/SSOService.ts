@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { logger } from '../../utils/logger.js';
-import { SSOConfig } from './types';
-import { GoDaddySSO } from './GoDaddyEndpointConfig';
+import { SSOConfig } from './types.js';
+import { GoDaddySSO } from './GoDaddyEndpointConfig.js';
 
 export interface SSOResult {
   success: boolean;

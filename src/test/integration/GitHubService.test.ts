@@ -34,7 +34,7 @@ describe('GitHubService', () => {
     mockExecAsync.mockResolvedValue({ stdout: '', stderr: '' });
 
     // Setup logger mocks
-    const loggerModule = await import('../../utils/logger');
+    const loggerModule = await import('../../utils/logger.js');
     const mockLogger = {
       info: vi.fn(),
       error: vi.fn(),
@@ -44,7 +44,7 @@ describe('GitHubService', () => {
     vi.mocked(loggerModule).logger = mockLogger as any;
 
     // Import the module after mocks are set up
-    const githubModule = await import('../../core/integration/GitHubService');
+    const githubModule = await import('../../core/integration/GitHubService.js');
     GitHubService = githubModule.GitHubService;
 
     // Create temp directory for tests

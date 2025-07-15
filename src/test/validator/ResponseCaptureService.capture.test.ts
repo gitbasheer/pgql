@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach, afterEach, vi, Mock } from 'vitest';
 import axios, { AxiosInstance } from 'axios';
 import pRetry from 'p-retry';
 import pLimit from 'p-limit';
-import { ResponseCaptureService } from '../../core/validator/ResponseCaptureService';
-import { EndpointConfig } from '../../core/validator/types';
-import { ResolvedQuery } from '../../core/extraction/types/query.types';
-import { createMockPRetry } from '../utils/mockRetry';
+import { ResponseCaptureService } from '../../core/validator/ResponseCaptureService.js';
+import { EndpointConfig } from '../../core/validator/types.js';
+import { ResolvedQuery } from '../../core/extraction/types/query.types.js';
+import { createMockPRetry } from '../utils/mockRetry.js';
 
 // Mock all dependencies at the module level
 vi.mock('axios');
