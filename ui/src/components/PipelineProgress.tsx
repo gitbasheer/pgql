@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Socket } from 'socket.io-client';
 import '../styles/pipeline-progress.css';
 
 export interface PipelineStage {
@@ -19,31 +18,51 @@ const PIPELINE_STAGES: PipelineStage[] = [
 ];
 
 interface PipelineProgressProps {
-  socket?: Socket | null;
   isActive: boolean;
   currentStage?: string;
+  pipelineStatus?: {
+    stage: string;
+    status: string;
+    progress?: number;
+  };
 }
 
-export default function PipelineProgress({ socket, isActive, currentStage: _currentStage }: PipelineProgressProps) {
+export default function PipelineProgress({ isActive, currentStage, pipelineStatus }: PipelineProgressProps) {
   const [stages, setStages] = useState<PipelineStage[]>(PIPELINE_STAGES);
 
   useEffect(() => {
-    if (!socket || !isActive) return;
+    if (!isActive || !pipelineStatus) return;
 
-    const handleStageUpdate = (data: { stage: string; status: PipelineStage['status']; progress?: number; message?: string }) => {
-      setStages(prev => prev.map(stage => 
-        stage.name.toLowerCase() === data.stage.toLowerCase()
-          ? { ...stage, status: data.status, progress: data.progress, message: data.message }
-          : stage
-      ));
-    };
-
-    socket.on('pipeline:stage', handleStageUpdate);
-
-    return () => {
-      socket.off('pipeline:stage', handleStageUpdate);
-    };
-  }, [socket, isActive]);
+    // Update stages based on current pipeline status from polling
+    setStages(prev => {
+      const updatedStages = [...prev];
+      const stageIndex = PIPELINE_STAGES.findIndex(
+        s => s.name.toLowerCase() === (currentStage || pipelineStatus.stage)?.toLowerCase()
+      );
+      
+      if (stageIndex >= 0) {
+        // Mark all previous stages as completed
+        for (let i = 0; i < stageIndex; i++) {
+          updatedStages[i] = { ...updatedStages[i], status: 'completed' };
+        }
+        
+        // Mark current stage as in progress or completed based on status
+        const status = pipelineStatus.status === 'completed' ? 'completed' : 'in_progress';
+        updatedStages[stageIndex] = {
+          ...updatedStages[stageIndex],
+          status,
+          progress: pipelineStatus.progress,
+        };
+        
+        // Mark stages after current as pending
+        for (let i = stageIndex + 1; i < updatedStages.length; i++) {
+          updatedStages[i] = { ...updatedStages[i], status: 'pending' };
+        }
+      }
+      
+      return updatedStages;
+    });
+  }, [isActive, currentStage, pipelineStatus]);
 
   useEffect(() => {
     if (!isActive) {

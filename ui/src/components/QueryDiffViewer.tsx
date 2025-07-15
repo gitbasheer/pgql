@@ -4,6 +4,7 @@ import { useQuery as useApolloQuery, gql } from '@apollo/client';
 import DiffViewer from 'react-diff-viewer-continued';
 import Modal from 'react-modal';
 import { getBaselineComparisons } from '../services/api';
+import { constructAuthCookies } from '../utils/auth';
 import type { ExtractedQuery, TransformationResult } from '../types/api.types';
 import '../styles/query-diff-viewer.css';
 
@@ -30,15 +31,6 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
     enabled: !!selectedQuery?.query.queryName && activeTab === 'baseline',
   });
 
-  // Construct auth cookies for Hivemind API
-  const constructAuthCookies = useCallback(() => {
-    const authIdp = import.meta.env.REACT_APP_AUTH_IDP || '';
-    const custIdp = import.meta.env.REACT_APP_CUST_IDP || '';
-    const infoCustIdp = import.meta.env.REACT_APP_INFO_CUST_IDP || '';
-    const infoIdp = import.meta.env.REACT_APP_INFO_IDP || '';
-    
-    return `auth_idp=${authIdp}; cust_idp=${custIdp}; info_cust_idp=${infoCustIdp}; info_idp=${infoIdp}`;
-  }, []);
 
   // Hivemind cohort fetch using Apollo
   const GET_COHORT = gql`

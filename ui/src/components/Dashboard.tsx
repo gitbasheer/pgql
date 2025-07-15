@@ -7,6 +7,7 @@ import QueryResults from './QueryResults';
 import RealApiTesting from './RealApiTesting';
 import GitHubIntegration from './GitHubIntegration';
 import PRPreview from './PRPreview';
+import { constructAuthCookies } from '../utils/auth';
 import '../styles/dashboard.css';
 
 interface PipelineConfig {
@@ -44,15 +45,6 @@ function Dashboard() {
   
   const pollingIntervalRef = useRef<number | null>(null);
 
-  // Construct auth cookies from environment variables
-  const constructAuthCookies = useCallback(() => {
-    const authIdp = import.meta.env.REACT_APP_AUTH_IDP || '';
-    const custIdp = import.meta.env.REACT_APP_CUST_IDP || '';
-    const infoCustIdp = import.meta.env.REACT_APP_INFO_CUST_IDP || '';
-    const infoIdp = import.meta.env.REACT_APP_INFO_IDP || '';
-    
-    return `auth_idp=${authIdp}; cust_idp=${custIdp}; info_cust_idp=${infoCustIdp}; info_idp=${infoIdp}`;
-  }, []);
 
   // Polling function to replace Socket.io
   const pollPipelineStatus = useCallback(async () => {
@@ -87,7 +79,7 @@ function Dashboard() {
     } catch (error) {
       console.error('Failed to poll pipeline status:', error);
     }
-  }, [pipelineId, isPipelineActive, logs.length, constructAuthCookies]);
+  }, [pipelineId, isPipelineActive, logs.length]);
 
   // Start polling when pipeline becomes active
   useEffect(() => {
@@ -322,7 +314,11 @@ function Dashboard() {
         <section className="pipeline-section">
           <h2>Pipeline Progress</h2>
           {isPipelineActive ? (
-            <PipelineProgress isActive={isPipelineActive} currentStage={pipelineStatus?.stage} />
+            <PipelineProgress 
+              isActive={isPipelineActive} 
+              currentStage={pipelineStatus?.stage}
+              pipelineStatus={pipelineStatus}
+            />
           ) : (
             <div className="pipeline-placeholder">
               <p>Pipeline will appear here once started...</p>
