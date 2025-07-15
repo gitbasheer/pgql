@@ -317,7 +317,7 @@ function Dashboard() {
             <PipelineProgress 
               isActive={isPipelineActive} 
               currentStage={pipelineStatus?.stage}
-              pipelineStatus={pipelineStatus}
+              pipelineStatus={pipelineStatus || undefined}
             />
           ) : (
             <div className="pipeline-placeholder">
