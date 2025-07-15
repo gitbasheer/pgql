@@ -10,27 +10,56 @@ Real-time monitoring dashboard for the GraphQL migration pipeline.
 - **GitHub Integration**: Clone repositories directly from the dashboard
 - **PR Preview**: Generate and preview pull requests before submission
 
-## Development
+## 🚀 Quick Start
 
+### Option 1: One-Click Setup (Recommended)
 ```bash
+cd ui/
+./start-ui-full.sh
+```
+
+### Option 2: Manual Setup
+```bash
+cd ui/
+
 # Install dependencies
 pnpm install
 
-# Start development server
+# Start backend server (Terminal 1)
+pnpm start
+
+# Start UI development server (Terminal 2)
 pnpm dev
-
-# Run tests
-pnpm test
-
-# Build for production
-pnpm build
-
-# Format code
-pnpm format
-
-# Lint code
-pnpm lint
 ```
+
+**Access the dashboard at**: http://localhost:5173  
+**Backend API available at**: http://localhost:3001
+
+## 📋 Available Scripts
+
+### Development
+- `pnpm dev` - Start development server (port 5173)
+- `pnpm dev:host` - Start development server with network access
+- `pnpm start` - Start backend server only (port 3001)
+- `pnpm start:full` - Start both servers with one command
+
+### Build & Deploy
+- `pnpm build` - Build for production
+- `pnpm preview` - Preview production build
+- `pnpm typecheck` - Run TypeScript type checking
+
+### Testing & Quality
+- `pnpm test` - Run tests in watch mode
+- `pnpm test:coverage` - Run tests with coverage report
+- `pnpm lint` - Run ESLint
+- `pnpm format` - Format code with Prettier
+
+### Utilities
+- `pnpm clean` - Clean node_modules and dist directories
+
+## 🔧 Troubleshooting
+
+If you encounter issues, check [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for solutions to common problems.
 
 ## Architecture
 
