@@ -1,33 +1,29 @@
-export type Endpoint = 'productGraph' | 'offerGraph' | 'unknown';
+// Import shared types for use in this file
+import type { 
+  ExtractedQuery as SharedExtractedQuery, 
+  TestingAccount as SharedTestingAccount 
+} from './shared.types';
 
-export interface ExtractedQuery {
-  query: string;
-  fullExpandedQuery: string;
-  name: string; // Standardized unique name
-  variables: Record<string, string>; // e.g., { ventureId: 'UUID!' }
-  fragments: string[]; // Resolved fragments
-  endpoint: Endpoint;
-  sourceFile: string;
-}
+// Re-export shared types
+export type { 
+  Endpoint, 
+  ExtractedQuery, 
+  TestParams, 
+  TransformationResult,
+  TestingAccount,
+  TransformationChange,
+  ValidationResult,
+  RealApiTestResult
+} from './shared.types';
 
-export interface TestParams {
-  query: ExtractedQuery;
-  testingAccount: { 
-    id: string; 
-    ventures?: Array<{ id: string; name: string }>;
-    projects?: Array<{ id: string; domain: string }>;
-    // other fields from testing account
-  };
+// Backend-specific extension of TestParams with auth
+export interface BackendTestParams {
+  query: SharedExtractedQuery;
+  testingAccount: SharedTestingAccount;
   auth: { 
     cookies: string; 
     appKey: string;
   };
-}
-
-export interface TransformationResult {
-  newQuery: string;
-  mappingUtil: string; // Generated function code
-  abFlag: string; // Hivemind integration
 }
 
 export interface DeprecationInfo {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { getRealApiTestResults, triggerRealApiTests } from '../services/api';
@@ -16,7 +16,8 @@ interface AuthConfig {
 }
 
 export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingProps) {
-  const [authConfig, setAuthConfig] = useState<AuthConfig>({
+  // Use refs to store auth data to avoid exposing in React DevTools
+  const authConfigRef = useRef<AuthConfig>({
     cookies: '',
     appKey: '',
   });
@@ -30,7 +31,7 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
   });
 
   const triggerTests = useMutation({
-    mutationFn: () => triggerRealApiTests(pipelineId!, authConfig),
+    mutationFn: () => triggerRealApiTests(pipelineId!, authConfigRef.current),
     onSuccess: () => {
       toast.success('Real API tests triggered successfully!');
       setShowAuthForm(false);
@@ -43,10 +44,19 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!authConfig.cookies || !authConfig.appKey) {
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    const cookies = formData.get('cookies') as string;
+    const appKey = formData.get('appKey') as string;
+    
+    if (!cookies || !appKey) {
       toast.error('Both cookies and app key are required');
       return;
     }
+    
+    // Store in ref to avoid React DevTools exposure
+    authConfigRef.current = { cookies, appKey };
     triggerTests.mutate();
   };
 
@@ -82,18 +92,18 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
               <div className="auth-inputs">
                 <input
                   type="password"
+                  name="cookies"
                   placeholder="Cookies (session data)"
                   aria-label="Authentication cookies"
-                  value={authConfig.cookies}
-                  onChange={(e) => setAuthConfig(prev => ({ ...prev, cookies: e.target.value }))}
+                  autoComplete="off"
                   required
                 />
                 <input
-                  type="text"
+                  type="password"
+                  name="appKey"
                   placeholder="App Key"
                   aria-label="Application key"
-                  value={authConfig.appKey}
-                  onChange={(e) => setAuthConfig(prev => ({ ...prev, appKey: e.target.value }))}
+                  autoComplete="off"
                   required
                 />
               </div>

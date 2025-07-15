@@ -19,7 +19,7 @@ export interface TestParams {
 
 export interface BaselineResult {
   baseline: string;
-  response: ApiResponse;
+  response: ApiResponse<unknown>;
   comparison?: {
     matches: boolean;
     differences: DifferenceDetail[];

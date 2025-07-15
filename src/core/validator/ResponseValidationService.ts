@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { logger } from '../../utils/logger.js';
 import { ResolvedQuery } from '../extraction/types/query.types.js';
-import { ExtractedQuery, TestParams } from '../../types/pgql.types.js';
+import { ExtractedQuery, TestParams } from '../../types/shared.types.js';
 import {
   ResponseValidationConfig,
   EndpointConfig,
@@ -599,7 +599,7 @@ export class ResponseValidationService {
   /**
    * Test query on real API using GraphQLClient
    */
-  async testOnRealApi(params: TestParams): Promise<any> {
+  async testOnRealApi(params: TestParams & { query: ExtractedQuery; auth: { cookies: string; appKey: string } }): Promise<any> {
     // EVENT_PLACEHOLDER: Publish to Event Bus instead of direct socket
     // e.g., await eventBusClient.publish({ 
     //   source: 'pgql.pipeline', 
@@ -608,44 +608,44 @@ export class ResponseValidationService {
     // });
     
     const client = new GraphQLClient({
-      endpoint: this.getEndpointUrl(params.query.endpoint),
+      endpoint: this.getEndpointUrl(params.endpoint || params.query.endpoint || 'productGraph'),
       cookieString: params.auth.cookies,
       appKey: params.auth.appKey,
       baselineDir: './baselines'
     });
     
-    const vars = await this.buildVariables(params.query.fullExpandedQuery, params.testingAccount);
+    const vars = await this.buildVariables(params.query.fullExpandedQuery || params.query.content, params.testingAccount);
     
     try {
       // Use GraphQLClient's query method with baseline saving
-      const data = await client.query(params.query.fullExpandedQuery, vars, true);
+      const data = await client.query(params.query.fullExpandedQuery || params.query.content, vars, true);
       
       // Compare with baseline if it exists
       const comparison = await client.compareWithBaseline(
-        params.query.fullExpandedQuery, 
+        params.query.fullExpandedQuery || params.query.content, 
         vars, 
         data
       );
       
       if (comparison && !comparison.matches) {
-        logger.warn(`Baseline comparison failed for ${params.query.name}:`, comparison.differences);
+        logger.warn(`Baseline comparison failed for ${params.query.queryName}:`, comparison.differences);
       }
       
       // EVENT_PLACEHOLDER: Publish test result
       // e.g., await eventBusClient.publish({ 
       //   source: 'pgql.pipeline', 
       //   detailType: 'progress', 
-      //   detail: { stage: 'testing', message: `Test successful for ${params.query.name}` } 
+      //   detail: { stage: 'testing', message: `Test successful for ${params.query.queryName}` } 
       // });
       
-      logger.info(`API test successful for ${params.query.name}`);
+      logger.info(`API test successful for ${params.query.queryName}`);
       return data;
     } catch (error) {
       // EVENT_PLACEHOLDER: Publish test error
       // e.g., await eventBusClient.publish({ 
       //   source: 'pgql.pipeline', 
       //   detailType: 'error', 
-      //   detail: { stage: 'testing', message: `Test failed for ${params.query.name}: ${error.message}` } 
+      //   detail: { stage: 'testing', message: `Test failed for ${params.query.queryName}: ${error.message}` } 
       // });
       
       logger.error('API Test Error:', error);

@@ -5,10 +5,10 @@ import { logger } from '../../../utils/logger.js';
 import {
   ExtractionOptions,
   ExtractionResult,
-  ExtractedQuery,
+  ExtractedQuery as InternalExtractedQuery,
   ResolvedQuery
 } from '../types/index.js';
-import { Endpoint } from '../../../types/pgql.types.js';
+import { Endpoint, ExtractedQuery } from '../../../types/shared.types.js';
 import { ExtractionContext } from './ExtractionContext.js';
 import { ExtractionPipeline } from './ExtractionPipeline.js';
 import { PluckStrategy } from '../strategies/PluckStrategy.js';
@@ -120,8 +120,8 @@ export class UnifiedExtractor {
     logger.debug('Fragment preloading will be handled by the pipeline');
   }
 
-  private async extractQueries(files: string[]): Promise<ExtractedQuery[]> {
-    const allQueries: ExtractedQuery[] = [];
+  private async extractQueries(files: string[]): Promise<InternalExtractedQuery[]> {
+    const allQueries: InternalExtractedQuery[] = [];
     const { parallel, maxConcurrency } = this.context.options;
 
     if (parallel) {
@@ -147,17 +147,17 @@ export class UnifiedExtractor {
   }
 
   @monitor('extraction.file')
-  async extractFromFile(filePath: string): Promise<ExtractedQuery[]> {
+  async extractFromFile(filePath: string): Promise<InternalExtractedQuery[]> {
     try {
       // Check AST cache first (aggressive caching)
-      const cachedQueries = await astCache.get<ExtractedQuery[]>('queries', filePath);
+      const cachedQueries = await astCache.get<InternalExtractedQuery[]>('queries', filePath);
       if (cachedQueries) {
         logger.debug(`Cache hit for ${filePath}`);
         return cachedQueries;
       }
 
       // Check context cache (in-memory)
-      const cached = this.context.getCached<ExtractedQuery[]>('file', filePath);
+      const cached = this.context.getCached<InternalExtractedQuery[]>('file', filePath);
       if (cached) {
         return cached;
       }
@@ -168,7 +168,7 @@ export class UnifiedExtractor {
       // CRITICAL: Resolve templates in raw content BEFORE extraction
       content = await this.preResolveTemplateContent(content, filePath);
       
-      const queries: ExtractedQuery[] = [];
+      const queries: InternalExtractedQuery[] = [];
 
       // Determine which strategy to use
       const strategyNames = this.context.options.strategies || ['hybrid'];
@@ -253,7 +253,7 @@ export class UnifiedExtractor {
    * Enhanced template variable resolution for ${queryNames.xxx} patterns
    * Loads from queryNames.js via fs.readFile and resolves all interpolations
    */
-  private async resolveTemplateVariables(queries: ExtractedQuery[], filePath: string): Promise<ExtractedQuery[]> {
+  private async resolveTemplateVariables(queries: InternalExtractedQuery[], filePath: string): Promise<InternalExtractedQuery[]> {
     try {
       // Load queryNames from multiple sources
       const queryNamesData = await this.loadAllQueryNames(filePath);
@@ -456,7 +456,7 @@ export class UnifiedExtractor {
     strategyName: string,
     filePath: string,
     content: string
-  ): Promise<ExtractedQuery[]> {
+  ): Promise<InternalExtractedQuery[]> {
     const strategy = this.strategies.get(strategyName);
     if (!strategy) {
       logger.warn(`Strategy ${strategyName} not found`);
@@ -475,7 +475,7 @@ export class UnifiedExtractor {
     }
   }
 
-  private mergeResults(pluckResults: ExtractedQuery[], astResults: ExtractedQuery[]): ExtractedQuery[] {
+  private mergeResults(pluckResults: InternalExtractedQuery[], astResults: InternalExtractedQuery[]): InternalExtractedQuery[] {
     // If AST extraction succeeded and found queries, prefer it
     if (astResults.length > 0) {
       return astResults;
@@ -529,13 +529,27 @@ export class UnifiedExtractor {
   private standardizeQueries(queries: ResolvedQuery[]): ExtractedQuery[] {
     return queries.map(q => {
       const standardized: ExtractedQuery = {
-        query: q.content,
+        // Identity
+        queryName: this.generateUniqueName(q),
+        content: q.content,
         fullExpandedQuery: q.resolvedContent || q.content,
-        name: this.generateUniqueName(q),
+        
+        // Location
+        filePath: q.filePath || 'unknown.js',
+        lineNumber: q.location?.line || 1,
+        
+        // GraphQL metadata
+        operation: this.extractOperationType(q),
         variables: this.extractVariables(q),
         fragments: q.fragments || [],
+        hasVariables: Object.keys(this.extractVariables(q)).length > 0,
+        
+        // Classification
         endpoint: (q as any).endpoint || 'productGraph',
-        sourceFile: q.filePath || 'unknown.js'
+        isNested: (q.metadata?.isNested as boolean) || false,
+        
+        // Additional context
+        source: (q.metadata?.source as string) || 'ast'
       };
       return standardized;
     });
@@ -567,5 +581,20 @@ export class UnifiedExtractor {
     }
     
     return variables;
+  }
+
+  private extractOperationType(query: ResolvedQuery): 'query' | 'mutation' | 'subscription' | undefined {
+    const content = query.resolvedContent || query.content;
+    
+    // Check for operation type in the query
+    if (content.match(/^\s*mutation\s+/m)) {
+      return 'mutation';
+    } else if (content.match(/^\s*subscription\s+/m)) {
+      return 'subscription';
+    } else if (content.match(/^\s*query\s+/m) || content.match(/^\s*{\s*/m)) {
+      return 'query';
+    }
+    
+    return undefined;
   }
 }

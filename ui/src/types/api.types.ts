@@ -1,38 +1,52 @@
-// API Response Types
+// Import shared types first
+import type {
+  Endpoint,
+  ExtractedQuery,
+  TransformationResult,
+  TransformationChange,
+  TestingAccount,
+  TestParams,
+  Pipeline,
+  PipelineConfig,
+  PipelineStage,
+  PipelineStatus,
+  PipelineStats,
+  LogDetail,
+  ApiResponse,
+  QueryDiff,
+  GeneratePRRequest,
+  GeneratePRResponse,
+  ValidationResult,
+  RealApiTestResult,
+  CohortResponse,
+  SocketEvents
+} from '../../../src/types/shared.types';
 
-export interface ExtractedQuery {
-  queryName: string;
-  content: string;
-  filePath: string;
-  lineNumber: number;
-  isNested: boolean;
-  fragments?: string[];
-  hasVariables?: boolean;
-  operation?: string;
-}
+// Re-export shared types
+export type {
+  Endpoint,
+  ExtractedQuery,
+  TransformationResult,
+  TransformationChange,
+  TestingAccount,
+  TestParams,
+  Pipeline,
+  PipelineConfig,
+  PipelineStage,
+  PipelineStatus,
+  PipelineStats,
+  LogDetail,
+  ApiResponse,
+  QueryDiff,
+  GeneratePRRequest,
+  GeneratePRResponse,
+  ValidationResult,
+  RealApiTestResult,
+  CohortResponse,
+  SocketEvents
+};
 
-export interface TransformationResult {
-  transformedQuery: string;
-  warnings: string[];
-  mappingCode: string;
-}
-
-export interface TestingAccount {
-  accountId: string;
-  authCookies?: string;
-  testEndpoint?: string;
-}
-
-export interface ApiResponse {
-  statusCode: number;
-  headers: Record<string, string>;
-  body: unknown;
-  timing?: {
-    start: number;
-    end: number;
-    duration: number;
-  };
-}
+// Frontend-specific types
 
 export interface DifferenceDetail {
   path: string;
@@ -46,8 +60,8 @@ export interface BaselineComparison {
   queryName: string;
   timestamp: string;
   testingAccount?: TestingAccount;
-  baseline: ApiResponse;
-  response: ApiResponse;
+  baseline: GraphQLResponse;
+  response: GraphQLResponse;
   comparison: {
     matches: boolean;
     differences: DifferenceDetail[];
@@ -55,26 +69,40 @@ export interface BaselineComparison {
   };
 }
 
-export interface RealApiTestResult {
-  queryName: string;
-  timestamp: string;
-  successful: boolean;
+export interface GraphQLResponse {
+  statusCode: number;
+  headers: Record<string, string>;
+  body: unknown;
+  timing?: {
+    start: number;
+    end: number;
+    duration: number;
+  };
+}
+
+// Socket event data is now properly typed via SocketEvents interface
+export type SocketEventData = SocketEvents[keyof SocketEvents];
+
+// UI-specific pipeline view model
+export interface PipelineViewModel {
+  pipeline: Pipeline;
+  logs: LogDetail[];
+  queries: ExtractedQuery[];
+  transformations: TransformationResult[];
+}
+
+// Form data types
+export interface PipelineFormData {
+  repoPath: string;
+  strategy: 'pluck' | 'ast' | 'hybrid';
+  includeFragments: boolean;
+  testRealApi: boolean;
+  generatePR: boolean;
+}
+
+// UI state types
+export interface UIState {
+  isConnected: boolean;
+  isLoading: boolean;
   error?: string;
-  baselineId?: string;
-  comparisonResult?: BaselineComparison;
-}
-
-export interface LogDetail {
-  level: 'info' | 'warn' | 'error' | 'success';
-  message: string;
-  timestamp?: string;
-  metadata?: Record<string, unknown>;
-}
-
-export interface SocketEventData {
-  pipelineId?: string;
-  queryName?: string;
-  message?: string;
-  stage?: string;
-  progress?: number;
 }

@@ -1,6 +1,6 @@
 import { DocumentNode, visit, print, parse, FieldNode, Kind } from 'graphql';
 import { DeprecationRule } from '../analyzer/SchemaDeprecationAnalyzer.js';
-import { ExtractedQuery, TransformationResult } from '../../types/pgql.types.js';
+import { ExtractedQuery, TransformationResult, TransformationChange } from '../../types/shared.types.js';
 import { logger } from '../../utils/logger.js';
 import { transformCache } from '../cache/CacheManager.js';
 import { createHash } from 'crypto';
@@ -23,13 +23,8 @@ export interface TransformResult {
   cached?: boolean;
 }
 
-export interface Change {
-  type: 'field-rename' | 'nested-replacement' | 'comment-out';
-  path: string;
-  field: string;
-  replacement?: string;
-  reason: string;
-}
+// Using shared TransformationChange instead of local Change interface
+export type Change = TransformationChange & { path?: string };
 
 export class OptimizedSchemaTransformer {
   private deprecationMap: Map<string, DeprecationRule>;
@@ -305,10 +300,12 @@ export class OptimizedSchemaTransformer {
               if (rule.isVague && self.options.commentOutVague) {
                 // Track change for reporting
                 changes.push({
-                  type: 'comment-out',
-                  path: currentPath,
+                  type: 'field',
                   field: fieldName,
-                  reason: rule.deprecationReason
+                  oldValue: fieldName,
+                  newValue: undefined,
+                  reason: rule.deprecationReason,
+                  path: currentPath
                 });
 
                 // Remove field from selection
@@ -319,22 +316,24 @@ export class OptimizedSchemaTransformer {
                 if (rule.replacement.includes('.')) {
                   // Nested replacement like logoUrl -> profile.logoUrl
                   changes.push({
-                    type: 'nested-replacement',
-                    path: currentPath,
+                    type: 'field',
                     field: fieldName,
-                    replacement: rule.replacement,
-                    reason: rule.deprecationReason
+                    oldValue: fieldName,
+                    newValue: rule.replacement,
+                    reason: rule.deprecationReason,
+                    path: currentPath
                   });
 
                   return createNestedSelection(rule.replacement, node);
                 } else {
                   // Simple field rename
                   changes.push({
-                    type: 'field-rename',
-                    path: currentPath,
+                    type: 'field',
                     field: fieldName,
-                    replacement: rule.replacement,
-                    reason: rule.deprecationReason
+                    oldValue: fieldName,
+                    newValue: rule.replacement,
+                    reason: rule.deprecationReason,
+                    path: currentPath
                   });
 
                   return {
@@ -390,8 +389,8 @@ export class OptimizedSchemaTransformer {
     let result = query;
 
     for (const change of changes) {
-      if (change.type === 'comment-out') {
-        const comment = `# DEPRECATED: ${change.field} - ${change.reason}`;
+      if (change.newValue === undefined) {
+        const comment = `# DEPRECATED: ${change.field} - ${change.reason || 'Deprecated field'}`;
         // This is simplified - in production you'd want more sophisticated comment insertion
         result = `${comment}\n${result}`;
       }
@@ -645,12 +644,21 @@ function createNestedSelection(path: string, originalNode: FieldNode): FieldNode
 // Enhanced methods for Phase 2
 export class EnhancedOptimizedSchemaTransformer extends OptimizedSchemaTransformer {
   async transformQuery(query: ExtractedQuery, _deprecations: DeprecationRule[]): Promise<TransformationResult> {
-    const result = await this.transform(query.fullExpandedQuery);
+    const result = await this.transform(query.fullExpandedQuery || query.content);
     
     const transformationResult: TransformationResult = {
-      newQuery: result.transformed,
-      mappingUtil: this.generateMappingUtil({}, {}, query.name),
-      abFlag: `new-queries-${query.name.toLowerCase()}`
+      transformedQuery: result.transformed,
+      originalQuery: query.content,
+      warnings: result.warnings,
+      mappingCode: this.generateMappingUtil({}, {}, query.queryName),
+      changes: result.changes.map(c => ({
+        type: 'field' as const,
+        field: c.field,
+        oldValue: c.field,
+        newValue: c.newValue,
+        reason: c.reason
+      })),
+      abFlag: `new-queries-${query.queryName.toLowerCase()}`
     };
     
     return transformationResult;
@@ -674,16 +682,16 @@ export class EnhancedOptimizedSchemaTransformer extends OptimizedSchemaTransform
         const transformation = transformations[i];
         
         // Update query file
-        const queryPath = query.sourceFile;
+        const queryPath = query.filePath;
         await this.updateFileWithTransformation(
           queryPath, 
-          query.query, 
-          transformation.newQuery
+          query.content, 
+          transformation.transformedQuery
         );
         
         // Generate utility file
         const utilPath = queryPath.replace('.js', '.utils.js');
-        await this.writeUtilFile(utilPath, transformation.mappingUtil);
+        await this.writeUtilFile(utilPath, transformation.mappingCode);
       }
       
       // Stage changes

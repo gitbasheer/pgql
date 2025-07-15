@@ -59,28 +59,55 @@ function Dashboard() {
       });
 
       if (response.ok) {
-        const status: PipelineStatus = await response.json();
+        const data = await response.json();
+        
+        // Validate response structure
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid response format from server');
+        }
+        
+        const status = data as PipelineStatus;
         setPipelineStatus(status);
         
-        // Update logs if new ones are available
-        if (status.logs && status.logs.length > logs.length) {
-          setLogs(status.logs);
+        // Update logs if new ones are available with proper validation
+        if (Array.isArray(status.logs) && status.logs.length > logs.length) {
+          // Validate each log entry
+          const validLogs = status.logs.filter(log => 
+            log && 
+            typeof log === 'object' && 
+            'message' in log && 
+            'level' in log && 
+            'timestamp' in log
+          );
+          setLogs(validLogs);
         }
         
         // Check if pipeline is completed
         if (status.status === 'completed' || status.status === 'failed') {
           setIsPipelineActive(false);
-          if (pollingIntervalRef.current) {
+          if (pollingIntervalRef.current !== null) {
             clearInterval(pollingIntervalRef.current);
             pollingIntervalRef.current = null;
           }
+          
+          // Notify user of completion
+          if (status.status === 'completed') {
+            toast.success('Pipeline completed successfully');
+          } else {
+            toast.error('Pipeline failed. Check logs for details.');
+          }
         }
+      } else {
+        // Handle non-OK responses
+        const errorText = await response.text();
+        throw new Error(`Server error (${response.status}): ${errorText || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Failed to poll pipeline status:', error);
-      // Show user-friendly error notification but don't stop polling
+      // Proper error handling without exposing sensitive data
       if (error instanceof Error) {
-        toast.error(`Polling error: ${error.message}. Retrying...`);
+        toast.error(`Connection error: ${error.message}`);
+      } else {
+        toast.error('An unexpected error occurred. Please try again.');
       }
     }
   }, [pipelineId, isPipelineActive, logs.length]);
@@ -144,8 +171,8 @@ function Dashboard() {
       // Load Z's sample data path and trigger full pipeline
       const vnextConfig = {
         repoPath: 'data/sample_data/vnext-dashboard', // Z's mock data
-        schemaEndpoint: import.meta.env.REACT_APP_APOLLO_PG_ENDPOINT || 'https://api.example.com/graphql',
-        testApiUrl: import.meta.env.REACT_APP_TEST_API_URL || 'https://test-api.example.com',
+        schemaEndpoint: import.meta.env.REACT_APP_APOLLO_PG_ENDPOINT || 'http://localhost:5173/api/graphql',
+        testApiUrl: import.meta.env.REACT_APP_TEST_API_URL || 'http://localhost:5173/api/test',
         testAccountId: import.meta.env.REACT_APP_TEST_ACCOUNT_ID || 'test-vnext-123',
       };
 
@@ -168,39 +195,9 @@ function Dashboard() {
 
       const extractData = await extractResponse.json();
       
-      // Then, trigger real API testing with auth cookies
-      const authCookies = [
-        import.meta.env.REACT_APP_AUTH_IDP,
-        import.meta.env.REACT_APP_CUST_IDP,
-        import.meta.env.REACT_APP_SESSION_COOKIE
-      ].filter(Boolean).join('; ');
-
-      const testResponse = await fetch('/api/test-real-api', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.REACT_APP_API_TOKEN || ''}`,
-        },
-        body: JSON.stringify({
-          pipelineId: extractData.pipelineId || extractData.extractionId,
-          endpoint: vnextConfig.testApiUrl,
-          auth: {
-            cookies: authCookies,
-            accountId: vnextConfig.testAccountId,
-          },
-          // Mask sensitive data in logs
-          maskSensitiveData: true,
-        }),
-      });
-
-      if (!testResponse.ok) {
-        const error = await testResponse.json();
-        throw new Error(error.message || 'Failed to test on real API');
-      }
-
+      // For vnext, the extract endpoint handles everything
       return {
         extraction: extractData,
-        testing: await testResponse.json(),
       };
     },
     onSuccess: (data) => {
@@ -269,7 +266,7 @@ function Dashboard() {
                 type="text"
                 value={config.schemaEndpoint}
                 onChange={handleInputChange('schemaEndpoint')}
-                placeholder="https://api.example.com/graphql"
+                placeholder="http://localhost:5173/api/graphql"
                 required
               />
             </div>
@@ -280,7 +277,7 @@ function Dashboard() {
                 type="text"
                 value={config.testApiUrl}
                 onChange={handleInputChange('testApiUrl')}
-                placeholder="https://test-api.example.com"
+                placeholder="http://localhost:5173/api/test"
               />
             </div>
             <div className="form-group">

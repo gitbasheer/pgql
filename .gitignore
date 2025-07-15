@@ -48,6 +48,9 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 
+# Temp directories with git repos
+ui/temp-deep-research/
+
 # IDE files
 .vscode/
 .idea/

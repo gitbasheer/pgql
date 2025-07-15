@@ -1,9 +1,12 @@
 .query-results {
-  background: white;
-  border-radius: 8px;
+  background: #0a0a0a;
+  border: 1px solid #00ff88;
   padding: 1.5rem;
   margin-top: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-height: 500px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .results-header {
@@ -12,19 +15,25 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e1e4e8;
+  border-bottom: 1px solid #00ff88;
 }
 
 .results-header h3 {
   margin: 0;
   font-size: 1.25rem;
+  color: #00ff88;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 400;
 }
 
 .results-stats {
   display: flex;
   gap: 1.5rem;
-  font-size: 0.9rem;
-  color: #586069;
+  font-size: 0.875rem;
+  color: #00ff88;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .results-stats span {
@@ -38,7 +47,9 @@
 .error-state {
   padding: 3rem;
   text-align: center;
-  color: #586069;
+  color: #00ff8890;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .loading-state {
@@ -51,9 +62,9 @@
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #007bff;
-  border-radius: 50%;
+  border: 3px solid #00ff8820;
+  border-top: 3px solid #00ff88;
+  border-radius: 0;
   animation: spin 1s linear infinite;
 }
 
@@ -63,5 +74,5 @@
 }
 
 .error-state {
-  color: #d73a49;
+  color: #ff4444;
 }

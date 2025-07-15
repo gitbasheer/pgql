@@ -1,11 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useQuery as useApolloQuery, gql } from '@apollo/client';
 import DiffViewer from 'react-diff-viewer-continued';
 import Modal from 'react-modal';
 import { getBaselineComparisons } from '../services/api';
 import { constructAuthCookies } from '../utils/auth';
-import type { ExtractedQuery, TransformationResult } from '../types/api.types';
+import type { ExtractedQuery, TransformationResult, CohortResponse } from '../types/api.types';
 import '../styles/query-diff-viewer.css';
 
 Modal.setAppElement('#root');
@@ -24,6 +24,36 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
   } | null>(null);
   const [activeTab, setActiveTab] = useState<'transformation' | 'baseline' | 'validation'>('transformation');
   const [validationEnabled, setValidationEnabled] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [visibleColumns, setVisibleColumns] = useState(() => {
+    const saved = localStorage.getItem('queryTableColumns');
+    return saved ? JSON.parse(saved) : {
+      queryName: true,
+      file: true,
+      type: true,
+      endpoint: true,
+      status: true,
+      changes: true,
+      actions: true,
+    };
+  });
+  const [showColumnDropdown, setShowColumnDropdown] = useState(false);
+
+  // Save column preferences
+  useEffect(() => {
+    localStorage.setItem('queryTableColumns', JSON.stringify(visibleColumns));
+  }, [visibleColumns]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest('.column-dropdown')) {
+        setShowColumnDropdown(false);
+      }
+    };
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, []);
 
   const { data: baselineComparisons } = useQuery({
     queryKey: ['baseline-comparisons', selectedQuery?.query.queryName],
@@ -63,14 +93,22 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
     errorPolicy: 'ignore'
   });
 
-  const getCohortId = useCallback((response: any, _cohortType: string) => {
-    if (!response?.getCohort) return 'Unknown';
-    return response.getCohort.cohortId || 'Unknown';
+  const getCohortId = useCallback((response: CohortResponse, _cohortType: string) => {
+    if (!response?.data?.getCohort) return 'Unknown';
+    return response.data.getCohort.cohortId || 'Unknown';
   }, []);
 
   // GraphQL query validation using Apollo Client
+  let validationQuery;
+  try {
+    validationQuery = selectedQuery?.query.content ? gql(selectedQuery.query.content) : gql`query { __typename }`;
+  } catch (error) {
+    console.error('Failed to parse GraphQL query:', error);
+    validationQuery = gql`query { __typename }`;
+  }
+  
   const { data: validationResult, error: validationError } = useApolloQuery(
-    selectedQuery?.query.content ? gql(selectedQuery.query.content) : gql`query { __typename }`,
+    validationQuery,
     {
       skip: !validationEnabled || !selectedQuery?.query.content || activeTab !== 'validation',
       errorPolicy: 'all', // Get validation errors without throwing
@@ -84,52 +122,155 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
     setValidationEnabled(false); // Reset validation state
   };
 
-  const getStatusBadge = (query: ExtractedQuery) => {
-    if (!query.isNested) return 'simple';
-    if (query.fragments?.length) return 'fragments';
-    if (query.hasVariables) return 'variables';
-    return 'complex';
+
+  const filteredQueries = queries.filter(item => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      item.query.queryName?.toLowerCase().includes(searchLower) ||
+      item.query.filePath?.toLowerCase().includes(searchLower) ||
+      item.query.operation?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const toggleColumn = (column: string) => {
+    setVisibleColumns((prev: typeof visibleColumns) => ({
+      ...prev,
+      [column]: !prev[column as keyof typeof prev]
+    }));
   };
 
   return (
     <div className="query-diff-viewer">
-      <div className="query-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Query Name</th>
-              <th>File</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {queries.map((item, index) => (
-              <tr key={index}>
-                <td>{item.query.queryName || 'Anonymous'}</td>
-                <td className="file-path">
-                  {item.query.filePath}:{item.query.lineNumber}
-                </td>
-                <td>{item.query.operation}</td>
-                <td>
-                  <span className={`status-badge ${getStatusBadge(item.query)}`}>
-                    {getStatusBadge(item.query)}
-                  </span>
-                </td>
-                <td>
+      <div className="column-controls">
+        <div className="column-dropdown">
+          <button
+            className="column-dropdown-btn"
+            onClick={() => setShowColumnDropdown(!showColumnDropdown)}
+          >
+            COLUMNS ▼
+          </button>
+          <div className={`column-dropdown-content ${showColumnDropdown ? 'show' : ''}`}>
+            <label>
+              <input
+                type="checkbox"
+                checked={visibleColumns.queryName}
+                onChange={() => toggleColumn('queryName')}
+              />
+              QUERY NAME
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={visibleColumns.file}
+                onChange={() => toggleColumn('file')}
+              />
+              FILE PATH
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={visibleColumns.type}
+                onChange={() => toggleColumn('type')}
+              />
+              TYPE
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={visibleColumns.endpoint}
+                onChange={() => toggleColumn('endpoint')}
+              />
+              ENDPOINT
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={visibleColumns.status}
+                onChange={() => toggleColumn('status')}
+              />
+              STATUS
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={visibleColumns.changes}
+                onChange={() => toggleColumn('changes')}
+              />
+              CHANGES
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={visibleColumns.actions}
+                onChange={() => toggleColumn('actions')}
+              />
+              ACTIONS
+            </label>
+          </div>
+        </div>
+        <input
+          type="text"
+          className="search-box"
+          placeholder="SEARCH QUERIES..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+      <div className="queries-grid">
+        {filteredQueries.map((item, index) => (
+          <div key={index} className="query-card">
+            <div className="query-card-header">
+              <h4 className="query-name">{item.query.queryName || 'Anonymous'}</h4>
+            </div>
+            <div className="query-card-body">
+              <div className="query-details">
+                {visibleColumns.file && (
+                  <div className="detail-row">
+                    <span className="detail-label">FILE:</span>
+                    <span className="detail-value">{item.query.filePath}:{item.query.lineNumber}</span>
+                  </div>
+                )}
+                {visibleColumns.type && (
+                  <div className="detail-row">
+                    <span className="detail-label">TYPE:</span>
+                    <span className="detail-value">{item.query.operation || 'query'}</span>
+                  </div>
+                )}
+                {visibleColumns.endpoint && (
+                  <div className="detail-row">
+                    <span className="detail-label">ENDPOINT:</span>
+                    <span className="detail-value">{item.query.endpoint || 'productGraph'}</span>
+                  </div>
+                )}
+                {visibleColumns.status && (
+                  <div className="detail-row">
+                    <span className="detail-label">STATUS:</span>
+                    <span className={`status-badge ${item.transformation ? 'transformed' : 'validated'}`}>
+                      {item.transformation ? 'TRANSFORMED' : 'VALIDATED'}
+                    </span>
+                  </div>
+                )}
+                {visibleColumns.changes && (
+                  <div className="detail-row">
+                    <span className="detail-label">CHANGES:</span>
+                    <span className="detail-value">{item.transformation?.changes?.length || '0'}</span>
+                  </div>
+                )}
+              </div>
+              {visibleColumns.actions && (
+                <div className="query-actions">
                   <button
                     className="view-diff-btn"
                     onClick={() => setSelectedQuery(item)}
                     disabled={!item.transformation}
                   >
-                    {item.transformation ? 'View Diff' : 'Processing...'}
+                    {item.transformation ? 'VIEW DIFF' : 'NO CHANGES'}
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
 
       <Modal
@@ -201,39 +342,63 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
             {activeTab === 'transformation' ? (
               <>
                 <div className="diff-container">
-                  <DiffViewer
-                    oldValue={selectedQuery.query.content}
-                    newValue={selectedQuery.transformation?.transformedQuery || selectedQuery.query.content}
-                    splitView={true}
-                    showDiffOnly={false}
-                    leftTitle="Original Query"
-                    rightTitle="Transformed Query"
-                    styles={{
-                      variables: {
-                        light: {
-                          diffViewerBackground: '#fafbfc',
-                          diffViewerColor: '#24292e',
-                          addedBackground: '#e6ffed',
-                          addedColor: '#24292e',
-                          removedBackground: '#ffeef0',
-                          removedColor: '#24292e',
-                          wordAddedBackground: '#acf2bd',
-                          wordRemovedBackground: '#fdb8c0',
-                          addedGutterBackground: '#cdffd8',
-                          removedGutterBackground: '#ffdce0',
-                          gutterBackground: '#fafbfc',
-                          gutterBackgroundDark: '#f6f8fa',
-                          highlightBackground: '#fffbdd',
-                          highlightGutterBackground: '#fff5b1',
+                  {/* Full Before */}
+                  <div className="diff-section">
+                    <h3>ORIGINAL QUERY</h3>
+                    <pre className="code-block before">
+                      {selectedQuery.transformation?.originalQuery || selectedQuery.query.content || ''}
+                    </pre>
+                  </div>
+
+                  {/* Full After */}
+                  <div className="diff-section">
+                    <h3>TRANSFORMED QUERY</h3>
+                    <pre className="code-block after">
+                      {selectedQuery.transformation?.transformedQuery || selectedQuery.query.content || ''}
+                    </pre>
+                  </div>
+
+                  {/* Line by Line Diff */}
+                  <div className="diff-section">
+                    <h3>CHANGES</h3>
+                    <DiffViewer
+                      oldValue={selectedQuery.transformation?.originalQuery || selectedQuery.query.content || ''}
+                      newValue={selectedQuery.transformation?.transformedQuery || selectedQuery.query.content || ''}
+                      splitView={false}
+                      showDiffOnly={false}
+                      leftTitle=""
+                      rightTitle=""
+                      hideLineNumbers={false}
+                      styles={{
+                        variables: {
+                          dark: {
+                            diffViewerBackground: '#050505',
+                            diffViewerColor: '#00ff88',
+                            addedBackground: '#00ff8820',
+                            addedColor: '#00ff88',
+                            removedBackground: '#ff444420',
+                            removedColor: '#ff4444',
+                            wordAddedBackground: '#00ff8840',
+                            wordRemovedBackground: '#ff444440',
+                            addedGutterBackground: '#00ff8820',
+                            removedGutterBackground: '#ff444420',
+                            gutterBackground: '#0a0a0a',
+                            gutterBackgroundDark: '#050505',
+                            highlightBackground: '#00ff8810',
+                            highlightGutterBackground: '#00ff8820',
+                            codeFoldGutterBackground: '#0a0a0a',
+                            codeFoldBackground: '#00ff8810',
+                          },
                         },
-                      },
-                    }}
-                  />
+                      }}
+                      useDarkTheme={true}
+                    />
+                  </div>
                 </div>
 
                 {selectedQuery.transformation?.mappingCode && (
                   <div className="mapping-code">
-                    <h3>Response Mapping Utility</h3>
+                    <h3>RESPONSE MAPPING UTILITY</h3>
                     <pre>{selectedQuery.transformation.mappingCode}</pre>
                   </div>
                 )}

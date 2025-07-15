@@ -33,8 +33,12 @@ echo "🖥️  Starting backend server (port 3001)..."
 node server.mjs &
 BACKEND_PID=$!
 
-# Wait for backend to start
-sleep 2
+# Wait for backend to start and verify it's running
+sleep 3
+if ! curl -s http://localhost:3001/api/status > /dev/null; then
+    echo "❌ Backend server failed to start"
+    exit 1
+fi
 
 # Start the UI development server
 echo "🎨 Starting UI development server (port 5173)..."
@@ -53,7 +57,7 @@ echo ""
 echo "📊 Available endpoints:"
 echo "  POST /api/extract - Start UnifiedExtractor pipeline"
 echo "  GET  /api/status  - Poll pipeline status"
-echo "  POST /api/test-real-api - Test vnext sample"
+echo "  POST /api/test-vnext-sample - Test vnext sample queries"
 echo ""
 echo "Press Ctrl+C to stop both servers"
 
