@@ -18,7 +18,93 @@ app.use(express.json());
 // Mock pipeline data
 let activePipelines = new Map();
 
-// Mock endpoint to start pipeline
+// Mock UnifiedExtractor endpoint (main extraction endpoint)
+app.post('/api/extract', (req: any, res: any) => {
+  const { repoPath, schemaEndpoint, strategies, preserveSourceAST, enableVariantDetection } = req.body;
+  
+  if (!repoPath || !schemaEndpoint) {
+    return res.status(400).json({ message: 'Missing required fields: repoPath and schemaEndpoint' });
+  }
+
+  // Simulate invalid repo path error
+  if (repoPath.includes('invalid')) {
+    return res.status(400).json({ message: 'Invalid repository path: Path does not exist or is not accessible' });
+  }
+
+  const pipelineId = `extract-${Date.now()}`;
+  activePipelines.set(pipelineId, {
+    id: pipelineId,
+    status: 'running',
+    repoPath,
+    schemaEndpoint,
+    strategies: strategies || ['hybrid'],
+    preserveSourceAST: preserveSourceAST || true,
+    enableVariantDetection: enableVariantDetection || true,
+    stages: {
+      extraction: 'pending',
+      classification: 'pending',
+      validation: 'pending',
+      testing: 'pending',
+      transformation: 'pending',
+      pr: 'pending'
+    }
+  });
+
+  // Start simulating pipeline progress
+  simulatePipeline(pipelineId, io);
+
+  res.json({ 
+    pipelineId,
+    extractionId: pipelineId, // For backward compatibility
+    message: 'UnifiedExtractor pipeline started successfully',
+    strategies: strategies || ['hybrid'],
+    preserveSourceAST: preserveSourceAST || true,
+    enableVariantDetection: enableVariantDetection || true
+  });
+});
+
+// Mock status polling endpoint
+app.get('/api/status', (req: any, res: any) => {
+  // Return the latest pipeline status for polling
+  const latestPipeline = Array.from(activePipelines.values()).pop();
+  
+  if (!latestPipeline) {
+    return res.json({
+      stage: 'idle',
+      status: 'ready',
+      logs: []
+    });
+  }
+  
+  // Get current stage from pipeline
+  const currentStage = getCurrentStage(latestPipeline);
+  const logs = latestPipeline.logs || [];
+  
+  res.json({
+    stage: currentStage.name,
+    status: currentStage.status,
+    progress: currentStage.progress,
+    logs: logs
+  });
+});
+
+// Helper function to get current stage
+function getCurrentStage(pipeline: any) {
+  const stages = ['extraction', 'classification', 'validation', 'testing', 'transformation', 'pr'];
+  
+  for (const stage of stages) {
+    if (pipeline.stages[stage] === 'in_progress') {
+      return { name: stage, status: 'running', progress: 50 };
+    }
+    if (pipeline.stages[stage] === 'pending') {
+      return { name: stage, status: 'pending', progress: 0 };
+    }
+  }
+  
+  return { name: 'pr', status: 'completed', progress: 100 };
+}
+
+// Mock endpoint to start pipeline (legacy support)
 app.post('/api/pipeline/start', (req: any, res: any) => {
   const { repoPath, schemaEndpoint } = req.body;
   
@@ -169,6 +255,9 @@ function simulatePipeline(pipelineId: string, io: Server) {
   const pipeline = activePipelines.get(pipelineId);
   if (!pipeline) return;
 
+  // Initialize logs array for polling
+  pipeline.logs = [];
+
   const stages = [
     { name: 'extraction', duration: 3000, logs: [
       { level: 'info', message: 'Starting extraction from repository...' },
@@ -223,13 +312,25 @@ function simulatePipeline(pipelineId: string, io: Server) {
       progress: 0
     });
 
-    // Emit logs progressively
+    // Emit logs progressively and store for polling
     stage.logs.forEach((log, index) => {
       setTimeout(() => {
+        // Add timestamp to log and store for polling
+        const logEntry = {
+          timestamp: new Date().toISOString(),
+          level: log.level,
+          message: log.message
+        };
+        pipeline.logs.push(logEntry);
+
+        // Emit via Socket.io for real-time updates
         io.emit('log', {
           stage: stage.name,
-          ...log
+          ...logEntry
         });
+
+        // Also emit pipeline:log for backward compatibility
+        io.emit('pipeline:log', logEntry);
 
         // Update progress
         const progress = Math.round(((index + 1) / stage.logs.length) * 100);

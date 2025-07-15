@@ -78,6 +78,10 @@ function Dashboard() {
       }
     } catch (error) {
       console.error('Failed to poll pipeline status:', error);
+      // Show user-friendly error notification but don't stop polling
+      if (error instanceof Error) {
+        toast.error(`Polling error: ${error.message}. Retrying...`);
+      }
     }
   }, [pipelineId, isPipelineActive, logs.length]);
 

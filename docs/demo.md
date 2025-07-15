@@ -1,14 +1,23 @@
-# UI Demo Flow - GraphQL Migration Dashboard
+# GraphQL Migration Dashboard - Live Demo Guide
 
-## Full Demo Screenshots & Workflow
+## Overview
+This demo showcases the complete GraphQL migration pipeline with polling-based real-time updates, UnifiedExtractor integration, and Apollo GraphQL client testing.
 
-### 1. Initial Dashboard Load
-![Dashboard Initial State](demo/01-dashboard-initial.png)
-- ✅ Real-time connection status indicator (Connected/Disconnected)
-- ✅ Pipeline configuration form with validation
-- ✅ GitHub integration button for repository cloning
-- ✅ New "🧪 Test vnext Sample" button for full flow testing
-- ✅ UI running on http://localhost:5174/ with 78.52% test coverage
+## Demo Flow: Inputs → Logs → Progress → Diffs → PR
+
+### 1. Initial Setup & Configuration
+**Screenshot Location**: `screenshots/01-dashboard-initial.png`
+
+- Open the dashboard at `http://localhost:5176`
+- Shows the initial state with "Ready" status indicator
+- Form validation: Submit button disabled until required fields filled
+
+**Demo Script**:
+```
+"Welcome to the GraphQL Migration Dashboard. This is our production-ready UI 
+that integrates with the UnifiedExtractor backend via polling instead of 
+WebSockets for better reliability."
+```
 
 ### 2. vnext Sample Data Testing (Step 4 Implementation)
 ![vnext Testing Flow](demo/02-vnext-testing.png)
