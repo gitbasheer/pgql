@@ -94,4 +94,85 @@ describe('SocketService Additional Coverage', () => {
     
     expect(mockSocket.on).toHaveBeenCalledWith('pipeline:completed', expect.any(Function));
   });
+
+  it('should handle pipeline error events', () => {
+    const socket = socketService.connect();
+    
+    // Simulate pipeline error
+    const errorHandler = mockSocket.on.mock.calls.find(call => call[0] === 'pipeline:error')?.[1];
+    errorHandler?.({
+      message: 'Authentication failed for real API',
+      code: 'AUTH_ERROR',
+      pipelineId: 'test-123'
+    });
+    
+    expect(mockSocket.on).toHaveBeenCalledWith('pipeline:error', expect.any(Function));
+  });
+
+  it('should handle real API baseline save events', () => {
+    const socket = socketService.connect();
+    
+    // Simulate baseline saved event
+    const baselineHandler = mockSocket.on.mock.calls.find(call => call[0] === 'realapi:baseline:saved')?.[1];
+    baselineHandler?.({
+      queryName: 'GetUser',
+      baselineId: 'baseline-123',
+      timestamp: Date.now()
+    });
+    
+    expect(mockSocket.on).toHaveBeenCalledWith('realapi:baseline:saved', expect.any(Function));
+  });
+
+  it('should handle real API test completed events', () => {
+    const socket = socketService.connect();
+    
+    // Simulate real API test completion
+    const completedHandler = mockSocket.on.mock.calls.find(call => call[0] === 'realapi:test:completed')?.[1];
+    completedHandler?.({
+      queryName: 'GetUser',
+      success: true,
+      responseTime: 234,
+      pipelineId: 'test-123'
+    });
+    
+    expect(mockSocket.on).toHaveBeenCalledWith('realapi:test:completed', expect.any(Function));
+  });
+
+  it('should handle reconnection errors', () => {
+    const socket = socketService.connect();
+    
+    // Simulate reconnection error
+    const reconnectErrorHandler = mockSocket.on.mock.calls.find(call => call[0] === 'reconnect_error')?.[1];
+    reconnectErrorHandler?.({
+      message: 'Max reconnection attempts reached',
+      type: 'TransportError'
+    });
+    
+    expect(mockSocket.on).toHaveBeenCalledWith('reconnect_error', expect.any(Function));
+  });
+
+  it('should return null when getting socket before connection', () => {
+    // Ensure socket is disconnected
+    socketService.disconnect();
+    
+    const socket = socketService.getSocket();
+    expect(socket).toBeNull();
+  });
+
+  it('should return existing socket when already connected', () => {
+    const socket1 = socketService.connect();
+    const socket2 = socketService.connect();
+    
+    // Should return the same socket instance
+    expect(socket1).toBe(socket2);
+    expect(socket2).toBe(mockSocket);
+  });
+
+  it('should handle disconnect when no socket exists', () => {
+    // Ensure socket is null
+    socketService.disconnect();
+    
+    // This should not throw an error
+    expect(() => socketService.disconnect()).not.toThrow();
+  });
 });
