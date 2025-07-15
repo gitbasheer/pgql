@@ -1,4 +1,4 @@
-import { logger } from './logger';
+import { logger } from './logger.js';
 
 export interface StandardError {
   code: string;          // e.g., "EXTRACT_001", "TRANSFORM_002"

@@ -1,8 +1,8 @@
 // @ts-nocheck
-import { BaseStrategy } from './BaseStrategy';
-import { PatternExtractedQuery } from '../types/pattern.types';
-import { ExtractedQuery, SourceAST } from '../types/query.types';
-import { QueryPatternService } from '../engine/QueryPatternRegistry';
+import { BaseStrategy } from './BaseStrategy.js';
+import { PatternExtractedQuery } from '../types/pattern.types.js';
+import { ExtractedQuery, SourceAST } from '../types/query.types.js';
+import { QueryPatternService } from '../engine/QueryPatternRegistry.js';
 import { logger } from '../../../utils/logger.js';
 import { parse as parseGraphQL, DocumentNode } from 'graphql';
 import { parse as parseBabel } from '@babel/parser';

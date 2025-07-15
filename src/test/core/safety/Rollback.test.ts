@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { RollbackSystem } from '../../../core/safety/Rollback';
-import { ProgressiveMigration } from '../../../core/safety/ProgressiveMigration';
-import { GraphQLOperation } from '../../../types';
+import { RollbackSystem } from '../../../core/safety/Rollback.js';
+import { ProgressiveMigration } from '../../../core/safety/ProgressiveMigration.js';
+import { GraphQLOperation } from '../../../types.js';
 import { logger } from '../../../utils/logger.js';
 
 // Mock logger

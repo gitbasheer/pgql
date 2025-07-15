@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SSOService } from '../../core/validator/SSOService';
+import { SSOService } from '../../core/validator/SSOService.js';
 import { logger } from '../../utils/logger.js';
 // Mock modules
 vi.mock('axios', () => ({

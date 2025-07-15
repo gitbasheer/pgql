@@ -3,11 +3,11 @@ import { parse, DocumentNode } from 'graphql';
 import * as babel from '@babel/parser';
 import traverseDefault from '@babel/traverse';
 const traverse = traverseDefault as any;
-import { BaseStrategy } from './BaseStrategy';
-import { ExtractedQuery, OperationType, SourceAST } from '../types/index';
-import { ExtractionContext } from '../engine/ExtractionContext';
-import { safeParseGraphQL } from '../../../utils/graphqlValidator';
-import { SourceMapper } from '../utils/SourceMapper';
+import { BaseStrategy } from './BaseStrategy.js';
+import { ExtractedQuery, OperationType, SourceAST } from '../types/index.js';
+import { ExtractionContext } from '../engine/ExtractionContext.js';
+import { safeParseGraphQL } from '../../../utils/graphqlValidator.js';
+import { SourceMapper } from '../utils/SourceMapper.js';
 
 
 export class PluckStrategy extends BaseStrategy {

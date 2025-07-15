@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { VariantGenerator } from '../../../core/extraction/transformers/VariantGenerator';
-import { ExtractionContext } from '../../../core/extraction/engine/ExtractionContext';
-import { ResolvedQuery, VariantSwitch, QueryVariant } from '../../../core/extraction/types/index';
+import { VariantGenerator } from '../../../core/extraction/transformers/VariantGenerator.js';
+import { ExtractionContext } from '../../../core/extraction/engine/ExtractionContext.js';
+import { ResolvedQuery, VariantSwitch, QueryVariant } from '../../../core/extraction/types/index.js';
 import { parse } from 'graphql';
 import { logger } from '../../../utils/logger.js';
 

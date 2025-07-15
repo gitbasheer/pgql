@@ -5,10 +5,10 @@ import { z } from 'zod';
 import chalk from 'chalk';
 import ora from 'ora';
 import { match } from 'ts-pattern';
-import { GraphQLExtractor } from '../core/scanner/GraphQLExtractor';
-import { SchemaAnalyzer } from '../core/analyzer/SchemaAnalyzer';
-import { TypeSafeTransformer } from '../core/transformer/TypeSafeTransformer';
-import { loadConfig } from '../core/config/ConfigValidator';
+import { GraphQLExtractor } from '../core/scanner/GraphQLExtractor.js';
+import { SchemaAnalyzer } from '../core/analyzer/SchemaAnalyzer.js';
+import { TypeSafeTransformer } from '../core/transformer/TypeSafeTransformer.js';
+import { loadConfig } from '../core/config/ConfigValidator.js';
 import { buildSchema } from 'graphql';
 import * as fs from 'fs/promises';
 

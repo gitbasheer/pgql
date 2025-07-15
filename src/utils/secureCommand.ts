@@ -1,6 +1,6 @@
 import { spawn, SpawnOptionsWithoutStdio } from 'child_process';
 import { promisify } from 'util';
-import { logger } from './logger';
+import { logger } from './logger.js';
 
 /**
  * Secure command execution utility

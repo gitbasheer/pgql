@@ -7,11 +7,11 @@ import glob from 'fast-glob';
 import * as babel from '@babel/parser';
 import traverse from '@babel/traverse';
 import { logger } from '../../utils/logger.js';
-import { FragmentResolver } from './FragmentResolver';
-import { validateReadPath } from '../../utils/securePath';
-import { safeParseGraphQL, detectOperationType, logParsingError } from '../../utils/graphqlValidator';
-import { createDefaultQueryServices } from '../extraction/services/QueryServicesFactory';
-import { PatternExtractedQuery } from '../extraction/types/pattern.types';
+import { FragmentResolver } from './FragmentResolver.js';
+import { validateReadPath } from '../../utils/securePath.js';
+import { safeParseGraphQL, detectOperationType, logParsingError } from '../../utils/graphqlValidator.js';
+import { createDefaultQueryServices } from '../extraction/services/QueryServicesFactory.js';
+import { PatternExtractedQuery } from '../extraction/types/pattern.types.js';
 
 
 export interface ExtractedQuery {

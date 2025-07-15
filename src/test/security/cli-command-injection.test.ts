@@ -7,7 +7,7 @@ import {
   validateBranchName, 
   validateFilePath,
   gitCommitSecure 
-} from '../../utils/secureCommand';
+} from '../../utils/secureCommand.js';
 
 vi.mock('child_process', () => ({
   spawn: vi.fn()
@@ -193,8 +193,8 @@ describe('CLI Command Injection Security Tests', () => {
       };
       mockSpawn.mockReturnValue(mockProcess as any);
 
-      const { execAsync } = await import('../../utils/secureCommand');
-      const { logger } = await import('../../utils/logger');
+      const { execAsync } = await import('../../utils/secureCommand.js');
+      const { logger } = await import('../../utils/logger.js');
       
       await execAsync('git status');
       

@@ -1,6 +1,6 @@
 import { DocumentNode, visit, print, parse, FieldNode, Kind } from 'graphql';
-import { DeprecationRule } from '../analyzer/SchemaDeprecationAnalyzer';
-import { ExtractedQuery, TransformationResult } from '../../types/pgql.types';
+import { DeprecationRule } from '../analyzer/SchemaDeprecationAnalyzer.js';
+import { ExtractedQuery, TransformationResult } from '../../types/pgql.types.js';
 import { logger } from '../../utils/logger.js';
 import { transformCache } from '../cache/CacheManager.js';
 import { createHash } from 'crypto';

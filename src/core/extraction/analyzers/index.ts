@@ -1,3 +1,3 @@
-export { VariantAnalyzer } from './VariantAnalyzer';
-export { ContextAnalyzer } from './ContextAnalyzer';
-export { QueryNameAnalyzer } from './QueryNameAnalyzer';
+export { VariantAnalyzer } from './VariantAnalyzer.js';
+export { ContextAnalyzer } from './ContextAnalyzer.js';
+export { QueryNameAnalyzer } from './QueryNameAnalyzer.js';

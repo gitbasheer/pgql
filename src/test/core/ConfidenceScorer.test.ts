@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ConfidenceScorer } from '../../core/analyzer/ConfidenceScorer';
-import { GraphQLOperation, CodeChange } from '../../types';
+import { ConfidenceScorer } from '../../core/analyzer/ConfidenceScorer.js';
+import { GraphQLOperation, CodeChange } from '../../types/index.js';
 
 describe('ConfidenceScorer', () => {
   let scorer: ConfidenceScorer;

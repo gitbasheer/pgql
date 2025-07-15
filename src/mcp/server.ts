@@ -265,8 +265,17 @@ class ResponseFormatter {
   }
 
   static formatValidationResult(rawOutput: string): string {
-    const isValid = !rawOutput.toLowerCase().includes('error') &&
-                    !rawOutput.toLowerCase().includes('invalid');
+    // Check for successful validation patterns
+    const hasValidQueries = rawOutput.includes('✓ Valid:') || rawOutput.includes('✔ Validated');
+    const validMatch = rawOutput.match(/✓ Valid: (\d+)/);
+    const invalidMatch = rawOutput.match(/✗ Invalid: (\d+)/);
+    
+    const validCount = validMatch ? parseInt(validMatch[1]) : 0;
+    const invalidCount = invalidMatch ? parseInt(invalidMatch[1]) : 0;
+    
+    const isValid = hasValidQueries && invalidCount === 0 && 
+                    !rawOutput.toLowerCase().includes('error') &&
+                    !rawOutput.toLowerCase().includes('validation failed');
 
     let formatted = isValid ?
       "✅ **Validation Successful**\n\nAll queries are valid and ready to use!\n" :
@@ -286,8 +295,16 @@ class ResponseFormatter {
   }
 
   static formatExtractResult(rawOutput: string, outputFile: string, queryCount: number): string {
-    let formatted = "📤 **Query Extraction Complete**\n\n";
+    // Check if no queries were found
+    if (queryCount === 0 || rawOutput.toLowerCase().includes('no queries found')) {
+      return "❌ **No GraphQL queries found**\n\n" +
+             "Check that:\n" +
+             "1. The directory contains `.ts`, `.tsx`, `.js`, or `.jsx` files\n" +
+             "2. Files contain GraphQL queries (look for `gql` or `graphql` tags)\n" +
+             "3. Try a different directory (e.g., `src/components`)";
+    }
 
+    let formatted = "📤 **Query Extraction Complete**\n\n";
     formatted += `Successfully extracted **${queryCount} GraphQL operations**\n`;
     formatted += `📁 Saved to: \`${outputFile}\`\n\n`;
 
@@ -497,10 +514,10 @@ class GraphQLMigrationServer {
             const dir = toolArgs.directory || 'src';
             // First extract to temp file
             const tempFile = 'temp-analysis.json';
-            execSync(`pnpm extract ${dir} -o ${tempFile}`, { cwd: this.projectRoot });
+            execSync(`pnpm run extract ${dir} -o ${tempFile}`, { cwd: this.projectRoot });
 
             // Then analyze
-            const rawResult = execSync(`pnpm analyze ${tempFile}`, {
+            const rawResult = execSync(`pnpm run analyze ${tempFile}`, {
               cwd: this.projectRoot,
               encoding: 'utf8'
             });
@@ -516,7 +533,7 @@ class GraphQLMigrationServer {
           case 'extract_queries': {
             const output = toolArgs.output || 'extracted-queries.json';
             const directory = toolArgs.directory || 'src';
-            const rawResult = execSync(`pnpm extract ${directory} -o ${output}`, {
+            const rawResult = execSync(`pnpm run extract ${directory} -o ${output}`, {
               cwd: this.projectRoot,
               encoding: 'utf8'
             });
@@ -525,8 +542,10 @@ class GraphQLMigrationServer {
             const outputPath = join(this.projectRoot, output);
             let queryCount = 0;
             if (existsSync(outputPath)) {
-              const queries = JSON.parse(readFileSync(outputPath, 'utf8'));
-              queryCount = queries.length;
+              const extractedData = JSON.parse(readFileSync(outputPath, 'utf8'));
+              // Handle both array format and object with queries property
+              queryCount = extractedData.queries ? extractedData.queries.length : 
+                          (Array.isArray(extractedData) ? extractedData.length : 0);
             }
 
             // Use formatter
@@ -540,7 +559,7 @@ class GraphQLMigrationServer {
             const input = toolArgs.input || 'extracted-queries.json';
             const schema = toolArgs.schema || 'data/schema.graphql';
             const rawResult = execSync(
-              `pnpm transform -i ${input} -s ${schema} ${dryRunFlag} --skip-invalid`,
+              `pnpm run transform -i ${input} -s ${schema} ${dryRunFlag} --skip-invalid`,
               { cwd: this.projectRoot, encoding: 'utf8' }
             );
 
@@ -552,7 +571,7 @@ class GraphQLMigrationServer {
           case 'validate_queries': {
             const queries = toolArgs.queries || 'extracted-queries.json';
             const schema = toolArgs.schema || 'data/schema.graphql';
-            const rawResult = execSync(`pnpm validate ${schema} -i ${queries}`, {
+            const rawResult = execSync(`pnpm run validate ${schema} -i ${queries}`, {
               cwd: this.projectRoot,
               encoding: 'utf8'
             });
@@ -566,7 +585,7 @@ class GraphQLMigrationServer {
             const transformedFile = toolArgs.transformedFile || 'transformed-queries.json';
             const hasBackup = toolArgs.backup !== false;
             const backupFlag = hasBackup ? '--backup' : '';
-            const rawResult = execSync(`pnpm apply -i ${transformedFile} ${backupFlag}`, {
+            const rawResult = execSync(`pnpm run apply -i ${transformedFile} ${backupFlag}`, {
               cwd: this.projectRoot,
               encoding: 'utf8'
             });
@@ -585,7 +604,7 @@ class GraphQLMigrationServer {
             try {
               // Analyze deprecations
               result += "1. Analyzing schema deprecations...\n";
-              const deprecations = execSync(`pnpm analyze:dev ${queriesFile}`, {
+              const deprecations = execSync(`pnpm run analyze:dev ${queriesFile}`, {
                 cwd: this.projectRoot,
                 encoding: 'utf8'
               });
@@ -594,7 +613,7 @@ class GraphQLMigrationServer {
               // Test validation
               result += "\n2. Checking query compatibility...\n";
               try {
-                execSync(`pnpm validate ${schema} -i ${queriesFile}`, {
+                execSync(`pnpm run validate ${schema} -i ${queriesFile}`, {
                   cwd: this.projectRoot,
                   encoding: 'utf8',
                   stdio: 'pipe'
@@ -636,7 +655,7 @@ class GraphQLMigrationServer {
               result += "1. Keep original query backups (automatic)\n";
               result += "2. Monitor error rates after deployment\n";
               result += "3. If issues detected:\n";
-              result += "   - Run: pnpm apply -i <original-queries>.backup\n";
+              result += "   - Run: pnpm run apply -i <original-queries>.backup\n";
               result += "   - Restart services\n\n";
             } else {
               result += "Gradual Rollback Steps:\n";
@@ -663,12 +682,12 @@ class GraphQLMigrationServer {
             try {
               // Step 1: Extract
               pipelineResult += "1️⃣ Extracting queries...\n";
-              execSync(`pnpm extract ${directory} -o ${output}-extracted.json`, { cwd: this.projectRoot });
+              execSync(`pnpm run extract ${directory} -o ${output}-extracted.json`, { cwd: this.projectRoot });
               pipelineResult += `✅ Queries extracted to ${output}-extracted.json\n\n`;
 
               // Step 2: Analyze impact
               pipelineResult += "2️⃣ Analyzing migration impact...\n";
-              const analysis = execSync(`pnpm analyze ${output}-extracted.json`, {
+              const analysis = execSync(`pnpm run analyze ${output}-extracted.json`, {
                 cwd: this.projectRoot,
                 encoding: 'utf8'
               });
@@ -677,7 +696,7 @@ class GraphQLMigrationServer {
               // Step 3: Validate
               pipelineResult += "3️⃣ Validating queries...\n";
               try {
-                execSync(`pnpm validate ${schema} -i ${output}-extracted.json`, {
+                execSync(`pnpm run validate ${schema} -i ${output}-extracted.json`, {
                   cwd: this.projectRoot,
                   stdio: 'pipe'
                 });
@@ -688,7 +707,7 @@ class GraphQLMigrationServer {
 
               // Step 4: Transform
               pipelineResult += "4️⃣ Transforming queries...\n";
-              const transformCmd = `pnpm transform -i ${output}-extracted.json -s ${schema} -o ${output}-transformed --skip-invalid ${autoApply ? '' : '--dry-run'}`;
+              const transformCmd = `pnpm run transform -i ${output}-extracted.json -s ${schema} -o ${output}-transformed --skip-invalid ${autoApply ? '' : '--dry-run'}`;
               const transformResult = execSync(transformCmd, {
                 cwd: this.projectRoot,
                 encoding: 'utf8'
@@ -698,7 +717,7 @@ class GraphQLMigrationServer {
               // Step 5: Decision point
               if (autoApply) {
                 pipelineResult += "5️⃣ Auto-applying changes...\n";
-                execSync(`pnpm apply -i ${output}-transformed.json --backup`, { cwd: this.projectRoot });
+                execSync(`pnpm run apply -i ${output}-transformed.json --backup`, { cwd: this.projectRoot });
                 pipelineResult += "✅ Changes applied successfully!\n";
                 pipelineResult += `Backup saved as: ${output}-transformed.json.backup\n`;
               } else {

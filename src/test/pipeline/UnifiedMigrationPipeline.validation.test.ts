@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { UnifiedMigrationPipeline } from '../../core/pipeline/UnifiedMigrationPipeline';
-import { MigrationConfig } from '../../types/index';
+import { UnifiedMigrationPipeline } from '../../core/pipeline/UnifiedMigrationPipeline.js';
+import { MigrationConfig } from '../../types/index.js';
 import * as fs from 'fs/promises';
 import { parse } from 'graphql';
 // Mock modules

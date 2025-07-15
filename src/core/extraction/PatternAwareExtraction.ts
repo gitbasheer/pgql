@@ -1,9 +1,9 @@
 // @ts-nocheck
-import { ExtractionOptions, ExtractionResult } from './types/index';
-import { PatternExtractedQuery, MigrationResult } from './types/pattern.types';
-import { ExtractionContext } from './engine/ExtractionContext';
-import { createDefaultQueryServices, QueryServices, QueryServicesConfig } from './services/QueryServicesFactory';
-import { ExtractionPipeline } from './engine/ExtractionPipeline';
+import { ExtractionOptions, ExtractionResult } from './types/index.js';
+import { PatternExtractedQuery, MigrationResult } from './types/pattern.types.js';
+import { ExtractionContext } from './engine/ExtractionContext.js';
+import { createDefaultQueryServices, QueryServices, QueryServicesConfig } from './services/QueryServicesFactory.js';
+import { ExtractionPipeline } from './engine/ExtractionPipeline.js';
 import { logger } from '../../utils/logger.js';
 import * as fs from 'fs';
 import { glob } from 'glob';

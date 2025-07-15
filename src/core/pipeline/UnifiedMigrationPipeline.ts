@@ -1,22 +1,22 @@
-import { MigrationConfig, GraphQLOperation } from '../../types';
-import { ExtractedQuery } from '../extraction/types/query.types';
-import { ExtractionResult as ExtractResult } from '../extraction/types/extraction.types';
-import { UnifiedExtractor } from '../extraction/engine/UnifiedExtractor';
-import { SchemaValidator } from '../validator/SchemaValidator';
-import { QueryTransformer, TransformationRule } from '../transformer/QueryTransformer';
-import { SchemaDeprecationAnalyzer } from '../analyzer/SchemaDeprecationAnalyzer';
-import { ConfidenceScorer } from '../analyzer/ConfidenceScorer';
-import { ProgressiveMigration } from '../safety/ProgressiveMigration';
-import { HealthCheckSystem } from '../safety/HealthCheck';
-import { RollbackSystem } from '../safety/Rollback';
-import { ASTCodeApplicator } from '../applicator/ASTCodeApplicator';
-import { SourceMapper } from '../extraction/utils/SourceMapper';
+import { MigrationConfig, GraphQLOperation } from '../../types/index.js';
+import { ExtractedQuery } from '../extraction/types/query.types.js';
+import { ExtractionResult as ExtractResult } from '../extraction/types/extraction.types.js';
+import { UnifiedExtractor } from '../extraction/engine/UnifiedExtractor.js';
+import { SchemaValidator } from '../validator/SchemaValidator.js';
+import { QueryTransformer, TransformationRule } from '../transformer/QueryTransformer.js';
+import { SchemaDeprecationAnalyzer } from '../analyzer/SchemaDeprecationAnalyzer.js';
+import { ConfidenceScorer } from '../analyzer/ConfidenceScorer.js';
+import { ProgressiveMigration } from '../safety/ProgressiveMigration.js';
+import { HealthCheckSystem } from '../safety/HealthCheck.js';
+import { RollbackSystem } from '../safety/Rollback.js';
+import { ASTCodeApplicator } from '../applicator/ASTCodeApplicator.js';
+import { SourceMapper } from '../extraction/utils/SourceMapper.js';
 import { 
   ResponseValidationService, 
   ResponseValidationConfig,
   ValidationReport as ResponseValidationReport,
   EndpointConfig 
-} from '../validator/index';
+} from '../validator/index.js';
 import { logger } from '../../utils/logger.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';

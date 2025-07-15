@@ -1,6 +1,6 @@
-import { ResolvedQuery } from '../types/index';
-import { PatternExtractedQuery } from '../types/pattern.types';
-import { ExtractionContext } from '../engine/ExtractionContext';
+import { ResolvedQuery } from '../types/index.js';
+import { PatternExtractedQuery } from '../types/pattern.types.js';
+import { ExtractionContext } from '../engine/ExtractionContext.js';
 import { logger } from '../../../utils/logger.js';
 
 /**

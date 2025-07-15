@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { OptimizedSchemaTransformer } from '../../core/transformer/OptimizedSchemaTransformer';
-import { TestSchemaLoader } from '../utils/schemaLoader';
-import { performanceMonitor, monitor } from '../../core/monitoring/PerformanceMonitor';
-import { transformCache } from 'from '../../core/cache/CacheManager'.js';
+import { OptimizedSchemaTransformer } from '../../core/transformer/OptimizedSchemaTransformer.js';
+import { TestSchemaLoader } from '../utils/schemaLoader.js';
+import { performanceMonitor, monitor } from '../../core/monitoring/PerformanceMonitor.js';
+import { transformCache } from 'from '../../core/cache/CacheManager.js'.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { parse } from 'graphql';

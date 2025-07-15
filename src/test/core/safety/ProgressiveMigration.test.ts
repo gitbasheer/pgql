@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ProgressiveMigration } from '../../../core/safety/ProgressiveMigration';
-import { GraphQLOperation } from '../../../types';
+import { ProgressiveMigration } from '../../../core/safety/ProgressiveMigration.js';
+import { GraphQLOperation } from '../../../types.js';
 import { logger } from '../../../utils/logger.js';
 
 // Mock logger

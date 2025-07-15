@@ -1,5 +1,5 @@
-import { SourceAST } from '../extraction/types/query.types';
-import { TransformationResult } from '../transformer/QueryTransformer';
+import { SourceAST } from '../extraction/types/query.types.js';
+import { TransformationResult } from '../transformer/QueryTransformer.js';
 
 export interface TransformationMapping {
   queryId: string;

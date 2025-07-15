@@ -1,11 +1,11 @@
-import { GraphQLOperation, CodeChange } from '../types';
+import { GraphQLOperation, CodeChange } from '../types/index.js';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import { parse } from 'graphql';
 import { logger } from '../utils/logger.js';
-import { ASTCodeApplicator, TransformationMapping, SourceMapping } from '../core/applicator/index';
+import { ASTCodeApplicator, TransformationMapping, SourceMapping } from '../core/applicator/index.js';
 import * as diff from 'diff';
 
 const execAsync = promisify(exec);

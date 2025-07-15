@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { UnifiedExtractor } from '../../core/extraction/engine/UnifiedExtractor';
-import { ExtractionOptions } from '../../core/extraction/types/index';
+import { UnifiedExtractor } from '../../core/extraction/engine/UnifiedExtractor.js';
+import { ExtractionOptions } from '../../core/extraction/types/index.js';
 import * as fs from 'node:fs/promises';
 import { constants as fsConstants } from 'node:fs';
 import * as path from 'node:path';
@@ -122,10 +122,10 @@ export const DYNAMIC_QUERY = gql\`
         // Use AST strategy directly for simpler testing
         const {
           ASTStrategy
-        } = await import('../../core/extraction/strategies/ASTStrategy');
+        } = await import('../../core/extraction/strategies/ASTStrategy.js');
         const {
           ExtractionContext
-        } = await import('../../core/extraction/engine/ExtractionContext');
+        } = await import('../../core/extraction/engine/ExtractionContext.js');
         const context = new ExtractionContext({
           directory: testDir,
           preserveSourceAST: true,

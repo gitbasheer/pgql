@@ -7,7 +7,7 @@ import {
   AlignmentOptions,
   Difference,
   DifferenceType
-} from './types';
+} from './types.js';
 
 export class AlignmentGenerator {
   constructor(

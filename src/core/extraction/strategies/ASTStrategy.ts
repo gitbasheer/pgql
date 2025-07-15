@@ -1,11 +1,11 @@
 import * as babel from '@babel/parser';
 import * as traverseModule from '@babel/traverse';
 const traverse = (traverseModule as any).default || traverseModule;
-import { BaseStrategy } from './BaseStrategy';
-import { ExtractedQuery, QueryContext, ImportInfo, OperationType, SourceAST } from '../types/index';
-import { ExtractionContext } from '../engine/ExtractionContext';
-import { safeParseGraphQL } from '../../../utils/graphqlValidator';
-import { SourceMapper } from '../utils/SourceMapper';
+import { BaseStrategy } from './BaseStrategy.js';
+import { ExtractedQuery, QueryContext, ImportInfo, OperationType, SourceAST } from '../types/index.js';
+import { ExtractionContext } from '../engine/ExtractionContext.js';
+import { safeParseGraphQL } from '../../../utils/graphqlValidator.js';
+import { SourceMapper } from '../utils/SourceMapper.js';
 
 export class ASTStrategy extends BaseStrategy {
   private sourceMapper: SourceMapper;

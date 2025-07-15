@@ -6,28 +6,28 @@ import {
   QueryVariant,
   VariantSwitch,
   PatternExtractedQuery
-} from '../types/index';
-import { ExtractionContext } from './ExtractionContext';
+} from '../types/index.js';
+import { ExtractionContext } from './ExtractionContext.js';
 
 // Analyzers
-import { VariantAnalyzer } from '../analyzers/VariantAnalyzer';
-import { ContextAnalyzer } from '../analyzers/ContextAnalyzer';
-import { QueryNameAnalyzer } from '../analyzers/QueryNameAnalyzer';
-import { TemplateResolver } from '../analyzers/TemplateResolver';
+import { VariantAnalyzer } from '../analyzers/VariantAnalyzer.js';
+import { ContextAnalyzer } from '../analyzers/ContextAnalyzer.js';
+import { QueryNameAnalyzer } from '../analyzers/QueryNameAnalyzer.js';
+import { TemplateResolver } from '../analyzers/TemplateResolver.js';
 
 // Resolvers
-import { FragmentResolver } from '../resolvers/FragmentResolver';
-import { NameResolver } from '../resolvers/NameResolver';
+import { FragmentResolver } from '../resolvers/FragmentResolver.js';
+import { NameResolver } from '../resolvers/NameResolver.js';
 
 // Transformers
-import { NameNormalizer } from '../transformers/NameNormalizer';
-import { VariantGenerator } from '../transformers/VariantGenerator';
-import { FragmentInliner } from '../transformers/FragmentInliner';
+import { NameNormalizer } from '../transformers/NameNormalizer.js';
+import { VariantGenerator } from '../transformers/VariantGenerator.js';
+import { FragmentInliner } from '../transformers/FragmentInliner.js';
 
 // Reporters
-import { JSONReporter } from '../reporters/JSONReporter';
-import { HTMLReporter } from '../reporters/HTMLReporter';
-import { FileReporter } from '../reporters/FileReporter';
+import { JSONReporter } from '../reporters/JSONReporter.js';
+import { HTMLReporter } from '../reporters/HTMLReporter.js';
+import { FileReporter } from '../reporters/FileReporter.js';
 
 export class ExtractionPipeline {
   private context: ExtractionContext;

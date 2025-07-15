@@ -12,7 +12,7 @@ import {
   AlignmentFunction,
   ABTestConfig,
   Difference
-} from './types';
+} from './types.js';
 
 export class ValidationReportGenerator {
   constructor(

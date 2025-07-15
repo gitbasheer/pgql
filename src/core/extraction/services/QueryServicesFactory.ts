@@ -1,10 +1,10 @@
 // @ts-nocheck
 import { logger } from '../../../utils/logger.js';
-import { QueryPatternService } from '../engine/QueryPatternRegistry';
-import { QueryNamingService } from './QueryNamingService';
-import { QueryMigrator } from '../engine/QueryMigrator';
-import { PatternAwareASTStrategy } from '../strategies/PatternAwareASTStrategy';
-import { ExtractionOptions } from '../types/extraction.types';
+import { QueryPatternService } from '../engine/QueryPatternRegistry.js';
+import { QueryNamingService } from './QueryNamingService.js';
+import { QueryMigrator } from '../engine/QueryMigrator.js';
+import { PatternAwareASTStrategy } from '../strategies/PatternAwareASTStrategy.js';
+import { ExtractionOptions } from '../types/extraction.types.js';
 
 export interface QueryServicesConfig {
   options: ExtractionOptions;

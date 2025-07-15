@@ -2,11 +2,11 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { spawn } from 'child_process';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { UnifiedExtractor } from '../../core/extraction/index';
-import { OptimizedSchemaTransformer } from '../../core/transformer/OptimizedSchemaTransformer';
-import { SchemaDeprecationAnalyzer } from '../../core/analyzer/SchemaDeprecationAnalyzer';
-import { SchemaValidator } from '../../core/validator/SchemaValidator';
-import { ASTCodeApplicator } from '../../core/applicator/index';
+import { UnifiedExtractor } from '../../core/extraction/index.js';
+import { OptimizedSchemaTransformer } from '../../core/transformer/OptimizedSchemaTransformer.js';
+import { SchemaDeprecationAnalyzer } from '../../core/analyzer/SchemaDeprecationAnalyzer.js';
+import { SchemaValidator } from '../../core/validator/SchemaValidator.js';
+import { ASTCodeApplicator } from '../../core/applicator/index.js';
 import { logger } from '../../utils/logger.js';
 
 vi.mock('../../utils/logger', () => ({

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { CacheManager } from 'from '../../core/cache/CacheManager'.js';
+import { CacheManager } from 'from '../../core/cache/CacheManager.js'.js';
 import { Level } from 'level';
 import { performance } from 'perf_hooks';
 import * as fs from 'fs/promises';

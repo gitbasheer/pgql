@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { GoDaddyEndpointConfig } from '../../core/validator/GoDaddyEndpointConfig';
+import { GoDaddyEndpointConfig } from '../../core/validator/GoDaddyEndpointConfig.js';
 
 describe('GoDaddyEndpointConfig', () => {
   const validCookies = {

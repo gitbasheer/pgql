@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi, Mock } from 'vitest';
 import axios, { AxiosInstance } from 'axios';
 import pRetry from 'p-retry';
-import { ResponseCaptureService } from '../../core/validator/ResponseCaptureService';
-import { EndpointConfig } from '../../core/validator/types';
+import { ResponseCaptureService } from '../../core/validator/ResponseCaptureService.js';
+import { EndpointConfig } from '../../core/validator/types.js';
 
 // Mock all dependencies
 vi.mock('axios');

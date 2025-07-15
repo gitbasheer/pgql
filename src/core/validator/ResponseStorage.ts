@@ -8,7 +8,7 @@ import {
   StorageOptions,
   ValidationReport,
   AlignmentFunction
-} from './types';
+} from './types.js';
 
 export class ResponseStorage {
   private cache: LRUCache<string, any>;

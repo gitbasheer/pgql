@@ -14,8 +14,8 @@ vi.mock('graphql', async importOriginal => {
 
 // Now import modules after mocks are set up
 import { DocumentNode, GraphQLSchema, buildSchema, parse, GraphQLError, validate as graphqlValidate, visit } from 'graphql';
-import { SemanticValidator } from '../../core/validator/SemanticValidator';
-import type { TransformationResult } from '../../../types/pgql.types';
+import { SemanticValidator } from '../../core/validator/SemanticValidator.js';
+import type { TransformationResult } from '../../../types/pgql.types.js';
 // Mock modules
 vi.mock('@utils/logger', () => ({
   logger: {

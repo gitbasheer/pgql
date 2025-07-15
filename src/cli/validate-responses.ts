@@ -6,15 +6,15 @@ import ora from 'ora';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { logger } from '../utils/logger.js';
-import { ConfigLoader } from '../utils/ConfigLoader';
+import { ConfigLoader } from '../utils/ConfigLoader.js';
 import {
   ResponseValidationService,
   ResponseValidationConfig,
   EndpointConfig
-} from '../core/validator/index';
-import { ResolvedQuery } from '../core/extraction/types/query.types';
-import { GoDaddyEndpointConfig, GoDaddySSO } from '../core/validator/GoDaddyEndpointConfig';
-import { SSOService } from '../core/validator/SSOService';
+} from '../core/validator/index.js';
+import { ResolvedQuery } from '../core/extraction/types/query.types.js';
+import { GoDaddyEndpointConfig, GoDaddySSO } from '../core/validator/GoDaddyEndpointConfig.js';
+import { SSOService } from '../core/validator/SSOService.js';
 
 const program = new Command();
 

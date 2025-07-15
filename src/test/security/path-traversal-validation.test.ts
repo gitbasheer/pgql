@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { FragmentResolver } from '../../core/extraction/resolvers/FragmentResolver';
-import { GraphQLExtractor } from '../../core/scanner/GraphQLExtractor';
-import { FileReporter } from '../../core/extraction/reporters/FileReporter';
-import { HTMLReporter } from '../../core/extraction/reporters/HTMLReporter';
-import { JSONReporter } from '../../core/extraction/reporters/JSONReporter';
-import { ConfigLoader } from '../../utils/ConfigLoader';
-import { DynamicGraphQLExtractor } from '../../core/scanner/DynamicGraphQLExtractor';
-import { TemplateResolver } from '../../core/extraction/analyzers/TemplateResolver';
-import { validateReadPath, validateWritePath, sanitizeFileName } from '../../utils/securePath';
+import { FragmentResolver } from '../../core/extraction/resolvers/FragmentResolver.js';
+import { GraphQLExtractor } from '../../core/scanner/GraphQLExtractor.js';
+import { FileReporter } from '../../core/extraction/reporters/FileReporter.js';
+import { HTMLReporter } from '../../core/extraction/reporters/HTMLReporter.js';
+import { JSONReporter } from '../../core/extraction/reporters/JSONReporter.js';
+import { ConfigLoader } from '../../utils/ConfigLoader.js';
+import { DynamicGraphQLExtractor } from '../../core/scanner/DynamicGraphQLExtractor.js';
+import { TemplateResolver } from '../../core/extraction/analyzers/TemplateResolver.js';
+import { validateReadPath, validateWritePath, sanitizeFileName } from '../../utils/securePath.js';
 
 // Mock the fs module
 vi.mock('fs/promises');
@@ -199,7 +199,7 @@ describe('Path Traversal Security Validation', () => {
 
       it('should use validateReadPath for queryNames loading', async () => {
         const extractor = new GraphQLExtractor();
-        const validateSpy = vi.spyOn(await import('../../utils/securePath'), 'validateReadPath');
+        const validateSpy = vi.spyOn(await import('../../utils/securePath.js'), 'validateReadPath');
         
         // Trigger queryNames loading
         await extractor.extractFromDirectory(projectRoot, ['**/*.js'], false);
@@ -575,7 +575,7 @@ describe('Path Traversal Security Validation', () => {
     });
 
     it('should log security violations without exposing paths', async () => {
-      const { logger } = await import('../../utils/logger');
+      const { logger } = await import('../../utils/logger.js');
       const warnSpy = vi.spyOn(logger, 'warn');
       
       validateReadPath('../../../etc/passwd');

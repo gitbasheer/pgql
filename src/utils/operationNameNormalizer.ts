@@ -1,5 +1,5 @@
 import { parse, visit, DocumentNode, OperationDefinitionNode, FieldNode } from 'graphql';
-import { logger } from './logger';
+import { logger } from './logger.js';
 
 interface NormalizedQuery {
   content: string;

@@ -4,10 +4,10 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
 import inquirer from 'inquirer';
-import { UnifiedMigrationPipeline } from '../core/pipeline/UnifiedMigrationPipeline';
-import { ConfigLoader } from '../utils/ConfigLoader';
+import { UnifiedMigrationPipeline } from '../core/pipeline/UnifiedMigrationPipeline.js';
+import { ConfigLoader } from '../utils/ConfigLoader.js';
 import { logger } from '../utils/logger.js';
-import { GitHubService } from '../core/integration/GitHubService';
+import { GitHubService } from '../core/integration/GitHubService.js';
 
 const program = new Command();
 
@@ -49,7 +49,7 @@ program
 
       // Clear caches if --no-cache is specified
       if (options.cache === false) {
-        const { astCache, validationCache, transformCache } = await import('../core/cache/CacheManager');
+        const { astCache, validationCache, transformCache } = await import('../core/cache/CacheManager.js');
         await Promise.all([
           astCache.clear(),
           validationCache.clear(),

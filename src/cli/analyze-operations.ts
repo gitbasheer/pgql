@@ -2,7 +2,7 @@
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { OperationAnalyzer } from '../core/analyzer/OperationAnalyzer';
+import { OperationAnalyzer } from '../core/analyzer/OperationAnalyzer.js';
 import { logger } from '../utils/logger.js';
 import { parse } from 'graphql';
 

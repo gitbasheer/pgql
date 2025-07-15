@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { GraphQLMigrationTool, MigrationOptions, MigrationResult } from '../../core/GraphQLMigrationTool';
-import { GraphQLExtractor } from '../../core/scanner/GraphQLExtractor';
-import { SchemaAnalyzer } from '../../core/analyzer/SchemaAnalyzer';
-import { PatternMatcher } from '../../core/analyzer/PatternMatcher';
+import { GraphQLMigrationTool, MigrationOptions, MigrationResult } from '../../core/GraphQLMigrationTool.js';
+import { GraphQLExtractor } from '../../core/scanner/GraphQLExtractor.js';
+import { SchemaAnalyzer } from '../../core/analyzer/SchemaAnalyzer.js';
+import { PatternMatcher } from '../../core/analyzer/PatternMatcher.js';
 import * as fs from 'fs/promises';
 
 // Mock dependencies

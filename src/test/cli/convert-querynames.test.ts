@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { QueryNamesConverter } from '../../cli/convert-querynames';
+import { QueryNamesConverter } from '../../cli/convert-querynames.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { tmpdir } from 'os';

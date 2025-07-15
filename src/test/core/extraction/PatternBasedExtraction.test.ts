@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { QueryPatternService } from '../../../core/extraction/engine/QueryPatternRegistry';
-import { QueryMigrator } from '../../../core/extraction/engine/QueryMigrator';
-import { PatternAwareASTStrategy } from '../../../core/extraction/strategies/PatternAwareASTStrategy';
-import { PatternExtractedQuery } from '../../../core/extraction/types/pattern.types';
+import { QueryPatternService } from '../../../core/extraction/engine/QueryPatternRegistry.js';
+import { QueryMigrator } from '../../../core/extraction/engine/QueryMigrator.js';
+import { PatternAwareASTStrategy } from '../../../core/extraction/strategies/PatternAwareASTStrategy.js';
+import { PatternExtractedQuery } from '../../../core/extraction/types/pattern.types.js';
 
 describe('Pattern-Based Extraction', () => {
   let patternService: QueryPatternService;

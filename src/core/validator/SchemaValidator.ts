@@ -5,7 +5,7 @@ import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import * as fs from 'fs/promises';
 import { logger } from '../../utils/logger.js';
 import { createTwoFilesPatch } from 'diff';
-import { SchemaAnalyzer } from '../analyzer/SchemaAnalyzer';
+import { SchemaAnalyzer } from '../analyzer/SchemaAnalyzer.js';
 
 export interface ValidationResult {
   valid: boolean;

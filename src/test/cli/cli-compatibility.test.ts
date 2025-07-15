@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { executeCommand } from '../../cli/compatibility/cli-wrapper';
-import { OutputAdapter } from '../../cli/compatibility/output-adapter';
+import { executeCommand } from '../../cli/compatibility/cli-wrapper.js';
+import { OutputAdapter } from '../../cli/compatibility/output-adapter.js';
 import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 

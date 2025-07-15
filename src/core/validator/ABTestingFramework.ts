@@ -8,7 +8,7 @@ import {
   RolloutStage,
   AutoRollbackConfig,
   CapturedResponse
-} from './types';
+} from './types.js';
 
 export class ABTestingFramework {
   private activeTests: Map<string, ABTestRuntime> = new Map();

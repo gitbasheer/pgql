@@ -168,6 +168,7 @@
     "@types/babel__generator": "^7.6.8",
     "@types/babel__traverse": "^7.20.5",
     "@types/diff": "^8.0.0",
+    "@types/glob": "^8.1.0",
     "@types/inquirer": "^9.0.8",
     "@types/js-yaml": "^4.0.9",
     "@types/lodash-es": "^4.17.12",

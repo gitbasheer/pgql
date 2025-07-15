@@ -10,8 +10,8 @@ import {
   DifferenceType,
   BreakingChange,
   PerformanceImpact
-} from './types';
-import { ComparatorConfig, ComparatorRegistry } from './comparators';
+} from './types.js';
+import { ComparatorConfig, ComparatorRegistry } from './comparators/index.js';
 
 export interface IgnorePattern {
   path: string | RegExp;

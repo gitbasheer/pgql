@@ -24,13 +24,13 @@ describe('unified-cli migrate command', () => {
   describe('CLI Module', () => {
     it('should import without errors', async () => {
       expect(async () => {
-        const cliModule = await import('../../cli/unified-cli');
+        const cliModule = await import('../../cli/unified-cli.js');
         expect(cliModule).toBeDefined();
       }).not.toThrow();
     });
 
     it('should have program structure', async () => {
-      const cliModule = await import('../../cli/unified-cli');
+      const cliModule = await import('../../cli/unified-cli.js');
       // The unified-cli uses a different structure, but we can verify it imports
       expect(cliModule).toBeDefined();
     });
@@ -38,21 +38,21 @@ describe('unified-cli migrate command', () => {
 
   describe('Dependencies', () => {
     it('should be able to import MigrationOrchestrator', async () => {
-      const imported = await import('../../core/MigrationOrchestrator');
+      const imported = await import('../../core/MigrationOrchestrator.js');
     const { MigrationOrchestrator } = imported;
       expect(MigrationOrchestrator).toBeDefined();
       expect(typeof MigrationOrchestrator).toBe('function');
     });
 
     it('should be able to import ConfigLoader', async () => {
-      const imported = await import('../../utils/ConfigLoader');
+      const imported = await import('../../utils/ConfigLoader.js');
     const { ConfigLoader } = imported;
       expect(ConfigLoader).toBeDefined();
       expect(typeof ConfigLoader.load).toBe('function');
     });
 
     it('should be able to import logger', async () => {
-      const imported = await import('../../utils/logger');
+      const imported = await import('../../utils/logger.js');
     const { logger } = imported;
       expect(logger).toBeDefined();
       expect(typeof logger.info).toBe('function');
@@ -60,7 +60,7 @@ describe('unified-cli migrate command', () => {
     });
 
     it('should be able to import GitHubService', async () => {
-      const imported = await import('../../core/integration/GitHubService');
+      const imported = await import('../../core/integration/GitHubService.js');
     const { GitHubService } = imported;
       expect(GitHubService).toBeDefined();
       expect(typeof GitHubService).toBe('function');
@@ -254,7 +254,7 @@ describe('unified-cli migrate command', () => {
       process.argv = testArgv;
 
       try {
-        await import('../../cli/unified-cli');
+        await import('../../cli/unified-cli.js');
         // Import should succeed without throwing
         expect(true).toBe(true);
       } finally {

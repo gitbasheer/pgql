@@ -4,8 +4,8 @@ import { createHash } from 'crypto';
 import { logger } from '../../utils/logger.js';
 import { performance } from 'perf_hooks';
 import type { GraphQLSchema } from 'graphql';
-import type { ExtractedQuery } from '../extraction/types';
-import type { TransformResult } from '../transformer/types';
+import type { ExtractedQuery } from '../extraction/types/index.js';
+import type { TransformResult } from '../transformer/types.js';
 
 export interface CacheStats {
   hits: number;

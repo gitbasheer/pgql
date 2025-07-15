@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ASTStrategy } from '../../core/extraction/strategies/ASTStrategy';
-import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext';
-import { ExtractionOptions } from '../../core/extraction/types/index';
+import { ASTStrategy } from '../../core/extraction/strategies/ASTStrategy.js';
+import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext.js';
+import { ExtractionOptions } from '../../core/extraction/types/index.js';
 
 describe('ASTStrategy with Source AST Preservation', () => {
   describe('basic source AST preservation', () => {

@@ -24,13 +24,13 @@ describe('migrate CLI command', () => {
   describe('CLI Module', () => {
     it('should import without errors', async () => {
       expect(async () => {
-        const cliModule = await import('../../cli/migrate');
+        const cliModule = await import('../../cli/migrate.js');
         expect(cliModule.program).toBeDefined();
       }).not.toThrow();
     });
 
     it('should have correct program structure', async () => {
-      const cliModule = await import('../../cli/migrate');
+      const cliModule = await import('../../cli/migrate.js');
       const program = cliModule.program;
 
       expect(program).toBeDefined();
@@ -44,21 +44,21 @@ describe('migrate CLI command', () => {
 
   describe('Dependencies', () => {
     it('should be able to import UnifiedMigrationPipeline', async () => {
-      const imported = await import('../../core/pipeline/UnifiedMigrationPipeline');
+      const imported = await import('../../core/pipeline/UnifiedMigrationPipeline.js');
     const { UnifiedMigrationPipeline } = imported;
       expect(UnifiedMigrationPipeline).toBeDefined();
       expect(typeof UnifiedMigrationPipeline).toBe('function');
     });
 
     it('should be able to import ConfigLoader', async () => {
-      const imported = await import('../../utils/ConfigLoader');
+      const imported = await import('../../utils/ConfigLoader.js');
     const { ConfigLoader } = imported;
       expect(ConfigLoader).toBeDefined();
       expect(typeof ConfigLoader.load).toBe('function');
     });
 
     it('should be able to import logger', async () => {
-      const imported = await import('../../utils/logger');
+      const imported = await import('../../utils/logger.js');
     const { logger } = imported;
       expect(logger).toBeDefined();
       expect(typeof logger.info).toBe('function');
@@ -66,7 +66,7 @@ describe('migrate CLI command', () => {
     });
 
     it('should be able to import GitHubService', async () => {
-      const imported = await import('../../core/integration/GitHubService');
+      const imported = await import('../../core/integration/GitHubService.js');
     const { GitHubService } = imported;
       expect(GitHubService).toBeDefined();
       expect(typeof GitHubService).toBe('function');
@@ -75,7 +75,7 @@ describe('migrate CLI command', () => {
 
   describe('CLI Options', () => {
     it('should define pipeline options', async () => {
-      const cliModule = await import('../../cli/migrate');
+      const cliModule = await import('../../cli/migrate.js');
       const program = cliModule.program;
 
       // Verify program is properly configured with options
@@ -174,7 +174,7 @@ describe('migrate CLI command', () => {
     });
 
     it('should handle error logging', async () => {
-      const imported = await import('../../utils/logger');
+      const imported = await import('../../utils/logger.js');
     const { logger } = imported;
       expect(typeof logger.error).toBe('function');
     });
@@ -183,7 +183,7 @@ describe('migrate CLI command', () => {
   describe('Cache Management', () => {
     it('should be able to import cache managers', async () => {
       try {
-        const cacheModule = await import('../../core/cache/CacheManager');
+        const cacheModule = await import('../../core/cache/CacheManager.js');
         expect(cacheModule).toBeDefined();
       } catch (error) {
         // Cache module might not exist, which is OK for this test
@@ -200,7 +200,7 @@ describe('migrate CLI command', () => {
 
       try {
         // Import should not trigger CLI execution
-        await import('../../cli/migrate');
+        await import('../../cli/migrate.js');
         expect(process.exit).not.toHaveBeenCalled();
       } finally {
         process.argv = originalArgv;

@@ -10,9 +10,9 @@ import {
   ResponseMetadata,
   VariableGenerator,
   AuthConfig
-} from './types';
-import { ResolvedQuery } from '../extraction/types/query.types';
-import { VariableGeneratorImpl } from './VariableGenerator';
+} from './types.js';
+import { ResolvedQuery } from '../extraction/types/query.types.js';
+import { VariableGeneratorImpl } from './VariableGenerator.js';
 import pLimit from 'p-limit';
 
 export class ResponseCaptureService {
@@ -68,7 +68,7 @@ export class ResponseCaptureService {
         
         try {
           // Import AuthHelper dynamically to avoid circular dependency
-          const { AuthHelper } = await import('./AuthHelper');
+          const { AuthHelper } = await import('./AuthHelper.js');
           
           // Get SSO tokens using credentials from env
           const ssoTokens = await AuthHelper.getSSOTokens();

@@ -2,11 +2,11 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import glob from 'fast-glob';
 import { parse, visit, DocumentNode, FragmentDefinitionNode, Kind } from 'graphql';
-import { ExtractedQuery, ResolvedQuery, FragmentDefinition } from '../types/index';
-import { ExtractionContext } from '../engine/ExtractionContext';
+import { ExtractedQuery, ResolvedQuery, FragmentDefinition } from '../types/index.js';
+import { ExtractionContext } from '../engine/ExtractionContext.js';
 import { logger } from '../../../utils/logger.js';
-import { safeParseGraphQL } from '../../../utils/graphqlValidator';
-import { validateReadPath } from '../../../utils/securePath';
+import { safeParseGraphQL } from '../../../utils/graphqlValidator.js';
+import { validateReadPath } from '../../../utils/securePath.js';
 
 export class FragmentResolver {
   private context: ExtractionContext;

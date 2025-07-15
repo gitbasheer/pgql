@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { executeCommand } from '../../cli/compatibility/cli-wrapper';
+import { executeCommand } from '../../cli/compatibility/cli-wrapper.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 

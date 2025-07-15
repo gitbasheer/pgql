@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { HealthCheckSystem } from '../../core/safety/HealthCheck';
-import { ProgressiveMigration } from '../../core/safety/ProgressiveMigration';
-import { RollbackSystem } from '../../core/safety/Rollback';
-import { PerformanceMonitor, performanceMonitor } from '../../core/monitoring/PerformanceMonitor';
-import { GraphQLOperation } from '../../types';
+import { HealthCheckSystem } from '../../core/safety/HealthCheck.js';
+import { ProgressiveMigration } from '../../core/safety/ProgressiveMigration.js';
+import { RollbackSystem } from '../../core/safety/Rollback.js';
+import { PerformanceMonitor, performanceMonitor } from '../../core/monitoring/PerformanceMonitor.js';
+import { GraphQLOperation } from '../../types/index.js';
 import { logger } from '../../utils/logger.js';
 
 // Mock logger

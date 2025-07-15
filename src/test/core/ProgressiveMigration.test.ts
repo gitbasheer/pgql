@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ProgressiveMigration } from '../../core/safety/ProgressiveMigration';
-import { GraphQLOperation } from '../../types';
+import { ProgressiveMigration } from '../../core/safety/ProgressiveMigration.js';
+import { GraphQLOperation } from '../../types/index.js';
 
 describe('ProgressiveMigration', () => {
   let progressiveMigration: ProgressiveMigration;

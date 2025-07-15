@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { OperationAnalyzer } from '../../core/analyzer/OperationAnalyzer';
+import { OperationAnalyzer } from '../../core/analyzer/OperationAnalyzer.js';
 import { parse } from 'graphql';
 import { logger } from '../../utils/logger.js';
 

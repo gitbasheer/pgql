@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { PatternMatcher } from '../../core/analyzer/PatternMatcher';
+import { PatternMatcher } from '../../core/analyzer/PatternMatcher.js';
 import { parse } from 'graphql';
 
 describe('PatternMatcher', () => {

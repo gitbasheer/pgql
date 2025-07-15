@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ComparatorRegistry } from '../../core/validator/comparators';
+import { ComparatorRegistry } from '../../core/validator/comparators.js';
 
 describe('ComparatorRegistry', () => {
   describe('date-tolerance comparator', () => {

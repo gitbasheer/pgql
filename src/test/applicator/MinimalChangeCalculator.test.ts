@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { MinimalChangeCalculator } from '../../core/applicator/MinimalChangeCalculator';
+import { MinimalChangeCalculator } from '../../core/applicator/MinimalChangeCalculator.js';
 import * as t from '@babel/types';
 
 describe('MinimalChangeCalculator', () => {

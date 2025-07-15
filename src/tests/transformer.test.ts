@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { GraphQLSchema, buildSchema } from 'graphql';
-import { OptimizedSchemaTransformer } from '../core/transformer/OptimizedSchemaTransformer';
-import { SchemaDeprecationAnalyzer, DeprecationRule } from '../core/analyzer/SchemaDeprecationAnalyzer';
+import { OptimizedSchemaTransformer } from '../core/transformer/OptimizedSchemaTransformer.js';
+import { SchemaDeprecationAnalyzer, DeprecationRule } from '../core/analyzer/SchemaDeprecationAnalyzer.js';
 
 interface TestContext {
   schema: GraphQLSchema;

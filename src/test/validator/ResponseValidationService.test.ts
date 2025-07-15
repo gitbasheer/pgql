@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi, Mock } from 'vitest';
-import { ResponseValidationService } from '../../core/validator/ResponseValidationService';
-import { ResponseCaptureService } from '../../core/validator/ResponseCaptureService';
-import { ResponseComparator } from '../../core/validator/ResponseComparator';
-import { AlignmentGenerator } from '../../core/validator/AlignmentGenerator';
-import { ABTestingFramework } from '../../core/validator/ABTestingFramework';
-import { ResponseStorage } from '../../core/validator/ResponseStorage';
-import { ValidationReportGenerator } from '../../core/validator/ValidationReportGenerator';
+import { ResponseValidationService } from '../../core/validator/ResponseValidationService.js';
+import { ResponseCaptureService } from '../../core/validator/ResponseCaptureService.js';
+import { ResponseComparator } from '../../core/validator/ResponseComparator.js';
+import { AlignmentGenerator } from '../../core/validator/AlignmentGenerator.js';
+import { ABTestingFramework } from '../../core/validator/ABTestingFramework.js';
+import { ResponseStorage } from '../../core/validator/ResponseStorage.js';
+import { ValidationReportGenerator } from '../../core/validator/ValidationReportGenerator.js';
 import {
   ResponseValidationConfig,
   EndpointConfig,
@@ -16,8 +16,8 @@ import {
   CapturedResponse,
   ABTestConfig,
   AlignmentFunction
-} from '../../core/validator/types';
-import { ResolvedQuery } from '../../core/extraction/types/query.types';
+} from '../../core/validator/types.js';
+import { ResolvedQuery } from '../../core/extraction/types/query.types.js';
 import { logger } from '../../utils/logger.js';
 import { promises as fs } from 'fs';
 
@@ -684,7 +684,7 @@ describe('ResponseValidationService', () => {
         };
         
         // Mock GraphQLClient query method
-        const { GraphQLClient } = await import('../../core/testing/GraphQLClient');
+        const { GraphQLClient } = await import('../../core/testing/GraphQLClient.js');
         const mockGraphQLClient = GraphQLClient as any;
         mockGraphQLClient.prototype.query = vi.fn().mockResolvedValue(mockResponse.body);
         

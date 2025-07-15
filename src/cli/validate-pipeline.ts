@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { SchemaValidator } from '../core/validator/SchemaValidator';
+import { SchemaValidator } from '../core/validator/SchemaValidator.js';
 import { logger } from '../utils/logger.js';
 
 const program = new Command();

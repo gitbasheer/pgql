@@ -3,10 +3,10 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
-import { MigrationOrchestrator } from '../core/MigrationOrchestrator';
-import { ConfigLoader } from '../utils/ConfigLoader';
+import { MigrationOrchestrator } from '../core/MigrationOrchestrator.js';
+import { ConfigLoader } from '../utils/ConfigLoader.js';
 import { logger } from '../utils/logger.js';
-import { PatternAwareExtraction } from '../core/extraction/PatternAwareExtraction';
+import { PatternAwareExtraction } from '../core/extraction/PatternAwareExtraction.js';
 
 const program = new Command();
 
@@ -357,7 +357,7 @@ program
           spinner.start('Creating GitHub pull request...');
 
           // Import GitHubService dynamically
-          const { GitHubService } = await import('../core/integration/GitHubService');
+          const { GitHubService } = await import('../core/integration/GitHubService.js');
           const githubService = new GitHubService();
 
           const prOptions = {
