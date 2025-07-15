@@ -53,8 +53,6 @@ pnpm install
 # Build the project
 pnpm build
 
-# Run compatibility tests (optional but recommended)
-pnpm test:cli-compatibility
 ```
 
 ## 🎯 Quick Start
@@ -657,19 +655,23 @@ For detailed information, see [Pattern-Based Migration Guide](PATTERN-BASED-MIGR
 
 ### Running Tests
 ```bash
-# Run all tests
+# Run all tests with coverage (everything except Cypress E2E)
 pnpm test
+# Includes: Core tests (76) + UI tests (28) + MCP tests + Property tests + Security audit
 
-# Run with coverage
-pnpm test:coverage
+# Individual test suites
+pnpm test:core          # Main vitest tests (76 tests)
+pnpm ui:test           # UI/React tests (28 tests)  
+pnpm test:mcp          # MCP server tests
+pnpm test:property     # Property-based tests
+pnpm test:security     # Security audit (npm audit + snyk)
 
-# Run specific test suites
-pnpm test extraction     # Extraction tests
-pnpm test transformer   # Transformer tests
-pnpm test validator     # Validator tests
-
-# Run CLI compatibility tests
-pnpm test:cli-compatibility
+# Development & CI
+pnpm test:coverage     # Run with coverage reporting
+pnpm test:core:watch   # Watch mode for core tests
+pnpm test:all          # Comprehensive suite (includes mutation testing)
+pnpm test:e2e          # Cypress E2E tests only
+pnpm test:full         # Everything including E2E tests
 ```
 
 ### Test Coverage
