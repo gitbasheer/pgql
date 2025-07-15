@@ -1,6 +1,6 @@
 import * as babel from '@babel/parser';
-import * as traverseModule from '@babel/traverse';
-const traverse = (traverseModule as any).default || traverseModule;
+import traverseModule from '@babel/traverse';
+const traverse = typeof traverseModule === 'function' ? traverseModule : (traverseModule as any).default;
 import { BaseStrategy } from './BaseStrategy';
 import { ExtractedQuery, QueryContext, ImportInfo, OperationType, SourceAST } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';
