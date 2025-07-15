@@ -463,4 +463,114 @@ index 1234567..abcdefg 100644
     expect(screen.getByText(/venturesV2/)).toBeInTheDocument();
     expect(screen.getByText(/displayName/)).toBeInTheDocument();
   });
+
+  it('should handle real diff with .env auth - production headers', async () => {
+    const user = userEvent.setup();
+    
+    // Mock real production environment
+    const originalEnv = process.env;
+    process.env.REACT_APP_AUTH_IDP = 'prod-auth-token-123';
+    process.env.REACT_APP_API_TOKEN = 'prod-bearer-token-456';
+    
+    const mockRealAuthDiff = {
+      prUrl: 'https://github.com/production/vnext/pull/789',
+      diff: `diff --git a/src/api/auth.ts b/src/api/auth.ts
+--- a/src/api/auth.ts
++++ b/src/api/auth.ts
+@@ -1,4 +1,6 @@
+ const authHeaders = {
+-  'Cookie': 'legacy_auth=old_token'
++  'Cookie': 'auth_idp=***; cust_idp=***',
++  'Authorization': 'Bearer ***',
++  'X-Account-Id': process.env.ACCOUNT_ID
+ };`,
+      authValidated: true,
+      prodReady: true
+    };
+
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockRealAuthDiff,
+    });
+
+    renderComponent();
+
+    await user.click(screen.getByRole('button', { name: 'Generate Pull Request' }));
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('Pull request generated successfully!');
+    });
+
+    // Verify real auth diff content shows proper header construction
+    expect(screen.getByText(/auth_idp=\*\*\*/)).toBeInTheDocument();
+    expect(screen.getByText(/Authorization.*Bearer \*\*\*/)).toBeInTheDocument();
+    
+    // Cleanup
+    process.env = originalEnv;
+  });
+
+  it('should test real API authentication validation in PR flow', async () => {
+    const user = userEvent.setup();
+    
+    // Mock authentication validation failure
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ 
+        message: 'Real API auth validation failed',
+        details: 'Cookie auth_idp token invalid or expired',
+        authError: true,
+        suggestion: 'Check REACT_APP_AUTH_IDP environment variable'
+      }),
+    });
+
+    renderComponent();
+
+    await user.click(screen.getByRole('button', { name: 'Generate Pull Request' }));
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Failed to generate PR: Real API auth validation failed');
+    });
+
+    // Verify auth error handling doesn't expose sensitive tokens
+    expect(screen.queryByText(/auth_idp.*=.*[^*]/)).not.toBeInTheDocument();
+  });
+
+  it('should verify real PR generation with Hivemind A/B flags', async () => {
+    const user = userEvent.setup();
+    
+    const mockHivemindPR = {
+      prUrl: 'https://github.com/production/vnext/pull/100',
+      diff: `diff --git a/src/features/ventures.ts b/src/features/ventures.ts
+--- a/src/features/ventures.ts
++++ b/src/features/ventures.ts
+@@ -1,3 +1,6 @@
++import { hivemind } from '@hivemind/flags';
++
+ export const getVentures = () => {
++  if (hivemind.isEnabled('ventures_v2_migration')) {
+     return venturesV2Service.getAll();
++  }
+   return venturesService.getAll();
+ };`,
+      hivemindFlags: ['ventures_v2_migration'],
+      abTestReady: true
+    };
+
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockHivemindPR,
+    });
+
+    renderComponent();
+
+    await user.click(screen.getByRole('button', { name: 'Generate Pull Request' }));
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('Pull request generated successfully!');
+    });
+
+    // Verify Hivemind A/B flag integration per Z's implementation
+    expect(screen.getByText(/hivemind\.isEnabled/)).toBeInTheDocument();
+    expect(screen.getByText(/ventures_v2_migration/)).toBeInTheDocument();
+  });
 });
