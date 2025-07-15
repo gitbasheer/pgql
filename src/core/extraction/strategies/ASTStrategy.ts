@@ -1,5 +1,5 @@
 import * as babel from '@babel/parser';
-import traverse from '@babel/traverse';
+import traverse, { type NodePath } from '@babel/traverse';
 import { BaseStrategy } from './BaseStrategy';
 import { ExtractedQuery, QueryContext, ImportInfo, OperationType, SourceAST } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';
@@ -34,7 +34,7 @@ export class ASTStrategy extends BaseStrategy {
       const imports = this.extractImports(ast);
       let queryIndex = 0;
 
-      traverse(ast, {
+      (traverse as any)(ast, {
         TaggedTemplateExpression: (path: any) => {
           if (this.isGraphQLTag(path.node.tag)) {
             const query = this.extractQueryFromTemplate(path, filePath, queryIndex++);
@@ -317,7 +317,7 @@ export class ASTStrategy extends BaseStrategy {
   private extractImports(ast: any): ImportInfo[] {
     const imports: ImportInfo[] = [];
 
-    traverse(ast, {
+    (traverse as any)(ast, {
       ImportDeclaration: (path: any) => {
         const source = path.node.source.value;
         const imported = path.node.specifiers.map((spec: any) => {

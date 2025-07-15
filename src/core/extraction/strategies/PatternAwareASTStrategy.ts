@@ -6,7 +6,7 @@ import { QueryPatternService } from '../engine/QueryPatternRegistry';
 import { logger } from '../../../utils/logger';
 import { parse as parseGraphQL, DocumentNode } from 'graphql';
 import { parse as parseBabel } from '@babel/parser';
-import traverse from '@babel/traverse';
+import traverse, { type NodePath } from '@babel/traverse';
 import * as babel from '@babel/types';
 
 export class PatternAwareASTStrategy extends BaseStrategy {
@@ -41,7 +41,7 @@ export class PatternAwareASTStrategy extends BaseStrategy {
       });
 
       // Extract queries with enhanced pattern awareness
-      traverse(ast, {
+      (traverse as any)(ast, {
         TaggedTemplateExpression: (path) => {
           if (this.isGraphQLTag(path.node.tag)) {
             const query = this.extractPatternQuery(path, filePath, content);
