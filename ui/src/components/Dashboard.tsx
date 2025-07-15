@@ -1,8 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import { useSocket } from '../hooks/useSocket';
-import { usePipelineLogs } from '../hooks/usePipelineLogs';
 import PipelineProgress from './PipelineProgress';
 import LogViewer from './LogViewer';
 import QueryResults from './QueryResults';
@@ -18,6 +16,16 @@ interface PipelineConfig {
   testAccountId?: string;
 }
 
+interface PipelineStatus {
+  stage: string;
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  logs: Array<{
+    timestamp: string;
+    level: 'info' | 'warn' | 'error' | 'success';
+    message: string;
+  }>;
+}
+
 function Dashboard() {
   const [config, setConfig] = useState<PipelineConfig>({
     repoPath: '',
@@ -27,9 +35,77 @@ function Dashboard() {
   });
   const [isPipelineActive, setIsPipelineActive] = useState(false);
   const [pipelineId, setPipelineId] = useState<string>();
+  const [pipelineStatus, setPipelineStatus] = useState<PipelineStatus | null>(null);
+  const [logs, setLogs] = useState<Array<{
+    timestamp: string;
+    level: 'info' | 'warn' | 'error' | 'success';
+    message: string;
+  }>>([]);
   
-  const { socket, isConnected } = useSocket();
-  const { logs, clearLogs } = usePipelineLogs(socket);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Construct auth cookies from environment variables
+  const constructAuthCookies = useCallback(() => {
+    const authIdp = process.env.REACT_APP_AUTH_IDP || '';
+    const custIdp = process.env.REACT_APP_CUST_IDP || '';
+    const infoCustIdp = process.env.REACT_APP_INFO_CUST_IDP || '';
+    const infoIdp = process.env.REACT_APP_INFO_IDP || '';
+    
+    return `auth_idp=${authIdp}; cust_idp=${custIdp}; info_cust_idp=${infoCustIdp}; info_idp=${infoIdp}`;
+  }, []);
+
+  // Polling function to replace Socket.io
+  const pollPipelineStatus = useCallback(async () => {
+    if (!pipelineId || !isPipelineActive) return;
+
+    try {
+      const response = await fetch('/api/status', {
+        headers: {
+          'x-app-key': 'vnext-dashboard',
+          'Cookie': constructAuthCookies(),
+        },
+      });
+
+      if (response.ok) {
+        const status: PipelineStatus = await response.json();
+        setPipelineStatus(status);
+        
+        // Update logs if new ones are available
+        if (status.logs && status.logs.length > logs.length) {
+          setLogs(status.logs);
+        }
+        
+        // Check if pipeline is completed
+        if (status.status === 'completed' || status.status === 'failed') {
+          setIsPipelineActive(false);
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+            pollingIntervalRef.current = null;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to poll pipeline status:', error);
+    }
+  }, [pipelineId, isPipelineActive, logs.length, constructAuthCookies]);
+
+  // Start polling when pipeline becomes active
+  useEffect(() => {
+    if (isPipelineActive && pipelineId && !pollingIntervalRef.current) {
+      pollingIntervalRef.current = setInterval(pollPipelineStatus, 1000);
+    }
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
+  }, [isPipelineActive, pipelineId, pollPipelineStatus]);
+
+  const clearLogs = useCallback(() => {
+    setLogs([]);
+  }, []);
 
   const startPipeline = useMutation({
     mutationFn: async (config: PipelineConfig) => {
@@ -165,8 +241,8 @@ function Dashboard() {
         <h1>GraphQL Migration Dashboard</h1>
         <p>Real-time monitoring for your GraphQL migration pipeline</p>
         <div className="connection-status">
-          <span className={`status-indicator ${isConnected ? 'connected' : 'disconnected'}`} />
-          {isConnected ? 'Connected' : 'Disconnected'}
+          <span className={`status-indicator ${isPipelineActive ? 'connected' : 'disconnected'}`} />
+          {isPipelineActive ? `Polling Status (${pipelineStatus?.stage || 'unknown'})` : 'Ready'}
         </div>
       </header>
 
@@ -246,7 +322,7 @@ function Dashboard() {
         <section className="pipeline-section">
           <h2>Pipeline Progress</h2>
           {isPipelineActive ? (
-            <PipelineProgress socket={socket} isActive={isPipelineActive} />
+            <PipelineProgress isActive={isPipelineActive} currentStage={pipelineStatus?.stage} />
           ) : (
             <div className="pipeline-placeholder">
               <p>Pipeline will appear here once started...</p>

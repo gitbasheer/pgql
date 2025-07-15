@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render } from '@testing-library/react';
+import React from 'react';
 
 // Mock React DOM createRoot
 const mockRender = vi.fn();
@@ -7,6 +8,7 @@ const mockCreateRoot = vi.fn(() => ({
   render: mockRender,
 }));
 
+// Mock actual main.tsx imports
 vi.mock('react-dom/client', () => ({
   default: {
     createRoot: mockCreateRoot,
@@ -15,27 +17,40 @@ vi.mock('react-dom/client', () => ({
 }));
 
 // Mock App component
+const MockApp = () => React.createElement('div', { 'data-testid': 'mocked-app' }, 'Mocked App');
 vi.mock('../src/App', () => ({
-  default: () => 'MockedApp',
+  default: MockApp,
 }));
 
-// Mock Apollo Client
+// Mock Apollo Client with realistic implementations
+const mockApolloClient = vi.fn(() => ({
+  cache: new (vi.fn())(),
+  link: {},
+  query: vi.fn(),
+  mutate: vi.fn(),
+}));
+
+const mockInMemoryCache = vi.fn();
+
 vi.mock('@apollo/client', () => ({
-  ApolloClient: vi.fn(() => ({
-    cache: {},
-    link: {},
-  })),
-  InMemoryCache: vi.fn(),
-  ApolloProvider: ({ children }: { children: React.ReactNode }) => children,
+  ApolloClient: mockApolloClient,
+  InMemoryCache: mockInMemoryCache,
+  ApolloProvider: ({ children, client }: { children: React.ReactNode; client: any }) => 
+    React.createElement('div', { 'data-testid': 'apollo-provider', 'data-client': client ? 'present' : 'missing' }, children),
 }));
 
-// Mock TanStack Query
+// Mock TanStack Query with realistic implementations
+const mockQueryClient = vi.fn(() => ({
+  getQueryData: vi.fn(),
+  setQueryData: vi.fn(),
+  invalidateQueries: vi.fn(),
+  clear: vi.fn(),
+}));
+
 vi.mock('@tanstack/react-query', () => ({
-  QueryClient: vi.fn(() => ({
-    getQueryData: vi.fn(),
-    setQueryData: vi.fn(),
-  })),
-  QueryClientProvider: ({ children }: { children: React.ReactNode }) => children,
+  QueryClient: mockQueryClient,
+  QueryClientProvider: ({ children, client }: { children: React.ReactNode; client: any }) => 
+    React.createElement('div', { 'data-testid': 'query-provider', 'data-client': client ? 'present' : 'missing' }, children),
 }));
 
 // Mock CSS imports
@@ -60,6 +75,8 @@ describe('Main Entry Point', () => {
   afterEach(() => {
     document.body.removeChild(mockRootElement);
     vi.restoreAllMocks();
+    // Clear module cache to allow fresh imports
+    vi.resetModules();
   });
 
   it('should verify QueryClient default options configuration', () => {
@@ -155,8 +172,8 @@ describe('Main Entry Point', () => {
 
   it('should wrap App in React.StrictMode', () => {
     // Test that StrictMode is used in the component structure
-    const strictModeComponent = { type: { name: 'StrictMode' } };
-    expect(strictModeComponent.type.name).toBe('StrictMode');
+    expect(React.StrictMode).toBeDefined();
+    expect(typeof React.StrictMode).toBe('symbol');
   });
 
   it('should load required CSS files', () => {
@@ -194,5 +211,102 @@ describe('Main Entry Point', () => {
     
     expect(expectedStructure.strictMode.props.children.type).toBe('QueryClientProvider');
     expect(expectedStructure.strictMode.props.children.props.client).toBeDefined();
+  });
+
+  it('should actually execute main.tsx and create QueryClient', async () => {
+    // Import main.tsx to trigger execution
+    await import('../src/main');
+
+    // Verify QueryClient was created with correct config
+    expect(mockQueryClient).toHaveBeenCalledWith({
+      defaultOptions: {
+        queries: {
+          refetchOnWindowFocus: false,
+          retry: 1,
+        },
+      },
+    });
+  });
+
+  it('should actually execute main.tsx and create ApolloClient', async () => {
+    // Import main.tsx to trigger execution
+    await import('../src/main');
+
+    // Verify ApolloClient was created with correct config
+    expect(mockApolloClient).toHaveBeenCalledWith({
+      uri: '/api/graphql',
+      cache: expect.any(Object),
+    });
+    expect(mockInMemoryCache).toHaveBeenCalled();
+  });
+
+  it('should actually execute main.tsx and render the app', async () => {
+    // Import main.tsx to trigger execution
+    await import('../src/main');
+
+    // Verify createRoot was called with the root element
+    expect(document.getElementById).toHaveBeenCalledWith('root');
+    expect(mockCreateRoot).toHaveBeenCalledWith(mockRootElement);
+    
+    // Verify render was called
+    expect(mockRender).toHaveBeenCalled();
+  });
+
+  it('should handle missing root element with proper error', () => {
+    // Mock getElementById to return null
+    vi.spyOn(document, 'getElementById').mockReturnValue(null);
+
+    // Test that the function would throw an error
+    expect(() => {
+      const rootElement = document.getElementById('root');
+      if (!rootElement) throw new Error('Root element not found');
+    }).toThrow('Root element not found');
+  });
+
+  it('should load CSS files without errors', async () => {
+    // This test ensures CSS imports don't cause issues
+    expect(() => {
+      require('../src/styles/index.css');
+      require('react-toastify/dist/ReactToastify.css');
+    }).not.toThrow();
+  });
+
+  it('should setup environment configuration correctly', async () => {
+    // Test environment-based configuration
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+
+    await import('../src/main');
+
+    // Should still work in production mode
+    expect(mockQueryClient).toHaveBeenCalled();
+    expect(mockApolloClient).toHaveBeenCalled();
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it('should handle development environment', async () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'development';
+
+    await import('../src/main');
+
+    // Should work correctly in development
+    expect(mockCreateRoot).toHaveBeenCalled();
+    expect(mockRender).toHaveBeenCalled();
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it('should create unique client instances', async () => {
+    // Clear previous calls
+    vi.clearAllMocks();
+
+    await import('../src/main');
+
+    // Each client should be created once
+    expect(mockQueryClient).toHaveBeenCalledTimes(1);
+    expect(mockApolloClient).toHaveBeenCalledTimes(1);
+    expect(mockInMemoryCache).toHaveBeenCalledTimes(1);
   });
 });

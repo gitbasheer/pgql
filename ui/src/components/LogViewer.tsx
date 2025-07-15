@@ -1,6 +1,11 @@
 import { useRef, useEffect, memo, useCallback } from 'react';
-import { LogEntry } from '../hooks/usePipelineLogs';
 import '../styles/log-viewer.css';
+
+interface LogEntry {
+  timestamp: string;
+  level: 'info' | 'warn' | 'error' | 'success';
+  message: string;
+}
 
 interface LogViewerProps {
   logs: LogEntry[];
@@ -15,7 +20,8 @@ const LogViewer = memo(function LogViewer({ logs }: LogViewerProps) {
     }
   }, [logs]);
 
-  const formatTimestamp = useCallback((date: Date) => {
+  const formatTimestamp = useCallback((timestamp: string) => {
+    const date = new Date(timestamp);
     return date.toLocaleTimeString('en-US', { 
       hour12: false,
       hour: '2-digit',
@@ -43,10 +49,9 @@ const LogViewer = memo(function LogViewer({ logs }: LogViewerProps) {
           Waiting for logs...
         </div>
       ) : (
-        logs.map((log) => (
-          <div key={log.id} className={getLogLevelClass(log.level)}>
+        logs.map((log, index) => (
+          <div key={`${log.timestamp}-${index}`} className={getLogLevelClass(log.level)}>
             <span className="log-timestamp">[{formatTimestamp(log.timestamp)}]</span>
-            <span className="log-stage">[{log.stage}]</span>
             <span className="log-message">{log.message}</span>
             {log.details && (
               <pre className="log-details">{JSON.stringify(log.details, null, 2)}</pre>

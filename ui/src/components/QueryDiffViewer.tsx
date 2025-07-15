@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useQuery as useApolloQuery, gql } from '@apollo/client';
 import DiffViewer from 'react-diff-viewer-continued';
@@ -29,6 +29,52 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
     queryFn: () => getBaselineComparisons(selectedQuery!.query.queryName || ''),
     enabled: !!selectedQuery?.query.queryName && activeTab === 'baseline',
   });
+
+  // Construct auth cookies for Hivemind API
+  const constructAuthCookies = useCallback(() => {
+    const authIdp = process.env.REACT_APP_AUTH_IDP || '';
+    const custIdp = process.env.REACT_APP_CUST_IDP || '';
+    const infoCustIdp = process.env.REACT_APP_INFO_CUST_IDP || '';
+    const infoIdp = process.env.REACT_APP_INFO_IDP || '';
+    
+    return `auth_idp=${authIdp}; cust_idp=${custIdp}; info_cust_idp=${infoCustIdp}; info_idp=${infoIdp}`;
+  }, []);
+
+  // Hivemind cohort fetch using Apollo
+  const GET_COHORT = gql`
+    query GetCohort($queryId: String!, $cohortType: String!) {
+      getCohort(queryId: $queryId, cohortType: $cohortType) {
+        cohortId
+        experimentName
+        variant
+        confidence
+        metrics {
+          successRate
+          responseTime
+          errorCount
+        }
+      }
+    }
+  `;
+
+  const { data: cohortData } = useApolloQuery(GET_COHORT, {
+    variables: {
+      queryId: selectedQuery?.query.queryName || '',
+      cohortType: 'new-queries'
+    },
+    skip: !selectedQuery?.query.queryName,
+    context: {
+      headers: {
+        'Cookie': constructAuthCookies()
+      }
+    },
+    errorPolicy: 'ignore'
+  });
+
+  const getCohortId = useCallback((response: any, cohortType: string) => {
+    if (!response?.getCohort) return 'Unknown';
+    return response.getCohort.cohortId || 'Unknown';
+  }, []);
 
   // GraphQL query validation using Apollo Client
   const { data: validationResult, error: validationError } = useApolloQuery(
@@ -133,6 +179,21 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
             <div className="query-info">
               <p><strong>Query:</strong> {selectedQuery.query.queryName || 'Anonymous'}</p>
               <p><strong>File:</strong> {selectedQuery.query.filePath}:{selectedQuery.query.lineNumber}</p>
+              <p><strong>A/B Cohort:</strong> {getCohortId(cohortData, 'new-queries')}</p>
+              {cohortData?.getCohort && (
+                <div className="cohort-details">
+                  <p><strong>Experiment:</strong> {cohortData.getCohort.experimentName || 'N/A'}</p>
+                  <p><strong>Variant:</strong> {cohortData.getCohort.variant || 'N/A'}</p>
+                  <p><strong>Confidence:</strong> {cohortData.getCohort.confidence || 'N/A'}%</p>
+                  {cohortData.getCohort.metrics && (
+                    <div className="cohort-metrics">
+                      <small>Success Rate: {cohortData.getCohort.metrics.successRate || 'N/A'}% | 
+                      Response Time: {cohortData.getCohort.metrics.responseTime || 'N/A'}ms | 
+                      Errors: {cohortData.getCohort.metrics.errorCount || 0}</small>
+                    </div>
+                  )}
+                </div>
+              )}
               {activeTab === 'transformation' && selectedQuery.transformation?.warnings && (
                 <div className="warnings">
                   <h4>Warnings:</h4>
