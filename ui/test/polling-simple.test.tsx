@@ -164,8 +164,43 @@ describe('Polling Implementation Tests', () => {
 
   it('clears logs when clear button is clicked', async () => {
     const user = userEvent.setup();
+
+    // Mock a successful pipeline start that returns logs
+    (global.fetch as any).mockImplementation((url: string) => {
+      if (url.includes('/api/extract')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ pipelineId: 'test-pipeline-123' }),
+        });
+      }
+      if (url === '/api/status') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            stage: 'extraction',
+            status: 'running',
+            logs: [
+              { timestamp: new Date().toISOString(), level: 'info', message: 'Test log entry' }
+            ]
+          }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: async () => ({}) });
+    });
+
     renderDashboard();
 
+    // Start pipeline to get logs
+    await user.type(screen.getByLabelText(/repository path/i), '/test/repo');
+    await user.type(screen.getByLabelText(/schema endpoint/i), 'https://api.example.com/graphql');
+    await user.click(screen.getByRole('button', { name: /start pipeline/i }));
+
+    // Wait for logs to appear
+    await waitFor(() => {
+      expect(screen.getByText('Test log entry')).toBeInTheDocument();
+    });
+
+    // Now the clear button should be visible
     const clearButton = screen.getByRole('button', { name: /clear logs/i });
     await user.click(clearButton);
     

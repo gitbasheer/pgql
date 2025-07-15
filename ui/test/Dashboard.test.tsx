@@ -66,7 +66,7 @@ describe('Dashboard', () => {
   it('displays connection status', () => {
     renderDashboard();
     
-    expect(screen.getByText('Disconnected')).toBeInTheDocument();
+    expect(screen.getByText('Ready')).toBeInTheDocument();
   });
 
   it('renders pipeline configuration form', () => {
