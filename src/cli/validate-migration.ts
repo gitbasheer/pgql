@@ -174,9 +174,13 @@ export class MigrationValidator {
       return query.contentFingerprint;
     }
 
-    // Fallback to normalized content
-    const normalizedContent = this.normalizeQueryContent(query.source || query.content || '');
-    return `${query.name || 'unnamed'}_${normalizedContent}`;
+    // For migration validation, use query name and file path for matching
+    // This allows us to track the same logical query even if content changes
+    const filePath = query.filePath || query.sourceFile || '';
+    const queryName = query.name || 'unnamed';
+    
+    // Use file path + name as key to identify the same query across migrations
+    return `${filePath}:${queryName}`;
   }
 
   private normalizeQueryContent(content: string): string {
