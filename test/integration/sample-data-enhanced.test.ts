@@ -26,13 +26,37 @@ describe('Enhanced Sample Data Pipeline', () => {
       testingAccount: {
         ventures: [{ id: 'test-venture-123' }],
         projects: [{ domain: 'test.com' }]
+      },
+      capture: {
+        maxConcurrency: 5,
+        timeout: 30000,
+        variableGeneration: 'auto'
+      },
+      comparison: {
+        strict: false,
+        ignorePaths: [],
+        customComparators: {}
+      },
+      alignment: {
+        strict: false,
+        preserveNulls: true,
+        preserveOrder: false
+      },
+      storage: {
+        type: 'file',
+        path: './test-results'
       }
     });
     
-    transformer = new OptimizedSchemaTransformer({
-      hivemindIntegration: true,
-      generatePRs: true
-    });
+    transformer = new OptimizedSchemaTransformer(
+      [], // Empty deprecation rules array for testing
+      {
+        commentOutVague: true,
+        addDeprecationComments: true,
+        preserveOriginalAsComment: false,
+        enableCache: true
+      }
+    );
   });
 
   describe('Template Resolution Enhancement', () => {
