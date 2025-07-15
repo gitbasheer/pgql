@@ -137,7 +137,7 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
           </div>
 
           <div className="test-details">
-            {testResults.results.map((result, index) => (
+            {testResults.results?.map((result, index) => (
               <div key={index} className={`test-item ${result.status}`}>
                 <div className="test-info">
                   <span className="query-name">{result.queryName}</span>
