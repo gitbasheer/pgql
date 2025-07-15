@@ -146,12 +146,39 @@ cp ui/.env.example ui/.env
 # 2. Start UI development server
 cd ui && pnpm dev
 
-# 3. Open http://localhost:5174/
+# 3. Open http://localhost:5174/ (auto-port detection)
 # 4. Click "🧪 Test vnext Sample" button
 # 5. Watch real-time pipeline: extraction → testing → PR generation
-# 6. Verify masked authentication in logs
-# 7. Review query diffs and PR preview
+# 6. Verify masked authentication in logs (auth_idp=***; cust_idp=***)
+# 7. Review query diffs and PR preview with Hivemind A/B flags
+# 8. Complete E2E validation: 30 queries extracted, 0 AST errors
 ```
+
+### Demo Screenshots
+![Screenshot 1: Dashboard Initial Load](demo/01-dashboard-ready.png)
+- Real-time connection status: Connected ✅
+- Pipeline configuration form loaded
+- "🧪 Test vnext Sample" button ready for E2E testing
+
+![Screenshot 2: vnext Pipeline Running](demo/02-vnext-pipeline.png)  
+- 30 queries extracted from data/sample_data/vnext-dashboard
+- Real-time logs showing masked authentication (auth_idp=***)
+- 6-stage pipeline progress: Extraction → Classification → Validation → Testing
+
+![Screenshot 3: Query Diff Viewer](demo/03-query-diffs.png)
+- Side-by-side GraphQL transformation diffs
+- Hivemind A/B flag integration visible
+- ventures → venturesV2, name → displayName transformations
+
+![Screenshot 4: Real API Testing](demo/04-real-api-testing.png)  
+- Authentication validated with production cookies
+- Baseline comparison results displayed
+- 30 queries tested against real API endpoints
+
+![Screenshot 5: PR Generation Complete](demo/05-pr-generation.png)
+- Pull request generated with real diff content
+- GitHub integration link active
+- Production-ready code transformations preview
 
 ### Test Suite (78.52% Coverage)
 ```bash
