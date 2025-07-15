@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { MigrationOrchestrator } from '../core/MigrationOrchestrator';
 import { ConfigLoader } from '../utils/ConfigLoader';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 import { PatternAwareExtraction } from '../core/extraction/PatternAwareExtraction';
 
 const program = new Command();

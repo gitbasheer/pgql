@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 import { QueryPatternService } from '../engine/QueryPatternRegistry';
 import { QueryNamingService } from './QueryNamingService';
 import { QueryMigrator } from '../engine/QueryMigrator';

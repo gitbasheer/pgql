@@ -3,7 +3,7 @@ import { FragmentInliner } from '../../../core/extraction/transformers/FragmentI
 import { ExtractionContext } from '../../../core/extraction/engine/ExtractionContext';
 import { ResolvedQuery } from '../../../core/extraction/types/index';
 import { parse, print } from 'graphql';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 
 vi.mock('../../../utils/logger', () => ({
   logger: {

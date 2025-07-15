@@ -3,8 +3,8 @@
 
 import { Command } from 'commander';
 import * as path from 'path';
-import { UnifiedExtractor, ExtractionOptions } from '../core/extraction/index';
-import { logger } from '../utils/logger';
+import { UnifiedExtractor, ExtractionOptions } from '../core/extraction/index.js';
+import { logger } from '../utils/logger.js';
 
 const program = new Command();
 

@@ -4,7 +4,7 @@ import { PatternExtractedQuery, MigrationResult } from './types/pattern.types';
 import { ExtractionContext } from './engine/ExtractionContext';
 import { createDefaultQueryServices, QueryServices, QueryServicesConfig } from './services/QueryServicesFactory';
 import { ExtractionPipeline } from './engine/ExtractionPipeline';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import * as fs from 'fs';
 import { glob } from 'glob';
 

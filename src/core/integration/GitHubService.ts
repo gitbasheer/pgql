@@ -1,6 +1,6 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import { execGit, execGH, validateBranchName, validateFilePath, gitCommitSecure } from '../../utils/secureCommand';
 import * as fs from 'fs/promises';
 import * as path from 'path';

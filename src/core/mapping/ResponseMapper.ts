@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { ResponseComparator } from '../validator/ResponseComparator';
 import { AlignmentGenerator } from '../validator/AlignmentGenerator';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import { CapturedResponse, ComparisonResult, AlignmentFunction } from '../validator/types';
 
 export interface FieldMapping {

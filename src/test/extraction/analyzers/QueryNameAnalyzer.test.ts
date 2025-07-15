@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { QueryNameAnalyzer } from '../../../core/extraction/analyzers/QueryNameAnalyzer';
 import { ExtractionContext } from '../../../core/extraction/engine/ExtractionContext';
 import { ExtractedQuery, QueryContext } from '../../../core/extraction/types/index';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 
 vi.mock('../../../utils/logger', () => ({
   logger: {

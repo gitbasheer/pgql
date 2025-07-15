@@ -4,7 +4,7 @@ import glob from 'fast-glob';
 import { parse, visit, DocumentNode, FragmentDefinitionNode, Kind } from 'graphql';
 import { ExtractedQuery, ResolvedQuery, FragmentDefinition } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 import { safeParseGraphQL } from '../../../utils/graphqlValidator';
 import { validateReadPath } from '../../../utils/securePath';
 

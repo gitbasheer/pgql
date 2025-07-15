@@ -1,5 +1,5 @@
 import { RollbackPlan, Checkpoint, GraphQLOperation } from '../../types';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import { ProgressiveMigration } from './ProgressiveMigration';
 
 export class RollbackSystem {

@@ -1,5 +1,5 @@
 import { GraphQLOperation, CodeChange, ConfidenceScore, ConfidenceFactors } from '../../types';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 export class ConfidenceScorer {
   private readonly thresholds = {

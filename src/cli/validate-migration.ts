@@ -4,7 +4,7 @@
 import { Command } from 'commander';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 import { ExtractedQuery } from '../core/extraction/types';
 import { PatternExtractedQuery } from '../core/extraction/types/pattern.types';
 

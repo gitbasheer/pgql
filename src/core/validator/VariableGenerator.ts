@@ -7,7 +7,7 @@ import {
   GraphQLSchema,
   buildSchema
 } from 'graphql';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import { VariableGenerator } from './types';
 
 export class VariableGeneratorImpl implements VariableGenerator {

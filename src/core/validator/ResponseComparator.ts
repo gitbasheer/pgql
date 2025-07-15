@@ -2,7 +2,7 @@
 import { isEqual, get, set } from 'lodash-es';
 // @ts-ignore - string-similarity doesn't have types
 import stringSimilarity from 'string-similarity';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import {
   CapturedResponse,
   ComparisonResult,

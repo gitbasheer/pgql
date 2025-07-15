@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import { DocumentNode, parse } from 'graphql';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 export interface QueryExtraction {
   query: DocumentNode;

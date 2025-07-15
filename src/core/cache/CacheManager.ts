@@ -1,7 +1,7 @@
 import { LRUCache } from 'lru-cache';
 import { Level } from 'level';
 import { createHash } from 'crypto';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import { performance } from 'perf_hooks';
 import type { GraphQLSchema } from 'graphql';
 import type { ExtractedQuery } from '../extraction/types';

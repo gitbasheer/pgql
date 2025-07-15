@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import * as path from 'path';
 import { promises as fs } from 'fs';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 import { GitHubService, MigrationSummary } from '../core/integration/GitHubService';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';

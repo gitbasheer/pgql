@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 import { QueryPatternService } from '../core/extraction/engine/QueryPatternRegistry';
 import { QueryMigrator } from '../core/extraction/engine/QueryMigrator';
 import { PatternAwareASTStrategy } from '../core/extraction/strategies/PatternAwareASTStrategy';

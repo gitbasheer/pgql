@@ -1,5 +1,5 @@
 import { DocumentNode, visit, print, parse } from 'graphql';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import * as diff from 'diff';
 
 export interface TransformationRule {

@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { SemanticValidator } from '../../core/validator/SemanticValidator';
 import { performanceMonitor } from '../../core/monitoring/PerformanceMonitor';
-import { validationCache, astCache } from '../../core/cache/CacheManager';
-import { logger } from '../../utils/logger';
+import { validationCache, astCache } from 'from '../../core/cache/CacheManager'.js';
+import { logger } from '../../utils/logger.js';
 import { parse, print, buildSchema } from 'graphql';
 
 describe('SemanticValidator - Production Schema Tests', () => {

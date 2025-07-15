@@ -1,6 +1,6 @@
 import { parse, print, DocumentNode, visit } from 'graphql';
 import * as t from '@babel/types';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 export interface GraphQLChangeMap {
   additions: Map<number, string>;

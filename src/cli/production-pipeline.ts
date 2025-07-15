@@ -12,7 +12,7 @@ import { FragmentResolver } from '../core/scanner/FragmentResolver';
 import { OperationAnalyzer } from '../core/analyzer/OperationAnalyzer';
 import { SchemaDeprecationAnalyzer } from '../core/analyzer/SchemaDeprecationAnalyzer';
 import { OptimizedSchemaTransformer } from '../core/transformer/OptimizedSchemaTransformer';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 interface PipelineOptions {
   output: string;

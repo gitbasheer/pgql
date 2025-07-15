@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import { ResolvedQuery } from '../extraction/types/query.types';
 import { ExtractedQuery, TestParams } from '../../types/pgql.types';
 import {
@@ -657,7 +657,7 @@ export class ResponseValidationService {
     if (endpoint === 'productGraph') {
       return process.env.APOLLO_PG_ENDPOINT || 'https://pg.api.godaddy.com/v1/gql/customer';
     } else if (endpoint === 'offerGraph') {
-      return process.env.APOLLO_OG_ENDPOINT || 'https://og.api.godaddy.com/';
+      return process.env.APOLLO_OG_ENDPOINT || 'https://og.api.godaddy.com/v1/graphql';
     }
     
     return process.env.APOLLO_PG_ENDPOINT || 'https://pg.api.godaddy.com/v1/gql/customer'; // Default

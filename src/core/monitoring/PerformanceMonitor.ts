@@ -1,7 +1,7 @@
 import { performance } from 'perf_hooks';
 import { EventEmitter } from 'events';
-import { logger } from '../../utils/logger';
-import { CacheManager, astCache, validationCache, transformCache, type CacheStats } from '../cache/CacheManager';
+import { logger } from '../../utils/logger.js';
+import { CacheManager, astCache, validationCache, transformCache, type CacheStats } from '../cache/CacheManager.js';
 import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 

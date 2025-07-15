@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { nanoid } from 'nanoid';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import {
   AlignmentFunction,
   AlignmentTest,

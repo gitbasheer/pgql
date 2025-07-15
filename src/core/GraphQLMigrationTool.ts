@@ -6,7 +6,7 @@ import { PatternMatcher } from './analyzer/PatternMatcher';
 import { Config, loadConfig } from './config/ConfigValidator';
 import { ASTCodeApplicator, TransformationMapping, SourceMapping } from './applicator/index';
 import * as fs from 'fs/promises';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 export interface MigrationOptions {
   schemaPath: string;

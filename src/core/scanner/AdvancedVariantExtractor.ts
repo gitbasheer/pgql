@@ -1,6 +1,6 @@
 import { ExtractedQuery } from './GraphQLExtractor';
 import { DocumentNode, parse, print } from 'graphql';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import * as fs from 'fs/promises';
 import path from 'node:path';
 import * as babel from '@babel/parser';

@@ -6,7 +6,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 import { QueryPattern } from '../core/extraction/types/pattern.types';
 
 interface ConversionOptions {

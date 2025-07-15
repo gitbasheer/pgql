@@ -6,16 +6,16 @@ import chalk from 'chalk';
 import ora from 'ora';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { UnifiedExtractor, ExtractionOptions } from '../core/extraction/index';
-import { QueryTransformer, loadTransformationRules } from '../core/transformer/QueryTransformer';
-import { SchemaDeprecationAnalyzer } from '../core/analyzer/SchemaDeprecationAnalyzer';
-import { SchemaAwareTransformer } from '../core/transformer/SchemaAwareTransformer';
-import { OptimizedSchemaTransformer } from '../core/transformer/OptimizedSchemaTransformer';
-import { SchemaValidator } from '../core/validator/SchemaValidator';
-import { ASTCodeApplicator, TransformationMapping, SourceMapping } from '../core/applicator/index';
+import { UnifiedExtractor, ExtractionOptions } from '../core/extraction/index.js';
+import { QueryTransformer, loadTransformationRules } from '../core/transformer/QueryTransformer.js';
+import { SchemaDeprecationAnalyzer } from '../core/analyzer/SchemaDeprecationAnalyzer.js';
+import { SchemaAwareTransformer } from '../core/transformer/SchemaAwareTransformer.js';
+import { OptimizedSchemaTransformer } from '../core/transformer/OptimizedSchemaTransformer.js';
+import { SchemaValidator } from '../core/validator/SchemaValidator.js';
+import { ASTCodeApplicator, TransformationMapping, SourceMapping } from '../core/applicator/index.js';
 import { createTwoFilesPatch } from 'diff';
-import { logger } from '../utils/logger';
-import { formatGraphQL } from '../utils/formatter';
+import { logger } from '../utils/logger.js';
+import { formatGraphQL } from '../utils/formatter.js';
 
 const program = new Command();
 

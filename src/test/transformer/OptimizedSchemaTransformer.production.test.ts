@@ -2,11 +2,11 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { OptimizedSchemaTransformer } from '../../core/transformer/OptimizedSchemaTransformer';
 import { TestSchemaLoader } from '../utils/schemaLoader';
 import { performanceMonitor, monitor } from '../../core/monitoring/PerformanceMonitor';
-import { transformCache } from '../../core/cache/CacheManager';
+import { transformCache } from 'from '../../core/cache/CacheManager'.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { parse } from 'graphql';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 describe('OptimizedSchemaTransformer - Production Schema Tests', () => {
   let transformer: OptimizedSchemaTransformer;
   let productionSchema: any;
