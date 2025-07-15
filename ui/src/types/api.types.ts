@@ -1,5 +1,22 @@
 // API Response Types
 
+export interface ExtractedQuery {
+  queryName: string;
+  content: string;
+  filePath: string;
+  lineNumber: number;
+  isNested: boolean;
+  fragments?: string[];
+  hasVariables?: boolean;
+  operation?: string;
+}
+
+export interface TransformationResult {
+  transformedQuery: string;
+  warnings: string[];
+  mappingCode: string;
+}
+
 export interface TestingAccount {
   accountId: string;
   authCookies?: string;

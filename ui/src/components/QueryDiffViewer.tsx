@@ -4,7 +4,7 @@ import { useQuery as useApolloQuery, gql } from '@apollo/client';
 import DiffViewer from 'react-diff-viewer-continued';
 import Modal from 'react-modal';
 import { getBaselineComparisons } from '../services/api';
-import type { ExtractedQuery, TransformationResult } from '@types/pgql.types';
+import type { ExtractedQuery, TransformationResult } from '../types/api.types';
 import '../styles/query-diff-viewer.css';
 
 Modal.setAppElement('#root');
@@ -32,10 +32,10 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
 
   // Construct auth cookies for Hivemind API
   const constructAuthCookies = useCallback(() => {
-    const authIdp = process.env.REACT_APP_AUTH_IDP || '';
-    const custIdp = process.env.REACT_APP_CUST_IDP || '';
-    const infoCustIdp = process.env.REACT_APP_INFO_CUST_IDP || '';
-    const infoIdp = process.env.REACT_APP_INFO_IDP || '';
+    const authIdp = import.meta.env.REACT_APP_AUTH_IDP || '';
+    const custIdp = import.meta.env.REACT_APP_CUST_IDP || '';
+    const infoCustIdp = import.meta.env.REACT_APP_INFO_CUST_IDP || '';
+    const infoIdp = import.meta.env.REACT_APP_INFO_IDP || '';
     
     return `auth_idp=${authIdp}; cust_idp=${custIdp}; info_cust_idp=${infoCustIdp}; info_idp=${infoIdp}`;
   }, []);
@@ -71,7 +71,7 @@ export default function QueryDiffViewer({ queries }: QueryDiffViewerProps) {
     errorPolicy: 'ignore'
   });
 
-  const getCohortId = useCallback((response: any, cohortType: string) => {
+  const getCohortId = useCallback((response: any, _cohortType: string) => {
     if (!response?.getCohort) return 'Unknown';
     return response.getCohort.cohortId || 'Unknown';
   }, []);

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import { testOnRealApi, getRealApiTestResults, triggerRealApiTests, type TestParams } from '../services/api';
+import { getRealApiTestResults, triggerRealApiTests } from '../services/api';
 import type { DifferenceDetail } from '../types/api.types';
 import '../styles/real-api-testing.css';
 

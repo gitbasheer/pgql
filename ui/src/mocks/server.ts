@@ -19,7 +19,7 @@ app.use(express.json());
 let activePipelines = new Map();
 
 // Mock endpoint to start pipeline
-app.post('/api/pipeline/start', (req, res) => {
+app.post('/api/pipeline/start', (req: any, res: any) => {
   const { repoPath, schemaEndpoint } = req.body;
   
   if (!repoPath || !schemaEndpoint) {
@@ -52,7 +52,7 @@ app.post('/api/pipeline/start', (req, res) => {
 });
 
 // Mock endpoint to get queries
-app.get('/api/pipeline/:id/queries', (req, res) => {
+app.get('/api/pipeline/:id/queries', (req: any, res: any) => {
   const pipeline = activePipelines.get(req.params.id);
   
   if (!pipeline) {
@@ -102,7 +102,7 @@ export function mapGetUserResponse(oldResponse: any): any {
 });
 
 // Mock GitHub clone endpoint
-app.post('/api/github/clone', async (req, res) => {
+app.post('/api/github/clone', async (req: any, res: any) => {
   const { repoUrl } = req.body;
   
   if (!repoUrl) {
@@ -119,7 +119,7 @@ app.post('/api/github/clone', async (req, res) => {
 });
 
 // Mock PR generation endpoint
-app.post('/api/pipeline/:id/generate-pr', (req, res) => {
+app.post('/api/pipeline/:id/generate-pr', (req: any, res: any) => {
   const pipeline = activePipelines.get(req.params.id);
   
   if (!pipeline) {

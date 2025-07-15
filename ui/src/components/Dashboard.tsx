@@ -42,14 +42,14 @@ function Dashboard() {
     message: string;
   }>>([]);
   
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingIntervalRef = useRef<number | null>(null);
 
   // Construct auth cookies from environment variables
   const constructAuthCookies = useCallback(() => {
-    const authIdp = process.env.REACT_APP_AUTH_IDP || '';
-    const custIdp = process.env.REACT_APP_CUST_IDP || '';
-    const infoCustIdp = process.env.REACT_APP_INFO_CUST_IDP || '';
-    const infoIdp = process.env.REACT_APP_INFO_IDP || '';
+    const authIdp = import.meta.env.REACT_APP_AUTH_IDP || '';
+    const custIdp = import.meta.env.REACT_APP_CUST_IDP || '';
+    const infoCustIdp = import.meta.env.REACT_APP_INFO_CUST_IDP || '';
+    const infoIdp = import.meta.env.REACT_APP_INFO_IDP || '';
     
     return `auth_idp=${authIdp}; cust_idp=${custIdp}; info_cust_idp=${infoCustIdp}; info_idp=${infoIdp}`;
   }, []);
@@ -148,9 +148,9 @@ function Dashboard() {
       // Load Z's sample data path and trigger full pipeline
       const vnextConfig = {
         repoPath: 'data/sample_data/vnext-dashboard', // Z's mock data
-        schemaEndpoint: process.env.REACT_APP_APOLLO_PG_ENDPOINT || 'https://api.example.com/graphql',
-        testApiUrl: process.env.REACT_APP_TEST_API_URL || 'https://test-api.example.com',
-        testAccountId: process.env.REACT_APP_TEST_ACCOUNT_ID || 'test-vnext-123',
+        schemaEndpoint: import.meta.env.REACT_APP_APOLLO_PG_ENDPOINT || 'https://api.example.com/graphql',
+        testApiUrl: import.meta.env.REACT_APP_TEST_API_URL || 'https://test-api.example.com',
+        testAccountId: import.meta.env.REACT_APP_TEST_ACCOUNT_ID || 'test-vnext-123',
       };
 
       // First, extract from repo
@@ -174,16 +174,16 @@ function Dashboard() {
       
       // Then, trigger real API testing with auth cookies
       const authCookies = [
-        process.env.REACT_APP_AUTH_IDP,
-        process.env.REACT_APP_CUST_IDP,
-        process.env.REACT_APP_SESSION_COOKIE
+        import.meta.env.REACT_APP_AUTH_IDP,
+        import.meta.env.REACT_APP_CUST_IDP,
+        import.meta.env.REACT_APP_SESSION_COOKIE
       ].filter(Boolean).join('; ');
 
       const testResponse = await fetch('/api/test-real-api', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_API_TOKEN || ''}`,
+          'Authorization': `Bearer ${import.meta.env.REACT_APP_API_TOKEN || ''}`,
         },
         body: JSON.stringify({
           pipelineId: extractData.pipelineId || extractData.extractionId,

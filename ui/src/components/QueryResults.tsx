@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { toast } from 'react-toastify';
 import QueryDiffViewer from './QueryDiffViewer';
-import type { ExtractedQuery, TransformationResult } from '@types/pgql.types';
+import type { ExtractedQuery, TransformationResult } from '../types/api.types';
 import '../styles/query-results.css';
 
 interface QueryResultsProps {
@@ -15,9 +14,9 @@ interface QueryWithTransformation {
 }
 
 export default function QueryResults({ pipelineId, isActive }: QueryResultsProps) {
-  const { data: queries, isLoading, error } = useQuery<QueryWithTransformation[]>({
+  const { data: queries, isLoading, error } = useQuery({
     queryKey: ['pipeline-queries', pipelineId],
-    queryFn: async () => {
+    queryFn: async (): Promise<QueryWithTransformation[]> => {
       if (!pipelineId) throw new Error('No pipeline ID');
       
       const response = await fetch(`/api/pipeline/${pipelineId}/queries`);
@@ -29,9 +28,6 @@ export default function QueryResults({ pipelineId, isActive }: QueryResultsProps
     },
     enabled: !!pipelineId && isActive,
     refetchInterval: 5000, // Poll every 5 seconds while active
-    onError: (error: Error) => {
-      toast.error(`Failed to load queries: ${error.message}`);
-    },
   });
 
   if (!isActive || !pipelineId) {
@@ -70,11 +66,11 @@ export default function QueryResults({ pipelineId, isActive }: QueryResultsProps
       <div className="results-header">
         <h3>Extracted Queries</h3>
         <div className="results-stats">
-          <span>Total: {queries?.length || 0}</span>
-          <span>Transformed: {queries?.filter(q => q.transformation).length || 0}</span>
+          <span>Total: {Array.isArray(queries) ? queries.length : 0}</span>
+          <span>Transformed: {Array.isArray(queries) ? queries.filter(q => q.transformation).length : 0}</span>
         </div>
       </div>
-      {queries && queries.length > 0 ? (
+      {queries && Array.isArray(queries) && queries.length > 0 ? (
         <QueryDiffViewer queries={queries} />
       ) : (
         <div className="empty-state">

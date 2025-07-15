@@ -5,6 +5,7 @@ interface LogEntry {
   timestamp: string;
   level: 'info' | 'warn' | 'error' | 'success';
   message: string;
+  details?: any;
 }
 
 interface LogViewerProps {

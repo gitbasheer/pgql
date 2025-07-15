@@ -14,7 +14,6 @@ class SocketService {
         reconnectionDelay: 1000,
         reconnectionAttempts: 5,
         reconnectionDelayMax: 5000,
-        maxReconnectionAttempts: 5,
         timeout: 20000,
         forceNew: false,
         autoConnect: true,
@@ -24,19 +23,19 @@ class SocketService {
         toast.success('Connected to pipeline server');
       });
 
-      this.socket.on('disconnect', (reason) => {
+      this.socket.on('disconnect', (_reason) => {
         toast.warning('Disconnected from pipeline server');
       });
 
-      this.socket.on('connect_error', (error) => {
+      this.socket.on('connect_error', (_error) => {
         toast.error('Failed to connect to pipeline server');
       });
 
-      this.socket.on('reconnect', (attemptNumber) => {
+      this.socket.on('reconnect', (_attemptNumber) => {
         toast.success('Reconnected to pipeline server');
       });
 
-      this.socket.on('reconnect_error', (error) => {
+      this.socket.on('reconnect_error', (_error) => {
         toast.error('Failed to reconnect to pipeline server');
       });
 
@@ -45,11 +44,11 @@ class SocketService {
         toast.info(`Pipeline ${data.pipelineId} started`);
       });
 
-      this.socket.on('pipeline:stage', (data) => {
+      this.socket.on('pipeline:stage', (_data) => {
         // Stage updates handled by components listening to this event
       });
 
-      this.socket.on('pipeline:log', (data) => {
+      this.socket.on('pipeline:log', (_data) => {
         // Log events handled by usePipelineLogs hook
       });
 

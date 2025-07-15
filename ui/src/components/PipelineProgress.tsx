@@ -19,11 +19,12 @@ const PIPELINE_STAGES: PipelineStage[] = [
 ];
 
 interface PipelineProgressProps {
-  socket: Socket | null;
+  socket?: Socket | null;
   isActive: boolean;
+  currentStage?: string;
 }
 
-export default function PipelineProgress({ socket, isActive }: PipelineProgressProps) {
+export default function PipelineProgress({ socket, isActive, currentStage: _currentStage }: PipelineProgressProps) {
   const [stages, setStages] = useState<PipelineStage[]>(PIPELINE_STAGES);
 
   useEffect(() => {
@@ -68,7 +69,7 @@ export default function PipelineProgress({ socket, isActive }: PipelineProgressP
   return (
     <div className="pipeline-progress" role="progressbar" aria-label="Pipeline progress" aria-valuenow={completedStages} aria-valuemin={0} aria-valuemax={stages.length}>
       <div className="pipeline-stages">
-        {stages.map((stage, index) => (
+        {stages.map((stage, _index) => (
           <div key={stage.name} className={`pipeline-stage ${stage.status}`}>
             <div className="stage-connector" />
             <div className="stage-icon" aria-label={`${stage.name}: ${stage.status}`}>
