@@ -67,21 +67,32 @@ VITE v7.0.4  ready in 138 ms
 
 ### Step 2: Configure the Pipeline
 
-#### Option A: Manual Configuration
-Fill out the form with your repository details:
+#### Option A: **Real API Testing** (Recommended for Production)
+Fill out the form with your **real production endpoints**:
 
 ```
 Repository Path/URL: /path/to/your/graphql/repo
-Schema Endpoint: https://your-api.example.com/graphql
-Test API URL (Optional): https://test-your-api.example.com
-Test Account ID (Optional): your-test-account-id
+Schema Endpoint: https://your-real-api.example.com/graphql
+Test API URL: https://your-real-api.example.com/graphql
+Test Account ID: your-actual-account-id
 ```
 
-#### Option B: Use vnext Sample Data (Recommended for Testing)
+**🔑 Authentication Setup for Real APIs:**
+Make sure your `.env` file contains real credentials:
+```bash
+REACT_APP_APOLLO_PG_ENDPOINT=https://your-production-api.com/graphql
+REACT_APP_TEST_API_URL=https://your-production-api.com/graphql
+REACT_APP_AUTH_IDP=your_real_auth_token
+REACT_APP_CUST_IDP=your_real_customer_token
+REACT_APP_INFO_CUST_IDP=your_real_info_customer_token
+REACT_APP_INFO_IDP=your_real_info_token
+```
+
+#### Option B: Demo with vnext Sample Data
 1. Click the **"🧪 Test vnext Sample"** button
 2. This automatically loads the sample data:
    - **Repository Path**: `data/sample_data/vnext-dashboard`
-   - **Schema Endpoint**: `https://api.example.com/graphql`
+   - **Schema Endpoint**: `https://api.example.com/graphql` (demo endpoint)
    - **Test API**: Environment-configured endpoints
    - **Account ID**: `test-vnext-123`
 
@@ -250,11 +261,84 @@ Scroll to the **"Real API Testing"** section:
 ✅ listPosts - Response validated (200ms)
 ```
 
-#### Click "Test Against Real API" for additional testing:
-- Runs queries against live API endpoints
-- Validates authentication headers
-- Captures new baselines
-- Compares response structures
+#### **Real API Testing Features:**
+
+**🔴 LIVE API TESTING** - The server now supports testing against **real GraphQL endpoints**:
+
+1. **Click "Test Against Real API"** for comprehensive testing:
+   - Runs queries against **live production APIs**
+   - Validates **real authentication headers**
+   - Captures **actual API responses**
+   - Compares **real response structures**
+   - Measures **actual response times**
+
+2. **Real API Validation Results:**
+   ```
+   ✅ getUserProfile - Real API response (247ms)
+   ✅ listArticles - Authentication validated (189ms)
+   ❌ createPost - GraphQL error: Field 'title' is required (401ms)
+   ```
+
+3. **Authentication Testing:**
+   - Bearer token validation
+   - Cookie-based authentication
+   - Custom header authentication
+   - Error handling for invalid credentials
+
+4. **Response Comparison:**
+   - **Baseline vs Real**: Compare stored baselines with live API responses
+   - **Schema Evolution**: Detect field additions/removals
+   - **Data Validation**: Verify response structure matches expectations
+
+#### **Manual API Testing via Server:**
+
+You can also test APIs directly using the enhanced server endpoints:
+
+**Test specific queries against your real API:**
+```bash
+curl -X POST http://localhost:3001/api/test-real-api \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endpoint": "https://your-real-api.com/graphql",
+    "authHeaders": {
+      "Authorization": "Bearer YOUR_REAL_TOKEN",
+      "X-Custom-Auth": "your-custom-auth-value"
+    },
+    "queries": [
+      {
+        "name": "realUserQuery",
+        "query": "query getUser($id: ID!) { user(id: $id) { id name email } }",
+        "variables": { "id": "123" }
+      }
+    ]
+  }'
+```
+
+**Validate your GraphQL endpoint:**
+```bash
+curl -X POST http://localhost:3001/api/validate-endpoint \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endpoint": "https://your-real-api.com/graphql",
+    "authHeaders": {
+      "Authorization": "Bearer YOUR_REAL_TOKEN"
+    }
+  }'
+```
+
+**Get sample queries for testing:**
+```bash
+curl http://localhost:3001/api/sample-queries
+```
+
+#### **Real API Testing Benefits:**
+
+✅ **Production Validation**: Test against actual production endpoints
+✅ **Authentication Verification**: Validate real auth tokens and headers  
+✅ **Response Accuracy**: Get actual API responses, not mocked data
+✅ **Error Detection**: Catch real API errors and authentication issues
+✅ **Performance Metrics**: Measure actual response times and success rates
+✅ **Schema Introspection**: Validate schema compatibility with real endpoints
 
 ### Step 8: Generate Pull Request
 
@@ -298,6 +382,247 @@ index abc123..def456 100644
 4. Repository path auto-populated after successful clone
 
 ---
+
+## Production Testing with Real APIs
+
+### For Developers with Real API Access
+
+If you have access to production GraphQL endpoints, follow these steps for comprehensive real API testing:
+
+#### **1. Environment Setup for Real APIs**
+
+Create a `.env.production` file with your real credentials:
+```bash
+# Production GraphQL Endpoints
+REACT_APP_APOLLO_PG_ENDPOINT=https://api.godaddy.com/graphql
+REACT_APP_TEST_API_URL=https://api.godaddy.com/graphql
+
+# Real Authentication Tokens
+REACT_APP_AUTH_IDP=your_production_auth_token
+REACT_APP_CUST_IDP=your_production_customer_token
+REACT_APP_INFO_CUST_IDP=your_production_info_customer_token
+REACT_APP_INFO_IDP=your_production_info_token
+
+# Real Test Account
+REACT_APP_TEST_ACCOUNT_ID=your_real_account_id
+```
+
+#### **2. Test Against Real Production APIs**
+
+**Step 1: Start with Real Endpoint Validation**
+```bash
+# Test if your production endpoint is accessible
+curl -X POST http://localhost:3001/api/validate-endpoint \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endpoint": "https://api.godaddy.com/graphql",
+    "authHeaders": {
+      "Authorization": "Bearer YOUR_PRODUCTION_TOKEN",
+      "X-Customer-ID": "your-customer-id"
+    }
+  }'
+```
+
+**Expected Response:**
+```json
+{
+  "valid": true,
+  "message": "Endpoint is accessible and responds to GraphQL queries",
+  "schemaInfo": {
+    "queryType": { "name": "Query" },
+    "mutationType": { "name": "Mutation" }
+  },
+  "responseTime": 89
+}
+```
+
+**Step 2: Test Real Queries**
+```bash
+# Test actual GraphQL queries against production
+curl -X POST http://localhost:3001/api/test-real-api \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endpoint": "https://api.godaddy.com/graphql",
+    "authHeaders": {
+      "Authorization": "Bearer YOUR_PRODUCTION_TOKEN",
+      "X-Customer-ID": "your-customer-id",
+      "X-Shopper-ID": "your-shopper-id"
+    },
+    "queries": [
+      {
+        "name": "getUserProfile",
+        "query": "query getUserProfile($shopperId: ID!) { user(id: $shopperId) { id name email preferences { notifications } } }",
+        "variables": { "shopperId": "your-shopper-id" }
+      },
+      {
+        "name": "getDomains",
+        "query": "query getDomains($customerId: ID!) { domains(customerId: $customerId) { id name status expiresAt } }",
+        "variables": { "customerId": "your-customer-id" }
+      }
+    ]
+  }'
+```
+
+**Step 3: Full Pipeline with Real Data**
+1. **Configure UI with real endpoints**:
+   - Repository Path: Your actual GraphQL codebase
+   - Schema Endpoint: `https://api.godaddy.com/graphql`
+   - Test API URL: `https://api.godaddy.com/graphql`
+   - Test Account ID: Your real account ID
+
+2. **Run the pipeline** and observe:
+   - **Real query extraction** from your codebase
+   - **Live API validation** against production
+   - **Actual response comparison** with baselines
+   - **Real authentication testing**
+
+#### **3. Real API Testing Scenarios**
+
+**Scenario 1: Authentication Validation**
+```bash
+# Test different auth methods
+curl -X POST http://localhost:3001/api/test-real-api \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endpoint": "https://your-api.com/graphql",
+    "authHeaders": {
+      "Authorization": "Bearer YOUR_TOKEN",
+      "Cookie": "session=abc123; auth=xyz789",
+      "X-API-Key": "your-api-key"
+    },
+    "queries": [...]
+  }'
+```
+
+**Scenario 2: Error Handling**
+```bash
+# Test with invalid credentials
+curl -X POST http://localhost:3001/api/test-real-api \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endpoint": "https://your-api.com/graphql",
+    "authHeaders": {
+      "Authorization": "Bearer INVALID_TOKEN"
+    },
+    "queries": [...]
+  }'
+```
+
+**Expected Error Response:**
+```json
+{
+  "testId": "test-123",
+  "results": [
+    {
+      "queryName": "getUserProfile",
+      "status": "failed",
+      "error": "API request failed: HTTP 401: Unauthorized",
+      "responseTime": 0
+    }
+  ]
+}
+```
+
+**Scenario 3: Schema Evolution Testing**
+```bash
+# Test queries against new/old schema versions
+curl -X POST http://localhost:3001/api/test-real-api \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endpoint": "https://api-v2.your-domain.com/graphql",
+    "queries": [
+      {
+        "name": "legacyUserQuery",
+        "query": "query getUser { user { name email } }",
+        "variables": {}
+      },
+      {
+        "name": "newUserQuery", 
+        "query": "query getUser { userV2 { fullName emailAddress } }",
+        "variables": {}
+      }
+    ]
+  }'
+```
+
+#### **4. Production Testing Checklist**
+
+Before running against production APIs, ensure:
+
+✅ **Valid Credentials**: Test authentication tokens are current and valid
+✅ **Rate Limiting**: Understand API rate limits to avoid throttling
+✅ **Test Data**: Use test account IDs, not production customer data
+✅ **Permissions**: Verify your tokens have necessary GraphQL permissions
+✅ **Endpoint URLs**: Confirm production vs staging endpoint URLs
+✅ **Network Access**: Ensure your machine can reach production APIs
+✅ **Error Handling**: Test both success and failure scenarios
+
+#### **5. Real API Integration Examples**
+
+**Example 1: GoDaddy API Integration**
+```javascript
+// Real API configuration
+const realAPIConfig = {
+  endpoint: 'https://api.godaddy.com/graphql',
+  authHeaders: {
+    'Authorization': 'Bearer YOUR_GODADDY_TOKEN',
+    'X-Customer-ID': 'your-customer-id'
+  },
+  queries: [
+    {
+      name: 'getCustomerDomains',
+      query: `query getCustomerDomains($customerId: ID!) {
+        customer(id: $customerId) {
+          domains {
+            id
+            name
+            status
+            expiresAt
+          }
+        }
+      }`,
+      variables: { customerId: 'your-customer-id' }
+    }
+  ]
+};
+```
+
+**Example 2: Shopify API Integration**
+```javascript
+// Real Shopify API configuration
+const shopifyConfig = {
+  endpoint: 'https://your-shop.myshopify.com/admin/api/2023-10/graphql.json',
+  authHeaders: {
+    'X-Shopify-Access-Token': 'YOUR_SHOPIFY_TOKEN'
+  },
+  queries: [
+    {
+      name: 'getProducts',
+      query: `query getProducts($first: Int!) {
+        products(first: $first) {
+          edges {
+            node {
+              id
+              title
+              status
+            }
+          }
+        }
+      }`,
+      variables: { first: 10 }
+    }
+  ]
+};
+```
+
+#### **6. Monitoring Real API Performance**
+
+The dashboard will show real performance metrics:
+- **Response Times**: Actual API response times
+- **Success Rates**: Real success/failure percentages  
+- **Error Patterns**: Common authentication or GraphQL errors
+- **Rate Limiting**: API throttling detection
+- **Schema Changes**: Detection of field additions/removals
 
 ## Advanced Features
 
