@@ -1,5 +1,5 @@
 import { DocumentNode, OperationDefinitionNode, visit, Kind } from 'graphql';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 export interface OperationSignature {
   name: string | null;

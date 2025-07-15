@@ -2,7 +2,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ExtractionResult } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 import { validateWritePath, sanitizeFileName } from '../../../utils/securePath';
 
 export class FileReporter {

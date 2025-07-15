@@ -1,6 +1,6 @@
 import { ExtractedQuery } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 import * as babel from '@babel/parser';
 import traverseDefault from '@babel/traverse';
 import * as fs from 'fs/promises';

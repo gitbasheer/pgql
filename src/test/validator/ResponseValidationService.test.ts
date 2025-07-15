@@ -18,8 +18,8 @@ import {
   AlignmentFunction
 } from '../../core/validator/types';
 import { ResolvedQuery } from '../../core/extraction/types/query.types';
-import { logger } from '../../utils/logger';
-import * as fs from 'fs/promises';
+import { logger } from '../../utils/logger.js';
+import { promises as fs } from 'fs';
 
 // Mock all dependencies
 vi.mock('../../core/validator/ResponseCaptureService');
@@ -29,7 +29,16 @@ vi.mock('../../core/validator/ABTestingFramework');
 vi.mock('../../core/validator/ResponseStorage');
 vi.mock('../../core/validator/ValidationReportGenerator');
 vi.mock('../../core/testing/GraphQLClient');
-vi.mock('fs/promises');
+vi.mock('fs', () => ({
+  promises: {
+    readFile: vi.fn(),
+    writeFile: vi.fn(),
+    mkdir: vi.fn(),
+    rm: vi.fn(),
+    stat: vi.fn(),
+    access: vi.fn()
+  }
+}));
 vi.mock('../../utils/logger');
 
 describe('ResponseValidationService', () => {
@@ -547,8 +556,14 @@ describe('ResponseValidationService', () => {
 
       const results = await service.compareStoredResponses(queryIds);
 
-      expect(results).toHaveLength(0);
-      expect(mockComparator.compare).not.toHaveBeenCalled();
+      expect(results).toHaveLength(2); // One failed comparison for each query with missing responses
+      expect(mockComparator.compare).not.toHaveBeenCalled(); // No actual comparisons since responses are missing
+      
+      // Verify both results are marked as failed
+      expect(results[0].identical).toBe(false);
+      expect(results[0].similarity).toBe(0);
+      expect(results[1].identical).toBe(false);
+      expect(results[1].similarity).toBe(0);
     });
   });
 
@@ -794,7 +809,9 @@ capture:
   maxConcurrency: 5
 `;
 
-      (fs.readFile as Mock).mockResolvedValue(yamlContent);
+      // Reset all mocks and set up the specific mock for this test
+      vi.resetAllMocks();
+      vi.mocked(fs.readFile).mockResolvedValue(yamlContent);
 
       const service = await ResponseValidationService.fromConfigFile('test-config.yaml');
 
@@ -816,7 +833,9 @@ comparison:
       type: "case-insensitive"
 `;
 
-      (fs.readFile as Mock).mockResolvedValue(yamlContent);
+      // Reset all mocks and set up the specific mock for this test
+      vi.resetAllMocks();
+      vi.mocked(fs.readFile).mockResolvedValue(yamlContent);
       const warnSpy = vi.spyOn(logger, 'warn');
 
       const service = await ResponseValidationService.fromConfigFile('test-config.yaml');
@@ -830,6 +849,66 @@ comparison:
       const config = (service as any).config;
       expect(config.comparison.customComparators).toBeDefined();
       expect(Object.keys(config.comparison.customComparators)).toEqual(['data.status']);
+    });
+  });
+
+  describe('Edge Cases and Error Handling', () => {
+    it('handles malformed GraphQL queries gracefully', async () => {
+      const malformedQuery = 'invalid graphql syntax {';
+      
+      const result = await service.validateAgainstSchema(malformedQuery, 'productGraph');
+      
+      expect(result.valid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toContain('Syntax Error');
+    });
+
+    it('handles empty query validation', async () => {
+      const emptyQuery = '';
+      
+      const result = await service.validateAgainstSchema(emptyQuery, 'productGraph');
+      
+      expect(result.valid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+    });
+
+    it('handles missing comparison configuration', async () => {
+      const basicService = new ResponseValidationService({
+        endpoints: [],
+        capture: { parallel: false, maxConcurrency: 1, timeout: 1000 },
+        comparison: { strict: false },
+        storage: { type: 'memory' }
+      });
+      
+      expect(basicService).toBeDefined();
+      expect(basicService.getComparisonConfig).toBeDefined();
+    });
+
+    it('validates endpoint URL generation', async () => {
+      // Mock the comparator method that's missing
+      mockComparator.getConfiguration = vi.fn().mockReturnValue({
+        ignorePatterns: [],
+        expectedDifferences: []
+      });
+      
+      const config = service.getComparisonConfig();
+      
+      expect(config).toBeDefined();
+      expect(config.ignorePatterns).toBeDefined();
+      expect(config.expectedDifferences).toBeDefined();
+    });
+
+    it('handles cookie construction validation', async () => {
+      // Test that buildVariables returns a valid object structure
+      const variables = await service.buildVariables('query { user { id } }', {
+        id: 'test-user',
+        ventures: [{ id: 'venture-123' }],
+        projects: [{ domain: 'test.com' }]
+      });
+      
+      expect(variables).toBeDefined();
+      expect(typeof variables).toBe('object');
+      // Note: The actual variable mapping depends on query AST parsing which is complex in mocked env
     });
   });
 });

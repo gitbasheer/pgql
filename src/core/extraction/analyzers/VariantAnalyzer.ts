@@ -2,7 +2,7 @@ import * as babel from '@babel/parser';
 import traverse from '@babel/traverse';
 import { ExtractedQuery, VariantAnalysisResult, DynamicPattern, VariantSwitch } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 
 
 export class VariantAnalyzer {

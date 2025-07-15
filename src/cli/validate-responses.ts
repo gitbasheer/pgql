@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 import { ConfigLoader } from '../utils/ConfigLoader';
 import {
   ResponseValidationService,

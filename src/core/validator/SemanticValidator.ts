@@ -1,6 +1,6 @@
 import { DocumentNode, GraphQLSchema, TypeInfo, visit, visitWithTypeInfo, ValidationContext, validate, parse } from 'graphql';
 import { TransformationResult } from '../transformer/QueryTransformer';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 export interface SemanticValidationResult {
   isValid: boolean;

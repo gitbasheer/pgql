@@ -1,7 +1,7 @@
 import { parse, print, visit, DocumentNode } from 'graphql';
 import { ResolvedQuery } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 
 export class FragmentInliner {
   private context: ExtractionContext;

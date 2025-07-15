@@ -1,10 +1,34 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { MigrationValidator } from '../../cli/validate-migration';
 import { ExtractedQuery } from '../../types';
 import { PatternExtractedQuery } from '../../core/extraction/types/pattern.types';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { tmpdir } from 'os';
+
+// Override global fs mock with a smarter one that tracks file content
+const fileStorage = new Map<string, string>();
+
+vi.mock('fs/promises', async () => ({
+  readdir: vi.fn().mockResolvedValue([]),
+  readFile: vi.fn().mockImplementation((filePath: string) => {
+    const content = fileStorage.get(filePath);
+    return Promise.resolve(content || '{"queries": [], "metadata": {"timestamp": "2024-01-01T00:00:00.000Z"}}');
+  }),
+  writeFile: vi.fn().mockImplementation((filePath: string, content: string) => {
+    fileStorage.set(filePath, content);
+    return Promise.resolve();
+  }),
+  mkdir: vi.fn().mockResolvedValue(undefined),
+  mkdtemp: vi.fn().mockResolvedValue('/tmp/mock-temp-dir'),
+  rm: vi.fn().mockImplementation((filePath: string) => {
+    fileStorage.delete(filePath);
+    return Promise.resolve();
+  }),
+  rmdir: vi.fn().mockResolvedValue(undefined),
+  stat: vi.fn().mockResolvedValue({ isDirectory: () => true }),
+  access: vi.fn().mockResolvedValue(undefined)
+}));
 
 describe('MigrationValidator', () => {
   let validator: MigrationValidator;

@@ -4,7 +4,7 @@ import { promisify } from 'util';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import { parse } from 'graphql';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 import { ASTCodeApplicator, TransformationMapping, SourceMapping } from '../core/applicator/index';
 import * as diff from 'diff';
 

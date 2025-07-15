@@ -1,5 +1,5 @@
 import { ExtractionOptions, ExtractionError, ExtractionStats } from '../types/index';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 import { QueryNamingService } from '../services/QueryNamingService';
 
 export class ExtractionContext {

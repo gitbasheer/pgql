@@ -3,7 +3,7 @@ import { BaseStrategy } from './BaseStrategy';
 import { PatternExtractedQuery } from '../types/pattern.types';
 import { ExtractedQuery, SourceAST } from '../types/query.types';
 import { QueryPatternService } from '../engine/QueryPatternRegistry';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 import { parse as parseGraphQL, DocumentNode } from 'graphql';
 import { parse as parseBabel } from '@babel/parser';
 import traverse, { type NodePath } from '@babel/traverse';

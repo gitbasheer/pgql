@@ -6,7 +6,7 @@ import ora from 'ora';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { SchemaValidator } from '../core/validator/SchemaValidator';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 const program = new Command();
 

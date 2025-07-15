@@ -1,5 +1,5 @@
 import * as fs from 'fs/promises';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 export interface DeprecationRule {
   type: 'field' | 'type' | 'argument';

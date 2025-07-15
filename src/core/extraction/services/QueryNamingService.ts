@@ -1,4 +1,4 @@
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 import { QueryPatternService } from '../engine/QueryPatternRegistry';
 import { PatternExtractedQuery } from '../types/pattern.types';
 import { ExtractedQuery } from '../types/query.types';

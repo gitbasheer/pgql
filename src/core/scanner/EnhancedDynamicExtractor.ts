@@ -1,7 +1,7 @@
 import { DynamicGraphQLExtractor } from './DynamicGraphQLExtractor';
 import { ExtractedQuery } from './GraphQLExtractor';
 import { DocumentNode, parse, print, visit, Kind } from 'graphql';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import * as fs from 'fs/promises';
 
 export interface VariantCondition {

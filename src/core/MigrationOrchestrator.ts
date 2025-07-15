@@ -3,7 +3,7 @@ import { ConfidenceScorer } from './analyzer/ConfidenceScorer';
 import { ProgressiveMigration } from './safety/ProgressiveMigration';
 import { RollbackSystem } from './safety/Rollback';
 import { HealthCheckSystem } from './safety/HealthCheck';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 import { ExistingScriptsAdapter } from '../adapters/ExistingScriptsAdapter';
 
 export class MigrationOrchestrator {

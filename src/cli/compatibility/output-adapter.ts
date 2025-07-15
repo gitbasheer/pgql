@@ -3,7 +3,7 @@
  * Ensures stable output formats across versions
  */
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 export interface OutputOptions {
   outputVersion?: string;

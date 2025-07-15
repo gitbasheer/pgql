@@ -6,7 +6,7 @@ import ora from 'ora';
 import inquirer from 'inquirer';
 import { UnifiedMigrationPipeline } from '../core/pipeline/UnifiedMigrationPipeline';
 import { ConfigLoader } from '../utils/ConfigLoader';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 import { GitHubService } from '../core/integration/GitHubService';
 
 const program = new Command();

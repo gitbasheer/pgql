@@ -1,6 +1,6 @@
 import { DocumentNode, parse, visit, FragmentSpreadNode, FieldNode, print } from 'graphql';
 import { GraphQLExtractor, ExtractedQuery } from './GraphQLExtractor';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { validateReadPath } from '../../utils/securePath';

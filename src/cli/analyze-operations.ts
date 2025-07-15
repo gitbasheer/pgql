@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { OperationAnalyzer } from '../core/analyzer/OperationAnalyzer';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 import { parse } from 'graphql';
 
 const __filename = fileURLToPath(import.meta.url);

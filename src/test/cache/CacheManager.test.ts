@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { CacheManager } from '../../core/cache/CacheManager';
+import { CacheManager } from 'from '../../core/cache/CacheManager'.js';
 import { Level } from 'level';
 import { performance } from 'perf_hooks';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 vi.mock('../../utils/logger', () => ({
   logger: {

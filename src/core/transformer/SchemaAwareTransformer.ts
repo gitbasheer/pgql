@@ -1,6 +1,6 @@
 import { DocumentNode, visit, print, parse, FieldNode, Kind } from 'graphql';
 import { DeprecationRule } from '../analyzer/SchemaDeprecationAnalyzer';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 export interface TransformOptions {
   commentOutVague: boolean;

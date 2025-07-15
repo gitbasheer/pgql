@@ -1,5 +1,5 @@
 import { EndpointConfig } from './types';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 export interface GoDaddySSO {
   authIdp: string;

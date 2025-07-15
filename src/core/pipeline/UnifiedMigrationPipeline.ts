@@ -17,7 +17,7 @@ import {
   ValidationReport as ResponseValidationReport,
   EndpointConfig 
 } from '../validator/index';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { parse, DocumentNode } from 'graphql';

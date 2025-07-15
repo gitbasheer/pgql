@@ -1,21 +1,21 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import glob from 'fast-glob';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 import {
   ExtractionOptions,
   ExtractionResult,
   ExtractedQuery,
   ResolvedQuery
-} from '../types/index';
-import { Endpoint } from '../../../types/pgql.types';
-import { ExtractionContext } from './ExtractionContext';
-import { ExtractionPipeline } from './ExtractionPipeline';
-import { PluckStrategy } from '../strategies/PluckStrategy';
-import { ASTStrategy } from '../strategies/ASTStrategy';
-import { BaseStrategy } from '../strategies/BaseStrategy';
-import { astCache } from '../../cache/CacheManager';
-import { monitor } from '../../monitoring/PerformanceMonitor';
+} from '../types/index.js';
+import { Endpoint } from '../../../types/pgql.types.js';
+import { ExtractionContext } from './ExtractionContext.js';
+import { ExtractionPipeline } from './ExtractionPipeline.js';
+import { PluckStrategy } from '../strategies/PluckStrategy.js';
+import { ASTStrategy } from '../strategies/ASTStrategy.js';
+import { BaseStrategy } from '../strategies/BaseStrategy.js';
+import { astCache } from '../../cache/CacheManager.js';
+import { monitor } from '../../monitoring/PerformanceMonitor.js';
 import { createHash } from 'crypto';
 
 export class UnifiedExtractor {

@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import { UnifiedExtractor } from '../../core/extraction/engine/UnifiedExtractor';
 import { performanceMonitor } from '../../core/monitoring/PerformanceMonitor';
-import { astCache, validationCache, transformCache } from '../../core/cache/CacheManager';
-import { logger } from '../../utils/logger';
+import { astCache, validationCache, transformCache } from 'from '../../core/cache/CacheManager'.js';
+import { logger } from '../../utils/logger.js';
 import { readFileSync, mkdirSync, writeFileSync, rmSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 

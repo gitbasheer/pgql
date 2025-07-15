@@ -146,7 +146,8 @@ describe('MCP Server Integration Tests', () => {
           try {
             const lines = response.split('\n').filter(line => line.trim());
             for (const line of lines) {
-              if (line.includes('"jsonrpc"') && line.includes('"id"')) {
+              // Skip server startup messages and only process JSON-RPC responses
+              if (line.startsWith('{') && line.includes('"jsonrpc"') && line.includes('"id"')) {
                 const parsed = JSON.parse(line);
                 hasResponded = true;
                 child.kill();
@@ -167,11 +168,11 @@ describe('MCP Server Integration Tests', () => {
           if (hasResponded) return; // Already resolved
 
           if (errorOutput) {
-            reject(new Error(`Server error: ${errorOutput}`));
-          } else if (!response) {
-            reject(new Error(`No response received (exit code: ${code})`));
+            reject(new Error(`❌ Build tool error\n\nThe pg-migration tool failed to start: ${errorOutput.trim()}`));
+          } else if (!response || response.trim() === 'GraphQL Migration MCP server started') {
+            reject(new Error(`❌ Build tool error\n\nThe pg-migration tool started but didn't respond to ${method} request (exit code: ${code})`));
           } else {
-            reject(new Error(`Invalid response: ${response}`));
+            reject(new Error(`❌ Build tool error\n\nInvalid response to ${method}: ${response.trim()}`));
           }
         });
 
@@ -193,7 +194,16 @@ describe('MCP Server Integration Tests', () => {
         } catch (err) {
           reject(new Error(`Failed to write to stdin: ${err}`));
         }
-      }, 200);
+
+        // Add request timeout
+        setTimeout(() => {
+          if (!hasResponded) {
+            hasResponded = true;
+            child.kill();
+            reject(new Error(`❌ Build tool error\n\nTimeout waiting for response to ${method} request`));
+          }
+        }, 5000);
+      }, 500);
     });
   }
 

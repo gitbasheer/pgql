@@ -4,7 +4,7 @@ import { ProgressiveMigration } from '../../core/safety/ProgressiveMigration';
 import { RollbackSystem } from '../../core/safety/Rollback';
 import { PerformanceMonitor, performanceMonitor } from '../../core/monitoring/PerformanceMonitor';
 import { GraphQLOperation } from '../../types';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 // Mock logger
 vi.mock('../../utils/logger', () => ({

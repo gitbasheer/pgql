@@ -6,7 +6,7 @@ import ora from 'ora';
 import * as fs from 'fs/promises';
 import path from 'node:path';
 import { parse, validate, buildSchema, GraphQLError } from 'graphql';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 const program = new Command();
 

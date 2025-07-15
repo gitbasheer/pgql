@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VariantAnalyzer } from '../../../core/extraction/analyzers/VariantAnalyzer';
 import { ExtractionContext } from '../../../core/extraction/engine/ExtractionContext';
 import { ExtractedQuery, VariantAnalysisResult } from '../../../core/extraction/types/index';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 import * as fs from 'fs/promises';
 import * as babel from '@babel/parser';
 

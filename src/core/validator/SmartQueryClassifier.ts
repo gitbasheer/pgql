@@ -1,5 +1,5 @@
 import { GraphQLSchema, parse, validate, GraphQLError } from 'graphql';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 export enum QueryClassification {
   VALID = 'valid',

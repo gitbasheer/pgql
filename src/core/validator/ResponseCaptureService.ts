@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import pRetry from 'p-retry';
 import { DocumentNode, print } from 'graphql';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import {
   EndpointConfig,
   CapturedResponse,

@@ -3,7 +3,7 @@ import { GraphQLSchema, validate, parse, DocumentNode, GraphQLError, buildSchema
 import { loadSchema } from '@graphql-tools/load';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import * as fs from 'fs/promises';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import { createTwoFilesPatch } from 'diff';
 import { SchemaAnalyzer } from '../analyzer/SchemaAnalyzer';
 

@@ -3,7 +3,7 @@ import { VariantGenerator } from '../../../core/extraction/transformers/VariantG
 import { ExtractionContext } from '../../../core/extraction/engine/ExtractionContext';
 import { ResolvedQuery, VariantSwitch, QueryVariant } from '../../../core/extraction/types/index';
 import { parse } from 'graphql';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 
 vi.mock('../../../utils/logger', () => ({
   logger: {

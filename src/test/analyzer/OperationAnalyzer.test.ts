@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { OperationAnalyzer } from '../../core/analyzer/OperationAnalyzer';
 import { parse } from 'graphql';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 vi.mock('../../utils/logger', () => ({
   logger: {

@@ -1,8 +1,8 @@
 import { DocumentNode, visit, print, parse, FieldNode, Kind } from 'graphql';
 import { DeprecationRule } from '../analyzer/SchemaDeprecationAnalyzer';
 import { ExtractedQuery, TransformationResult } from '../../types/pgql.types';
-import { logger } from '../../utils/logger';
-import { transformCache } from '../cache/CacheManager';
+import { logger } from '../../utils/logger.js';
+import { transformCache } from '../cache/CacheManager.js';
 import { createHash } from 'crypto';
 // jsdiff removed - not needed
 import simpleGit from 'simple-git';

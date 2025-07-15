@@ -1,5 +1,5 @@
 import { FeatureFlag, GraphQLOperation } from '../../types';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 export class ProgressiveMigration {
   private featureFlags: Map<string, FeatureFlag> = new Map();

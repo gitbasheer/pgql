@@ -2,7 +2,7 @@ import { Level } from 'level';
 import { LRUCache } from 'lru-cache';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import {
   CapturedResponse,
   StorageOptions,

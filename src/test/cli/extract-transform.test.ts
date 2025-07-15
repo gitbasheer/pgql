@@ -7,7 +7,7 @@ import { OptimizedSchemaTransformer } from '../../core/transformer/OptimizedSche
 import { SchemaDeprecationAnalyzer } from '../../core/analyzer/SchemaDeprecationAnalyzer';
 import { SchemaValidator } from '../../core/validator/SchemaValidator';
 import { ASTCodeApplicator } from '../../core/applicator/index';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 
 vi.mock('../../utils/logger', () => ({
   logger: {

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { HealthCheckSystem } from '../../../core/safety/HealthCheck';
 import { GraphQLOperation } from '../../../types';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger.js';
 
 // Mock logger
 vi.mock('../../../utils/logger', () => ({

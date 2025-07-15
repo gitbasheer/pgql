@@ -2,7 +2,7 @@ import { DocumentNode, FragmentDefinitionNode, parse, print, visit, Kind } from 
 import * as fs from 'fs/promises';
 import * as path from 'path';
 // import * as vm from 'vm'; // REMOVED: Security fix - no longer using vm.runInContext
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import { safeParseGraphQL, logParsingError } from '../../utils/graphqlValidator';
 import * as babel from '@babel/parser';
 import traverse from '@babel/traverse';

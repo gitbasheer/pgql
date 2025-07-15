@@ -4,7 +4,7 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import { createTwoFilesPatch } from 'diff';
 import diff2html from 'diff2html';
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/logger.js';
 import {
   ValidationReport,
   ValidationSummary,
