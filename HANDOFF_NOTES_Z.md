@@ -1,5 +1,7 @@
 # Handoff Notes - Sample Data Testing
 
+**Author:** Z (Integration Lead)
+
 ## Branch: z-sample-testing → testing
 
 ### Completed Work

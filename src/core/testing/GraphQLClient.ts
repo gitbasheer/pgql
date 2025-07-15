@@ -161,8 +161,8 @@ export class GraphQLClient {
       throw new Error(`HTTP Error: ${response.status} - ${JSON.stringify(data)}`);
     }
 
-    if (data.errors) {
-      console.error('GraphQL Errors:', data.errors);
+    if ((data as any).errors) {
+      console.error('GraphQL Errors:', (data as any).errors);
     }
 
     return data;

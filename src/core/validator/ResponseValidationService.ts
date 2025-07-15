@@ -573,7 +573,14 @@ export class ResponseValidationService {
       // LLM_PLACEHOLDER: Use llm-ls to infer var values from code context
     }
     
-    return variables;
+    // Use spreads for merging query vars (CLAUDE.local.md compliance)
+    const baseVariables = { ...variables };
+    const environmentOverrides = {
+      ...(process.env.DEFAULT_VENTURE_ID && { ventureId: process.env.DEFAULT_VENTURE_ID }),
+      ...(process.env.DEFAULT_USER_ID && { userId: process.env.DEFAULT_USER_ID })
+    };
+    
+    return { ...baseVariables, ...environmentOverrides };
   }
 
   private getTypeString(typeNode: any): string {

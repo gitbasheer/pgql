@@ -1,5 +1,6 @@
 # Full Pipeline Integration Report
 
+**Author:** Z (Integration Lead)
 **Date:** 2025-07-14
 **Branch:** z-sample-testing  
 **Coverage:** 92.3%
