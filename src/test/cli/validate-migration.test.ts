@@ -4,7 +4,6 @@ import { ExtractedQuery } from '../../types';
 import { PatternExtractedQuery } from '../../core/extraction/types/pattern.types';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { tmpdir } from 'os';
 
 // Override global fs mock with a smarter one that tracks file content
 const fileStorage = new Map<string, string>();
@@ -38,17 +37,17 @@ describe('MigrationValidator', () => {
 
   beforeEach(async () => {
     validator = new MigrationValidator();
-    tempDir = await fs.mkdtemp(path.join(tmpdir(), 'validator-test-'));
+    tempDir = '/tmp/test-dir-123'; // Use mock temp directory
     beforeFile = path.join(tempDir, 'before-queries.json');
     afterFile = path.join(tempDir, 'after-queries.json');
+    
+    // Clear mock filesystem
+    (globalThis as any).clearMockFileSystem?.();
   });
 
   afterEach(async () => {
-    try {
-      await fs.rm(tempDir, { recursive: true, force: true });
-    } catch (error) {
-      // Ignore cleanup errors
-    }
+    // Cleanup handled by mock filesystem
+    (globalThis as any).clearMockFileSystem?.();
   });
 
   describe('validateMigration', () => {

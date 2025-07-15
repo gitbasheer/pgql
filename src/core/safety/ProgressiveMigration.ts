@@ -47,10 +47,15 @@ export class ProgressiveMigration {
   }
 
   async startRollout(operationId: string, initialPercentage: number = 1): Promise<void> {
+    // Validate percentage
+    if (initialPercentage < 0 || initialPercentage > 100) {
+      throw new Error(`Invalid rollout percentage: ${initialPercentage}`);
+    }
+    
     const flag = this.getFlag(operationId);
     
     if (!flag) {
-      throw new Error(`No feature flag found for operation: ${operationId}`);
+      throw new Error(`Feature flag not found: ${operationId}`);
     }
 
     flag.enabled = true;
@@ -64,7 +69,7 @@ export class ProgressiveMigration {
     const flag = this.getFlag(operationId);
     
     if (!flag) {
-      throw new Error(`No feature flag found for operation: ${operationId}`);
+      throw new Error(`Feature flag not found: ${operationId}`);
     }
 
     const currentPercentage = flag.rolloutPercentage;
@@ -80,7 +85,7 @@ export class ProgressiveMigration {
     const flag = this.getFlag(operationId);
     
     if (!flag) {
-      throw new Error(`No feature flag found for operation: ${operationId}`);
+      throw new Error(`Feature flag not found: ${operationId}`);
     }
 
     const previousPercentage = flag.rolloutPercentage;
@@ -93,7 +98,7 @@ export class ProgressiveMigration {
     const flag = this.getFlag(operationId);
     
     if (!flag) {
-      throw new Error(`No feature flag found for operation: ${operationId}`);
+      throw new Error(`Feature flag not found: ${operationId}`);
     }
 
     flag.enabled = false;
@@ -107,7 +112,7 @@ export class ProgressiveMigration {
     const flag = this.getFlag(operationId);
     
     if (!flag) {
-      throw new Error(`No feature flag found for operation: ${operationId}`);
+      throw new Error(`Feature flag not found: ${operationId}`);
     }
 
     flag.enabledSegments = segments;

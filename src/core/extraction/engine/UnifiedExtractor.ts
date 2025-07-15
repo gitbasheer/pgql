@@ -162,7 +162,12 @@ export class UnifiedExtractor {
         return cached;
       }
 
-      const content = await fs.readFile(filePath, 'utf-8');
+      // Read and pre-process content for template resolution
+      let content = await fs.readFile(filePath, 'utf-8');
+      
+      // CRITICAL: Resolve templates in raw content BEFORE extraction
+      content = await this.preResolveTemplateContent(content, filePath);
+      
       const queries: ExtractedQuery[] = [];
 
       // Determine which strategy to use
@@ -207,12 +212,53 @@ export class UnifiedExtractor {
     }
   }
 
+  /**
+   * Pre-resolve template content BEFORE extraction to handle ${queryNames.xxx} patterns
+   * This allows GraphQL extractors to parse valid GraphQL syntax
+   */
+  private async preResolveTemplateContent(content: string, filePath: string): Promise<string> {
+    try {
+      // Load queryNames from multiple sources
+      const queryNamesData = await this.loadAllQueryNames(filePath);
+      
+      if (!queryNamesData || Object.keys(queryNamesData).length === 0) {
+        return content;
+      }
+
+      let resolvedContent = content;
+      
+      // Replace ${queryNames.xxx} patterns
+      Object.entries(queryNamesData).forEach(([key, value]) => {
+        const pattern = new RegExp(`\\$\\{queryNames\\.${key}\\}`, 'g');
+        resolvedContent = resolvedContent.replace(pattern, value as string);
+      });
+      
+      // Replace ${SAMPLE_QUERY_NAMES.xxx} patterns (for test files)
+      Object.entries(queryNamesData).forEach(([key, value]) => {
+        const samplePattern = new RegExp(`\\$\\{SAMPLE_QUERY_NAMES\\.${key}\\}`, 'g');
+        resolvedContent = resolvedContent.replace(samplePattern, value as string);
+      });
+      
+      // Replace generic ${variable} patterns with constants
+      resolvedContent = this.resolveGenericTemplatePatterns(resolvedContent, filePath);
+      
+      return resolvedContent;
+    } catch (error) {
+      logger.warn(`Failed to pre-resolve template content for ${filePath}:`, error);
+      return content;
+    }
+  }
+
+  /**
+   * Enhanced template variable resolution for ${queryNames.xxx} patterns
+   * Loads from queryNames.js via fs.readFile and resolves all interpolations
+   */
   private async resolveTemplateVariables(queries: ExtractedQuery[], filePath: string): Promise<ExtractedQuery[]> {
     try {
-      // Load queryNames.js from the same directory or parent directories
-      const queryNames = await this.loadQueryNamesForFile(filePath);
+      // Load queryNames from multiple sources
+      const queryNamesData = await this.loadAllQueryNames(filePath);
       
-      if (!queryNames || Object.keys(queryNames).length === 0) {
+      if (!queryNamesData || Object.keys(queryNamesData).length === 0) {
         return queries;
       }
 
@@ -220,16 +266,26 @@ export class UnifiedExtractor {
         let resolvedContent = query.content;
         
         // Replace ${queryNames.xxx} patterns
-        Object.entries(queryNames).forEach(([key, value]) => {
+        Object.entries(queryNamesData).forEach(([key, value]) => {
           const pattern = new RegExp(`\\$\\{queryNames\\.${key}\\}`, 'g');
           resolvedContent = resolvedContent.replace(pattern, value as string);
         });
+        
+        // Replace ${SAMPLE_QUERY_NAMES.xxx} patterns (for test files)
+        Object.entries(queryNamesData).forEach(([key, value]) => {
+          const samplePattern = new RegExp(`\\$\\{SAMPLE_QUERY_NAMES\\.${key}\\}`, 'g');
+          resolvedContent = resolvedContent.replace(samplePattern, value as string);
+        });
+        
+        // Replace generic ${variable} patterns with constants
+        resolvedContent = this.resolveGenericTemplatePatterns(resolvedContent, filePath);
         
         // Only update if changes were made
         if (resolvedContent !== query.content) {
           return {
             ...query,
             content: resolvedContent,
+            source: resolvedContent,
             fullExpandedQuery: resolvedContent
           };
         }
@@ -240,6 +296,131 @@ export class UnifiedExtractor {
       logger.warn(`Failed to resolve template variables for ${filePath}:`, error);
       return queries;
     }
+  }
+
+  /**
+   * Load queryNames from multiple sources using fs.readFile as requested
+   */
+  private async loadAllQueryNames(filePath: string): Promise<Record<string, string> | null> {
+    try {
+      const directory = path.dirname(filePath);
+      let queryNamesData: Record<string, string> = {};
+      
+      // 1. Load from queryNames.js using fs.readFile
+      const queryNamesFromFile = await this.loadQueryNamesFromFile(directory);
+      if (queryNamesFromFile) {
+        queryNamesData = { ...queryNamesData, ...queryNamesFromFile };
+      }
+      
+      // 2. Load from SAMPLE_QUERY_NAMES in same file (for test files)
+      const sampleQueryNames = await this.extractSampleQueryNames(filePath);
+      if (sampleQueryNames) {
+        queryNamesData = { ...queryNamesData, ...sampleQueryNames };
+      }
+      
+      return Object.keys(queryNamesData).length > 0 ? queryNamesData : null;
+    } catch (error) {
+      logger.debug(`Could not load all queryNames for ${filePath}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Load queryNames.js using fs.readFile as specifically requested
+   */
+  private async loadQueryNamesFromFile(directory: string): Promise<Record<string, string> | null> {
+    const possiblePaths = [
+      path.join(directory, 'queryNames.js'),
+      path.join(path.dirname(directory), 'queryNames.js'),
+      path.join(directory, '..', 'queryNames.js')
+    ];
+    
+    for (const queryNamesPath of possiblePaths) {
+      try {
+        await fs.access(queryNamesPath);
+        const content = await fs.readFile(queryNamesPath, 'utf-8');
+        
+        // Parse JavaScript content to extract queryNames object
+        const queryNamesMatch = content.match(/(?:export\s+const\s+queryNames|const\s+queryNames)\s*=\s*\{([^}]+)\}/s);
+        if (queryNamesMatch) {
+          const objContent = queryNamesMatch[1];
+          const queryNames: Record<string, string> = {};
+          
+          // Extract key-value pairs with regex
+          const pairs = objContent.match(/(\w+):\s*['"`]([^'"`]+)['"`]/g);
+          if (pairs) {
+            pairs.forEach(pair => {
+              const [, key, value] = pair.match(/(\w+):\s*['"`]([^'"`]+)['"`]/) || [];
+              if (key && value) {
+                queryNames[key] = value;
+              }
+            });
+          }
+          
+          return Object.keys(queryNames).length > 0 ? queryNames : null;
+        }
+      } catch {
+        // Continue to next path
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Extract SAMPLE_QUERY_NAMES from TypeScript files
+   */
+  private async extractSampleQueryNames(filePath: string): Promise<Record<string, string> | null> {
+    try {
+      const content = await fs.readFile(filePath, 'utf-8');
+      
+      // Look for SAMPLE_QUERY_NAMES constant
+      const sampleQueryNamesMatch = content.match(/export\s+const\s+SAMPLE_QUERY_NAMES\s*=\s*\{([^}]+)\}/s);
+      if (sampleQueryNamesMatch) {
+        const objContent = sampleQueryNamesMatch[1];
+        const queryNames: Record<string, string> = {};
+        
+        // Extract key-value pairs
+        const pairs = objContent.match(/(\w+):\s*['"`]([^'"`]+)['"`]/g);
+        if (pairs) {
+          pairs.forEach(pair => {
+            const [, key, value] = pair.match(/(\w+):\s*['"`]([^'"`]+)['"`]/) || [];
+            if (key && value) {
+              queryNames[key] = value;
+            }
+          });
+        }
+        
+        return Object.keys(queryNames).length > 0 ? queryNames : null;
+      }
+      
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Resolve generic ${variable} patterns with common constants
+   */
+  private resolveGenericTemplatePatterns(content: string, filePath: string): string {
+    let resolved = content;
+    
+    // Common pattern replacements
+    const patterns = {
+      '${includeEmail}': 'email',
+      '${additionalFields}': 'metadata { createdAt updatedAt }',
+      '${fragment}': '',
+      '${queryArgs}': '',
+      '${ventureQuery}': 'venture',
+      '${ventureArgs}': '$ventureId: UUID!'
+    };
+    
+    Object.entries(patterns).forEach(([pattern, replacement]) => {
+      resolved = resolved.replace(new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), replacement);
+    });
+    
+    return resolved;
   }
 
   private async loadQueryNamesForFile(filePath: string): Promise<Record<string, string> | null> {

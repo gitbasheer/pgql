@@ -234,7 +234,7 @@ describe('ProgressiveMigration', () => {
 
     it('should handle invalid operation ID', async () => {
       await expect(progressiveMigration.increaseRollout('nonexistent', 10))
-        .rejects.toThrow('No feature flag found for operation: nonexistent');
+        .rejects.toThrow('Feature flag not found: nonexistent');
     });
   });
 
@@ -268,7 +268,7 @@ describe('ProgressiveMigration', () => {
 
     it('should handle pausing non-existent rollout', async () => {
       await expect(progressiveMigration.pauseRollout('nonexistent'))
-        .rejects.toThrow('No feature flag found for operation: nonexistent');
+        .rejects.toThrow('Feature flag not found: nonexistent');
     });
 
     it('should handle pausing already paused rollout', async () => {
@@ -310,7 +310,7 @@ describe('ProgressiveMigration', () => {
 
     it('should handle rollback of non-existent operation', async () => {
       await expect(progressiveMigration.rollbackOperation('nonexistent'))
-        .rejects.toThrow('No feature flag found for operation: nonexistent');
+        .rejects.toThrow('Feature flag not found: nonexistent');
     });
   });
 
@@ -361,7 +361,7 @@ describe('ProgressiveMigration', () => {
 
     it('should handle invalid operation ID', () => {
       expect(() => progressiveMigration.enableForSegments('nonexistent', ['beta-users']))
-        .toThrow('No feature flag found for operation: nonexistent');
+        .toThrow('Feature flag not found: nonexistent');
     });
   });
 

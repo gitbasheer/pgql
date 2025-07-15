@@ -6,7 +6,8 @@ import { QueryPatternService } from '../engine/QueryPatternRegistry';
 import { logger } from '../../../utils/logger.js';
 import { parse as parseGraphQL, DocumentNode } from 'graphql';
 import { parse as parseBabel } from '@babel/parser';
-import traverse, { type NodePath } from '@babel/traverse';
+import * as traverseModule from '@babel/traverse';
+const traverse = (traverseModule as any).default || traverseModule;
 import * as babel from '@babel/types';
 
 export class PatternAwareASTStrategy extends BaseStrategy {

@@ -1,5 +1,6 @@
 import * as babel from '@babel/parser';
-import traverse, { type NodePath } from '@babel/traverse';
+import * as traverseModule from '@babel/traverse';
+const traverse = (traverseModule as any).default || traverseModule;
 import { BaseStrategy } from './BaseStrategy';
 import { ExtractedQuery, QueryContext, ImportInfo, OperationType, SourceAST } from '../types/index';
 import { ExtractionContext } from '../engine/ExtractionContext';
@@ -34,7 +35,7 @@ export class ASTStrategy extends BaseStrategy {
       const imports = this.extractImports(ast);
       let queryIndex = 0;
 
-      (traverse as any)(ast, {
+      traverse(ast, {
         TaggedTemplateExpression: (path: any) => {
           if (this.isGraphQLTag(path.node.tag)) {
             const query = this.extractQueryFromTemplate(path, filePath, queryIndex++);

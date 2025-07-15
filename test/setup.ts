@@ -1,17 +1,31 @@
 import { vi } from 'vitest';
 
-// Mock fs/promises
+// Smart fs/promises mock that tracks written content
+const mockFileSystem = new Map<string, string>();
+
 vi.mock('fs/promises', () => ({ 
   readdir: vi.fn().mockResolvedValue([]),
-  readFile: vi.fn().mockResolvedValue('{"queries": [], "metadata": {"timestamp": "2024-01-01T00:00:00.000Z"}}'),
-  writeFile: vi.fn().mockResolvedValue(undefined),
+  readFile: vi.fn().mockImplementation((filePath: string) => {
+    const content = mockFileSystem.get(filePath);
+    return Promise.resolve(content || '{"queries": [], "metadata": {"timestamp": "2024-01-01T00:00:00.000Z"}}');
+  }),
+  writeFile: vi.fn().mockImplementation((filePath: string, content: string) => {
+    mockFileSystem.set(filePath, content);
+    return Promise.resolve(undefined);
+  }),
   mkdir: vi.fn().mockResolvedValue(undefined),
-  mkdtemp: vi.fn().mockResolvedValue('/tmp/mock-temp-dir'),
-  rm: vi.fn().mockResolvedValue(undefined),
+  mkdtemp: vi.fn().mockResolvedValue('/tmp/test-dir-123'),
+  rm: vi.fn().mockImplementation((filePath: string) => {
+    mockFileSystem.delete(filePath);
+    return Promise.resolve(undefined);
+  }),
   rmdir: vi.fn().mockResolvedValue(undefined),
   stat: vi.fn().mockResolvedValue({ isDirectory: () => true }),
   access: vi.fn().mockResolvedValue(undefined)
 }));
+
+// Expose cleanup function for tests
+(globalThis as any).clearMockFileSystem = () => mockFileSystem.clear();
 
 // Mock Apollo Client
 vi.mock('@apollo/client', () => ({ 
