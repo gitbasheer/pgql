@@ -3,11 +3,12 @@ import traverse, { NodePath } from '@babel/traverse';
 import generate from '@babel/generator';
 import * as t from '@babel/types';
 import { DocumentNode, parse, print, visit, Kind } from 'graphql';
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../../utils/logger.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import { GraphQLExtractor, ExtractedQuery } from '../compat/GraphQLExtractor.js';
+import { GraphQLExtractor } from '../compat/GraphQLExtractor.js';
+import { ExtractedQuery } from '../types/query.types.js';
 import { ErrorHandler, ErrorContext } from '../utils/ErrorHandler.js';
 import {
   VariantMetadata,
@@ -16,7 +17,7 @@ import {
   VariantSwitch,
   VariantExtractionResult,
   VariantReport,
-} from '../extraction/types/variant-extractor.types.js';
+} from '../types/variant-extractor.types.js';
 
 interface VariantPattern {
   fullMatch: string;
@@ -369,7 +370,7 @@ export class UnifiedVariantExtractor extends GraphQLExtractor {
       details: { conditions },
     };
 
-    return this.errorHandler.tryPartialOperation(async () => {
+    try {
       let variantContent = templateContent;
       const replacements: any[] = [];
 
@@ -411,6 +412,7 @@ export class UnifiedVariantExtractor extends GraphQLExtractor {
         location: {
           line: node.loc?.start.line || 0,
           column: node.loc?.start.column || 0,
+          file: filePath,
         },
         name: variantName,
         type: operationInfo.type,
@@ -423,7 +425,10 @@ export class UnifiedVariantExtractor extends GraphQLExtractor {
       };
 
       return variant;
-    }, context);
+    } catch (error) {
+      this.errorHandler.handleError(error, context);
+      return null;
+    }
   }
 
   /**
@@ -448,6 +453,7 @@ export class UnifiedVariantExtractor extends GraphQLExtractor {
           location: {
             line: node.loc?.start.line || 0,
             column: node.loc?.start.column || 0,
+            file: filePath,
           },
           name: operationInfo.name,
           type: operationInfo.type,

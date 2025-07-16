@@ -25,7 +25,7 @@ describe('UnifiedVariantExtractor', () => {
 
   describe('Basic Extraction', () => {
     it('should extract a simple GraphQL query', async () => {
-      const testFile = path.join(testDir, 'simple.ts');
+      const testFile = path.join(testDir, 'simple.js');
       await fs.writeFile(
         testFile,
         `
@@ -51,7 +51,7 @@ describe('UnifiedVariantExtractor', () => {
     });
 
     it('should extract multiple queries from a file', async () => {
-      const testFile = path.join(testDir, 'multiple.ts');
+      const testFile = path.join(testDir, 'multiple.js');
       await fs.writeFile(
         testFile,
         `
@@ -81,7 +81,7 @@ describe('UnifiedVariantExtractor', () => {
 
   describe('Variant Detection', () => {
     it('should detect and generate variants for fragment conditions', async () => {
-      const testFile = path.join(testDir, 'variants.ts');
+      const testFile = path.join(testDir, 'variants.js');
       await fs.writeFile(
         testFile,
         `
@@ -119,7 +119,7 @@ describe('UnifiedVariantExtractor', () => {
     });
 
     it('should handle multiple conditions', async () => {
-      const testFile = path.join(testDir, 'multiple-conditions.ts');
+      const testFile = path.join(testDir, 'multiple-conditions.js');
       await fs.writeFile(
         testFile,
         `
@@ -147,7 +147,7 @@ describe('UnifiedVariantExtractor', () => {
     });
 
     it('should handle field-level conditions', async () => {
-      const testFile = path.join(testDir, 'field-conditions.ts');
+      const testFile = path.join(testDir, 'field-conditions.js');
       await fs.writeFile(
         testFile,
         `
@@ -178,7 +178,7 @@ describe('UnifiedVariantExtractor', () => {
 
   describe('Backward Compatibility', () => {
     it('should produce similar results to EnhancedDynamicExtractor', async () => {
-      const testFile = path.join(testDir, 'compatibility.ts');
+      const testFile = path.join(testDir, 'compatibility.js');
       await fs.writeFile(
         testFile,
         `
@@ -213,7 +213,7 @@ describe('UnifiedVariantExtractor', () => {
 
   describe('Error Handling', () => {
     it('should handle invalid GraphQL gracefully', async () => {
-      const testFile = path.join(testDir, 'invalid.ts');
+      const testFile = path.join(testDir, 'invalid.js');
       await fs.writeFile(
         testFile,
         `
@@ -235,7 +235,7 @@ describe('UnifiedVariantExtractor', () => {
     });
 
     it('should handle files without GraphQL', async () => {
-      const testFile = path.join(testDir, 'no-graphql.ts');
+      const testFile = path.join(testDir, 'no-graphql.js');
       await fs.writeFile(
         testFile,
         `
@@ -260,7 +260,7 @@ describe('UnifiedVariantExtractor', () => {
         cacheDir,
       });
 
-      const testFile = path.join(testDir, 'cached.ts');
+      const testFile = path.join(testDir, 'cached.js');
       await fs.writeFile(
         testFile,
         `
@@ -298,7 +298,7 @@ describe('UnifiedVariantExtractor', () => {
         cacheDir,
       });
 
-      const testFile = path.join(testDir, 'changing.ts');
+      const testFile = path.join(testDir, 'changing.js');
       await fs.writeFile(
         testFile,
         `
@@ -339,7 +339,7 @@ describe('UnifiedVariantExtractor', () => {
 
   describe('Variant Report Generation', () => {
     it('should generate comprehensive variant report', async () => {
-      const testFile = path.join(testDir, 'report.ts');
+      const testFile = path.join(testDir, 'report.js');
       await fs.writeFile(
         testFile,
         `
@@ -381,7 +381,7 @@ describe('UnifiedVariantExtractor', () => {
 
   describe('Save Variants', () => {
     it('should save variants to individual files', async () => {
-      const testFile = path.join(testDir, 'save.ts');
+      const testFile = path.join(testDir, 'save.js');
       await fs.writeFile(
         testFile,
         `

@@ -32,8 +32,8 @@ describe('FragmentInliner', () => {
           name: 'GetUser',
           content: 'query GetUser { user { id name } }',
           resolvedContent: 'query GetUser { user { id name } }',
-          filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          filePath: '/src/queries.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
           hash: 'hash1',
           resolvedFragments: [],
           type: 'query',
@@ -49,21 +49,21 @@ describe('FragmentInliner', () => {
       const fragmentAst = parse(fragmentContent);
 
       const queries: ResolvedQuery[] = [
-        {
+        { type: 'query',
           id: '1',
           name: 'GetUser',
           content: 'query GetUser { user { ...UserFields } }',
           resolvedContent: 'query GetUser { user { ...UserFields } }',
-          filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          filePath: '/src/queries.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
           hash: 'hash1',
           resolvedFragments: [
-            {
+            { type: 'query', id: 'generated-id',
               name: 'UserFields',
               content: fragmentContent,
               ast: fragmentAst,
-              filePath: '/src/fragments.ts',
-              location: { line: 1, column: 1 },
+              filePath: '/src/fragments.js',
+              location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
               hash: 'fragmentHash',
             },
           ],
@@ -85,29 +85,29 @@ describe('FragmentInliner', () => {
       const profileFieldsFragment = parse('fragment ProfileFields on User { avatar bio }');
 
       const queries: ResolvedQuery[] = [
-        {
+        { type: 'query',
           id: '1',
           name: 'GetUser',
           content: 'query GetUser { user { ...UserFields ...ProfileFields } }',
           resolvedContent: 'query GetUser { user { ...UserFields ...ProfileFields } }',
-          filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          filePath: '/src/queries.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
           hash: 'hash1',
           resolvedFragments: [
-            {
+            { type: 'query', id: 'generated-id',
               name: 'UserFields',
               content: 'fragment UserFields on User { id name }',
               ast: userFieldsFragment,
-              filePath: '/src/fragments.ts',
-              location: { line: 1, column: 1 },
+              filePath: '/src/fragments.js',
+              location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
               hash: 'hash1',
             },
-            {
+            { type: 'query', id: 'generated-id',
               name: 'ProfileFields',
               content: 'fragment ProfileFields on User { avatar bio }',
               ast: profileFieldsFragment,
-              filePath: '/src/fragments.ts',
-              location: { line: 5, column: 1 },
+              filePath: '/src/fragments.js',
+              location: { line: 5, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
               hash: 'hash2',
             },
           ],
@@ -130,21 +130,21 @@ describe('FragmentInliner', () => {
       const fragmentAst = parse('fragment UserFields on User { id name }');
 
       const queries: ResolvedQuery[] = [
-        {
+        { type: 'query',
           id: '1',
           name: 'GetUser',
           content: 'query GetUser { user { ...UserFields @include(if: $includeUser) } }',
           resolvedContent: 'query GetUser { user { ...UserFields @include(if: $includeUser) } }',
-          filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          filePath: '/src/queries.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
           hash: 'hash1',
           resolvedFragments: [
-            {
+            { type: 'query', id: 'generated-id',
               name: 'UserFields',
               content: 'fragment UserFields on User { id name }',
               ast: fragmentAst,
-              filePath: '/src/fragments.ts',
-              location: { line: 1, column: 1 },
+              filePath: '/src/fragments.js',
+              location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
               hash: 'fragmentHash',
             },
           ],
@@ -161,21 +161,21 @@ describe('FragmentInliner', () => {
       const userFieldsFragment = parse('fragment UserFields on User { ...BaseFields name }');
 
       const queries: ResolvedQuery[] = [
-        {
+        { type: 'query',
           id: '1',
           name: 'GetUser',
           content: 'query GetUser { user { ...UserFields } }',
           resolvedContent: 'query GetUser { user { ...UserFields } }',
-          filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          filePath: '/src/queries.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
           hash: 'hash1',
           resolvedFragments: [
-            {
+            { type: 'query', id: 'generated-id',
               name: 'UserFields',
               content: 'fragment UserFields on User { ...BaseFields name }',
               ast: userFieldsFragment,
-              filePath: '/src/fragments.ts',
-              location: { line: 1, column: 1 },
+              filePath: '/src/fragments.js',
+              location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
               hash: 'hash1',
             },
             // Note: BaseFields would need to be resolved separately in a real scenario
@@ -196,8 +196,8 @@ describe('FragmentInliner', () => {
           name: 'GetUser',
           content: 'query GetUser { user { ...MissingFragment } }',
           resolvedContent: 'query GetUser { user { ...MissingFragment } }',
-          filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          filePath: '/src/queries.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
           hash: 'hash1',
           resolvedFragments: [], // Fragment not resolved
           type: 'query',
@@ -215,11 +215,11 @@ describe('FragmentInliner', () => {
           name: 'InvalidQuery',
           content: 'query { { invalid syntax }',
           resolvedContent: 'query { { invalid syntax }',
-          filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          filePath: '/src/queries.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
           hash: 'hash1',
           resolvedFragments: [
-            {
+            { type: 'query', id: 'generated-id',
               name: 'TestFragment',
               content: 'fragment TestFragment on User { id name }',
               ast: {
@@ -239,7 +239,7 @@ describe('FragmentInliner', () => {
                   },
                 ],
               },
-              filePath: '/src/fragments.ts',
+              filePath: '/src/fragments.js',
               dependencies: [],
             },
           ],
@@ -262,21 +262,21 @@ describe('FragmentInliner', () => {
       const fragmentAst = parse('fragment UserFields on User { posts(limit: 10) { title } }');
 
       const queries: ResolvedQuery[] = [
-        {
+        { type: 'query',
           id: '1',
           name: 'GetUser',
           content: 'query GetUser { user { id ...UserFields } }',
           resolvedContent: 'query GetUser { user { id ...UserFields } }',
-          filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          filePath: '/src/queries.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
           hash: 'hash1',
           resolvedFragments: [
-            {
+            { type: 'query', id: 'generated-id',
               name: 'UserFields',
               content: 'fragment UserFields on User { posts(limit: 10) { title } }',
               ast: fragmentAst,
-              filePath: '/src/fragments.ts',
-              location: { line: 1, column: 1 },
+              filePath: '/src/fragments.js',
+              location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
               hash: 'fragmentHash',
             },
           ],
@@ -293,21 +293,21 @@ describe('FragmentInliner', () => {
       const fragmentAst = parse('fragment UserFields on User { userId: id userName: name }');
 
       const queries: ResolvedQuery[] = [
-        {
+        { type: 'query',
           id: '1',
           name: 'GetUser',
           content: 'query GetUser { user { ...UserFields } }',
           resolvedContent: 'query GetUser { user { ...UserFields } }',
-          filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          filePath: '/src/queries.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
           hash: 'hash1',
           resolvedFragments: [
-            {
+            { type: 'query', id: 'generated-id',
               name: 'UserFields',
               content: 'fragment UserFields on User { userId: id userName: name }',
               ast: fragmentAst,
-              filePath: '/src/fragments.ts',
-              location: { line: 1, column: 1 },
+              filePath: '/src/fragments.js',
+              location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
               hash: 'fragmentHash',
             },
           ],
@@ -334,21 +334,21 @@ describe('FragmentInliner', () => {
       `);
 
       const queries: ResolvedQuery[] = [
-        {
+        { type: 'query',
           id: '1',
           name: 'GetNode',
           content: 'query GetNode($id: ID!) { node(id: $id) { ...NodeFields } }',
           resolvedContent: 'query GetNode($id: ID!) { node(id: $id) { ...NodeFields } }',
-          filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          filePath: '/src/queries.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
           hash: 'hash1',
           resolvedFragments: [
-            {
+            { type: 'query', id: 'generated-id',
               name: 'NodeFields',
               content: print(fragmentAst),
               ast: fragmentAst,
-              filePath: '/src/fragments.ts',
-              location: { line: 1, column: 1 },
+              filePath: '/src/fragments.js',
+              location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
               hash: 'fragmentHash',
             },
           ],
@@ -370,41 +370,41 @@ describe('FragmentInliner', () => {
       const fragmentAst = parse('fragment UserFields on User { id name }');
 
       const queries: ResolvedQuery[] = [
-        {
+        { type: 'query',
           id: '1',
           name: 'Query1',
           content: 'query Query1 { user { ...UserFields } }',
           resolvedContent: 'query Query1 { user { ...UserFields } }',
-          filePath: '/src/q1.ts',
-          location: { line: 1, column: 1 },
+          filePath: '/src/q1.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
           hash: 'hash1',
           resolvedFragments: [
-            {
+            { type: 'query', id: 'generated-id',
               name: 'UserFields',
               content: 'fragment UserFields on User { id name }',
               ast: fragmentAst,
-              filePath: '/src/fragments.ts',
-              location: { line: 1, column: 1 },
+              filePath: '/src/fragments.js',
+              location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
               hash: 'frag1',
             },
           ],
           type: 'query',
         },
-        {
+        { type: 'query',
           id: '2',
           name: 'Query2',
           content: 'query Query2 { user { ...UserFields } }',
           resolvedContent: 'query Query2 { user { ...UserFields } }',
-          filePath: '/src/q2.ts',
-          location: { line: 1, column: 1 },
+          filePath: '/src/q2.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
           hash: 'hash2',
           resolvedFragments: [
-            {
+            { type: 'query', id: 'generated-id',
               name: 'UserFields',
               content: 'fragment UserFields on User { id name }',
               ast: fragmentAst,
-              filePath: '/src/fragments.ts',
-              location: { line: 1, column: 1 },
+              filePath: '/src/fragments.js',
+              location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/FragmentInliner.test.js' },
               hash: 'frag1',
             },
           ],

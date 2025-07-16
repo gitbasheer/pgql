@@ -282,7 +282,7 @@ function displayFinalSummary(summary: any): void {
 // Only parse if this file is being run directly
 if (
   import.meta.url === `file://${process.argv[1]}` ||
-  process.argv[1]?.endsWith('migrate.ts') ||
+  process.argv[1]?.endsWith('migrate.js') ||
   process.argv[1]?.endsWith('migrate.js')
 ) {
   program.parse(process.argv);

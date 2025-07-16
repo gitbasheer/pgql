@@ -14,7 +14,7 @@ vi.mock('node:fs/promises', async () => {
     mkdir: vi.fn().mockResolvedValue(undefined),
     access: vi.fn().mockResolvedValue(undefined),
     rm: vi.fn().mockResolvedValue(undefined),
-    readdir: vi.fn().mockResolvedValue(['queries.ts', 'dynamic-queries.ts']),
+    readdir: vi.fn().mockResolvedValue(['queries.js', 'dynamic-queries.js']),
     stat: vi.fn().mockResolvedValue({
       isFile: () => true,
       isDirectory: () => false,
@@ -70,7 +70,7 @@ describe('Source AST Mapping Integration', () => {
 
       try {
         // Create test files with verification
-        const testFile1 = path.join(testDir, 'queries.ts');
+        const testFile1 = path.join(testDir, 'queries.js');
         await writeAndVerifyFile(
           testFile1,
           `
@@ -97,7 +97,7 @@ export const GET_POSTS = gql\`
 \`;
         `.trim(),
         );
-        const testFile2 = path.join(testDir, 'dynamic-queries.ts');
+        const testFile2 = path.join(testDir, 'dynamic-queries.js');
         await writeAndVerifyFile(
           testFile2,
           `
@@ -185,7 +185,7 @@ export const DYNAMIC_QUERY = gql\`
 
       try {
         // Create a test file with various GraphQL patterns
-        const testFile = path.join(testDir, 'mixed.ts');
+        const testFile = path.join(testDir, 'mixed.js');
         await writeAndVerifyFile(
           testFile,
           `
@@ -278,7 +278,7 @@ function createQuery() {
       await ensureDirectory(testDir);
 
       try {
-        const testFile = path.join(testDir, 'simple.ts');
+        const testFile = path.join(testDir, 'simple.js');
         await writeAndVerifyFile(
           testFile,
           `
@@ -320,7 +320,7 @@ const QUERY = gql\`
       await ensureDirectory(testDir);
 
       try {
-        const testFile = path.join(testDir, 'invalid.ts');
+        const testFile = path.join(testDir, 'invalid.js');
         await writeAndVerifyFile(
           testFile,
           `
@@ -342,7 +342,7 @@ const VALID = gql\`
         );
         const options: ExtractionOptions = {
           directory: testDir,
-          patterns: ['**/*.ts'],
+          patterns: ['**/*.js'],
           strategies: ['ast', 'pluck'],
           // Try both
           preserveSourceAST: true,
@@ -375,7 +375,7 @@ const VALID = gql\`
       await ensureDirectory(testDir);
 
       try {
-        const testFile = path.join(testDir, 'complex.ts');
+        const testFile = path.join(testDir, 'complex.js');
         await writeAndVerifyFile(
           testFile,
           `

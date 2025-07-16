@@ -2,7 +2,7 @@ import * as fs from 'fs/promises';
 import { logger } from '../../utils/logger.js';
 
 export interface DeprecationRule {
-  type: 'field' | 'type' | 'argument';
+  type: 'field' | 'type' | 'argument' | 'field-rename' | 'nested-replacement' | 'comment-out' | 'enum-value-rename';
   objectType: string;
   fieldName: string;
   deprecationReason: string;

@@ -33,8 +33,8 @@ describe('ResponseCaptureService', () => {
     content: 'query GetUser { user { id name } }',
     name: 'GetUser',
     type: 'query',
-    filePath: 'test.ts',
-    location: { line: 1, column: 1, file: 'test.ts' },
+    filePath: 'test.js',
+    location: { line: 1, column: 1, file: 'test.js' },
     ast: null,
     resolvedContent: 'query GetUser { user { id name } }',
     resolvedFragments: [],
@@ -249,7 +249,7 @@ describe('ResponseCaptureService', () => {
       const queries = [
         mockQuery,
         { ...mockQuery, id: 'query-2', name: 'GetUser2' },
-        { ...mockQuery, id: 'query-3', name: 'GetUser3' },
+        { type: 'query', ...mockQuery, id: 'query-3', name: 'GetUser3' },
       ];
 
       const result = await service.captureBaseline(queries);

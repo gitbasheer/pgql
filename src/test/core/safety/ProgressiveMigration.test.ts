@@ -24,7 +24,7 @@ describe('ProgressiveMigration', () => {
       type: 'query',
       ast: {} as any,
       source: 'query TestOperation { test }',
-      file: 'test.ts',
+      file: 'test.js',
       line: 10,
       column: 5,
       variables: [],

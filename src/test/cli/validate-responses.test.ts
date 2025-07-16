@@ -43,8 +43,8 @@ describe('validate-responses CLI', () => {
         content: 'query { test }',
         name: 'TestQuery',
         type: 'query',
-        filePath: 'test.ts',
-        location: { line: 1, column: 1, file: 'test.ts' },
+        filePath: 'test.js',
+        location: { line: 1, column: 1, file: 'test.js' },
         ast: null,
         resolvedContent: 'query { test }',
         resolvedFragments: [],
@@ -199,7 +199,7 @@ describe('validate-responses CLI', () => {
       (SSOService.getInstance as Mock).mockReturnValue(mockSSOService);
 
       // Would test SSO authentication flow
-      const result = await mockSSOService.authenticate({
+      const result = await mockSSOService.authenticate({ type: 'query', id: 'generated-id',
         provider: 'godaddy',
         credentials: { username: 'test', password: 'pass' },
       });

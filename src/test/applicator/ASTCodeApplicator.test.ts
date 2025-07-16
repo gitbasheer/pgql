@@ -32,7 +32,7 @@ describe('ASTCodeApplicator', () => {
 
   describe('applyTransformations', () => {
     it('should apply transformation to a simple tagged template', async () => {
-      const testFile = path.join(tempDir, 'test-simple-tagged.ts');
+      const testFile = path.join(tempDir, 'test-simple-tagged.js');
       const content = `
 import { gql } from 'graphql-tag';
 
@@ -96,7 +96,7 @@ const query = gql\`
     });
 
     it('should preserve interpolations in template literals', async () => {
-      const testFile = path.join(tempDir, 'test-interpolations.ts');
+      const testFile = path.join(tempDir, 'test-interpolations.js');
       const content = `
 import { gql } from 'graphql-tag';
 
@@ -163,7 +163,7 @@ const query = gql\`
     });
 
     it('should handle multiple transformations in the same file', async () => {
-      const testFile = path.join(tempDir, 'test-multiple.ts');
+      const testFile = path.join(tempDir, 'test-multiple.js');
       const content = `
 import { gql } from 'graphql-tag';
 
@@ -254,7 +254,7 @@ const query2 = gql\`
     });
 
     it('should handle graphql call expressions', async () => {
-      const testFile = path.join(tempDir, 'test-call-expressions.ts');
+      const testFile = path.join(tempDir, 'test-call-expressions.js');
       const content = `
 import { graphql } from 'graphql';
 
@@ -317,7 +317,7 @@ const query = graphql(\`
     });
 
     it('should validate generated code', async () => {
-      const testFile = path.join(tempDir, 'test-validate.ts');
+      const testFile = path.join(tempDir, 'test-validate.js');
       const content = `
 import { gql } from 'graphql-tag';
 
@@ -376,7 +376,7 @@ const query = gql\`
     });
 
     it('should handle dry run mode', async () => {
-      const testFile = path.join(tempDir, 'test-dry-run.ts');
+      const testFile = path.join(tempDir, 'test-dry-run.js');
       const content = `
 import { gql } from 'graphql-tag';
 

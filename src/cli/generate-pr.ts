@@ -341,7 +341,7 @@ program
 // Only parse if this file is being run directly
 if (
   import.meta.url === `file://${process.argv[1]}` ||
-  process.argv[1]?.endsWith('generate-pr.ts') ||
+  process.argv[1]?.endsWith('generate-pr.js') ||
   process.argv[1]?.endsWith('generate-pr.js')
 ) {
   program.parse(process.argv);

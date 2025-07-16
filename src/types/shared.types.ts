@@ -3,6 +3,13 @@
 // Endpoint types
 export type Endpoint = 'productGraph' | 'offerGraph';
 
+// Source location types
+export interface SourceLocation {
+  line: number;
+  column: number;
+  file: string;
+}
+
 // Pipeline stages
 export const PIPELINE_STAGES = [
   'Extraction',
@@ -19,15 +26,20 @@ export type PipelineStatus = 'pending' | 'in_progress' | 'completed' | 'error';
 // Core query interface used throughout the system
 export interface ExtractedQuery {
   // Identity
+  id: string;
   queryName: string;
+  queryId?: string;
+  hash?: string;
   content: string;
   fullExpandedQuery?: string;
 
   // Location
   filePath: string;
   lineNumber: number;
+  location?: SourceLocation;
 
   // GraphQL metadata
+  type: 'query' | 'mutation' | 'subscription' | 'fragment';
   operation?: 'query' | 'mutation' | 'subscription';
   variables?: Record<string, string>;
   fragments?: string[];
@@ -52,7 +64,7 @@ export interface TransformationResult {
 }
 
 export interface TransformationChange {
-  type: 'field' | 'argument' | 'type' | 'fragment' | 'field-rename' | 'nested-replacement' | 'comment-out';
+  type: 'field' | 'argument' | 'type' | 'fragment' | 'field-rename' | 'nested-replacement' | 'comment-out' | 'enum-value-rename';
   field: string;
   oldValue?: string;
   newValue?: string;
@@ -234,6 +246,7 @@ export interface GeneratePRResponse {
 // Validation result
 export interface ValidationResult {
   queryName: string;
+  queryId?: string; // Optional ID for compatibility
   endpoint: Endpoint;
   valid: boolean;
   errors?: string[];

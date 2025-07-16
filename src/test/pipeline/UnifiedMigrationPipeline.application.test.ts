@@ -105,9 +105,9 @@ describe('UnifiedMigrationPipeline - Application', () => {
             name: 'TestQuery',
             type: 'query',
             content: 'query TestQuery { test }',
-            filePath: 'test.ts',
+            filePath: 'test.js',
             sourceAST: { node: {}, start: 0, end: 10 },
-            location: { line: 1, column: 1 },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/pipeline/UnifiedMigrationPipeline.application.test.js' },
             fragments: [],
           },
         ],
@@ -228,9 +228,9 @@ describe('UnifiedMigrationPipeline - Application', () => {
       const result = await pipeline.apply();
 
       expect(mockApplicator.applyTransformation).toHaveBeenCalled();
-      expect(fs.writeFile).toHaveBeenCalledWith('test.ts', 'modified code', 'utf-8');
+      expect(fs.writeFile).toHaveBeenCalledWith('test.js', 'modified code', 'utf-8');
       expect(result).toEqual({
-        modifiedFiles: ['test.ts'],
+        modifiedFiles: ['test.js'],
         operationsUpdated: 1,
         linesAdded: 5,
         linesRemoved: 3,
@@ -265,11 +265,11 @@ describe('UnifiedMigrationPipeline - Application', () => {
     it('should handle multiple transformations per file', async () => {
       mockExtractor.extract.mockResolvedValue({
         queries: [
-          { id: 'q1', content: 'query Q1 { test }', filePath: 'same.ts', sourceAST: { start: 0 } },
+          { id: 'q1', content: 'query Q1 { test }', filePath: 'same.js', sourceAST: { start: 0 } },
           {
             id: 'q2',
             content: 'query Q2 { test }',
-            filePath: 'same.ts',
+            filePath: 'same.js',
             sourceAST: { start: 100 },
           },
         ],

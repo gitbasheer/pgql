@@ -36,6 +36,7 @@ export interface DeprecationInfo {
 export interface QueryPattern {
   type: 'direct' | 'factory' | 'dynamic' | 'conditional';
   pattern: string;
+  name?: string; // Pattern name for compatibility
   variables?: string[];
   fragments?: string[];
 }

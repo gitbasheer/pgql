@@ -23,12 +23,8 @@ program
     const spinner = ora('Extracting GraphQL query variants...').start();
 
     try {
-      const extractor = new UnifiedExtractor({ enableIncrementalExtraction: true });
-      const extractedQueries = await extractor.extractFromDirectory(
-        directory,
-        options.pattern,
-        true // resolve fragments
-      );
+      const extractor = new UnifiedExtractor({ directory, enableIncrementalExtraction: true });
+      const extractedQueries = await extractor.extractFromRepo();
       
       // Generate extraction result for compatibility
       const result = {
@@ -66,12 +62,12 @@ program
       // Display variants by query
       const variantsByQuery = new Map<string, ExtractedQueryWithVariant[]>();
       for (const variant of result.variants) {
-        const originalId = variant.variantMetadata?.originalQueryId;
+        const originalId = variant.queryName;
         if (originalId) {
           if (!variantsByQuery.has(originalId)) {
             variantsByQuery.set(originalId, []);
           }
-          variantsByQuery.get(originalId)!.push(variant);
+          variantsByQuery.get(originalId)!.push(variant as unknown as ExtractedQueryWithVariant);
         }
       }
 
@@ -106,10 +102,10 @@ program
           ...config,
         })),
         variants: result.variants.map((v) => ({
-          id: v.id,
-          originalQueryId: v.variantMetadata?.originalQueryId,
-          queryName: v.name,
-          conditions: v.variantMetadata?.conditions,
+          id: v.queryName,
+          originalQueryId: v.queryName,
+          queryName: v.queryName,
+          conditions: v.fragments,
           filePath: v.filePath,
         })),
       };
@@ -126,9 +122,9 @@ program
             timestamp: new Date().toISOString(),
             totalVariants: result.variants.length,
             variants: result.variants.map((v) => ({
-              id: v.id,
-              queryName: v.name,
-              conditions: v.variantMetadata?.conditions,
+              id: v.queryName,
+              queryName: v.queryName,
+              conditions: v.fragments,
               content: v.content,
             })),
           },
@@ -143,7 +139,7 @@ program
         await fs.mkdir(queriesDir, { recursive: true });
         
         for (const query of result.variants) {
-          const fileName = `${query.id}.graphql`;
+          const fileName = `${query.queryName}.graphql`;
           const filePath = path.join(queriesDir, fileName);
           await fs.writeFile(filePath, query.content);
         }

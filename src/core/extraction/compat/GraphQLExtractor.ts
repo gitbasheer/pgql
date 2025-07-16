@@ -21,10 +21,11 @@ export interface ExtractedQuery {
   id: string;
   filePath: string;
   content: string;
-  ast: DocumentNode;
+  ast: DocumentNode | null;
   location: {
     line: number;
     column: number;
+    file: string;
   };
   name?: string;
   originalName?: string;
@@ -120,6 +121,17 @@ export class GraphQLExtractor {
     return allQueries;
   }
 
+  /**
+   * Alias for extractFromDirectory - extracts queries from a repository/directory
+   */
+  async extractFromRepo(
+    directory: string,
+    patterns: string[] = ['**/*.{js,jsx,ts,tsx}'],
+    resolveFragments: boolean = true,
+  ): Promise<ExtractedQuery[]> {
+    return this.extractFromDirectory(directory, patterns, resolveFragments);
+  }
+
   async extractFromFile(filePath: string): Promise<ExtractedQuery[]> {
     // SECURITY FIX: Validate path to prevent traversal attacks
     const validatedPath = validateReadPath(filePath);
@@ -189,6 +201,7 @@ export class GraphQLExtractor {
               location: {
                 line: source.locationOffset?.line || 1,
                 column: source.locationOffset?.column || 1,
+                file: filePath,
               },
               name: normalizedName || name,
               originalName: normalizedName !== name ? name : undefined,
@@ -474,7 +487,7 @@ export class GraphQLExtractor {
           filePath: 'inline',
           content: source,
           ast: validation.ast,
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: 'inline' },
           name,
           type,
         },

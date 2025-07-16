@@ -114,7 +114,7 @@ analysis
       ...(options.output ? ['-o', options.output] : []),
       ...(options.detailed ? ['--detailed'] : []),
     ];
-    await runCLI(join(__dirname, 'analyze-operations.ts'), args);
+    await runCLI(join(__dirname, 'analyze-operations.js'), args);
   });
 
 analysis
@@ -123,7 +123,7 @@ analysis
   .option('-o, --output <path>', 'Output directory', './variant-analysis')
   .option('--advanced', 'Use advanced variant extraction')
   .action(async (directory = './src', options) => {
-    const scriptPath = options.advanced ? 'extract-advanced-variants.ts' : 'variant-analysis.ts';
+    const scriptPath = options.advanced ? 'extract-advanced-variants.js' : 'variant-analysis.js';
     const args = [directory, ...(options.output ? ['-o', options.output] : [])];
     await runCLI(join(__dirname, scriptPath), args);
   });
@@ -144,7 +144,7 @@ analysis
       ...(options.skipValidation ? ['--skip-validation'] : []),
       ...(options.continueOnError ? ['--continue-on-error'] : []),
     ];
-    await runCLI(join(__dirname, 'production-pipeline.ts'), args);
+    await runCLI(join(__dirname, 'production-pipeline.js'), args);
   });
 
 // 📤 EXTRACTION COMMANDS
@@ -168,7 +168,7 @@ extract
       ...(options.dynamic ? ['--dynamic'] : []),
       ...(options.fragments === false ? ['--no-fragments'] : []),
     ];
-    await runCLI(join(__dirname, 'extract-transform.ts'), args);
+    await runCLI(join(__dirname, 'extract-transform.js'), args);
   });
 
 extract
@@ -177,7 +177,7 @@ extract
   .option('-o, --output <path>', 'Output directory', './extracted-variants')
   .option('--advanced', 'Use advanced extraction methods')
   .action(async (directory = './src', options) => {
-    const scriptPath = options.advanced ? 'extract-advanced-variants.ts' : 'extract-variants.ts';
+    const scriptPath = options.advanced ? 'extract-advanced-variants.js' : 'extract-variants.js';
     const args = [directory, ...(options.output ? ['-o', options.output] : [])];
     await runCLI(join(__dirname, scriptPath), args);
   });
@@ -193,7 +193,7 @@ extract
       ...(options.output ? ['-o', options.output] : []),
       ...(options.config ? ['-c', options.config] : []),
     ];
-    await runCLI(join(__dirname, 'unified-extract.ts'), args);
+    await runCLI(join(__dirname, 'unified-extract.js'), args);
   });
 
 // 🔄 TRANSFORMATION COMMANDS
@@ -227,7 +227,7 @@ transform
       ...(options.dryRun ? ['--dry-run'] : []),
       ...(options.validate ? ['--validate'] : []),
     ];
-    await runCLI(join(__dirname, 'extract-transform.ts'), args);
+    await runCLI(join(__dirname, 'extract-transform.js'), args);
   });
 
 // ✅ VALIDATION COMMANDS
@@ -256,7 +256,7 @@ validate
         options.schema,
         ...(options.queries ? ['--queries', options.queries] : []),
       ];
-      await runCLI(join(__dirname, 'validate-pipeline.ts'), args);
+      await runCLI(join(__dirname, 'validate-pipeline.js'), args);
     } else {
       console.log(chalk.yellow('Use --pipeline flag for full validation'));
     }
@@ -282,7 +282,7 @@ validate
       ...(options.authToken ? ['--auth-token', options.authToken] : []),
       ...(options.cookies ? ['--cookies', options.cookies] : []),
     ];
-    await runCLI(join(__dirname, 'validate-responses.ts'), args);
+    await runCLI(join(__dirname, 'validate-responses.js'), args);
   });
 
 validate
@@ -295,7 +295,7 @@ validate
       ...(options.input ? ['-i', options.input] : []),
       ...(options.schema ? ['-s', options.schema] : []),
     ];
-    await runCLI(join(__dirname, 'validate-variants.ts'), args);
+    await runCLI(join(__dirname, 'validate-variants.js'), args);
   });
 
 // 🚀 MIGRATION COMMANDS
@@ -325,7 +325,7 @@ migrate
       ...(options.createPr ? ['--create-pr'] : []),
       ...(options.rollout ? ['--rollout', options.rollout] : []),
     ];
-    await runCLI(join(__dirname, 'migrate.ts'), args);
+    await runCLI(join(__dirname, 'migrate.js'), args);
   });
 
 migrate
@@ -339,7 +339,7 @@ migrate
       ...(options.input ? ['-i', options.input] : []),
       ...(options.dryRun ? ['--dry-run'] : []),
     ];
-    await runCLI(join(__dirname, 'extract-transform.ts'), args);
+    await runCLI(join(__dirname, 'extract-transform.js'), args);
   });
 
 migrate
@@ -356,7 +356,7 @@ migrate
       ...(options.dryRun ? ['--dry-run'] : []),
       ...(options.demo ? ['--demo'] : []),
     ];
-    await runCLI(join(__dirname, 'pattern-based-migration.ts'), args);
+    await runCLI(join(__dirname, 'pattern-based-migration.js'), args);
   });
 
 // 🔧 UTILITY COMMANDS
@@ -381,7 +381,7 @@ utils
       ...(options.draft ? ['--draft'] : []),
       ...(options.summaryFile ? ['--summary-file', options.summaryFile] : []),
     ];
-    await runCLI(join(__dirname, 'generate-pr.ts'), args);
+    await runCLI(join(__dirname, 'generate-pr.js'), args);
   });
 
 utils
@@ -390,7 +390,7 @@ utils
   .option('-o, --operation <name>', 'Specific operation to run')
   .action(async (options) => {
     const args = [...(options.operation ? ['-o', options.operation] : [])];
-    await runCLI(join(__dirname, 'type-safe-cli.ts'), args);
+    await runCLI(join(__dirname, 'type-safe-cli.js'), args);
   });
 
 utils
@@ -410,7 +410,7 @@ utils
       options.format,
       ...(options.dryRun ? ['--dry-run'] : []),
     ];
-    await runCLI(join(__dirname, 'convert-querynames.ts'), args);
+    await runCLI(join(__dirname, 'convert-querynames.js'), args);
   });
 
 utils
@@ -431,7 +431,7 @@ utils
       ...(options.strict ? ['--strict'] : []),
       ...(options.ignoreWhitespace ? ['--ignore-whitespace'] : []),
     ];
-    await runCLI(join(__dirname, 'validate-migration.ts'), args);
+    await runCLI(join(__dirname, 'validate-migration.js'), args);
   });
 
 // 🐙 GITHUB COMMANDS
@@ -537,7 +537,7 @@ github
         const outputDir = options.output || `./analysis-${repo.replace('/', '-')}`;
 
         // Use our extraction tools
-        await runCLI(join(__dirname, 'extract-transform.ts'), [
+        await runCLI(join(__dirname, 'extract-transform.js'), [
           'extract',
           tempDir,
           '-o',
@@ -546,7 +546,7 @@ github
         ]);
 
         spinner.text = 'Analyzing operations...';
-        await runCLI(join(__dirname, 'analyze-operations.ts'), [tempDir, '-o', outputDir]);
+        await runCLI(join(__dirname, 'analyze-operations.js'), [tempDir, '-o', outputDir]);
 
         // Cleanup
         execSync(`rm -rf ${tempDir}`, { stdio: 'pipe' });
@@ -613,7 +613,7 @@ github
       // Run deprecation analysis
       console.log(chalk.blue('\n🔍 Analyzing schema differences...\n'));
 
-      await runCLI(join(__dirname, 'analyze-operations.ts'), [
+      await runCLI(join(__dirname, 'analyze-operations.js'), [
         '--schema-compare',
         sourceFile,
         targetFile,
@@ -670,7 +670,7 @@ monitor
       ...(options.config ? ['-c', options.config] : []),
       ...(options.realTime ? ['--real-time'] : []),
     ];
-    await runCLI(join(__dirname, 'unified-cli.ts'), args);
+    await runCLI(join(__dirname, 'unified-cli.js'), args);
   });
 
 // 🎯 QUICK START COMMANDS
@@ -829,7 +829,7 @@ program
               },
             ]);
 
-            await runCLI(join(__dirname, 'extract-transform.ts'), [
+            await runCLI(join(__dirname, 'extract-transform.js'), [
               'extract',
               sourceDir,
               '-o',
@@ -868,7 +868,7 @@ program
               ...(dryRun ? ['--dry-run'] : []),
             ];
 
-            await runCLI(join(__dirname, 'extract-transform.ts'), transformArgs);
+            await runCLI(join(__dirname, 'extract-transform.js'), transformArgs);
             break;
 
           case 'validate':
@@ -879,7 +879,7 @@ program
                 : './schema.graphql'
               : './schema.graphql';
 
-            await runCLI(join(__dirname, 'validate-pipeline.ts'), [
+            await runCLI(join(__dirname, 'validate-pipeline.js'), [
               'pipeline',
               schemaForValidate,
               '--queries',
@@ -900,7 +900,7 @@ program
 
             const migrationArgs = ['--dry-run', ...(migrateInteractive ? ['--interactive'] : [])];
 
-            await runCLI(join(__dirname, 'migrate.ts'), migrationArgs);
+            await runCLI(join(__dirname, 'migrate.js'), migrationArgs);
             break;
 
           case 'analyze':
@@ -920,7 +920,7 @@ program
                 : './schema.graphql'
               : './schema.graphql';
 
-            await runCLI(join(__dirname, 'analyze-operations.ts'), [
+            await runCLI(join(__dirname, 'analyze-operations.js'), [
               analyzeSourceDir,
               '-s',
               analyzeSchema,
@@ -945,7 +945,7 @@ program
                 : './schema.graphql'
               : './schema.graphql';
 
-            await runCLI(join(__dirname, 'production-pipeline.ts'), [
+            await runCLI(join(__dirname, 'production-pipeline.js'), [
               prodSourceDir,
               '-s',
               prodSchema,

@@ -54,11 +54,11 @@ export class SchemaLoader {
     // Extract schema config from PgqlOptions if provided
     const schemaConfig = 'schemaConfig' in options ? options.schemaConfig : options;
     this.options = {
-      cacheEnabled: schemaConfig?.cacheEnabled ?? true,
-      cacheSize: schemaConfig?.cacheSize ?? 50, // MB
-      cacheTtl: schemaConfig?.cacheTtl ?? 3600000, // 1 hour
-      fallbackToFile: schemaConfig?.fallbackToFile ?? true,
-      enableWarmup: schemaConfig?.enableWarmup ?? false,
+      cacheEnabled: (schemaConfig as any)?.cacheEnabled ?? true,
+      cacheSize: (schemaConfig as any)?.cacheSize ?? 50, // MB
+      cacheTtl: (schemaConfig as any)?.cacheTtl ?? 3600000, // 1 hour
+      fallbackToFile: (schemaConfig as any)?.fallbackToFile ?? true,
+      enableWarmup: (schemaConfig as any)?.enableWarmup ?? false,
     };
 
     if (this.options.enableWarmup) {
@@ -151,10 +151,10 @@ export class SchemaLoader {
 
       } catch (fallbackError) {
         logger.error(`All schema loading strategies failed for ${source}:`, {
-          primary: primaryError.message,
-          fallback: fallbackError.message,
+          primary: primaryError instanceof Error ? primaryError.message : String(primaryError),
+          fallback: fallbackError instanceof Error ? fallbackError.message : String(fallbackError),
         });
-        throw new Error(`Failed to load schema from ${source}: ${fallbackError.message}`);
+        throw new Error(`Failed to load schema from ${source}: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
       }
     }
   }

@@ -182,7 +182,7 @@ export function validateReadPath(filePath: string): string | null {
 
   // Additional checks for read operations
   // Allow common file extensions
-  const allowedExtensions = ['.js', '.ts', '.jsx', '.tsx', '.graphql', '.gql', '.json', '.md'];
+  const allowedExtensions = ['.js', '.js', '.jsx', '.tsx', '.graphql', '.gql', '.json', '.md'];
   const ext = path.extname(validated).toLowerCase();
 
   if (ext && !allowedExtensions.includes(ext)) {

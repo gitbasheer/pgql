@@ -35,7 +35,7 @@ describe('CLI Regression Test Suite', () => {
     it('should maintain v0.9 output format when legacy flag is used', async () => {
       const result = await executeCommand([
         'tsx',
-        'src/cli/main-cli.ts',
+        'src/cli/main-cli.js',
         'extract',
         'queries',
         '--legacy-format',
@@ -60,7 +60,7 @@ describe('CLI Regression Test Suite', () => {
       for (let i = 0; i < 3; i++) {
         const result = await executeCommand([
           'tsx',
-          'src/cli/main-cli.ts',
+          'src/cli/main-cli.js',
           'extract',
           'queries',
           '--json',
@@ -88,8 +88,8 @@ describe('CLI Regression Test Suite', () => {
     const argumentTests = [
       {
         command: 'extract',
-        oldArgs: ['-d', './src', '-p', '**/*.ts'],
-        newArgs: ['--directory', './src', '--pattern', '**/*.ts'],
+        oldArgs: ['-d', './src', '-p', '**/*.js'],
+        newArgs: ['--directory', './src', '--pattern', '**/*.js'],
         description: 'short vs long form arguments',
       },
       {
@@ -111,7 +111,7 @@ describe('CLI Regression Test Suite', () => {
         // Test old style arguments
         const oldResult = await executeCommand([
           'tsx',
-          'src/cli/main-cli.ts',
+          'src/cli/main-cli.js',
           command,
           ...oldArgs,
           '--json',
@@ -120,7 +120,7 @@ describe('CLI Regression Test Suite', () => {
         // Test new style arguments
         const newResult = await executeCommand([
           'tsx',
-          'src/cli/main-cli.ts',
+          'src/cli/main-cli.js',
           command,
           ...newArgs,
           '--json',
@@ -153,7 +153,7 @@ describe('CLI Regression Test Suite', () => {
 
     errorScenarios.forEach(({ args, errorPattern, description }) => {
       it(`should provide consistent error for ${description}`, async () => {
-        const result = await executeCommand(['tsx', 'src/cli/main-cli.ts', ...args]);
+        const result = await executeCommand(['tsx', 'src/cli/main-cli.js', ...args]);
 
         expect(result.exitCode).toBeGreaterThan(0);
         expect(result.stderr).toMatch(errorPattern);
@@ -173,7 +173,7 @@ describe('CLI Regression Test Suite', () => {
       it(`should respect ${envVar} for ${expectedBehavior}`, async () => {
         const env = { ...process.env, [envVar]: value };
 
-        const result = await executeCommand(['tsx', 'src/cli/main-cli.ts', 'extract', 'queries'], {
+        const result = await executeCommand(['tsx', 'src/cli/main-cli.js', 'extract', 'queries'], {
           env,
         });
 
@@ -194,7 +194,7 @@ describe('CLI Regression Test Suite', () => {
 
       const result = await executeCommand([
         'tsx',
-        'src/cli/main-cli.ts',
+        'src/cli/main-cli.js',
         'extract',
         'queries',
         '-o',
@@ -229,7 +229,7 @@ describe('CLI Regression Test Suite', () => {
 
         const result = await executeCommand([
           'tsx',
-          'src/cli/main-cli.ts',
+          'src/cli/main-cli.js',
           'validate',
           '-s',
           'schema.graphql',
@@ -257,7 +257,7 @@ describe('CLI Regression Test Suite', () => {
       // Test piping output to another command
       const result = await executeCommand([
         'tsx',
-        'src/cli/main-cli.ts',
+        'src/cli/main-cli.js',
         'extract',
         'queries',
         '--json',
@@ -281,7 +281,7 @@ describe('CLI Regression Test Suite', () => {
 
       const result = await executeCommand([
         'tsx',
-        'src/cli/main-cli.ts',
+        'src/cli/main-cli.js',
         'extract',
         'queries',
         '--json',
@@ -315,8 +315,8 @@ describe('CLI Regression Test Suite', () => {
         { name: 'branch&&echo', valid: false },
         { name: 'branch.with.dots', valid: false }, // Dots no longer allowed
         { name: 'branch with spaces', valid: false },
-        { name: 'branch"quotes"', valid: false },
-        { name: "branch'quotes'", valid: false },
+        { type: 'query', name: 'branch"quotes"', valid: false },
+        { type: 'query', name: "branch'quotes'", valid: false },
       ];
 
       testBranches.forEach(({ name, valid }) => {
@@ -338,7 +338,7 @@ describe('CLI Regression Test Suite', () => {
       for (const path of maliciousPaths) {
         const result = await executeCommand([
           'tsx',
-          'src/cli/main-cli.ts',
+          'src/cli/main-cli.js',
           'extract',
           'queries',
           path,
@@ -361,7 +361,7 @@ describe('CLI Regression Test Suite', () => {
       for (const path of traversalPaths) {
         const result = await executeCommand([
           'tsx',
-          'src/cli/main-cli.ts',
+          'src/cli/main-cli.js',
           'validate',
           'queries',
           '-s',
@@ -375,7 +375,7 @@ describe('CLI Regression Test Suite', () => {
 
   describe('Help Text Stability', () => {
     it('should maintain stable help text format', async () => {
-      const result = await executeCommand(['tsx', 'src/cli/main-cli.ts', '--help']);
+      const result = await executeCommand(['tsx', 'src/cli/main-cli.js', '--help']);
 
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('GraphQL Migration Tool');
@@ -392,7 +392,7 @@ describe('CLI Regression Test Suite', () => {
       const commands = ['extract', 'transform', 'validate'];
 
       for (const command of commands) {
-        const result = await executeCommand(['tsx', 'src/cli/main-cli.ts', command, '--help']);
+        const result = await executeCommand(['tsx', 'src/cli/main-cli.js', command, '--help']);
 
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain(command);

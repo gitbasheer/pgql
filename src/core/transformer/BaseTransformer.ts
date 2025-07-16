@@ -119,7 +119,7 @@ export abstract class BaseTransformer {
       );
       
       // Handle error through unified system
-      await handleError(transformationError);
+      handleError(transformationError);
       
       const parseError: TransformError = {
         type: 'PARSE_ERROR',
@@ -160,7 +160,7 @@ export abstract class BaseTransformer {
     }
 
     try {
-      const cached = transformCache.get(cacheKey);
+      const cached = await transformCache.get<TransformResult>('transform', cacheKey);
       if (cached) {
         return { ...cached, cached: true };
       }
@@ -183,7 +183,7 @@ export abstract class BaseTransformer {
     }
 
     try {
-      transformCache.set(cacheKey, result);
+      await transformCache.set('transform', cacheKey, result);
     } catch (error) {
       logger.warn(`Cache storage failed: ${error}`);
     }

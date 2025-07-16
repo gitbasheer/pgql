@@ -1,4 +1,5 @@
 import { DocumentNode } from 'graphql';
+import { ExtractedQuery } from './query.types.js';
 
 /**
  * Types for variant extraction functionality
@@ -17,22 +18,6 @@ export interface VariantMetadata {
 
 export interface ExtractedQueryWithVariant extends ExtractedQuery {
   variantMetadata?: VariantMetadata;
-}
-
-export interface ExtractedQuery {
-  id: string;
-  filePath: string;
-  content: string;
-  ast: DocumentNode;
-  location: {
-    line: number;
-    column: number;
-  };
-  name?: string;
-  originalName?: string;
-  type: 'query' | 'mutation' | 'subscription' | 'fragment';
-  fragments?: string[];
-  variables?: Array<{ name: string; type: string }>;
 }
 
 export interface VariantCondition {

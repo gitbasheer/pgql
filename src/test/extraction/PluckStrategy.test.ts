@@ -24,7 +24,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
           }
         \`;
       `;
-      const queries = await strategy.extract('test.ts', code);
+      const queries = await strategy.extract('test.js', code);
       expect(queries).toHaveLength(1);
       const query = queries[0];
       expect(query.sourceAST).toBeDefined();
@@ -49,7 +49,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
           query { test }
         \`;
       `;
-      const queries = await strategy.extract('test.ts', code);
+      const queries = await strategy.extract('test.js', code);
       expect(queries).toHaveLength(1);
       expect(queries[0].sourceAST).toBeUndefined();
     });
@@ -73,7 +73,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
           }
         \`;
       `;
-      const queries = await strategy.extract('test.ts', code);
+      const queries = await strategy.extract('test.js', code);
       const sourceMapper = strategy.getSourceMapper();
       expect(queries).toHaveLength(1);
       const query = queries[0];
@@ -112,7 +112,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
           }
         \`;
       `;
-      const queries = await strategy.extract('apollo-test.ts', code);
+      const queries = await strategy.extract('apollo-test.js', code);
       expect(queries).toHaveLength(1);
       expect(queries[0].sourceAST).toBeDefined();
     });
@@ -135,7 +135,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
           }
         \`;
       `;
-      const queries = await strategy.extract('relay-test.ts', code);
+      const queries = await strategy.extract('relay-test.js', code);
       expect(queries).toHaveLength(1);
       expect(queries[0].sourceAST).toBeDefined();
     });
@@ -159,7 +159,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
           }
         \`;
       `;
-      const queries = await strategy.extract('complex.ts', code);
+      const queries = await strategy.extract('complex.js', code);
 
       // Should extract even if pluck fails
       expect(queries.length).toBeGreaterThanOrEqual(0);
@@ -178,7 +178,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
         const Q2 = gql\`query Q2 { field2 }\`;
         const Q3 = gql\`query Q3 { field3 }\`;
       `;
-      const queries = await strategy.extract('multi.ts', code);
+      const queries = await strategy.extract('multi.js', code);
       const sourceMapper = strategy.getSourceMapper();
       expect(queries).toHaveLength(3);
       // NOTE: can we capture the source AST for each query? and test the value for each?
@@ -211,7 +211,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
           return 42;
         }
       `;
-      const queries = await strategy.extract('no-graphql.ts', code);
+      const queries = await strategy.extract('no-graphql.js', code);
       expect(queries).toHaveLength(0);
       expect(context.errors).toHaveLength(0);
     });
@@ -229,7 +229,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
           // missing closing brace
         \`;
       `;
-      const queries = await strategy.extract('bad.ts', code);
+      const queries = await strategy.extract('bad.js', code);
 
       // Should either extract with error or skip
       if ((queries && queries.length) > 0) {
@@ -262,7 +262,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
           }
         \`;
       `;
-      const queries = await strategy.extract('stats.ts', code);
+      const queries = await strategy.extract('stats.js', code);
       const sourceMapper = strategy.getSourceMapper();
       const stats = sourceMapper.getStats();
       expect(queries).toHaveLength(2);

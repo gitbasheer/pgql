@@ -153,7 +153,7 @@ describe('QueryNamesConverter', () => {
 
       await fs.writeFile(inputFile, queryNamesContent, 'utf-8');
 
-      const tsOutputFile = path.join(tempDir, 'pattern-registry.ts');
+      const tsOutputFile = path.join(tempDir, 'pattern-registry.js');
 
       await converter.convertQueryNamesToPatterns({
         input: inputFile,

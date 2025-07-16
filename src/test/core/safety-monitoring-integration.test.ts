@@ -47,7 +47,7 @@ describe('Safety and Monitoring Integration', () => {
       type: 'query',
       ast: {} as any,
       source: 'query GetUserData { user { id name } }',
-      file: 'user.queries.ts',
+      file: 'user.queries.js',
       line: 10,
       column: 5,
       variables: [],
@@ -272,8 +272,8 @@ describe('Safety and Monitoring Integration', () => {
       // Setup multiple operations in various states
       const operations = [
         { ...mockOperation, id: 'op1', name: 'Operation1' },
-        { ...mockOperation, id: 'op2', name: 'Operation2' },
-        { ...mockOperation, id: 'op3', name: 'Operation3' },
+        { type: 'query', ...mockOperation, id: 'op2', name: 'Operation2' },
+        { type: 'query', ...mockOperation, id: 'op3', name: 'Operation3' },
       ];
 
       // Op1: Healthy at 75%
@@ -329,8 +329,8 @@ describe('Safety and Monitoring Integration', () => {
       // Setup: Multiple interdependent operations
       const criticalOps = [
         { ...mockOperation, id: 'auth', name: 'Authentication' },
-        { ...mockOperation, id: 'userData', name: 'UserData' },
-        { ...mockOperation, id: 'ventures', name: 'Ventures' },
+        { type: 'query', ...mockOperation, id: 'userData', name: 'UserData' },
+        { type: 'query', ...mockOperation, id: 'ventures', name: 'Ventures' },
       ];
 
       // Enable all operations

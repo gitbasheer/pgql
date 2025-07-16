@@ -187,7 +187,7 @@ describe('Validation Edge Cases', () => {
 
     it('should handle multiline template literals', async () => {
       const multilineTemplate = `
-        query MultilineQuery {
+        query MultilineQuery { namePattern: { template: '${queryName}', version: 'V1' },
           search(query: "dynamic_query_string") {
             items { id name }
           }
@@ -323,15 +323,15 @@ describe('Validation Edge Cases', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'admin/users.ts',
+          filePath: 'admin/users.js',
           fragments: [],
         },
-        {
+        { type: 'query',
           id: 'query2',
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'public/profile.ts',
+          filePath: 'public/profile.js',
           fragments: [],
         },
       ];
@@ -359,23 +359,23 @@ describe('Validation Edge Cases', () => {
           name: 'GetVenture',
           source: 'query GetVenture { venture { id name } }',
           type: 'query',
-          filePath: 'feature1.ts',
+          filePath: 'feature1.js',
           fragments: [],
         },
-        {
+        { type: 'query',
           id: 'query2',
           name: 'GetVenture',
           source: 'query GetVenture { venture { id name } }',
           type: 'query',
-          filePath: 'feature2.ts',
+          filePath: 'feature2.js',
           fragments: [],
         },
-        {
+        { type: 'query',
           id: 'query3',
           name: 'GetVenture',
           source: 'query GetVenture { venture { id name } }',
           type: 'query',
-          filePath: 'feature3.ts',
+          filePath: 'feature3.js',
           fragments: [],
         },
       ];
@@ -471,19 +471,19 @@ describe('Validation Edge Cases', () => {
         ],
       });
 
-      const baseline = createResponse({
+      const baseline = createResponse({ type: 'query',
         items: [
           { id: '1', name: 'A' },
-          { id: '2', name: 'B' },
-          { id: '3', name: 'C' },
+          { type: 'query', id: '2', name: 'B' },
+          { type: 'query', id: '3', name: 'C' },
         ],
       });
 
-      const transformed = createResponse({
+      const transformed = createResponse({ type: 'query',
         items: [
           { id: '3', name: 'C' },
-          { id: '1', name: 'A' },
-          { id: '2', name: 'B' },
+          { type: 'query', id: '1', name: 'A' },
+          { type: 'query', id: '2', name: 'B' },
         ],
       });
 

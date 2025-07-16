@@ -53,11 +53,7 @@ extract
       };
 
       const extractor = new UnifiedExtractor(extractorOptions);
-      const queries = await extractor.extractFromDirectory(
-        directory,
-        options.pattern,
-        options.fragments !== false
-      );
+      const queries = await extractor.extractFromRepo();
 
       spinner.succeed(`Extracted ${queries.length} operations`);
 
@@ -67,12 +63,12 @@ extract
         directory,
         totalQueries: queries.length,
         queries: queries.map(q => ({
-          id: q.id,
-          name: q.name,
-          type: q.type,
+          id: q.queryName,
+          name: q.queryName,
+          type: q.operation || 'query',
           filePath: q.filePath,
           content: q.content,
-          location: q.location,
+          location: { filePath: q.filePath, lineNumber: q.lineNumber },
         })),
       };
 
@@ -102,7 +98,7 @@ analyze
     try {
       // Extract operations first
       const extractor = new UnifiedExtractor({ directory });
-      const queries = await extractor.extractFromDirectory(directory);
+      const queries = await extractor.extractFromRepo();
 
       // Analyze operations
       const analyzer = new OperationAnalyzer();
@@ -120,8 +116,9 @@ analyze
 
       if (options.detailed) {
         console.log('\n📋 Operation Types:');
-        const byType = queries.reduce((acc, q) => {
-          acc[q.type] = (acc[q.type] || 0) + 1;
+        const byType = queries.reduce((acc: Record<string, number>, q: any) => {
+          const type = q.operation || 'query';
+          acc[type] = (acc[type] || 0) + 1;
           return acc;
         }, {} as Record<string, number>);
 
@@ -246,19 +243,43 @@ validate
       const queriesData = JSON.parse(await fs.readFile(options.queries, 'utf-8'));
       const queries = queriesData.queries || queriesData;
 
-      const validator = new ResponseValidationService();
+      const validator = new ResponseValidationService({
+        endpoints: [
+          { name: 'productGraph', url: 'https://api.example.com/graphql' },
+          { name: 'offerGraph', url: 'https://api.example.com/offer-graphql' }
+        ],
+        capture: {
+          maxConcurrency: 10,
+          timeout: 30000,
+          variableGeneration: 'auto'
+        },
+        comparison: {
+          strict: false,
+          ignorePaths: []
+        },
+        alignment: {
+          strict: false,
+          preserveNulls: true,
+          preserveOrder: false
+        },
+        storage: {
+          type: 'file',
+          path: './validation-storage'
+        }
+      });
       const results = [];
+      const validationResults = new Map();
 
       for (const query of queries.slice(0, 5)) { // Limit for demo
         try {
-          const result = await validator.validateQueryResponse({
-            query: query.content,
-            endpoint: options.endpoint || 'https://api.example.com/graphql',
-            variables: {},
-          });
-          results.push({ queryId: query.id, valid: result.valid, errors: result.errors });
+          const result = await validator.validateAgainstSchema(query.content, 'productGraph');
+          const validationResult = { queryName: query.queryName || query.id, valid: result.valid, errors: result.errors };
+          results.push(validationResult);
+          validationResults.set(query.queryName || query.id, validationResult);
         } catch (error) {
-          results.push({ queryId: query.id, valid: false, errors: [String(error)] });
+          const validationResult = { queryName: query.queryName || query.id, valid: false, errors: [String(error)] };
+          results.push(validationResult);
+          validationResults.set(query.queryName || query.id, validationResult);
         }
       }
 
@@ -381,7 +402,7 @@ migrate
       // Step 1: Extract
       console.log(chalk.yellow('📤 Step 1: Extracting queries...'));
       const extractor = new UnifiedExtractor({ directory });
-      const queries = await extractor.extractFromDirectory(directory);
+      const queries = await extractor.extractFromRepo();
       console.log(chalk.green(`   ✅ Extracted ${queries.length} operations`));
 
       // Step 2: Analyze Schema
@@ -413,10 +434,10 @@ migrate
       let transformedCount = 0;
 
       for (const query of queries) {
-        if (validationResults.find(v => v.queryId === query.id)?.valid) {
+        if (Array.from(validationResults.values()).find((v: any) => v.queryName === query.queryName)?.valid) {
           try {
             const result = await transformer.transformQuery({
-              queryId: query.id,
+              queryId: query.queryName,
               content: query.content,
               schemaPath: options.schema,
               dryRun: options.dryRun,
@@ -446,8 +467,9 @@ migrate
         dryRun: options.dryRun,
         extraction: {
           totalQueries: queries.length,
-          byType: queries.reduce((acc, q) => {
-            acc[q.type] = (acc[q.type] || 0) + 1;
+          byType: queries.reduce((acc: Record<string, number>, q: any) => {
+            const type = q.operation || 'query';
+            acc[type] = (acc[type] || 0) + 1;
             return acc;
           }, {} as Record<string, number>),
         },

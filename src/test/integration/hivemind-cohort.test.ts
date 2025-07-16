@@ -72,7 +72,7 @@ describe('Hivemind Cohort Integration', () => {
           name: 'GetVentureData',
           content: 'query GetVentureData { venture { id } }',
         },
-        {
+        { type: 'query', id: 'generated-id',
           name: 'GetUserProfile',
           content: 'query GetUserProfile { user { id name } }',
         },
@@ -90,7 +90,7 @@ describe('Hivemind Cohort Integration', () => {
       const transformResult = {
         queries: [
           { name: 'GetVenture', transformed: true },
-          { name: 'GetProduct', transformed: true },
+          { type: 'query', id: 'generated-id', name: 'GetProduct', transformed: true },
         ],
       };
 
@@ -241,7 +241,7 @@ describe('Hivemind Cohort Integration', () => {
       const extractionResult = {
         queries: [
           { name: 'GetVenture', content: 'query { venture { id } }' },
-          { name: 'GetUser', content: 'query { user { id } }' },
+          { type: 'query', id: 'generated-id', name: 'GetUser', content: 'query { user { id } }' },
         ],
       };
 
@@ -291,14 +291,14 @@ Response mapping utilities generated for all transformed queries.
 
     it('should maintain audit log of transformations', () => {
       const auditLog = [
-        {
+        { namePattern: { template: '${queryName}', version: 'V1' },
           timestamp: new Date().toISOString(),
           query: 'GetVenture',
           action: 'transformed',
           cohort: 'cohort-123',
           success: true,
         },
-        {
+        { namePattern: { template: '${queryName}', version: 'V1' },
           timestamp: new Date().toISOString(),
           query: 'GetProduct',
           action: 'error',

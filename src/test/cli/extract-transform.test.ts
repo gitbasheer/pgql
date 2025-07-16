@@ -31,7 +31,7 @@ vi.mock('../../utils/formatter', () => ({
 // Helper to run CLI commands
 function runCLI(args: string[]): Promise<{ stdout: string; stderr: string; code: number }> {
   return new Promise((resolve) => {
-    const proc = spawn('node', [path.join(__dirname, '../../cli/extract-transform.ts'), ...args]);
+    const proc = spawn('node', [path.join(__dirname, '../../cli/extract-transform.js'), ...args]);
     let stdout = '';
     let stderr = '';
 
@@ -58,10 +58,10 @@ describe('extract-transform CLI', () => {
       queries: [
         {
           id: '1',
-          filePath: '/src/queries.ts',
+          filePath: '/src/queries.js',
           name: 'GetUser',
           type: 'query',
-          location: { line: 10, column: 5 },
+          location: { line: 10, column: 5, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/cli/extract-transform.test.js' },
           content: 'query GetUser { user { id name } }',
           resolvedContent: 'query GetUser { user { id name } }',
           hash: 'hash1',
@@ -70,10 +70,10 @@ describe('extract-transform CLI', () => {
         },
         {
           id: '2',
-          filePath: '/src/mutations.ts',
+          filePath: '/src/mutations.js',
           name: 'CreateUser',
           type: 'mutation',
-          location: { line: 20, column: 5 },
+          location: { line: 20, column: 5, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/cli/extract-transform.test.js' },
           content: 'mutation CreateUser { createUser { id } }',
           resolvedContent: 'mutation CreateUser { createUser { id } }',
           hash: 'hash2',
@@ -216,7 +216,7 @@ describe('extract-transform CLI', () => {
       queries: [
         {
           id: '1',
-          file: '/src/queries.ts',
+          file: '/src/queries.js',
           name: 'GetUser',
           content: 'query GetUser { user { id deprecatedField } }',
         },
@@ -406,7 +406,7 @@ describe('extract-transform CLI', () => {
     const mockTransformedQueries = [
       {
         id: '1',
-        file: '/src/queries.ts',
+        file: '/src/queries.js',
         content: 'query GetUser { user { id oldField } }',
         transformed: 'query GetUser { user { id newField } }',
         sourceAST: { type: 'TaggedTemplateExpression' },
@@ -419,7 +419,7 @@ describe('extract-transform CLI', () => {
         if (filePath === './transformed/transformed-queries.json') {
           return Promise.resolve(JSON.stringify(mockTransformedQueries));
         }
-        if (filePath === '/src/queries.ts') {
+        if (filePath === '/src/queries.js') {
           return Promise.resolve('const query = gql`query GetUser { user { id oldField } }`;');
         }
         return Promise.reject(new Error('File not found'));
@@ -489,7 +489,7 @@ describe('extract-transform CLI', () => {
       expect(stdout).toContain('Updated deprecated field');
       expect(stdout).toContain('Dry run completed - no files were modified');
 
-      expect(fs.writeFile).not.toHaveBeenCalledWith('/src/queries.ts', expect.any(String));
+      expect(fs.writeFile).not.toHaveBeenCalledWith('/src/queries.js', expect.any(String));
     });
 
     it('should re-extract missing source AST', async () => {
@@ -585,7 +585,7 @@ describe('extract-transform CLI', () => {
                 errors: [
                   {
                     message: 'Field "unknown" not found',
-                    locations: [{ line: 1, column: 15 }],
+                    locations: [{ line: 1, column: 15, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/cli/extract-transform.test.js' }],
                     suggestion: 'Did you mean "id"?',
                   },
                 ],
@@ -608,7 +608,7 @@ describe('extract-transform CLI', () => {
               errors: [
                 {
                   message: 'Field "unknown" not found',
-                  locations: [{ line: 1, column: 15 }],
+                  locations: [{ line: 1, column: 15, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/cli/extract-transform.test.js' }],
                   suggestion: 'Did you mean "id"?',
                 },
               ],

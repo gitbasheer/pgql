@@ -16,7 +16,7 @@ describe('ConfidenceScorer', () => {
       name: 'GetUser',
       ast: {} as any,
       source: 'query GetUser { user { id name } }',
-      file: 'user.ts',
+      file: 'user.js',
       line: 1,
       column: 1,
       variables: [],
@@ -26,7 +26,7 @@ describe('ConfidenceScorer', () => {
 
     it('should score simple transformation highly', () => {
       const change: CodeChange = {
-        file: 'user.ts',
+        file: 'user.js',
         operation: mockOperation,
         pattern: 'simple-field-rename',
         oldQuery: 'query GetUser { user { id name } }',
@@ -91,19 +91,19 @@ describe('ConfidenceScorer', () => {
             }
           }
         `,
-        file: 'complex.ts',
+        file: 'complex.js',
         line: 1,
         column: 1,
         variables: [
-          { name: 'filter', type: 'UserFilter!' },
-          { name: 'pagination', type: 'PaginationInput' },
+          { id: 'generated-id', name: 'filter', type: 'UserFilter!' },
+          { id: 'generated-id', name: 'pagination', type: 'PaginationInput' },
         ],
         fragments: [],
         directives: [],
       };
 
       const change: CodeChange = {
-        file: 'complex.ts',
+        file: 'complex.js',
         operation: complexOperation,
         pattern: 'complex-restructure',
         oldQuery: complexOperation.source,
@@ -130,7 +130,7 @@ describe('ConfidenceScorer', () => {
 
     it('should score field-rename transformation appropriately', () => {
       const change: CodeChange = {
-        file: 'user.ts',
+        file: 'user.js',
         operation: mockOperation,
         pattern: 'field-rename',
         oldQuery: 'query GetUser { user { id name email } }',
@@ -155,7 +155,7 @@ describe('ConfidenceScorer', () => {
 
     it('should score type-change transformation as semi-automatic', () => {
       const change: CodeChange = {
-        file: 'user.ts',
+        file: 'user.js',
         operation: mockOperation,
         pattern: 'type-change',
         oldQuery: 'query GetUser { user { id name } }',
@@ -180,7 +180,7 @@ describe('ConfidenceScorer', () => {
 
     it('should score custom transformation as manual', () => {
       const change: CodeChange = {
-        file: 'user.ts',
+        file: 'user.js',
         operation: mockOperation,
         pattern: 'custom-logic',
         oldQuery: 'query GetUser { user { id name } }',
@@ -206,7 +206,7 @@ describe('ConfidenceScorer', () => {
 
     it('should consider test coverage in scoring', () => {
       const highCoverageChange: CodeChange = {
-        file: 'user.test.ts', // Test file indicates high coverage
+        file: 'user.test.js', // Test file indicates high coverage
         operation: mockOperation,
         pattern: 'simple-field-rename',
         oldQuery: 'query GetUser { user { id name } }',
@@ -223,7 +223,7 @@ describe('ConfidenceScorer', () => {
       };
 
       const lowCoverageChange: CodeChange = {
-        file: 'legacy-user.ts', // Legacy file indicates low coverage
+        file: 'legacy-user.js', // Legacy file indicates low coverage
         operation: mockOperation,
         pattern: 'simple-field-rename',
         oldQuery: 'query GetUser { user { id name } }',
@@ -250,7 +250,7 @@ describe('ConfidenceScorer', () => {
 
     it('should identify risks correctly', () => {
       const riskyChange: CodeChange = {
-        file: 'critical-user.ts',
+        file: 'critical-user.js',
         operation: {
           ...mockOperation,
           source: `
@@ -265,7 +265,7 @@ describe('ConfidenceScorer', () => {
               }
             }
           `,
-          variables: [{ name: 'userId', type: 'ID!' }],
+          variables: [{ id: 'generated-id', name: 'userId', type: 'ID!' }],
         },
         pattern: 'complex-restructure',
         oldQuery: 'query GetUser { user { id name criticalData { sensitiveField } } }',
@@ -291,7 +291,7 @@ describe('ConfidenceScorer', () => {
     it('should handle edge cases', () => {
       // Empty transformation
       const emptyChange: CodeChange = {
-        file: 'empty.ts',
+        file: 'empty.js',
         operation: mockOperation,
         pattern: 'no-op',
         oldQuery: 'query GetUser { user { id name } }',
@@ -305,7 +305,7 @@ describe('ConfidenceScorer', () => {
 
       // Multiple transformations
       const multipleChange: CodeChange = {
-        file: 'multiple.ts',
+        file: 'multiple.js',
         operation: mockOperation,
         pattern: 'multiple-changes',
         oldQuery: 'query GetUser { user { id name email } }',
@@ -337,7 +337,7 @@ describe('ConfidenceScorer', () => {
   describe('categorization', () => {
     it('should categorize high scores as automatic', () => {
       const mockChange: CodeChange = {
-        file: 'test.ts',
+        file: 'test.js',
         operation: {} as any,
         pattern: 'simple',
         oldQuery: 'old',
@@ -355,14 +355,14 @@ describe('ConfidenceScorer', () => {
 
     it('should categorize medium scores as semi-automatic', () => {
       const mockChange: CodeChange = {
-        file: 'test.ts',
+        file: 'test.js',
         operation: {
           id: 'op1',
           type: 'query',
           name: 'TestQuery',
           ast: {} as any,
           source: 'query TestQuery { field1 field2 field3 }',
-          file: 'test.ts',
+          file: 'test.js',
           line: 1,
           column: 1,
           variables: [],
@@ -392,7 +392,7 @@ describe('ConfidenceScorer', () => {
 
     it('should categorize low scores as manual', () => {
       const mockChange: CodeChange = {
-        file: 'test.ts',
+        file: 'test.js',
         operation: {
           id: 'op1',
           type: 'query',
@@ -400,12 +400,12 @@ describe('ConfidenceScorer', () => {
           ast: {} as any,
           source:
             'query ComplexQuery { deeply { nested { structure { with { many { levels } } } } } }',
-          file: 'test.ts',
+          file: 'test.js',
           line: 1,
           column: 1,
-          variables: [{ name: 'var1', type: 'String!' }],
-          fragments: [{ name: 'Fragment1', type: 'Type1' }],
-          directives: [{ name: 'deprecated', arguments: {} }],
+          variables: [{ id: 'generated-id', name: 'var1', type: 'String!' }],
+          fragments: [{ id: 'generated-id', name: 'Fragment1', type: 'Type1' }],
+          directives: [{ type: 'query', id: 'generated-id', name: 'deprecated', arguments: {} }],
         },
         pattern: 'complex-restructure',
         oldQuery:
@@ -445,7 +445,7 @@ describe('ConfidenceScorer', () => {
         name: 'SimpleQuery',
         ast: {} as any,
         source: 'query SimpleQuery { user { id } }',
-        file: 'simple.ts',
+        file: 'simple.js',
         line: 1,
         column: 1,
         variables: [],
@@ -460,16 +460,16 @@ describe('ConfidenceScorer', () => {
         ast: {} as any,
         source:
           'query ComplexQuery($id: ID!) { user(id: $id) { id profile { name settings { theme } } posts(first: 10) { edges { node { id title } } } } }',
-        file: 'complex.ts',
+        file: 'complex.js',
         line: 1,
         column: 1,
-        variables: [{ name: 'id', type: 'ID!' }],
-        fragments: [{ name: 'UserFragment', type: 'User' }],
-        directives: [{ name: 'deprecated', arguments: {} }],
+        variables: [{ id: 'generated-id', name: 'id', type: 'ID!' }],
+        fragments: [{ id: 'generated-id', name: 'UserFragment', type: 'User' }],
+        directives: [{ type: 'query', id: 'generated-id', name: 'deprecated', arguments: {} }],
       };
 
       const simpleChange: CodeChange = {
-        file: 'simple.ts',
+        file: 'simple.js',
         operation: simpleOperation,
         pattern: 'simple',
         oldQuery: simpleOperation.source,
@@ -478,7 +478,7 @@ describe('ConfidenceScorer', () => {
       };
 
       const complexChange: CodeChange = {
-        file: 'complex.ts',
+        file: 'complex.js',
         operation: complexOperation,
         pattern: 'complex',
         oldQuery: complexOperation.source,
@@ -494,14 +494,14 @@ describe('ConfidenceScorer', () => {
 
     it('should calculate pattern match factor based on pattern type', () => {
       const change: CodeChange = {
-        file: 'test.ts',
+        file: 'test.js',
         operation: {
           id: 'op1',
           type: 'query',
           name: 'TestQuery',
           ast: {} as any,
           source: 'query TestQuery { field }',
-          file: 'test.ts',
+          file: 'test.js',
           line: 1,
           column: 1,
           variables: [],
@@ -530,14 +530,14 @@ describe('ConfidenceScorer', () => {
 
     it('should calculate historical success factor', () => {
       const change: CodeChange = {
-        file: 'test.ts',
+        file: 'test.js',
         operation: {
           id: 'op1',
           type: 'query',
           name: 'TestQuery',
           ast: {} as any,
           source: 'query TestQuery { field }',
-          file: 'test.ts',
+          file: 'test.js',
           line: 1,
           column: 1,
           variables: [],

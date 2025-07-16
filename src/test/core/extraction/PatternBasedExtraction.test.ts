@@ -18,12 +18,12 @@ vi.mock('../../../core/extraction/engine/QueryPatternRegistry.js', async () => {
           migrationPath: 'V3'
         },
         contentFingerprint: 'mock-fingerprint-abc123'
-      })),
+      }),
       generateContentFingerprint: vi.fn().mockReturnValue('mock-fingerprint-abc123'),
       groupQueriesByFingerprint: vi.fn().mockReturnValue(new Map([
         ['mock-fingerprint-abc123', [
-          { id: 'test-1', filePath: '/test/file1.ts' },
-          { id: 'test-2', filePath: '/test/file2.ts' }
+          { id: 'test-1', filePath: '/test/file1.js' },
+          { id: 'test-2', filePath: '/test/file2.js' }
         ]]
       ])),
       loadVnextPatterns: vi.fn().mockResolvedValue({
@@ -58,10 +58,10 @@ describe('Pattern-Based Extraction', () => {
     it('should detect pattern queries correctly', async () => {
       const mockQuery: PatternExtractedQuery = {
         id: 'test-1',
-        filePath: '/test/file.ts',
+        filePath: '/test/file.js',
         content: 'query ${queryNames.byIdV1} { venture { id name } }',
         ast: null,
-        location: { line: 1, column: 1, file: '/test/file.ts' },
+        location: { line: 1, column: 1, file: '/test/file.js' },
         type: 'query',
         sourceAST: {
           node: {} as any,
@@ -75,10 +75,10 @@ describe('Pattern-Based Extraction', () => {
               } as any,
             ],
             expressions: [
-              {
+              { id: 'generated-id',
                 type: 'MemberExpression',
                 object: { type: 'Identifier', name: 'queryNames' },
-                property: { type: 'Identifier', name: 'byIdV1' },
+                property: { id: 'generated-id', type: 'Identifier', name: 'byIdV1' },
               } as any,
             ],
           },
@@ -99,19 +99,19 @@ describe('Pattern-Based Extraction', () => {
     it('should generate content fingerprints for duplicate detection', () => {
       const query1: PatternExtractedQuery = {
         id: 'test-1',
-        filePath: '/test/file1.ts',
+        filePath: '/test/file1.js',
         content: 'query ${queryNames.byIdV1} { venture { id name } }',
         ast: null,
-        location: { line: 1, column: 1, file: '/test/file1.ts' },
+        location: { line: 1, column: 1, file: '/test/file1.js' },
         type: 'query',
       };
 
       const query2: PatternExtractedQuery = {
         id: 'test-2',
-        filePath: '/test/file2.ts',
+        filePath: '/test/file2.js',
         content: 'query ${queryNames.byIdV2} { venture { id name } }',
         ast: null,
-        location: { line: 10, column: 1, file: '/test/file2.ts' },
+        location: { line: 10, column: 1, file: '/test/file2.js' },
         type: 'query',
       };
 
@@ -126,28 +126,28 @@ describe('Pattern-Based Extraction', () => {
       const queries: PatternExtractedQuery[] = [
         {
           id: 'test-1',
-          filePath: '/test/file1.ts',
+          filePath: '/test/file1.js',
           content: 'query ${queryNames.byIdV1} { venture { id } }',
           ast: null,
-          location: { line: 1, column: 1, file: '/test/file1.ts' },
+          location: { line: 1, column: 1, file: '/test/file1.js' },
           type: 'query',
           contentFingerprint: 'abc123',
         },
         {
           id: 'test-2',
-          filePath: '/test/file2.ts',
+          filePath: '/test/file2.js',
           content: 'query ${queryNames.byIdV2} { venture { id } }',
           ast: null,
-          location: { line: 1, column: 1, file: '/test/file2.ts' },
+          location: { line: 1, column: 1, file: '/test/file2.js' },
           type: 'query',
           contentFingerprint: 'abc123',
         },
         {
           id: 'test-3',
-          filePath: '/test/file3.ts',
+          filePath: '/test/file3.js',
           content: 'query ${queryNames.byIdV1} { venture { name } }',
           ast: null,
-          location: { line: 1, column: 1, file: '/test/file3.ts' },
+          location: { line: 1, column: 1, file: '/test/file3.js' },
           type: 'query',
           contentFingerprint: 'def456',
         },
@@ -165,10 +165,10 @@ describe('Pattern-Based Extraction', () => {
     it('should preserve application logic for pattern queries', async () => {
       const query: PatternExtractedQuery = {
         id: 'test-1',
-        filePath: '/test/file.ts',
+        filePath: '/test/file.js',
         content: 'query ${queryNames.byIdV1} { venture { id name } }',
         ast: null,
-        location: { line: 1, column: 1, file: '/test/file.ts' },
+        location: { line: 1, column: 1, file: '/test/file.js' },
         type: 'query',
         namePattern: {
           template: '${queryNames.byIdV1}',
@@ -197,10 +197,10 @@ describe('Pattern-Based Extraction', () => {
       const queries: PatternExtractedQuery[] = [
         {
           id: 'test-1',
-          filePath: '/test/file.ts',
+          filePath: '/test/file.js',
           content: 'query ${queryNames.byIdV1} { venture { id } }',
           ast: null,
-          location: { line: 1, column: 1, file: '/test/file.ts' },
+          location: { line: 1, column: 1, file: '/test/file.js' },
           type: 'query',
           namePattern: {
             template: '${queryNames.byIdV1}',
@@ -226,10 +226,10 @@ describe('Pattern-Based Extraction', () => {
       const queries: PatternExtractedQuery[] = [
         {
           id: 'test-1',
-          filePath: '/test/file.ts',
+          filePath: '/test/file.js',
           content: 'query ${queryNames.byIdV1} { venture { id } }',
           ast: null,
-          location: { line: 1, column: 1, file: '/test/file.ts' },
+          location: { line: 1, column: 1, file: '/test/file.js' },
           type: 'query',
           namePattern: {
             template: '${queryNames.byIdV1}',
@@ -243,10 +243,10 @@ describe('Pattern-Based Extraction', () => {
         },
         {
           id: 'test-2',
-          filePath: '/test/file2.ts',
+          filePath: '/test/file2.js',
           content: 'query getStaticQuery { venture { id } }',
           ast: null,
-          location: { line: 1, column: 1, file: '/test/file2.ts' },
+          location: { line: 1, column: 1, file: '/test/file2.js' },
           type: 'query',
         },
       ];
@@ -271,10 +271,10 @@ describe('Pattern-Based Extraction', () => {
       // New approach preserves:
       const query: PatternExtractedQuery = {
         id: 'test-1',
-        filePath: '/test/file.ts',
+        filePath: '/test/file.js',
         content: originalQuery,
         ast: null,
-        location: { line: 1, column: 1, file: '/test/file.ts' },
+        location: { line: 1, column: 1, file: '/test/file.js' },
         type: 'query',
       };
 
@@ -291,10 +291,10 @@ describe('Pattern-Based Extraction', () => {
     it('should enable safe migration recommendations', () => {
       const query: PatternExtractedQuery = {
         id: 'test-1',
-        filePath: '/test/file.ts',
+        filePath: '/test/file.js',
         content: 'query ${queryNames.byIdV1} { venture { id } }',
         ast: null,
-        location: { line: 1, column: 1, file: '/test/file.ts' },
+        location: { line: 1, column: 1, file: '/test/file.js' },
         type: 'query',
         namePattern: {
           template: '${queryNames.byIdV1}',

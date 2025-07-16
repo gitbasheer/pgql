@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SchemaDeprecationAnalyzer } from '../../src/core/analyzer/SchemaDeprecationAnalyzer';
+import { SchemaDeprecationAnalyzer } from '../../core/analyzer/SchemaDeprecationAnalyzer.js';
 
 describe('Endpoint mapping and validation', () => {
   it('maps to Offer Graph based on file name', () => {

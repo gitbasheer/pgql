@@ -109,9 +109,9 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
             name: 'TestQuery',
             type: 'query',
             content: 'query TestQuery { test }',
-            filePath: 'test.ts',
+            filePath: 'test.js',
             sourceAST: { node: {}, start: 0, end: 10 },
-            location: { line: 1, column: 1 },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/pipeline/UnifiedMigrationPipeline.reporting.test.js' },
             fragments: [],
           },
         ],
@@ -248,7 +248,7 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
 
     it('should handle operations without names', async () => {
       mockExtractor.extract.mockResolvedValue({
-        queries: [{ id: 'q1', content: 'query { test }', filePath: 'test.ts' }],
+        queries: [{ id: 'q1', content: 'query { test }', filePath: 'test.js' }],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
@@ -303,8 +303,8 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
     it('should deduplicate risks', async () => {
       mockExtractor.extract.mockResolvedValue({
         queries: [
-          { id: 'q1', content: 'query Q1 { test }', filePath: 'f1.ts' },
-          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.ts' },
+          { id: 'q1', content: 'query Q1 { test }', filePath: 'f1.js' },
+          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.js' },
         ],
         variants: [],
         fragments: new Map(),

@@ -93,7 +93,7 @@ describe('PerformanceMonitor', () => {
         heapUsed: 50 * 1024 * 1024, // 50MB
       });
 
-      const operationId = monitor.startOperation('extraction', { file: 'test.ts' });
+      const operationId = monitor.startOperation('extraction', { file: 'test.js' });
 
       expect(operationId).toMatch(/^extraction_\d+_[a-z0-9]+$/);
 
@@ -102,7 +102,7 @@ describe('PerformanceMonitor', () => {
       monitor.on('operation:start', startListener);
 
       const operationId2 = monitor.startOperation('transformation');
-      expect(startListener).toHaveBeenCalledWith({
+      expect(startListener).toHaveBeenCalledWith({ type: 'query', id: 'generated-id',
         operationId: operationId2,
         metrics: expect.objectContaining({
           name: 'transformation',
@@ -158,7 +158,7 @@ describe('PerformanceMonitor', () => {
       mockTime = 1500; // 500ms later
       const metrics = monitor.endOperation(operationId);
 
-      expect(metrics).toMatchObject({
+      expect(metrics).toMatchObject({ type: 'query', id: 'generated-id',
         name: 'extraction',
         startTime: 1000,
         endTime: 1500,
@@ -215,7 +215,7 @@ describe('PerformanceMonitor', () => {
     });
   });
 
-  describe('threshold monitoring', () => {
+  describe('threshold monitoring', () => { id: 'generated-id',
     it('should emit warning when duration threshold exceeded', () => {
       const thresholdListener = vi.fn();
       monitor.on('threshold:exceeded', thresholdListener);
@@ -617,7 +617,7 @@ describe('PerformanceMonitor', () => {
       const result = await service.performTask(5);
 
       expect(result).toBe(10);
-      expect(startListener).toHaveBeenCalledWith({
+      expect(startListener).toHaveBeenCalledWith({ type: 'query', id: 'generated-id',
         operationId: expect.stringMatching(/^customOperation_/),
         metrics: expect.objectContaining({
           name: 'customOperation',

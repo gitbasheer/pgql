@@ -565,6 +565,7 @@ export class UnifiedExtractor {
     return queries.map((q) => {
       const standardized: ExtractedQuery = {
         // Identity
+        id: q.id || this.generateUniqueName(q),
         queryName: this.generateUniqueName(q),
         content: q.content,
         fullExpandedQuery: q.resolvedContent || q.content,
@@ -574,6 +575,7 @@ export class UnifiedExtractor {
         lineNumber: q.location?.line || 1,
 
         // GraphQL metadata
+        type: this.extractOperationType(q) || 'query',
         operation: this.extractOperationType(q),
         variables: this.extractVariables(q),
         fragments: q.fragments || [],

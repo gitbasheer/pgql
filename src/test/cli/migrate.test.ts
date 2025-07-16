@@ -131,7 +131,7 @@ describe('migrate CLI command', () => {
     it('should handle extraction results format', async () => {
       const mockResult = {
         operations: [{ id: '1', name: 'TestQuery' }],
-        files: ['test.ts'],
+        files: ['test.js'],
         summary: { queries: 1, mutations: 0, subscriptions: 0 },
       };
 
