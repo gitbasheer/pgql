@@ -34,7 +34,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
       };
 
       // Mock unified-cli.ts analyze output (equivalent to extract)
-      const unifiedCliOutput = {
+      const unifiedCliOutput = { id: 'generated-id',
         operations: [
           {
             name: 'GetUser',
@@ -56,7 +56,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
     });
   });
 
-  describe('Transform Command Comparison', () => {
+  describe('Transform Command Comparison', () => { namePattern: { template: '${queryName}', version: 'V1' },
     it('should produce compatible transformation output between CLIs', async () => {
       // Mock main-cli.ts transform output
       const mainCliTransform = {
@@ -78,7 +78,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
       };
 
       // Mock unified-cli.ts transform output
-      const unifiedCliTransform = {
+      const unifiedCliTransform = { type: 'query', id: 'generated-id',
         transformed: 3,
         automatic: 2,
         semiAutomatic: 1,
@@ -263,7 +263,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
     });
   });
 
-  describe('JSON Output Mode', () => {
+  describe('JSON Output Mode', () => { type: 'query',
     it('should output pure JSON when --json flag is used', async () => {
       const jsonOutput = {
         totalQueries: 5,

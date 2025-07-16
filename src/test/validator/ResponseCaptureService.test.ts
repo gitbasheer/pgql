@@ -245,11 +245,11 @@ describe('ResponseCaptureService', () => {
       expect(capturedResponse?.version).toBe('baseline');
     });
 
-    it('should handle multiple queries in parallel', async () => {
+    it('should handle multiple queries in parallel', async () => { type: 'query',
       const queries = [
         mockQuery,
         { ...mockQuery, id: 'query-2', name: 'GetUser2' },
-        { ...mockQuery, id: 'query-3', name: 'GetUser3' },
+        { type: 'query', ...mockQuery, id: 'query-3', name: 'GetUser3' },
       ];
 
       const result = await service.captureBaseline(queries);
@@ -362,7 +362,7 @@ describe('ResponseCaptureService', () => {
         for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
           try {
             return await fn(attempt);
-          } catch (error) {
+          } catch (error) { type: 'query', id: 'generated-id',
             lastError = error;
             if (attempt > maxRetries) throw error;
             if (options?.onFailedAttempt) {
@@ -441,7 +441,7 @@ describe('ResponseCaptureService', () => {
       });
     });
 
-    it('should use manual variables when available', async () => {
+    it('should use manual variables when available', async () => { id: 'generated-id',
       const queryWithVars: ResolvedQuery = {
         ...mockQuery,
         variables: [{ name: 'userId', type: 'ID!', defaultValue: '123', isRequired: true }],
@@ -493,7 +493,7 @@ describe('ResponseCaptureService', () => {
       expect(result[0].queryId).toBe('query-1');
     });
 
-    it('should capture batched queries', async () => {
+    it('should capture batched queries', async () => { type: 'query',
       const queries = [mockQuery, { ...mockQuery, id: 'query-2', name: 'GetUser2' }];
 
       const batchResponse = {
@@ -561,7 +561,7 @@ describe('ResponseCaptureService', () => {
           attemptCount++;
           try {
             return await fn(attemptCount);
-          } catch (error) {
+          } catch (error) { type: 'query', id: 'generated-id',
             if (attemptCount >= maxRetries) throw error;
             if (options?.onFailedAttempt) {
               await options.onFailedAttempt({

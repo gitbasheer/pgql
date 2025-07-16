@@ -27,7 +27,7 @@ describe('VariantAnalyzer', () => {
     analyzer = new VariantAnalyzer(mockContext);
   });
 
-  describe('analyze', () => {
+  describe('analyze', () => { type: 'query',
     it('should analyze multiple queries', async () => {
       const queries: ExtractedQuery[] = [
         {
@@ -36,16 +36,16 @@ describe('VariantAnalyzer', () => {
           content: 'query { user { id } }',
           type: 'query',
           filePath: '/src/query1.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
           hash: 'hash1',
         },
-        {
+        { type: 'query',
           id: '2',
           name: 'Query2',
           content: 'query { user { id ...${isAdmin ? "AdminFields" : ""} } }',
           type: 'query',
           filePath: '/src/query2.ts',
-          location: { line: 5, column: 1 },
+          location: { line: 5, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
           hash: 'hash2',
         },
       ];
@@ -58,7 +58,7 @@ describe('VariantAnalyzer', () => {
     });
   });
 
-  describe('analyzeContent', () => {
+  describe('analyzeContent', () => { type: 'query',
     it('should detect template literal placeholders', async () => {
       const query: ExtractedQuery = {
         id: '1',
@@ -66,7 +66,7 @@ describe('VariantAnalyzer', () => {
         content: 'query { user { id ${includeEmail ? "email" : ""} } }',
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -85,7 +85,7 @@ describe('VariantAnalyzer', () => {
       expect(result.possibleVariants).toBe(2);
     });
 
-    it('should detect multiple placeholders', async () => {
+    it('should detect multiple placeholders', async () => { type: 'query',
       const query: ExtractedQuery = {
         id: '1',
         name: 'MultiVariantQuery',
@@ -98,7 +98,7 @@ describe('VariantAnalyzer', () => {
         }`,
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -110,14 +110,14 @@ describe('VariantAnalyzer', () => {
       expect(result.possibleVariants).toBe(4); // 2^2
     });
 
-    it('should detect dynamic fragment spreads', async () => {
+    it('should detect dynamic fragment spreads', async () => { type: 'query',
       const query: ExtractedQuery = {
         id: '1',
         name: 'FragmentQuery',
         content: 'query { user { id ...${fragmentName} } }',
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -137,14 +137,14 @@ describe('VariantAnalyzer', () => {
       });
     });
 
-    it('should handle queries without variants', async () => {
+    it('should handle queries without variants', async () => { type: 'query',
       const query: ExtractedQuery = {
         id: '1',
         name: 'StaticQuery',
         content: 'query { user { id email ...UserFields } }',
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -176,13 +176,13 @@ describe('VariantAnalyzer', () => {
 
       vi.mocked(fs.readFile).mockResolvedValue(fileContent);
 
-      const query: ExtractedQuery = {
+      const query: ExtractedQuery = { type: 'query',
         id: '1',
         name: 'GetUser',
         content: 'query GetUser { user { id ${isAdmin ? "role" : ""} } }',
         type: 'query',
         filePath: '/src/query.ts',
-        location: { line: 6, column: 9 },
+        location: { line: 6, column: 9, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -194,7 +194,7 @@ describe('VariantAnalyzer', () => {
       // NOTE: do we have to add more tests to check if the file content is parsed correctly?
     });
 
-    it('should handle file read errors gracefully', async () => {
+    it('should handle file read errors gracefully', async () => { type: 'query',
       vi.mocked(fs.readFile).mockRejectedValue(new Error('File not found'));
 
       const query: ExtractedQuery = {
@@ -203,7 +203,7 @@ describe('VariantAnalyzer', () => {
         content: 'query { user { id } }',
         type: 'query',
         filePath: '/src/missing.ts',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -217,7 +217,7 @@ describe('VariantAnalyzer', () => {
       );
     });
 
-    it('should handle parsing errors gracefully', async () => {
+    it('should handle parsing errors gracefully', async () => { type: 'query',
       const invalidContent = 'this is not valid javascript {{{';
       vi.mocked(fs.readFile).mockResolvedValue(invalidContent);
 
@@ -227,7 +227,7 @@ describe('VariantAnalyzer', () => {
         content: 'query { user { id } }',
         type: 'query',
         filePath: '/src/invalid.ts',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -240,7 +240,7 @@ describe('VariantAnalyzer', () => {
     });
   });
 
-  describe('patternToSwitch', () => {
+  describe('patternToSwitch', () => { type: 'query',
     it('should convert ternary patterns to boolean switches', async () => {
       const query: ExtractedQuery = {
         id: '1',
@@ -248,7 +248,7 @@ describe('VariantAnalyzer', () => {
         content: 'query { user { ${isAdmin ? "role" : ""} } }',
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -264,14 +264,14 @@ describe('VariantAnalyzer', () => {
       });
     });
 
-    it('should handle patterns without variables', async () => {
+    it('should handle patterns without variables', async () => { type: 'query',
       const query: ExtractedQuery = {
         id: '1',
         name: 'Query',
         content: 'query { user { id } }',
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -310,7 +310,7 @@ describe('VariantAnalyzer', () => {
           content,
           type: 'query',
           filePath: 'inline',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
           hash: 'hash1',
         };
 
@@ -320,7 +320,7 @@ describe('VariantAnalyzer', () => {
     });
   });
 
-  describe('variantGenerationStrategy', () => {
+  describe('variantGenerationStrategy', () => { type: 'query',
     it('should use inline strategy for few variants', async () => {
       const query: ExtractedQuery = {
         id: '1',
@@ -328,7 +328,7 @@ describe('VariantAnalyzer', () => {
         content: 'query { user { ${a ? "x" : ""} } }',
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -353,7 +353,7 @@ describe('VariantAnalyzer', () => {
         content,
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -376,7 +376,7 @@ line4`;
         content,
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -397,14 +397,14 @@ line4`;
     });
   });
 
-  describe('validateOperation and analyzeOperation', () => {
+  describe('validateOperation and analyzeOperation', () => { namePattern: { template: '${queryName}', version: 'V1' },
     // Note: based on what? should we test for invalid?
     it('should validate operations', () => {
       const operation = { query: 'test' };
       expect(analyzer.validateOperation(operation)).toBe(true);
     });
 
-    it('should analyze operations', () => {
+    it('should analyze operations', () => { namePattern: { template: '${queryName}', version: 'V1' },
       const operation = { query: 'test' };
       expect(analyzer.analyzeOperation(operation)).toEqual({ valid: true });
     });
@@ -428,7 +428,7 @@ line4`;
         content,
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 
@@ -456,7 +456,7 @@ line4`;
         content,
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1 },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
         hash: 'hash1',
       };
 

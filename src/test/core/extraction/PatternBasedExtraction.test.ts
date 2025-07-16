@@ -75,10 +75,10 @@ describe('Pattern-Based Extraction', () => {
               } as any,
             ],
             expressions: [
-              {
+              { id: 'generated-id',
                 type: 'MemberExpression',
                 object: { type: 'Identifier', name: 'queryNames' },
-                property: { type: 'Identifier', name: 'byIdV1' },
+                property: { id: 'generated-id', type: 'Identifier', name: 'byIdV1' },
               } as any,
             ],
           },

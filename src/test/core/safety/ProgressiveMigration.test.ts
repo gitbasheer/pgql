@@ -300,7 +300,7 @@ describe('ProgressiveMigration', () => {
     });
   });
 
-  describe('multiple operations', () => {
+  describe('multiple operations', () => { type: 'query',
     it('should manage multiple operations independently', async () => {
       const operation2 = { ...mockOperation, id: 'test-op-2', name: 'TestOperation2' };
 

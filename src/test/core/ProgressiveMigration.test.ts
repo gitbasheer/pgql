@@ -48,14 +48,14 @@ describe('ProgressiveMigration', () => {
       expect(flag.operation).toBe('op-special');
     });
 
-    it('should create unique flags for different operations', () => {
+    it('should create unique flags for different operations', () => { type: 'query',
       const operation1: GraphQLOperation = {
         ...mockOperation,
         name: 'GetUser',
         id: 'op1',
       };
 
-      const operation2: GraphQLOperation = {
+      const operation2: GraphQLOperation = { type: 'query',
         ...mockOperation,
         name: 'GetPost',
         id: 'op2',
@@ -509,7 +509,7 @@ describe('ProgressiveMigration', () => {
           file: 'user.ts',
           line: 10,
           column: 1,
-          variables: [{ name: 'input', type: 'CreateUserInput!' }],
+          variables: [{ id: 'generated-id', name: 'input', type: 'CreateUserInput!' }],
           fragments: [],
           directives: [],
         },

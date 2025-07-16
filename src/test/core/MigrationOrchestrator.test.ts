@@ -127,7 +127,7 @@ describe('MigrationOrchestrator', () => {
         file: 'user.ts',
         line: 10,
         column: 1,
-        variables: [{ name: 'input', type: 'CreateUserInput!' }],
+        variables: [{ id: 'generated-id', name: 'input', type: 'CreateUserInput!' }],
         fragments: [],
         directives: [],
       },
@@ -440,7 +440,7 @@ describe('MigrationOrchestrator', () => {
         file: 'user.ts',
         line: 10,
         column: 1,
-        variables: [{ name: 'input', type: 'CreateUserInput!' }],
+        variables: [{ id: 'generated-id', name: 'input', type: 'CreateUserInput!' }],
         fragments: [],
         directives: [],
       },
@@ -488,7 +488,7 @@ describe('MigrationOrchestrator', () => {
       });
     });
 
-    it('should get health for specific operation', async () => {
+    it('should get health for specific operation', async () => { type: 'query',
       const health = await orchestrator.getHealth('GetUser');
 
       expect(mockHealthCheck.performHealthCheck).toHaveBeenCalledWith(

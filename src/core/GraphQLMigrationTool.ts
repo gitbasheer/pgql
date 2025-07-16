@@ -63,7 +63,7 @@ export class GraphQLMigrationTool {
       await this.loadSchema();
 
       // Extract queries
-      const queries = await this.extractor.extractFromDirectory(
+      const queries = await this.extractor.extractFromRepo(
         this.options.targetPath,
         this.config.scanner.include,
       );

@@ -32,10 +32,10 @@ describe('ResponseComparator', () => {
     });
   });
 
-  describe('identical responses', () => {
+  describe('identical responses', () => { type: 'query',
     it('should detect identical responses', () => {
       const baseline = createMockResponse({ user: { id: '123', name: 'John' } });
-      const transformed = createMockResponse({ user: { id: '123', name: 'John' } });
+      const transformed = createMockResponse({ type: 'query', user: { id: '123', name: 'John' } });
 
       const result = comparator.compare(baseline, transformed);
 
@@ -51,7 +51,7 @@ describe('ResponseComparator', () => {
         ignorePaths: ['data.user.timestamp', 'data.user.version'],
       });
 
-      const baseline = createMockResponse({
+      const baseline = createMockResponse({ type: 'query',
         user: {
           id: '123',
           name: 'John',
@@ -60,7 +60,7 @@ describe('ResponseComparator', () => {
         },
       });
 
-      const transformed = createMockResponse({
+      const transformed = createMockResponse({ type: 'query',
         user: {
           id: '123',
           name: 'John',
@@ -76,10 +76,10 @@ describe('ResponseComparator', () => {
     });
   });
 
-  describe('different responses', () => {
+  describe('different responses', () => { type: 'query',
     it('should detect value changes', () => {
       const baseline = createMockResponse({ user: { id: '123', name: 'John' } });
-      const transformed = createMockResponse({ user: { id: '123', name: 'Jane' } });
+      const transformed = createMockResponse({ type: 'query', user: { id: '123', name: 'Jane' } });
 
       const result = comparator.compare(baseline, transformed);
 
@@ -95,11 +95,11 @@ describe('ResponseComparator', () => {
       });
     });
 
-    it('should detect missing fields', () => {
+    it('should detect missing fields', () => { type: 'query',
       const baseline = createMockResponse({
         user: { id: '123', name: 'John', email: 'john@example.com' },
       });
-      const transformed = createMockResponse({ user: { id: '123', name: 'John' } });
+      const transformed = createMockResponse({ type: 'query', user: { id: '123', name: 'John' } });
 
       const result = comparator.compare(baseline, transformed);
 
@@ -115,9 +115,9 @@ describe('ResponseComparator', () => {
       expect(result.breakingChanges).toHaveLength(1);
     });
 
-    it('should detect added fields', () => {
+    it('should detect added fields', () => { type: 'query',
       const baseline = createMockResponse({ user: { id: '123', name: 'John' } });
-      const transformed = createMockResponse({
+      const transformed = createMockResponse({ type: 'query',
         user: { id: '123', name: 'John', email: 'john@example.com' },
       });
 
@@ -180,18 +180,18 @@ describe('ResponseComparator', () => {
       );
     });
 
-    it('should compare array elements deeply', () => {
+    it('should compare array elements deeply', () => { type: 'query',
       const baseline = createMockResponse({
         users: [
           { id: '1', name: 'John' },
-          { id: '2', name: 'Jane' },
+          { type: 'query', id: '2', name: 'Jane' },
         ],
       });
 
-      const transformed = createMockResponse({
+      const transformed = createMockResponse({ type: 'query',
         users: [
           { id: '1', name: 'John' },
-          { id: '2', name: 'Janet' },
+          { type: 'query', id: '2', name: 'Janet' },
         ],
       });
 
@@ -296,7 +296,7 @@ describe('ResponseComparator', () => {
     });
   });
 
-  describe('similarity calculation', () => {
+  describe('similarity calculation', () => { type: 'query',
     it('should calculate similarity based on differences', () => {
       const baseline = createMockResponse({
         user: {
@@ -308,7 +308,7 @@ describe('ResponseComparator', () => {
         },
       });
 
-      const transformed = createMockResponse({
+      const transformed = createMockResponse({ type: 'query',
         user: {
           id: '123',
           name: 'Jane', // changed
@@ -358,13 +358,13 @@ describe('ResponseComparator', () => {
         },
       });
 
-      const baseline = createMockResponse({
+      const baseline = createMockResponse({ type: 'query', id: 'generated-id',
         name: 'JOHN',
         score: 95.0,
         tags: ['a', 'b', 'c'],
       });
 
-      const transformed = createMockResponse({
+      const transformed = createMockResponse({ type: 'query', id: 'generated-id',
         name: 'john',
         score: 95.05,
         tags: ['c', 'a', 'b'],
@@ -393,7 +393,7 @@ describe('ResponseComparator', () => {
     });
   });
 
-  describe('breaking changes detection', () => {
+  describe('breaking changes detection', () => { type: 'query',
     it('should identify breaking changes', () => {
       const baseline = createMockResponse({
         user: {
@@ -403,7 +403,7 @@ describe('ResponseComparator', () => {
         },
       });
 
-      const transformed = createMockResponse({
+      const transformed = createMockResponse({ type: 'query',
         user: {
           id: 123, // type change
           name: 'John',

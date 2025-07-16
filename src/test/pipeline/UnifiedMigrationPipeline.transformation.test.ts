@@ -111,7 +111,7 @@ describe('UnifiedMigrationPipeline - Transformation', () => {
             content: 'query TestQuery { test }',
             filePath: 'test.ts',
             sourceAST: { node: {}, start: 0, end: 10 },
-            location: { line: 1, column: 1 },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/pipeline/UnifiedMigrationPipeline.transformation.test.ts' },
             fragments: [],
           },
         ],
@@ -331,7 +331,7 @@ describe('UnifiedMigrationPipeline - Transformation', () => {
       expect(result.transformed).toHaveLength(0);
     });
 
-    it('should load deprecation rules', async () => {
+    it('should load deprecation rules', async () => { type: 'query', id: 'generated-id',
       (vi.mocked(fs.readFile) as any).mockResolvedValueOnce(
         JSON.stringify({
           Query: [{ name: 'oldField', deprecationReason: 'Use `newField` instead' }],
@@ -353,14 +353,14 @@ describe('UnifiedMigrationPipeline - Transformation', () => {
     });
   });
 
-  describe('private methods - transformation', () => {
+  describe('private methods - transformation', () => { type: 'query', id: 'generated-id',
     it('should convert deprecations to rules correctly', async () => {
       (fs.readFile as any).mockImplementation((path: any) => {
         if (path === './deprecations.json') {
           return Promise.resolve(
             JSON.stringify({
               Query: [{ name: 'oldField', deprecationReason: 'Use `newField` instead' }],
-              User: [{ name: 'email', deprecationReason: 'Use `emailAddress` instead' }],
+              User: [{ type: 'query', id: 'generated-id', name: 'email', deprecationReason: 'Use `emailAddress` instead' }],
             }),
           );
         }

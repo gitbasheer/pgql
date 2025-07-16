@@ -127,7 +127,7 @@ describe('migrate CLI command', () => {
     });
   });
 
-  describe('Process Flow', () => {
+  describe('Process Flow', () => { type: 'query',
     it('should handle extraction results format', async () => {
       const mockResult = {
         operations: [{ id: '1', name: 'TestQuery' }],

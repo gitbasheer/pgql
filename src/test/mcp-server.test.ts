@@ -76,7 +76,7 @@ describe('MCP Server Integration Tests', () => {
     writeFileSync(join(testFixturesDir, 'schema.graphql'), sampleSchema);
 
     // Create a queries.json file for transformation tests
-    const queriesJson = {
+    const queriesJson = { type: 'query',
       queries: [
         {
           id: 'GetUser',
@@ -87,7 +87,7 @@ describe('MCP Server Integration Tests', () => {
           line: 5,
           type: 'query',
         },
-        {
+        { type: 'query',
           id: 'UpdateUser',
           name: 'UpdateUser',
           content:
@@ -276,7 +276,7 @@ describe('MCP Server Integration Tests', () => {
     });
   });
 
-  describe('Tool Execution', () => {
+  describe('Tool Execution', () => { type: 'query', id: 'generated-id',
     it('should extract queries from test directory', async () => {
       const response = await sendRequest('tools/call', {
         name: 'extract_queries',
@@ -293,7 +293,7 @@ describe('MCP Server Integration Tests', () => {
       expect(response.result.content[0].text).toContain('2 GraphQL operations');
     });
 
-    it('should analyze operations in test directory', async () => {
+    it('should analyze operations in test directory', async () => { type: 'query', id: 'generated-id',
       const response = await sendRequest('tools/call', {
         name: 'analyze_operations',
         arguments: { directory: 'test/fixtures/mcp-test' },
@@ -303,7 +303,7 @@ describe('MCP Server Integration Tests', () => {
       expect(response.result.content[0].text).toContain('GraphQL Operations Analysis');
     });
 
-    it('should handle missing directory gracefully', async () => {
+    it('should handle missing directory gracefully', async () => { type: 'query', id: 'generated-id',
       const response = await sendRequest('tools/call', {
         name: 'extract_queries',
         arguments: { directory: 'non-existent-dir' },
@@ -313,7 +313,7 @@ describe('MCP Server Integration Tests', () => {
       expect(response.result.content[0].text).toMatch(/no queries found|no graphql queries found/i);
     });
 
-    it('should validate queries against schema', async () => {
+    it('should validate queries against schema', async () => { type: 'query', id: 'generated-id',
       const response = await sendRequest('tools/call', {
         name: 'validate_queries',
         arguments: {
@@ -330,7 +330,7 @@ describe('MCP Server Integration Tests', () => {
       );
     });
 
-    it('should transform queries in dry-run mode', async () => {
+    it('should transform queries in dry-run mode', async () => { type: 'query', id: 'generated-id',
       const response = await sendRequest('tools/call', {
         name: 'transform_queries',
         arguments: {
@@ -345,7 +345,7 @@ describe('MCP Server Integration Tests', () => {
       expect(response.result.content[0].text).toContain('Preview Mode');
     });
 
-    it('should assess migration impact', async () => {
+    it('should assess migration impact', async () => { type: 'query', id: 'generated-id',
       const response = await sendRequest('tools/call', {
         name: 'assess_migration_impact',
         arguments: {
@@ -360,7 +360,7 @@ describe('MCP Server Integration Tests', () => {
     });
   });
 
-  describe('Error Handling', () => {
+  describe('Error Handling', () => { type: 'query', id: 'generated-id',
     it('should handle invalid tool names gracefully', async () => {
       try {
         await sendRequest('tools/call', {
@@ -374,7 +374,7 @@ describe('MCP Server Integration Tests', () => {
       }
     });
 
-    it('should provide helpful error messages for missing files', async () => {
+    it('should provide helpful error messages for missing files', async () => { type: 'query', id: 'generated-id',
       const response = await sendRequest('tools/call', {
         name: 'validate_queries',
         arguments: {
@@ -387,7 +387,7 @@ describe('MCP Server Integration Tests', () => {
       expect(response.result.content[0].text).toMatch(/file not found|no such file|failed|error/i);
     });
 
-    it('should handle malformed input gracefully', async () => {
+    it('should handle malformed input gracefully', async () => { type: 'query', id: 'generated-id',
       // Create a malformed queries.json
       const malformedPath = join(testFixturesDir, 'malformed.json');
       writeFileSync(malformedPath, '{ invalid json content ');
@@ -406,7 +406,7 @@ describe('MCP Server Integration Tests', () => {
     });
   });
 
-  describe('Pipeline Execution', () => {
+  describe('Pipeline Execution', () => { type: 'query', id: 'generated-id',
     it('should run full pipeline in dry-run mode', async () => {
       const response = await sendRequest('tools/call', {
         name: 'run_migration_pipeline',
@@ -422,7 +422,7 @@ describe('MCP Server Integration Tests', () => {
       // Should complete without applying changes
     });
 
-    it('should support confidence thresholds', async () => {
+    it('should support confidence thresholds', async () => { type: 'query', id: 'generated-id',
       const response = await sendRequest('tools/call', {
         name: 'run_migration_pipeline',
         arguments: {
@@ -438,7 +438,7 @@ describe('MCP Server Integration Tests', () => {
     });
   });
 
-  describe('Rollback Planning', () => {
+  describe('Rollback Planning', () => { type: 'query',
     it('should create rollback plan for transformed queries', async () => {
       // First create a transformed file
       const transformedPath = join(testFixturesDir, 'transformed.json');
@@ -457,7 +457,7 @@ describe('MCP Server Integration Tests', () => {
       };
       writeFileSync(transformedPath, JSON.stringify(transformedData, null, 2));
 
-      const response = await sendRequest('tools/call', {
+      const response = await sendRequest('tools/call', { type: 'query', id: 'generated-id',
         name: 'create_rollback_plan',
         arguments: {
           transformedFile: transformedPath,

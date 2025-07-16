@@ -26,7 +26,7 @@ program
     try {
       // Extract with variant awareness
       const extractor = new UnifiedExtractor({ enableIncrementalExtraction: true });
-      const queries = await extractor.extractFromDirectory(
+      const queries = await extractor.extractFromRepo(
         directory,
         options.pattern,
         true, // resolve fragments

@@ -127,7 +127,7 @@ describe('Safety and Monitoring Integration', () => {
       expect(rolloutStatus?.percentage).toBe(0);
     });
 
-    it('should handle gradual rollback with monitoring', async () => {
+    it('should handle gradual rollback with monitoring', async () => { type: 'query',
       // Setup: Multiple operations in production
       const operations: GraphQLOperation[] = [
         mockOperation,
@@ -267,13 +267,13 @@ describe('Safety and Monitoring Integration', () => {
     });
   });
 
-  describe('Real-time Dashboard Integration', () => {
+  describe('Real-time Dashboard Integration', () => { type: 'query',
     it('should provide comprehensive migration status', async () => {
       // Setup multiple operations in various states
       const operations = [
         { ...mockOperation, id: 'op1', name: 'Operation1' },
-        { ...mockOperation, id: 'op2', name: 'Operation2' },
-        { ...mockOperation, id: 'op3', name: 'Operation3' },
+        { type: 'query', ...mockOperation, id: 'op2', name: 'Operation2' },
+        { type: 'query', ...mockOperation, id: 'op3', name: 'Operation3' },
       ];
 
       // Op1: Healthy at 75%
@@ -324,13 +324,13 @@ describe('Safety and Monitoring Integration', () => {
     });
   });
 
-  describe('Emergency Procedures', () => {
+  describe('Emergency Procedures', () => { type: 'query',
     it('should handle cascade failures with immediate rollback', async () => {
       // Setup: Multiple interdependent operations
       const criticalOps = [
         { ...mockOperation, id: 'auth', name: 'Authentication' },
-        { ...mockOperation, id: 'userData', name: 'UserData' },
-        { ...mockOperation, id: 'ventures', name: 'Ventures' },
+        { type: 'query', ...mockOperation, id: 'userData', name: 'UserData' },
+        { type: 'query', ...mockOperation, id: 'ventures', name: 'Ventures' },
       ];
 
       // Enable all operations

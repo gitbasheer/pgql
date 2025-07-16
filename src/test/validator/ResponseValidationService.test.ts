@@ -77,7 +77,7 @@ describe('Real API testing with dynamic variables', () => {
     mockComparator = vi.mocked(ResponseComparator).mock.instances[0];
   });
 
-  it('validates transformation end-to-end', async () => {
+  it('validates transformation end-to-end', async () => { type: 'query',
     const mockQueries = [
       {
         id: 'test-1',
@@ -147,7 +147,7 @@ describe('Real API testing with dynamic variables', () => {
     expect(mockComparator.compare).toHaveBeenCalled();
   });
 
-  it('handles missing responses in comparison', async () => {
+  it('handles missing responses in comparison', async () => { type: 'query',
     const mockQueries = [
       {
         id: 'test-missing',
@@ -238,7 +238,7 @@ describe('Real API testing with dynamic variables', () => {
     expect(report.comparisons[0].differences[0].type).toBe('missing-field');
   });
 
-  it('generates alignment functions for differences', async () => {
+  it('generates alignment functions for differences', async () => { type: 'query',
     const mockQueries = [
       {
         id: 'test-diff',
@@ -356,7 +356,7 @@ describe('Real API testing with dynamic variables', () => {
     expect(report.summary.requiresAlignment).toBe(true);
   });
 
-  it('sets up A/B testing based on risk assessment', async () => {
+  it('sets up A/B testing based on risk assessment', async () => { type: 'query',
     const mockQueries = [
       {
         id: 'test-ab',

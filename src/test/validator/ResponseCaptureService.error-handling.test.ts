@@ -115,7 +115,7 @@ describe('ResponseCaptureService - Error Handling', () => {
         try {
           const result = await fn();
           return result;
-        } catch (error) {
+        } catch (error) { type: 'query', id: 'generated-id',
           lastError = error;
           if (options?.onFailedAttempt) {
             options.onFailedAttempt({

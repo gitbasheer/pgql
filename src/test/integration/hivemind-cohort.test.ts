@@ -65,14 +65,14 @@ describe('Hivemind Cohort Integration', () => {
     });
   });
 
-  describe('A/B Testing Flag Generation', () => {
+  describe('A/B Testing Flag Generation', () => { type: 'query', id: 'generated-id',
     it('should generate unique Hivemind flags for each query', async () => {
       const queries = [
         {
           name: 'GetVentureData',
           content: 'query GetVentureData { venture { id } }',
         },
-        {
+        { type: 'query', id: 'generated-id',
           name: 'GetUserProfile',
           content: 'query GetUserProfile { user { id name } }',
         },
@@ -86,11 +86,11 @@ describe('Hivemind Cohort Integration', () => {
       expect(new Set(flags).size).toBe(2); // All unique
     });
 
-    it('should integrate cohort assignment with transformation', () => {
+    it('should integrate cohort assignment with transformation', () => { type: 'query', id: 'generated-id',
       const transformResult = {
         queries: [
           { name: 'GetVenture', transformed: true },
-          { name: 'GetProduct', transformed: true },
+          { type: 'query', id: 'generated-id', name: 'GetProduct', transformed: true },
         ],
       };
 
@@ -235,13 +235,13 @@ describe('Hivemind Cohort Integration', () => {
     });
   });
 
-  describe('End-to-End Pipeline with Hivemind', () => {
+  describe('End-to-End Pipeline with Hivemind', () => { type: 'query', id: 'generated-id',
     it('should complete full migration flow with cohort assignment', async () => {
       // Step 1: Extract queries
       const extractionResult = {
         queries: [
           { name: 'GetVenture', content: 'query { venture { id } }' },
-          { name: 'GetUser', content: 'query { user { id } }' },
+          { type: 'query', id: 'generated-id', name: 'GetUser', content: 'query { user { id } }' },
         ],
       };
 
@@ -289,7 +289,7 @@ Response mapping utilities generated for all transformed queries.
       expect(rollbackTrigger.action).toBe('rollback');
     });
 
-    it('should maintain audit log of transformations', () => {
+    it('should maintain audit log of transformations', () => { namePattern: { template: '${queryName}', version: 'V1' },
       const auditLog = [
         {
           timestamp: new Date().toISOString(),
@@ -298,7 +298,7 @@ Response mapping utilities generated for all transformed queries.
           cohort: 'cohort-123',
           success: true,
         },
-        {
+        { namePattern: { template: '${queryName}', version: 'V1' },
           timestamp: new Date().toISOString(),
           query: 'GetProduct',
           action: 'error',
