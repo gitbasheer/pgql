@@ -10,6 +10,7 @@ import { promises as fs } from 'fs';
 import { logger } from './logger';
 import { createHash } from 'crypto';
 import { PgqlOptions } from '../types/shared.types';
+import { EventEmitter } from 'events';
 
 export interface SchemaLoaderOptions {
   cacheEnabled?: boolean;
@@ -36,12 +37,13 @@ export interface SchemaLoadResult {
  * Centralized schema loading and caching service
  * Configurable via PgqlOptions for different environments
  */
-export class SchemaLoader {
+export class SchemaLoader extends EventEmitter {
   private static instance: SchemaLoader;
   private cache = new Map<string, CachedSchema>();
   private options: Required<SchemaLoaderOptions>;
 
   constructor(options: SchemaLoaderOptions | PgqlOptions = {}) {
+    super();
     // Extract schema config from PgqlOptions if provided
     const schemaConfig = 'schemaConfig' in options ? options.schemaConfig : options;
     this.options = {
@@ -81,6 +83,7 @@ export class SchemaLoader {
       const cached = this.getFromCache(cacheKey);
       if (cached) {
         logger.debug(`Schema cache hit for ${source}`);
+        this.emit('schemaLoaded', { source, cached: true, loadTime: Date.now() - startTime });
         return {
           schema: cached.schema,
           cached: true,
@@ -108,6 +111,7 @@ export class SchemaLoader {
       }
 
       logger.info(`Schema loaded successfully from ${source} in ${result.loadTime}ms`);
+      this.emit('schemaLoaded', { source, cached: false, loadTime: result.loadTime });
       return result;
 
     } catch (primaryError) {
@@ -135,6 +139,7 @@ export class SchemaLoader {
         }
 
         logger.info(`Schema loaded via fallback from ${source} in ${result.loadTime}ms`);
+        this.emit('schemaLoaded', { source, cached: false, loadTime: result.loadTime, fallback: true });
         return result;
 
       } catch (fallbackError) {

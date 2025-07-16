@@ -636,6 +636,12 @@ const customConfig = {
 | 500-2000 files | hybrid             | 30-120s       | 50-100MB     |
 | 2000+ files    | ast                | 2-10min       | 100-500MB    |
 
+## 📚 Developer Resources
+
+- **[AST Development Guide](docs/AST_GUIDE.md)** - 2025 best practices for GraphQL AST handling
+- **[Technical Overview](docs/TECHNICAL-OVERVIEW.md)** - Architecture deep dive
+- **[User Guide](docs/USER_GUIDE.md)** - Complete workflow documentation
+
 ## 🔧 Configuration
 
 Edit `migration.config.yaml`:

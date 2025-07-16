@@ -4,6 +4,10 @@ Authors: Based on Google's Official TypeScript Style Guide (latest as of 2025, s
 
 Purpose: This is the single, unified reference for all pgql developers. pgql is a schema-aware GraphQL migration tool emphasizing full controllability/configurability (every function accepts options for overrides), UI integration (all tools/functions callable/visible in dashboard with realtime data display), zero redundancy (DRY: single source of truth for schemas/queries/utils), and seamless coherence (modular, composable pipelines for production tests—e.g., quick runs on /data/sample_data/ then scalable to large repos like vnext-dashboard). Code must enable end-to-end tests without bottlenecks (e.g., parallel extraction, error-resilient validation).
 
+**Key Resources:**
+- **[AST Development Guide](AST_GUIDE.md)** - Essential for GraphQL AST manipulation and "traverse not a function" fixes
+- **[Technical Overview](TECHNICAL-OVERVIEW.md)** - Core architecture patterns
+
 Deviations require approval. Enforce via ESLint/Prettier (configured with google base + pgql customs). Review on major updates (e.g., TS 5.5+ features for better generics in GraphQL typing).
 
 Introduction and Goals
