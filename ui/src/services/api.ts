@@ -8,6 +8,20 @@ import type {
   DifferenceDetail,
 } from '../types/api.types';
 
+async function fetchWithRetry(url: string, options: RequestInit = {}, retries: number = 2): Promise<Response> {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      if (response.ok || i === retries) return response;
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+    } catch (error) {
+      if (i === retries) throw error;
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+    }
+  }
+  throw new Error('Max retries exceeded');
+}
+
 export interface TestParams {
   query: {
     name: string;
@@ -33,10 +47,8 @@ export interface BaselineResult {
 /**
  * Test query against real API using GraphQLClient with baseline saving
  */
-export async function testOnRealApi(
-  params: TestParams
-): Promise<BaselineResult> {
-  const response = await fetch('/api/pipeline/testOnRealApi', {
+export async function testOnRealApi(params: TestParams): Promise<BaselineResult> {
+  const response = await fetchWithRetry('/api/pipeline/testOnRealApi', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params),
@@ -53,13 +65,9 @@ export async function testOnRealApi(
 /**
  * Get baseline comparisons for a query
  */
-export async function getBaselineComparisons(
-  queryName: string
-): Promise<BaselineResult[]> {
-  const response = await fetch(
-    `/api/pipeline/baselines/${encodeURIComponent(queryName)}`
-  );
-
+export async function getBaselineComparisons(queryName: string): Promise<BaselineResult[]> {
+  const response = await fetchWithRetry(`/api/pipeline/baselines/${encodeURIComponent(queryName)}`);
+  
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || 'Failed to fetch baseline comparisons');
@@ -86,8 +94,8 @@ export async function getRealApiTestResults(pipelineId: string): Promise<{
     };
   }>;
 }> {
-  const response = await fetch(`/api/pipeline/${pipelineId}/real-api-tests`);
-
+  const response = await fetchWithRetry(`/api/pipeline/${pipelineId}/real-api-tests`);
+  
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || 'Failed to fetch real API test results');
@@ -99,19 +107,13 @@ export async function getRealApiTestResults(pipelineId: string): Promise<{
 /**
  * Trigger real API testing for all queries in pipeline
  */
-export async function triggerRealApiTests(
-  pipelineId: string,
-  auth: TestParams['auth']
-): Promise<void> {
-  const response = await fetch(
-    `/api/pipeline/${pipelineId}/trigger-real-api-tests`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ auth }),
-    }
-  );
-
+export async function triggerRealApiTests(pipelineId: string, auth: TestParams['auth']): Promise<void> {
+  const response = await fetchWithRetry(`/api/pipeline/${pipelineId}/trigger-real-api-tests`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ auth }),
+  });
+  
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || 'Failed to trigger real API tests');
