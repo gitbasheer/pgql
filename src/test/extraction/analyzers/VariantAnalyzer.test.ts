@@ -399,7 +399,7 @@ line4`;
 
   describe('validateOperation and analyzeOperation', () => {
     // Note: based on what? should we test for invalid?
-    it('should validate operations', () => { namePattern: { template: '${queryName}', version: 'V1' },
+    it('should validate operations', () => {
       const operation = { query: 'test' };
       expect(analyzer.validateOperation(operation)).toBe(true);
     });
