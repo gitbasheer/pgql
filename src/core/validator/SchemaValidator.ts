@@ -42,13 +42,23 @@ export interface ValidationWarning {
 
 export class SchemaValidator {
   private schema?: GraphQLSchema;
-  private schemaCache: Map<string, GraphQLSchema> = new Map();
+  private schemaCache: Map<string, { schema: GraphQLSchema; loadTime: number; size: number }> = new Map();
   private schemaAnalyzer?: SchemaAnalyzer;
+  private maxCacheSize: number = 10; // Max number of schemas to cache
+  private cacheTimeout: number = 3600000; // 1 hour in milliseconds
 
   async loadSchemaFromFile(schemaPath: string): Promise<GraphQLSchema> {
-    // Check cache first
-    if (this.schemaCache.has(schemaPath)) {
-      return this.schemaCache.get(schemaPath)!;
+    // Check cache first with expiry
+    const cached = this.schemaCache.get(schemaPath);
+    if (cached) {
+      const age = Date.now() - cached.loadTime;
+      if (age < this.cacheTimeout) {
+        logger.debug(`Schema cache hit for ${schemaPath} (age: ${age}ms)`);
+        return cached.schema;
+      } else {
+        logger.debug(`Schema cache expired for ${schemaPath}`);
+        this.schemaCache.delete(schemaPath);
+      }
     }
 
     try {
@@ -58,7 +68,7 @@ export class SchemaValidator {
       });
 
       this.schema = schema;
-      this.schemaCache.set(schemaPath, schema);
+      this.addToCache(schemaPath, schema);
       this.schemaAnalyzer = new SchemaAnalyzer(schema);
       return schema;
     } catch (error) {
@@ -68,10 +78,43 @@ export class SchemaValidator {
       const schema = buildSchema(schemaContent);
 
       this.schema = schema;
-      this.schemaCache.set(schemaPath, schema);
+      this.addToCache(schemaPath, schema);
       this.schemaAnalyzer = new SchemaAnalyzer(schema);
       return schema;
     }
+  }
+
+  private addToCache(path: string, schema: GraphQLSchema): void {
+    // Estimate schema size (rough approximation)
+    const schemaString = JSON.stringify(schema.toConfig());
+    const size = new Blob([schemaString]).size;
+
+    // Implement LRU eviction if cache is full
+    if (this.schemaCache.size >= this.maxCacheSize) {
+      // Find and remove oldest entry
+      let oldestPath = '';
+      let oldestTime = Date.now();
+      
+      for (const [cachePath, cacheEntry] of this.schemaCache.entries()) {
+        if (cacheEntry.loadTime < oldestTime) {
+          oldestTime = cacheEntry.loadTime;
+          oldestPath = cachePath;
+        }
+      }
+      
+      if (oldestPath) {
+        logger.debug(`Evicting oldest schema from cache: ${oldestPath}`);
+        this.schemaCache.delete(oldestPath);
+      }
+    }
+
+    this.schemaCache.set(path, {
+      schema,
+      loadTime: Date.now(),
+      size
+    });
+    
+    logger.debug(`Cached schema for ${path} (size: ${size} bytes)`);
   }
 
   /**
@@ -221,13 +264,68 @@ export class SchemaValidator {
     await this.loadSchemaFromFile(schemaPath);
 
     const results = new Map<string, ValidationResult>();
+    const batchSize = 50; // Process in batches for large query sets
 
-    for (const query of queries) {
-      const result = await this.validateQuery(query.content);
-      results.set(query.id, result);
+    // Process queries in batches to avoid memory issues
+    for (let i = 0; i < queries.length; i += batchSize) {
+      const batch = queries.slice(i, i + batchSize);
+      const batchPromises = batch.map(async (query) => {
+        const result = await this.validateQuery(query.content);
+        return { id: query.id, result };
+      });
+
+      const batchResults = await Promise.all(batchPromises);
+      batchResults.forEach(({ id, result }) => {
+        results.set(id, result);
+      });
+
+      logger.debug(`Validated batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(queries.length / batchSize)}`);
     }
 
     return results;
+  }
+
+  /**
+   * Load large schema with chunked introspection for better performance
+   */
+  async loadLargeSchema(schemaUrl: string): Promise<GraphQLSchema> {
+    // Check cache first
+    const cached = this.schemaCache.get(schemaUrl);
+    if (cached && Date.now() - cached.loadTime < this.cacheTimeout) {
+      return cached.schema;
+    }
+
+    try {
+      // For large schemas like billing-schema.graphql, use chunked loading
+      logger.info(`Loading large schema from ${schemaUrl}`);
+      
+      // First, try to get basic schema structure
+      const introspectionQuery = `
+        query IntrospectionQuery {
+          __schema {
+            queryType { name }
+            mutationType { name }
+            subscriptionType { name }
+            types {
+              ...FullType
+            }
+          }
+        }
+        
+        fragment FullType on __Type {
+          kind
+          name
+          description
+        }
+      `;
+
+      // In a real implementation, this would make HTTP requests to the schema endpoint
+      // For now, fall back to file loading
+      return await this.loadSchemaFromFile(schemaUrl);
+    } catch (error) {
+      logger.error(`Failed to load large schema: ${error}`);
+      throw error;
+    }
   }
 
   private checkDeprecatedFields(

@@ -11,6 +11,14 @@ import { createHash } from 'crypto';
 // jsdiff removed - not needed
 import simpleGit from 'simple-git';
 
+// Custom error class for transformation errors
+class TransformationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TransformationError';
+  }
+}
+
 export interface TransformOptions {
   commentOutVague: boolean;
   addDeprecationComments: boolean;
@@ -70,13 +78,14 @@ export class OptimizedSchemaTransformer {
   }
 
   generateMappingUtil(oldResponse: any, newResponse: any, queryName: string): string {
-    // Analyze structure differences
-    const differences = this.findDifferences(oldResponse, newResponse);
+    try {
+      // Analyze structure differences
+      const differences = this.findDifferences(oldResponse, newResponse);
 
-    // Generate mapping function
-    const mapperBody = this.generateMapperBody(differences, 'oldData');
+      // Generate mapping function
+      const mapperBody = this.generateMapperBody(differences, 'oldData');
 
-    return `export function map${queryName}Response(oldData: any): any {
+      return `export function map${queryName}Response(oldData: any): any {
   // Auto-generated mapping function for backward compatibility
   // A/B testing via Hivemind feature flags
   if (hivemind.flag("new-queries-${queryName.toLowerCase()}")) {
@@ -87,6 +96,10 @@ export class OptimizedSchemaTransformer {
 }
 
 // LLM_PLACEHOLDER: Use Ollama to generate more natural mapping based on JSON diffs`;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new TransformationError(`Failed to generate mapping util: ${errorMessage}`);
+    }
   }
 
   private findDifferences(
@@ -96,40 +109,53 @@ export class OptimizedSchemaTransformer {
   ): Array<{ path: string; oldValue: any; newValue: any }> {
     const diffs: Array<{ path: string; oldValue: any; newValue: any }> = [];
 
-    // Recursive diff detection
-    const processObject = (old: any, new_: any, currentPath: string) => {
-      const oldKeys = Object.keys(old || {});
-      const newKeys = Object.keys(new_ || {});
-      const allKeys = new Set([...oldKeys, ...newKeys]);
-
-      for (const key of allKeys) {
-        const fullPath = currentPath ? `${currentPath}.${key}` : key;
-        const oldValue = old?.[key];
-        const newValue = new_?.[key];
-
-        if (oldValue === undefined && newValue !== undefined) {
-          // Field added
-          diffs.push({ path: fullPath, oldValue: undefined, newValue });
-        } else if (oldValue !== undefined && newValue === undefined) {
-          // Field removed
-          diffs.push({ path: fullPath, oldValue, newValue: undefined });
-        } else if (
-          typeof oldValue === 'object' &&
-          typeof newValue === 'object' &&
-          oldValue !== null &&
-          newValue !== null
-        ) {
-          // Recursively check nested objects
-          processObject(oldValue, newValue, fullPath);
-        } else if (oldValue !== newValue) {
-          // Value changed
-          diffs.push({ path: fullPath, oldValue, newValue });
+    try {
+      // Recursive diff detection
+      const processObject = (old: any, new_: any, currentPath: string) => {
+        // Handle null/undefined cases
+        if (old === null || old === undefined || new_ === null || new_ === undefined) {
+          if (old !== new_) {
+            diffs.push({ path: currentPath || 'root', oldValue: old, newValue: new_ });
+          }
+          return;
         }
-      }
-    };
 
-    processObject(oldObj, newObj, path);
-    return diffs;
+        const oldKeys = Object.keys(old || {});
+        const newKeys = Object.keys(new_ || {});
+        const allKeys = new Set([...oldKeys, ...newKeys]);
+
+        for (const key of allKeys) {
+          const fullPath = currentPath ? `${currentPath}.${key}` : key;
+          const oldValue = old?.[key];
+          const newValue = new_?.[key];
+
+          if (oldValue === undefined && newValue !== undefined) {
+            // Field added
+            diffs.push({ path: fullPath, oldValue: undefined, newValue });
+          } else if (oldValue !== undefined && newValue === undefined) {
+            // Field removed
+            diffs.push({ path: fullPath, oldValue, newValue: undefined });
+          } else if (
+            typeof oldValue === 'object' &&
+            typeof newValue === 'object' &&
+            oldValue !== null &&
+            newValue !== null
+          ) {
+            // Recursively check nested objects
+            processObject(oldValue, newValue, fullPath);
+          } else if (oldValue !== newValue) {
+            // Value changed
+            diffs.push({ path: fullPath, oldValue, newValue });
+          }
+        }
+      };
+
+      processObject(oldObj, newObj, path);
+      return diffs;
+    } catch (error) {
+      logger.error('Error finding differences:', error);
+      throw new TransformationError(`Diff detection failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   private generateMapperBody(
@@ -727,28 +753,47 @@ export class EnhancedOptimizedSchemaTransformer extends OptimizedSchemaTransform
     repoPath: string,
   ): Promise<void> {
     const git = simpleGit(repoPath);
+    const branchName = 'pgql-migrations-' + Date.now();
+    let originalBranch: string;
 
     try {
+      // Get current branch for rollback
+      const status = await git.status();
+      originalBranch = status.current || 'main';
+      
       // Create new branch
       await git.checkout('main');
-      await git.checkoutLocalBranch('pgql-migrations-' + Date.now());
+      await git.checkoutLocalBranch(branchName);
+
+      const modifiedFiles: string[] = [];
 
       // Write transformed queries and utils
       for (let i = 0; i < queries.length; i++) {
         const query = queries[i];
         const transformation = transformations[i];
 
-        // Update query file
-        const queryPath = query.filePath;
-        await this.updateFileWithTransformation(
-          queryPath,
-          query.content,
-          transformation.transformedQuery,
-        );
+        try {
+          // Update query file
+          const queryPath = query.filePath;
+          await this.updateFileWithTransformation(
+            queryPath,
+            query.content,
+            transformation.transformedQuery,
+          );
+          modifiedFiles.push(queryPath);
 
-        // Generate utility file
-        const utilPath = queryPath.replace('.js', '.utils.js');
-        await this.writeUtilFile(utilPath, transformation.mappingCode);
+          // Generate utility file
+          const utilPath = queryPath.replace('.js', '.utils.js');
+          await this.writeUtilFile(utilPath, transformation.mappingCode);
+          modifiedFiles.push(utilPath);
+        } catch (fileError) {
+          logger.error(`Failed to transform file ${query.filePath}:`, fileError);
+          // Continue with other files
+        }
+      }
+
+      if (modifiedFiles.length === 0) {
+        throw new TransformationError('No files were successfully transformed');
       }
 
       // Stage changes
@@ -763,10 +808,22 @@ export class EnhancedOptimizedSchemaTransformer extends OptimizedSchemaTransform
           'Generated by pg-migration-620',
       );
 
-      logger.info('PR branch created successfully');
+      logger.info(`PR branch created successfully: ${branchName}`);
+      logger.info(`Modified ${modifiedFiles.length} files`);
     } catch (error) {
       logger.error('Failed to create PR:', error);
-      throw error;
+      
+      // Rollback on failure
+      try {
+        logger.info('Attempting to rollback changes...');
+        await git.checkout(originalBranch!);
+        await git.branch(['-D', branchName]); // Delete the failed branch
+        logger.info('Rollback completed');
+      } catch (rollbackError) {
+        logger.error('Rollback failed:', rollbackError);
+      }
+      
+      throw new TransformationError(`PR generation failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
