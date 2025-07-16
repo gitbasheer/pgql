@@ -1,0 +1,11 @@
+===================================================================
+--- /Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts	Original
++++ /Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts.transformed	Transformed
+@@ -3,5 +3,5 @@
+     id
+     name
+     email
+   }
+-}
++}
+\ No newline at end of file
