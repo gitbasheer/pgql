@@ -17,6 +17,7 @@ export interface ValidationResult {
   valid: boolean;
   errors: ValidationError[];
   warnings: ValidationWarning[];
+  queryId?: string; // Optional for compatibility
 }
 
 export interface ValidationError {

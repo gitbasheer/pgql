@@ -17,6 +17,7 @@ export interface ExtractedQuery {
   location: {
     line: number;
     column: number;
+    file: string;
   };
   name?: string;
   originalName?: string;
@@ -85,5 +86,44 @@ export class GraphQLExtractor {
       options?.patterns,
       options?.resolveFragments
     );
+  }
+
+  /**
+   * Alias for extractFromDirectory - extracts queries from a repository/directory
+   */
+  async extractFromRepo(
+    directory: string,
+    patterns: string[] = ['**/*.{js,jsx,ts,tsx}'],
+    resolveFragments: boolean = true,
+  ): Promise<ExtractedQuery[]> {
+    return this.extractFromDirectory(directory, patterns, resolveFragments);
+  }
+
+  /**
+   * Extract queries from a single file
+   */
+  async extractFromFile(filePath: string): Promise<ExtractedQuery[]> {
+    const options: ExtractionOptions = {
+      directory: process.cwd(),
+      patterns: [filePath],
+      resolveFragments: true,
+      strategies: ['hybrid'],
+      parallel: false,
+      maxConcurrency: 1,
+    };
+    
+    const extractor = new UnifiedExtractor(options);
+    const result = await extractor.extract();
+    
+    return result.queries.map(query => ({
+      id: query.id,
+      filePath: query.filePath,
+      content: query.content,
+      ast: query.ast,
+      location: query.location,
+      name: query.name,
+      originalName: query.originalName,
+      type: query.type as 'query' | 'mutation' | 'subscription' | 'fragment',
+    }));
   }
 }

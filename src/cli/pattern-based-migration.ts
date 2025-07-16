@@ -6,6 +6,7 @@ import { QueryPatternService } from '../core/extraction/engine/QueryPatternRegis
 import { QueryMigrator } from '../core/extraction/engine/QueryMigrator.js';
 import { PatternAwareASTStrategy } from '../core/extraction/strategies/PatternAwareASTStrategy.js';
 import { PatternExtractedQuery } from '../core/extraction/types/pattern.types.js';
+import { ExtractionContext } from '../core/extraction/engine/ExtractionContext.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { glob } from 'glob';
@@ -22,11 +23,13 @@ export class PatternBasedMigrationCLI {
   private patternService: QueryPatternService;
   private migrator: QueryMigrator;
   private strategy: PatternAwareASTStrategy;
+  private context: ExtractionContext;
 
   constructor() {
     this.patternService = new QueryPatternService();
     this.migrator = new QueryMigrator(this.patternService);
-    this.strategy = new PatternAwareASTStrategy(this.patternService);
+    this.context = new ExtractionContext({ directory: process.cwd() });
+    this.strategy = new PatternAwareASTStrategy(this.context, this.patternService);
   }
 
   async run(options: PatternMigrationOptions): Promise<void> {

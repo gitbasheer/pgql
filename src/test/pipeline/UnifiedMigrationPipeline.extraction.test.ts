@@ -176,9 +176,9 @@ describe.sequential('UnifiedMigrationPipeline - Extraction', () => {
             name: 'TestQuery',
             type: 'query',
             content: 'query TestQuery { test }',
-            filePath: 'test.ts',
+            filePath: 'test.js',
             sourceAST: { node: {}, start: 0, end: 10 },
-            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/pipeline/UnifiedMigrationPipeline.extraction.test.ts' },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/pipeline/UnifiedMigrationPipeline.extraction.test.js' },
             fragments: [],
           },
         ],
@@ -196,7 +196,7 @@ describe.sequential('UnifiedMigrationPipeline - Extraction', () => {
       // The source mapping happens internally - we verify it works by checking the result
       expect(result).toEqual({
         operations: expect.any(Array),
-        files: ['test.ts'],
+        files: ['test.js'],
         summary: {
           queries: 1,
           mutations: 0,
@@ -216,7 +216,7 @@ describe.sequential('UnifiedMigrationPipeline - Extraction', () => {
             name: 'TestQuery',
             type: 'query',
             content: 'query TestQuery { test }',
-            filePath: 'test.ts',
+            filePath: 'test.js',
           },
         ],
         variants: [],
@@ -237,9 +237,9 @@ describe.sequential('UnifiedMigrationPipeline - Extraction', () => {
 
       mockExtractor.extract.mockResolvedValue({
         queries: [
-          { id: 'q1', type: 'query', filePath: 'file1.ts' },
-          { id: 'm1', type: 'mutation', filePath: 'file2.ts' },
-          { id: 's1', type: 'subscription', filePath: 'file3.ts' },
+          { id: 'q1', type: 'query', filePath: 'file1.js' },
+          { id: 'm1', type: 'mutation', filePath: 'file2.js' },
+          { id: 's1', type: 'subscription', filePath: 'file3.js' },
         ],
         variants: [],
         fragments: new Map(),

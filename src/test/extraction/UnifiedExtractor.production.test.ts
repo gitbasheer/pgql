@@ -254,7 +254,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
         const opId = performanceMonitor.startOperation(`benchmark-${benchmark.files}-files`);
         extractor = new UnifiedExtractor({
           directory: benchmarkDir,
-          patterns: ['**/*.ts'],
+          patterns: ['**/*.js'],
           ignore: ['**/node_modules/**'],
           // Override default ignore patterns
           parallel: true,
@@ -313,7 +313,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
   describe('Memory Efficiency', () => {
     it('should handle large files without excessive memory usage', async () => {
       // Create a large file
-      const largeFile = join(testDir, 'large-file.ts');
+      const largeFile = join(testDir, 'large-file.js');
       const largeContent = generateLargeFile(1000); // 1000 queries
       writeFileSync(largeFile, largeContent);
 
@@ -326,7 +326,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
       const opId = performanceMonitor.startOperation('extract-large-file');
       extractor = new UnifiedExtractor({
         directory: testDir,
-        patterns: ['large-file.ts'],
+        patterns: ['large-file.js'],
         ignore: ['**/node_modules/**'], // Override default ignore patterns
       });
       const result = await extractor.extract();
@@ -396,7 +396,7 @@ function createTestFiles() {
       `,
     },
     {
-      name: 'complex-fragments.ts',
+      name: 'complex-fragments.js',
       content: `
         import { gql } from 'graphql-tag';
 
@@ -441,7 +441,7 @@ function createTestFiles() {
       `,
     },
     {
-      name: 'variant-queries.ts',
+      name: 'variant-queries.js',
       content: `
         import { graphql } from 'react-relay';
 

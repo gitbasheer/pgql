@@ -52,7 +52,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       ];
 
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'test1', content: query, filePath: 'test.ts' },
+        { queryId: 'test1', content: query, filePath: 'test.js' },
         deprecationRules
       );
 
@@ -96,7 +96,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       ];
 
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'test2', content: query, filePath: 'test.ts' },
+        { queryId: 'test2', content: query, filePath: 'test.js' },
         deprecationRules
       );
 
@@ -135,7 +135,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       ];
 
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'test3', content: query, filePath: 'test.ts' },
+        { queryId: 'test3', content: query, filePath: 'test.js' },
         deprecationRules
       );
 
@@ -171,7 +171,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       ];
 
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'test4', content: query, filePath: 'test.ts' },
+        { queryId: 'test4', content: query, filePath: 'test.js' },
         deprecationRules
       );
 
@@ -208,7 +208,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       // Note: Enum value transformation typically happens at runtime
       // This test ensures the transformer recognizes and documents the change
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'test5', content: query, filePath: 'test.ts' },
+        { queryId: 'test5', content: query, filePath: 'test.js' },
         deprecationRules
       );
 
@@ -270,7 +270,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       ];
 
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'complex', content: query, filePath: 'test.ts' },
+        { queryId: 'complex', content: query, filePath: 'test.js' },
         deprecationRules
       );
 
@@ -324,7 +324,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       ];
 
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'fragment-test', content: query, filePath: 'test.ts' },
+        { queryId: 'fragment-test', content: query, filePath: 'test.js' },
         deprecationRules
       );
 
@@ -372,7 +372,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       ];
 
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'var-test', content: query, filePath: 'test.ts' },
+        { queryId: 'var-test', content: query, filePath: 'test.js' },
         deprecationRules
       );
 
@@ -413,7 +413,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       ];
 
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'directive-test', content: query, filePath: 'test.ts' },
+        { queryId: 'directive-test', content: query, filePath: 'test.js' },
         deprecationRules
       );
 
@@ -464,7 +464,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       ];
 
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'inline-test', content: query, filePath: 'test.ts' },
+        { queryId: 'inline-test', content: query, filePath: 'test.js' },
         deprecationRules
       );
 
@@ -490,7 +490,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       `;
 
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'malformed', content: malformedQuery, filePath: 'test.ts' },
+        { queryId: 'malformed', content: malformedQuery, filePath: 'test.js' },
         []
       );
 
@@ -524,7 +524,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       ];
 
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'circular', content: query, filePath: 'test.ts' },
+        { queryId: 'circular', content: query, filePath: 'test.js' },
         deprecationRules
       );
 
@@ -539,12 +539,12 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       const whitespaceQuery = '   \n\t  ';
       
       const result1 = await schemaTransformer.transformQuery(
-        { queryId: 'empty', content: emptyQuery, filePath: 'test.ts' },
+        { queryId: 'empty', content: emptyQuery, filePath: 'test.js' },
         []
       );
       
       const result2 = await schemaTransformer.transformQuery(
-        { queryId: 'whitespace', content: whitespaceQuery, filePath: 'test.ts' },
+        { queryId: 'whitespace', content: whitespaceQuery, filePath: 'test.js' },
         []
       );
 
@@ -574,7 +574,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
 
       const startTime = Date.now();
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'large', content: largeQuery, filePath: 'test.ts' },
+        { queryId: 'large', content: largeQuery, filePath: 'test.js' },
         deprecationRules
       );
       const endTime = Date.now();
@@ -606,7 +606,7 @@ describe('Transformer Edge Cases - 95%+ Coverage', () => {
       ];
 
       const result = await schemaTransformer.transformQuery(
-        { queryId: 'special', content: query, filePath: 'test.ts' },
+        { queryId: 'special', content: query, filePath: 'test.js' },
         deprecationRules
       );
 

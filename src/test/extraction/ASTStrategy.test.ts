@@ -27,7 +27,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
         \`;
       `;
 
-      const queries = await strategy.extract('test.ts', code);
+      const queries = await strategy.extract('test.js', code);
 
       expect(queries).toHaveLength(1);
       const query = queries[0];
@@ -55,7 +55,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
         const QUERY = gql\`query { test }\`;
       `;
 
-      const queries = await strategy.extract('test.ts', code);
+      const queries = await strategy.extract('test.js', code);
 
       expect(queries).toHaveLength(1);
       expect(queries[0].sourceAST).toBeUndefined();
@@ -87,7 +87,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
         \`;
       `;
 
-      const queries = await strategy.extract('test.ts', code);
+      const queries = await strategy.extract('test.js', code);
       const sourceMapper = strategy.getSourceMapper();
 
       expect(queries).toHaveLength(1);
@@ -127,7 +127,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
         \`);
       `;
 
-      const queries = await strategy.extract('test.ts', code);
+      const queries = await strategy.extract('test.js', code);
 
       expect(queries).toHaveLength(1);
       const query = queries[0];
@@ -154,7 +154,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
         const QUERY3 = graphql(\`query Query3 { test3 }\`);
       `;
 
-      const queries = await strategy.extract('test.ts', code);
+      const queries = await strategy.extract('test.js', code);
       const sourceMapper = strategy.getSourceMapper();
 
       expect(queries).toHaveLength(3);
@@ -199,7 +199,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
         \`;
       `;
 
-      const queries = await strategy.extract('test.ts', code);
+      const queries = await strategy.extract('test.js', code);
       const sourceMapper = strategy.getSourceMapper();
 
       expect(queries).toHaveLength(1);
@@ -242,7 +242,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
         }
       `;
 
-      const queries = await strategy.extract('test.ts', code);
+      const queries = await strategy.extract('test.js', code);
 
       expect(queries).toHaveLength(1);
       const query = queries[0];
@@ -266,7 +266,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
 
       const code = `const EMPTY = gql\`\`;`;
 
-      const queries = await strategy.extract('test.ts', code);
+      const queries = await strategy.extract('test.js', code);
 
       expect(queries).toHaveLength(0); // Empty GraphQL should be invalid
     });
@@ -282,7 +282,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
 
       const code = `const INVALID = gql\`query { test\`;`; // Missing closing brace
 
-      const queries = await strategy.extract('test.ts', code);
+      const queries = await strategy.extract('test.js', code);
 
       expect(queries).toHaveLength(0);
       expect(context.errors).toHaveLength(1);

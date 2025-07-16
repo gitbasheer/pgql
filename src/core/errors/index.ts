@@ -37,6 +37,10 @@ export type {
   ErrorReport,
 } from './ErrorHandler.js';
 
+// Import handleError and PgqlError for use in ErrorUtils
+import { handleError } from './ErrorHandler.js';
+import { PgqlError } from './ErrorTypes.js';
+
 // Utility functions for common error scenarios
 export const ErrorUtils = {
   /**
@@ -49,6 +53,7 @@ export const ErrorUtils = {
     try {
       return await fn();
     } catch (error) {
+      const { handleError } = await import('./ErrorHandler.js');
       await handleError(error instanceof Error ? error : new Error(String(error)));
       return null;
     }
@@ -64,6 +69,7 @@ export const ErrorUtils = {
     try {
       return fn();
     } catch (error) {
+      const { handleError } = require('./ErrorHandler.js');
       handleError(error instanceof Error ? error : new Error(String(error)));
       return null;
     }
@@ -72,9 +78,14 @@ export const ErrorUtils = {
   /**
    * Check if error is retryable
    */
-  isRetryable(error: Error | PgqlError): boolean {
-    if (error instanceof PgqlError) {
-      return error.getAutomatedRecovery().some(action => action.type === 'RETRY');
+  isRetryable(error: Error): boolean {
+    try {
+      const { PgqlError } = require('./ErrorTypes.js');
+      if (error instanceof PgqlError) {
+        return (error as any).getAutomatedRecovery().some((action: any) => action.type === 'RETRY');
+      }
+    } catch {
+      // If PgqlError not available, assume not retryable
     }
     return false;
   },
@@ -82,9 +93,14 @@ export const ErrorUtils = {
   /**
    * Extract correlation ID from error
    */
-  getCorrelationId(error: Error | PgqlError): string | undefined {
-    if (error instanceof PgqlError) {
-      return error.details.correlationId;
+  getCorrelationId(error: Error): string | undefined {
+    try {
+      const { PgqlError } = require('./ErrorTypes.js');
+      if (error instanceof PgqlError) {
+        return (error as any).details.correlationId;
+      }
+    } catch {
+      // If PgqlError not available, return undefined
     }
     return undefined;
   },

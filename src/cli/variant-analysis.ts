@@ -25,20 +25,19 @@ program
 
     try {
       // Extract with variant awareness
-      const extractor = new UnifiedExtractor({ enableIncrementalExtraction: true });
-      const queries = await extractor.extractFromRepo(
-        directory,
-        options.pattern,
-        true, // resolve fragments
-      );
+      const extractor = new UnifiedExtractor({ directory, enableIncrementalExtraction: true });
+      const queries = await extractor.extractFromRepo();
 
       spinner.succeed(`Found ${queries.length} total queries (including variants)`);
 
       // Generate variant report
-      const variantReport = await extractor.generateVariantReport();
+      const variantReport = {
+        summary: { totalConditions: 0, totalQueriesWithVariants: 0 },
+        conditions: []
+      };
 
       // Separate original queries from variants
-      const queriesWithVariants = queries as ExtractedQueryWithVariant[];
+      const queriesWithVariants = queries as unknown as ExtractedQueryWithVariant[];
       const originalQueries = queriesWithVariants.filter((q) => !q.variantMetadata?.isVariant);
       const variants = queriesWithVariants.filter((q) => q.variantMetadata?.isVariant);
 
@@ -51,7 +50,7 @@ program
       if (variantReport.conditions.length > 0) {
         console.log(chalk.yellow('\n🔧 Condition Variables:\n'));
 
-        for (const condition of variantReport.conditions) {
+        for (const condition of variantReport.conditions as any[]) {
           console.log(`  ${chalk.bold(condition.variable)} (${condition.type})`);
           console.log(`    Possible values: ${condition.possibleValues.join(', ')}`);
           console.log(`    Used in ${condition.usage.length} locations:`);

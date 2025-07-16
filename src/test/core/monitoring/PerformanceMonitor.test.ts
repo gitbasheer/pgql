@@ -93,7 +93,7 @@ describe('PerformanceMonitor', () => {
         heapUsed: 50 * 1024 * 1024, // 50MB
       });
 
-      const operationId = monitor.startOperation('extraction', { file: 'test.ts' });
+      const operationId = monitor.startOperation('extraction', { file: 'test.js' });
 
       expect(operationId).toMatch(/^extraction_\d+_[a-z0-9]+$/);
 

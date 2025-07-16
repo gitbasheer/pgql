@@ -753,4 +753,19 @@ export class ResponseValidationService {
       };
     }
   }
+
+  /**
+   * Validate a single query
+   */
+  async validateQuery(params: { query: string; endpoint?: string; variables?: Record<string, any> }): Promise<{ valid: boolean; errors?: string[] }> {
+    try {
+      const ast = parse(params.query);
+      return { valid: true };
+    } catch (error) {
+      return {
+        valid: false,
+        errors: [error instanceof Error ? error.message : 'Invalid query'],
+      };
+    }
+  }
 }

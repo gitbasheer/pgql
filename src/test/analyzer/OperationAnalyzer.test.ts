@@ -25,14 +25,14 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/queries1.ts',
+          filePath: '/src/queries1.js',
           content: 'query GetUser { user { id name } }',
           name: 'GetUser',
           type: 'query',
         },
         {
           id: '2',
-          filePath: '/src/queries2.ts',
+          filePath: '/src/queries2.js',
           content: 'query GetUser { user { id name email } }',
           name: 'GetUser',
           type: 'query',
@@ -57,14 +57,14 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/queries.ts',
+          filePath: '/src/queries.js',
           content: 'query GetUser($id: ID!) { user(id: $id) { id name } }',
           name: 'GetUser',
           type: 'query',
         },
         {
           id: '2',
-          filePath: '/src/queries2.ts',
+          filePath: '/src/queries2.js',
           content:
             'query GetUser($id: ID!, $includeEmail: Boolean!) { user(id: $id) { id name email @include(if: $includeEmail) } }',
           name: 'GetUser',
@@ -84,19 +84,19 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/q1.ts',
+          filePath: '/src/q1.js',
           content: '{ user { id name } }',
           type: 'query',
         },
         {
           id: '2',
-          filePath: '/src/q2.ts',
+          filePath: '/src/q2.js',
           content: '{ user { id name email } }',
           type: 'query',
         },
         {
           id: '3',
-          filePath: '/src/q3.ts',
+          filePath: '/src/q3.js',
           content: '{ posts { title content } }',
           type: 'query',
         },
@@ -126,7 +126,7 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/queries.ts',
+          filePath: '/src/queries.js',
           content: `
             query GetUser {
               user {
@@ -140,7 +140,7 @@ describe('OperationAnalyzer', () => {
         },
         {
           id: '2',
-          filePath: '/src/queries2.ts',
+          filePath: '/src/queries2.js',
           content: `
             query GetUser {
               user {
@@ -169,7 +169,7 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/mutations.ts',
+          filePath: '/src/mutations.js',
           content: 'mutation CreateUser($input: UserInput!) { createUser(input: $input) { id } }',
           name: 'CreateUser',
           type: 'mutation',
@@ -179,7 +179,7 @@ describe('OperationAnalyzer', () => {
         },
         {
           id: '2',
-          filePath: '/src/subscriptions.ts',
+          filePath: '/src/subscriptions.js',
           content: 'subscription OnUserUpdate { userUpdated { id name } }',
           name: 'OnUserUpdate',
           type: 'subscription',
@@ -198,13 +198,13 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/invalid.ts',
+          filePath: '/src/invalid.js',
           content: 'invalid graphql syntax { ',
           type: 'query',
         },
         {
           id: '2',
-          filePath: '/src/valid.ts',
+          filePath: '/src/valid.js',
           content: 'query Valid { user { id } }',
           name: 'Valid',
           type: 'query',
@@ -222,7 +222,7 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/nested.ts',
+          filePath: '/src/nested.js',
           content: `
             query DeepQuery {
               user {
@@ -262,28 +262,28 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/q1.ts',
+          filePath: '/src/q1.js',
           content: 'query GetUser { user { id ...UserFields } }',
           name: 'GetUser',
           type: 'query',
         },
         {
           id: '2',
-          filePath: '/src/q2.ts',
+          filePath: '/src/q2.js',
           content: 'query GetUser { user { id name ...UserFields } }',
           name: 'GetUser',
           type: 'query',
         },
         {
           id: '3',
-          filePath: '/src/q3.ts',
+          filePath: '/src/q3.js',
           content: 'mutation CreateUser { createUser { id } }',
           name: 'CreateUser',
           type: 'mutation',
         },
         {
           id: '4',
-          filePath: '/src/q4.ts',
+          filePath: '/src/q4.js',
           content: '{ posts { title } }',
           type: 'query',
         },
@@ -311,7 +311,7 @@ describe('OperationAnalyzer', () => {
       expect(report.duplicateOperations[0]).toMatchObject({
         name: 'GetUser',
         variantCount: 2,
-        files: expect.arrayContaining(['/src/q1.ts', '/src/q2.ts']),
+        files: expect.arrayContaining(['/src/q1.js', '/src/q2.js']),
       });
     });
 
@@ -337,13 +337,13 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/q1.ts',
+          filePath: '/src/q1.js',
           content: '{ user { id name } posts { title } }',
           type: 'query',
         },
         {
           id: '2',
-          filePath: '/src/q2.ts',
+          filePath: '/src/q2.js',
           content: '{ profile { avatar bio } }',
           type: 'query',
         },
@@ -364,7 +364,7 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/q1.ts',
+          filePath: '/src/q1.js',
           content: 'query NamedQuery { user { id } }',
           name: 'NamedQuery',
           type: 'query',
@@ -381,7 +381,7 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/q1.ts',
+          filePath: '/src/q1.js',
           content: '{ ...UserFragment }',
           type: 'query',
         },
@@ -400,19 +400,19 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/q1.ts',
+          filePath: '/src/q1.js',
           content: '{ user { id name email } }',
           type: 'query',
         },
         {
           id: '2',
-          filePath: '/src/q2.ts',
+          filePath: '/src/q2.js',
           content: '{ user { id name email avatar } }',
           type: 'query',
         },
         {
           id: '3',
-          filePath: '/src/q3.ts',
+          filePath: '/src/q3.js',
           content: '{ posts { title } }',
           type: 'query',
         },
@@ -429,13 +429,13 @@ describe('OperationAnalyzer', () => {
       const queries = [
         {
           id: '1',
-          filePath: '/src/q1.ts',
+          filePath: '/src/q1.js',
           content: '{ user { id } }',
           type: 'query',
         },
         {
           id: '2',
-          filePath: '/src/m1.ts',
+          filePath: '/src/m1.js',
           content: 'mutation { user { id } }',
           type: 'mutation',
           ast: parse('mutation { createUser { id } }'),

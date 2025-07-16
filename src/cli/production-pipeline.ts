@@ -118,12 +118,13 @@ program
       // Step 1: Extract queries
       const extractSpinner = ora('Extracting GraphQL operations...').start();
       // Always use dynamic extractor for production pipeline to catch all variants
-      const extractor = new UnifiedExtractor({ enableIncrementalExtraction: true });
-      const queries = await extractor.extractFromRepo(
-        directory,
-        ['**/*.{js,jsx,ts,tsx}'],
-        !options.skipFragments,
-      );
+      const extractor = new UnifiedExtractor({ 
+        directory, 
+        enableIncrementalExtraction: true,
+        patterns: ['**/*.{js,jsx,ts,tsx}'],
+        resolveFragments: !options.skipFragments
+      });
+      const queries = await extractor.extractFromRepo();
 
       report.extraction.totalOperations = queries.length;
       report.extraction.byType = queries.reduce(

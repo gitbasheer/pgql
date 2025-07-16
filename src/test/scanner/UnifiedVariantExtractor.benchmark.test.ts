@@ -103,7 +103,7 @@ describe('UnifiedVariantExtractor Performance Benchmark', () => {
     await cachedExtractor.extractFromDirectory(testDir);
 
     // Modify one file
-    const modifiedFile = path.join(testDir, 'file0.ts');
+    const modifiedFile = path.join(testDir, 'file0.js');
     const content = await fs.readFile(modifiedFile, 'utf-8');
     await fs.writeFile(modifiedFile, content + '\n// Modified');
 

@@ -66,8 +66,8 @@ describe('P0 Security Regression Tests', () => {
         content: query,
         name: 'GetUser',
         type: 'query',
-        filePath: 'test.ts',
-        location: { line: 1, column: 1, file: 'test.ts' },
+        filePath: 'test.js',
+        location: { line: 1, column: 1, file: 'test.js' },
         ast: null,
         fragments: ['EvilFragment'],
         imports: [],
@@ -95,8 +95,8 @@ describe('P0 Security Regression Tests', () => {
           content: `query Test { user { ...F } } ${maliciousFragment}`,
           name: 'TestQuery',
           type: 'query',
-          filePath: 'test.ts',
-          location: { line: 1, column: 1, file: 'test.ts' },
+          filePath: 'test.js',
+          location: { line: 1, column: 1, file: 'test.js' },
           ast: null,
           fragments: ['F'],
           imports: [],
@@ -177,7 +177,7 @@ describe('P0 Security Regression Tests', () => {
     });
 
     it('should restrict file access to project directory', () => {
-      const allowedPaths = ['./src/test.ts', 'data/queries.json', './output/results.json'];
+      const allowedPaths = ['./src/test.js', 'data/queries.json', './output/results.json'];
 
       const blockedPaths = ['/etc/passwd', '../../../secret.env', '/var/log/system.log'];
 

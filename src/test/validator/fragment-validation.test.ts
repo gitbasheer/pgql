@@ -30,7 +30,7 @@ describe('External Fragment Validation', () => {
       `;
 
       const ast = parse(query);
-      const resolved = await fragmentResolver.resolveFragments(ast, 'test-file.ts');
+      const resolved = await fragmentResolver.resolveFragments(ast, 'test-file.js');
 
       expect(resolved).toBeDefined();
       // Verify fragment was resolved from external file
@@ -53,7 +53,7 @@ describe('External Fragment Validation', () => {
       `;
 
       const ast = parse(query);
-      const resolved = await fragmentResolver.resolveFragments(ast, 'test-file.ts');
+      const resolved = await fragmentResolver.resolveFragments(ast, 'test-file.js');
 
       expect(resolved).toBeDefined();
       const fragments = context.getFragments();
@@ -82,7 +82,7 @@ describe('External Fragment Validation', () => {
       const ast = parse(query);
       
       await expect(
-        fragmentResolver.resolveFragments(ast, 'test-file.ts')
+        fragmentResolver.resolveFragments(ast, 'test-file.js')
       ).rejects.toThrow(/circular/i);
     });
 
@@ -98,7 +98,7 @@ describe('External Fragment Validation', () => {
       const ast = parse(query);
       
       await expect(
-        fragmentResolver.resolveFragments(ast, 'test-file.ts')
+        fragmentResolver.resolveFragments(ast, 'test-file.js')
       ).rejects.toThrow(/Fragment "NonExistentFragment" not found/);
     });
   });
@@ -291,12 +291,12 @@ describe('External Fragment Validation', () => {
 
       // First resolution
       const start1 = Date.now();
-      await fragmentResolver.resolveFragments(parse(query), 'test1.ts');
+      await fragmentResolver.resolveFragments(parse(query), 'test1.js');
       const time1 = Date.now() - start1;
 
       // Second resolution (should be cached)
       const start2 = Date.now();
-      await fragmentResolver.resolveFragments(parse(query), 'test2.ts');
+      await fragmentResolver.resolveFragments(parse(query), 'test2.js');
       const time2 = Date.now() - start2;
 
       // Cached resolution should be significantly faster

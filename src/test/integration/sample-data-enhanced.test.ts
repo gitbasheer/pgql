@@ -15,7 +15,7 @@ describe('Enhanced Sample Data Pipeline', () => {
       directory: './test/fixtures/sample_data',
       strategies: ['pluck'], // Avoid AST traverse issues
       resolveFragments: true,
-      patterns: ['**/*.ts'],
+      patterns: ['**/*.js'],
     });
 
     validator = new ResponseValidationService({
@@ -62,7 +62,7 @@ describe('Enhanced Sample Data Pipeline', () => {
   describe('Template Resolution Enhancement', () => {
     it('should fully resolve ${queryNames.xxx} patterns using fs.readFile', async () => {
       // Extract from sampleQueries.ts which contains template patterns
-      const sampleQueriesPath = './test/fixtures/sample_data/sampleQueries.ts';
+      const sampleQueriesPath = './test/fixtures/sample_data/sampleQueries.js';
       const queries = await extractor.extractFromFile(sampleQueriesPath);
 
       expect(queries.length).toBeGreaterThan(0);
@@ -75,7 +75,7 @@ describe('Enhanced Sample Data Pipeline', () => {
     });
 
     it('should extract SAMPLE_QUERY_NAMES patterns correctly', async () => {
-      const sampleQueriesPath = './test/fixtures/sample_data/sampleQueries.ts';
+      const sampleQueriesPath = './test/fixtures/sample_data/sampleQueries.js';
       const queries = await extractor.extractFromFile(sampleQueriesPath);
 
       // Should find queries that were originally using ${SAMPLE_QUERY_NAMES.xxx}
@@ -91,7 +91,7 @@ describe('Enhanced Sample Data Pipeline', () => {
     it('should handle vnext-dashboard patterns in loadQueryNamesFromFile', async () => {
       // Test the file-based loading as specifically requested
       const queries = await extractor.extractFromFile(
-        './test/fixtures/sample_data/sampleQueries.ts',
+        './test/fixtures/sample_data/sampleQueries.js',
       );
 
       // Verify that template interpolation was resolved
@@ -112,7 +112,7 @@ describe('Enhanced Sample Data Pipeline', () => {
         name: 'GetUser',
         variables: { userId: 'UUID!' },
         endpoint: 'productGraph' as const,
-        sourceFile: 'test.ts',
+        sourceFile: 'test.js',
         fullExpandedQuery: 'query GetUser { user { id name } }',
       };
 
@@ -134,7 +134,7 @@ describe('Enhanced Sample Data Pipeline', () => {
           name: 'GetVenture',
           variables: { ventureId: 'UUID!' },
           endpoint: 'productGraph' as const,
-          sourceFile: 'venture.ts',
+          sourceFile: 'venture.js',
           fullExpandedQuery: 'query GetVenture { venture { id name } }',
         },
       ];
@@ -165,7 +165,7 @@ describe('Enhanced Sample Data Pipeline', () => {
         name: 'GetUser',
         variables: {},
         endpoint: 'productGraph' as const,
-        sourceFile: 'test.ts',
+        sourceFile: 'test.js',
         fullExpandedQuery: 'query GetUser { user { id name } }',
       };
 
@@ -212,7 +212,7 @@ describe('Enhanced Sample Data Pipeline', () => {
 
     it('should handle error cases gracefully', async () => {
       // Test with invalid file paths
-      const invalidQueries = await extractor.extractFromFile('./non-existent-file.ts');
+      const invalidQueries = await extractor.extractFromFile('./non-existent-file.js');
       expect(invalidQueries).toEqual([]);
 
       // Test with malformed templates

@@ -244,28 +244,42 @@ validate
       const queries = queriesData.queries || queriesData;
 
       const validator = new ResponseValidationService({
-        endpoints: {
-          productGraph: { url: 'https://api.example.com/graphql' },
-          offerGraph: { url: 'https://api.example.com/offer-graphql' }
-        },
+        endpoints: [
+          { name: 'productGraph', url: 'https://api.example.com/graphql' },
+          { name: 'offerGraph', url: 'https://api.example.com/offer-graphql' }
+        ],
         capture: {
           maxConcurrency: 10,
           timeout: 30000,
-          variableGeneration: true
+          variableGeneration: 'auto'
+        },
+        comparison: {
+          strict: false,
+          ignorePaths: []
+        },
+        alignment: {
+          strict: false,
+          preserveNulls: true,
+          preserveOrder: false
+        },
+        storage: {
+          type: 'file',
+          path: './validation-storage'
         }
       });
       const results = [];
+      const validationResults = new Map();
 
       for (const query of queries.slice(0, 5)) { // Limit for demo
         try {
-          const result = await validator.validateQuery({
-            query: query.content,
-            endpoint: options.endpoint || 'https://api.example.com/graphql',
-            variables: {},
-          });
-          results.push({ queryId: query.id, valid: result.valid, errors: result.errors });
+          const result = await validator.validateAgainstSchema(query.content, 'productGraph');
+          const validationResult = { queryName: query.queryName || query.id, valid: result.valid, errors: result.errors };
+          results.push(validationResult);
+          validationResults.set(query.queryName || query.id, validationResult);
         } catch (error) {
-          results.push({ queryId: query.id, valid: false, errors: [String(error)] });
+          const validationResult = { queryName: query.queryName || query.id, valid: false, errors: [String(error)] };
+          results.push(validationResult);
+          validationResults.set(query.queryName || query.id, validationResult);
         }
       }
 
@@ -420,7 +434,7 @@ migrate
       let transformedCount = 0;
 
       for (const query of queries) {
-        if (Array.from(validationResults.values()).find(v => v.queryId === query.queryName)?.valid) {
+        if (Array.from(validationResults.values()).find((v: any) => v.queryName === query.queryName)?.valid) {
           try {
             const result = await transformer.transformQuery({
               queryId: query.queryName,

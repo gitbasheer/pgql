@@ -92,7 +92,7 @@ describe('GraphQLMigrationTool', () => {
           name: 'GetUser',
           type: 'query',
           source: 'query GetUser { user { id name } }',
-          file: '/path/to/file.ts',
+          file: '/path/to/file.js',
           line: 1,
           column: 1,
         },
@@ -159,7 +159,7 @@ describe('GraphQLMigrationTool', () => {
           name: 'Query1',
           type: 'query',
           source: 'query Query1 { user { id } }',
-          file: 'file1.ts',
+          file: 'file1.js',
           line: 1,
           column: 1,
         },
@@ -168,7 +168,7 @@ describe('GraphQLMigrationTool', () => {
           name: 'Query2',
           type: 'query',
           source: 'query Query2 { posts { id } }',
-          file: 'file2.ts',
+          file: 'file2.js',
           line: 1,
           column: 1,
         },
@@ -282,7 +282,7 @@ describe('GraphQLMigrationTool', () => {
             }
           }
         `,
-        file: 'complex.ts',
+        file: 'complex.js',
         line: 1,
         column: 1,
       };
@@ -313,7 +313,7 @@ describe('GraphQLMigrationTool', () => {
             email
           }
         `,
-        file: 'fragment.ts',
+        file: 'fragment.js',
         line: 1,
         column: 1,
       };
@@ -341,7 +341,7 @@ describe('GraphQLMigrationTool', () => {
           type: 'mutation' as const,
           source:
             'mutation CreateUser($input: CreateUserInput!) { createUser(input: $input) { id } }',
-          file: 'mutations.ts',
+          file: 'mutations.js',
           line: 1,
           column: 1,
         },
@@ -350,7 +350,7 @@ describe('GraphQLMigrationTool', () => {
           name: 'UserUpdated',
           type: 'subscription' as const,
           source: 'subscription UserUpdated { userUpdated { id name } }',
-          file: 'subscriptions.ts',
+          file: 'subscriptions.js',
           line: 1,
           column: 1,
         },

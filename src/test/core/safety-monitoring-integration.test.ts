@@ -47,7 +47,7 @@ describe('Safety and Monitoring Integration', () => {
       type: 'query',
       ast: {} as any,
       source: 'query GetUserData { user { id name } }',
-      file: 'user.queries.ts',
+      file: 'user.queries.js',
       line: 10,
       column: 5,
       variables: [],

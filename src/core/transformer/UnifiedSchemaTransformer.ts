@@ -58,7 +58,7 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
       this.deprecationMap.clear();
       
       deprecations.forEach(dep => {
-        this.deprecationMap.set(dep.fieldPath, dep);
+        this.deprecationMap.set((dep as any).fieldPath, dep);
       });
 
       logger.info(`Loaded schema with ${deprecations.length} deprecations (cached: ${result.cached}, time: ${result.loadTime}ms)`);
@@ -207,7 +207,7 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
           fieldPath,
           fieldNode.name.value,
           deprecation.replacement,
-          deprecation.reason || 'Field deprecated',
+          (deprecation as any).reason || 'Field deprecated',
           'BREAKING'
         )
       );
@@ -221,16 +221,16 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
       };
     } else {
       // Add warning for manual handling
-      const severity = deprecation.vague ? 'high' : 'medium';
+      const severity = (deprecation as any).isVague ? 'high' : 'medium';
       warnings.push(
         this.createWarning(
-          `Deprecated field '${fieldNode.name.value}' requires manual review: ${deprecation.reason}`,
+          `Deprecated field '${fieldNode.name.value}' requires manual review: ${(deprecation as any).reason}`,
           severity,
           'DEPRECATION'
         )
       );
 
-      if (this.schemaTransformOptions.commentOutVague && deprecation.vague) {
+      if (this.schemaTransformOptions.commentOutVague && (deprecation as any).isVague) {
         // Comment out vague deprecations
         warnings.push(
           this.createWarning(
@@ -262,7 +262,7 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
           argPath,
           argNode.name.value,
           deprecation.replacement,
-          deprecation.reason || 'Argument deprecated',
+          (deprecation as any).reason || 'Argument deprecated',
           'BREAKING'
         )
       );
@@ -277,7 +277,7 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
     } else {
       warnings.push(
         this.createWarning(
-          `Deprecated argument '${argNode.name.value}' requires manual review: ${deprecation.reason}`,
+          `Deprecated argument '${argNode.name.value}' requires manual review: ${(deprecation as any).reason}`,
           'medium',
           'DEPRECATION'
         )
@@ -374,8 +374,8 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
     
     return {
       total: deprecations.length,
-      replaceable: deprecations.filter(d => !!d.replacement && !d.vague).length,
-      vague: deprecations.filter(d => d.vague).length,
+      replaceable: deprecations.filter(d => !!d.replacement && !(d as any).isVague).length,
+      vague: deprecations.filter(d => (d as any).isVague).length,
       fieldDeprecations: deprecations.filter(d => d.type === 'field').length,
       argumentDeprecations: deprecations.filter(d => d.type === 'argument').length,
     };

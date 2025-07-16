@@ -1,0 +1,12 @@
+{
+  "total": 0,
+  "valid": 0,
+  "invalid": 0,
+  "warnings": 0,
+  "summary": [],
+  "machineReadable": {
+    "version": "1.0.0",
+    "timestamp": "2025-07-16T08:23:55.272Z",
+    "exitCode": 0
+  }
+}

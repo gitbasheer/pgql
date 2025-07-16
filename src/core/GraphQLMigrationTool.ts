@@ -63,7 +63,7 @@ export class GraphQLMigrationTool {
       await this.loadSchema();
 
       // Extract queries
-      const queries = await this.extractor.extractFromRepo(
+      const queries = await this.extractor.extractFromDirectory(
         this.options.targetPath,
         this.config.scanner.include,
       );
@@ -73,7 +73,7 @@ export class GraphQLMigrationTool {
 
       // Analyze patterns
       for (const query of queries) {
-        const pattern = this.patternMatcher.analyzeQueryPattern(query.ast);
+        const pattern = this.patternMatcher.analyzeQueryPattern(query.ast!);
         logger.debug(`Query ${query.name} has pattern: ${pattern.type}`);
       }
 
@@ -185,8 +185,8 @@ export class GraphQLMigrationTool {
       // Re-extract with source AST preservation if not available
       logger.warn(`Query ${query.id} missing source AST, re-extracting with source preservation`);
 
-      const reExtractedQueries = await this.extractor.extractFromFile(filePath);
-      const reExtractedQuery = reExtractedQueries.find((q) => q.content === query.content);
+      const reExtractedQueries = await this.extractor.extractFromDirectory(filePath);
+      const reExtractedQuery = reExtractedQueries.find((q: any) => q.content === query.content);
 
       if (reExtractedQuery) {
         // Note: Current GraphQLExtractor doesn't preserve sourceAST

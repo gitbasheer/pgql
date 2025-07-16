@@ -35,8 +35,8 @@ describe('VariantAnalyzer', () => {
           name: 'Query1',
           content: 'query { user { id } }',
           type: 'query',
-          filePath: '/src/query1.ts',
-          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+          filePath: '/src/query1.js',
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
           hash: 'hash1',
         },
         { type: 'query',
@@ -44,8 +44,8 @@ describe('VariantAnalyzer', () => {
           name: 'Query2',
           content: 'query { user { id ...${isAdmin ? "AdminFields" : ""} } }',
           type: 'query',
-          filePath: '/src/query2.ts',
-          location: { line: 5, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+          filePath: '/src/query2.js',
+          location: { line: 5, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
           hash: 'hash2',
         },
       ];
@@ -66,7 +66,7 @@ describe('VariantAnalyzer', () => {
         content: 'query { user { id ${includeEmail ? "email" : ""} } }',
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -98,7 +98,7 @@ describe('VariantAnalyzer', () => {
         }`,
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -117,7 +117,7 @@ describe('VariantAnalyzer', () => {
         content: 'query { user { id ...${fragmentName} } }',
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -144,7 +144,7 @@ describe('VariantAnalyzer', () => {
         content: 'query { user { id email ...UserFields } }',
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -181,8 +181,8 @@ describe('VariantAnalyzer', () => {
         name: 'GetUser',
         content: 'query GetUser { user { id ${isAdmin ? "role" : ""} } }',
         type: 'query',
-        filePath: '/src/query.ts',
-        location: { line: 6, column: 9, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        filePath: '/src/query.js',
+        location: { line: 6, column: 9, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -190,7 +190,7 @@ describe('VariantAnalyzer', () => {
       const result = results[0];
 
       expect(result.isVariant).toBe(true);
-      expect(fs.readFile).toHaveBeenCalledWith('/src/query.ts', 'utf-8');
+      expect(fs.readFile).toHaveBeenCalledWith('/src/query.js', 'utf-8');
       // NOTE: do we have to add more tests to check if the file content is parsed correctly?
     });
 
@@ -202,8 +202,8 @@ describe('VariantAnalyzer', () => {
         name: 'Query',
         content: 'query { user { id } }',
         type: 'query',
-        filePath: '/src/missing.ts',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        filePath: '/src/missing.js',
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -226,8 +226,8 @@ describe('VariantAnalyzer', () => {
         name: 'Query',
         content: 'query { user { id } }',
         type: 'query',
-        filePath: '/src/invalid.ts',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        filePath: '/src/invalid.js',
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -248,7 +248,7 @@ describe('VariantAnalyzer', () => {
         content: 'query { user { ${isAdmin ? "role" : ""} } }',
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -271,7 +271,7 @@ describe('VariantAnalyzer', () => {
         content: 'query { user { id } }',
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -310,7 +310,7 @@ describe('VariantAnalyzer', () => {
           content,
           type: 'query',
           filePath: 'inline',
-          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
           hash: 'hash1',
         };
 
@@ -328,7 +328,7 @@ describe('VariantAnalyzer', () => {
         content: 'query { user { ${a ? "x" : ""} } }',
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -353,7 +353,7 @@ describe('VariantAnalyzer', () => {
         content,
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -376,7 +376,7 @@ line4`;
         content,
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -428,7 +428,7 @@ line4`;
         content,
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 
@@ -456,7 +456,7 @@ line4`;
         content,
         type: 'query',
         filePath: 'inline',
-        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.ts' },
+        location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/VariantAnalyzer.test.js' },
         hash: 'hash1',
       };
 

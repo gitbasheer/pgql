@@ -9,7 +9,7 @@ import { Result, ok, err } from 'neverthrow';
 import { GraphQLSchema } from 'graphql';
 
 export interface DeprecationRule {
-  type: 'field' | 'type' | 'argument' | 'directive';
+  type: 'field' | 'type' | 'argument' | 'directive' | 'field-rename' | 'nested-replacement' | 'comment-out' | 'enum-value-rename';
   pattern: string;
   replacement: string;
   reason: string;

@@ -39,7 +39,7 @@ describe('ASTCodeApplicator - Edge Cases', () => {
 
   describe('error handling', () => {
     it('should handle file read errors gracefully', async () => {
-      const nonExistentFile = path.join(tempDir, 'non-existent.ts');
+      const nonExistentFile = path.join(tempDir, 'non-existent.js');
 
       const transformationMapping: TransformationMapping = {
         queryId: 'test-1',
@@ -72,7 +72,7 @@ describe('ASTCodeApplicator - Edge Cases', () => {
     });
 
     it('should handle invalid JavaScript in file', async () => {
-      const testFile = path.join(tempDir, 'test-invalid-js.ts');
+      const testFile = path.join(tempDir, 'test-invalid-js.js');
       const content = `
 import { gql } from 'graphql-tag';
 
@@ -115,7 +115,7 @@ const broken = {
     });
 
     it('should handle transformations that produce invalid JavaScript', async () => {
-      const testFile = path.join(tempDir, 'test-validate-js.ts');
+      const testFile = path.join(tempDir, 'test-validate-js.js');
       const noValidateApplicator = new ASTCodeApplicator({
         preserveFormatting: true,
         preserveComments: true,
@@ -181,7 +181,7 @@ const query = gql\`
 
   describe('complex GraphQL patterns', () => {
     it('should handle GraphQL tags with member expressions', async () => {
-      const testFile = path.join(tempDir, 'test-member-expressions.ts');
+      const testFile = path.join(tempDir, 'test-member-expressions.js');
       const content = `
 import { Apollo } from 'apollo-client';
 
@@ -209,7 +209,7 @@ const query = Apollo.gql\`
     });
 
     it('should handle multiple GraphQL tags of different types', async () => {
-      const testFile = path.join(tempDir, 'test-multiple-tags.ts');
+      const testFile = path.join(tempDir, 'test-multiple-tags.js');
       const content = `
 import { gql, graphql, GraphQL } from 'graphql-tag';
 
@@ -269,7 +269,7 @@ const query3 = GraphQL\`query { c }\`;
 
   describe('interpolation edge cases', () => {
     it('should handle nested template literals', async () => {
-      const testFile = path.join(tempDir, 'test-nested-literals.ts');
+      const testFile = path.join(tempDir, 'test-nested-literals.js');
       const content = `
 import { gql } from 'graphql-tag';
 
@@ -333,7 +333,7 @@ const query = gql\`
     });
 
     it('should handle complex interpolation expressions', async () => {
-      const testFile = path.join(tempDir, 'test-complex-interpolations.ts');
+      const testFile = path.join(tempDir, 'test-complex-interpolations.js');
       const content = `
 import { gql } from 'graphql-tag';
 
@@ -399,7 +399,7 @@ const query = gql\`
 
   describe('whitespace and formatting', () => {
     it('should preserve custom formatting', async () => {
-      const testFile = path.join(tempDir, 'test-custom-formatting.ts');
+      const testFile = path.join(tempDir, 'test-custom-formatting.js');
       const content = `
 import { gql } from 'graphql-tag';
 
@@ -459,7 +459,7 @@ const query = gql\`
     });
 
     it('should preserve comments', async () => {
-      const testFile = path.join(tempDir, 'test-preserve-comments.ts');
+      const testFile = path.join(tempDir, 'test-preserve-comments.js');
       const content = `
 import { gql } from 'graphql-tag';
 
@@ -526,7 +526,7 @@ const query = gql\`
 
   describe('no matching transformations', () => {
     it('should handle empty transformation list', async () => {
-      const testFile = path.join(tempDir, 'test-empty-list.ts');
+      const testFile = path.join(tempDir, 'test-empty-list.js');
       const content = `
 import { gql } from 'graphql-tag';
 
@@ -546,7 +546,7 @@ const query = gql\`
     });
 
     it('should handle transformations with non-matching positions', async () => {
-      const testFile = path.join(tempDir, 'test-non-matching.ts');
+      const testFile = path.join(tempDir, 'test-non-matching.js');
       const content = `
 import { gql } from 'graphql-tag';
 

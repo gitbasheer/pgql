@@ -109,9 +109,9 @@ describe('UnifiedMigrationPipeline - Transformation', () => {
             name: 'TestQuery',
             type: 'query',
             content: 'query TestQuery { test }',
-            filePath: 'test.ts',
+            filePath: 'test.js',
             sourceAST: { node: {}, start: 0, end: 10 },
-            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/pipeline/UnifiedMigrationPipeline.transformation.test.ts' },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/pipeline/UnifiedMigrationPipeline.transformation.test.js' },
             fragments: [],
           },
         ],
@@ -274,8 +274,8 @@ describe('UnifiedMigrationPipeline - Transformation', () => {
 
       mockExtractor.extract.mockResolvedValue({
         queries: [
-          { id: 'q1', content: 'query Q1 { test }', filePath: 'f1.ts' },
-          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.ts' },
+          { id: 'q1', content: 'query Q1 { test }', filePath: 'f1.js' },
+          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.js' },
         ],
         variants: [],
         fragments: new Map(),

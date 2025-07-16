@@ -12,7 +12,7 @@ export interface TransformResult {
 }
 
 export interface TransformChange {
-  type: 'field' | 'argument' | 'type' | 'directive' | 'fragment';
+  type: 'field' | 'argument' | 'type' | 'directive' | 'fragment' | 'field-rename' | 'nested-replacement' | 'comment-out' | 'enum-value-rename';
   path: string;
   oldValue: string;
   newValue: string;

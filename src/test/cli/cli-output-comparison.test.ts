@@ -4,7 +4,7 @@ import * as path from 'path';
 
 vi.mock('child_process');
 
-describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
+describe('CLI Output Comparison - main-cli.ts vs unified-cli.js', () => {
   const mockSpawn = vi.mocked(spawn);
 
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
             name: 'GetUser',
             type: 'query',
             content: 'query GetUser { user { id name } }',
-            file: 'src/queries/user.ts',
+            file: 'src/queries/user.js',
             line: 10,
             column: 5,
           },
@@ -39,7 +39,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
           {
             name: 'GetUser',
             type: 'query',
-            file: 'src/queries/user.ts',
+            file: 'src/queries/user.js',
             line: 10,
             column: 5,
             confidence: { score: 100 },
@@ -207,8 +207,8 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
           });
         };
 
-        const mainCliCode = await runCommand('main-cli.ts', ['validate']);
-        const unifiedCliCode = await runCommand('unified-cli.ts', ['validate']);
+        const mainCliCode = await runCommand('main-cli.js', ['validate']);
+        const unifiedCliCode = await runCommand('unified-cli.js', ['validate']);
 
         expect(mainCliCode).toBe(exitCode);
         expect(unifiedCliCode).toBe(exitCode);
@@ -240,7 +240,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
 
       // Test with --quiet
       const quietResult = await new Promise<string>((resolve) => {
-        const child = spawn('tsx', ['main-cli.ts', 'extract', '--quiet']);
+        const child = spawn('tsx', ['main-cli.js', 'extract', '--quiet']);
         let output = '';
         child.stdout?.on('data', (data) => {
           output += data.toString();
@@ -250,7 +250,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
 
       // Test without --quiet
       const verboseResult = await new Promise<string>((resolve) => {
-        const child = spawn('tsx', ['main-cli.ts', 'extract']);
+        const child = spawn('tsx', ['main-cli.js', 'extract']);
         let output = '';
         child.stdout?.on('data', (data) => {
           output += data.toString();
@@ -285,7 +285,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
       } as any);
 
       const result = await new Promise<string>((resolve) => {
-        const child = spawn('tsx', ['main-cli.ts', 'extract', '--json']);
+        const child = spawn('tsx', ['main-cli.js', 'extract', '--json']);
         let output = '';
         child.stdout?.on('data', (data) => {
           output += data.toString();

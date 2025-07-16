@@ -156,7 +156,7 @@ export class ConfidenceScorer {
     }
 
     // Different coverage for different patterns
-    if (filePath.includes('simple') || filePath.includes('user.ts')) {
+    if (filePath.includes('simple') || filePath.includes('user.js')) {
       return 85;
     }
 

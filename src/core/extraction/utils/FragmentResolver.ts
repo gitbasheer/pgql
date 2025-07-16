@@ -2,12 +2,12 @@ import { DocumentNode, FragmentDefinitionNode, parse, print, visit, Kind } from 
 import * as fs from 'fs/promises';
 import * as path from 'path';
 // import * as vm from 'vm'; // REMOVED: Security fix - no longer using vm.runInContext
-import { logger } from '../../utils/logger.js';
-import { safeParseGraphQL, logParsingError } from '../../utils/graphqlValidator.js';
+import { logger } from '../../../utils/logger.js';
+import { safeParseGraphQL, logParsingError } from '../../../utils/graphqlValidator.js';
 import * as babel from '@babel/parser';
 import traverse from '@babel/traverse';
 import glob from 'fast-glob';
-import { validatePath, validateReadPath } from '../../utils/securePath.js';
+import { validatePath, validateReadPath } from '../../../utils/securePath.js';
 
 export interface ResolvedQuery {
   id: string;
