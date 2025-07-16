@@ -363,6 +363,39 @@ Based on our testing with pg-migration-620:
 | AST Parse | ~1ms | ~15ms | 15x faster |
 | Transform | ~2ms | ~25ms | 12x faster |
 | Fragment Resolution | ~0.5ms | ~8ms | 16x faster |
+| Schema Loading | ~0.04ms | ~37ms | 888x faster |
+
+## UI Integration Patterns
+
+### Polling-Based Activity Monitoring
+
+```typescript
+// For UI dashboard polling (used in pgql)
+import { defaultSchemaLoader } from './src/utils/schemaLoader';
+
+// Poll for schema loading activity
+function pollSchemaActivity() {
+  const stats = defaultSchemaLoader.getCacheStats();
+  
+  // Display in UI
+  updateDashboard({
+    cacheEntries: stats.entries,
+    hitRate: `${(stats.hitRate * 100).toFixed(1)}%`,
+    recentActivity: stats.recentActivity
+  });
+}
+
+// Poll every 500ms for real-time updates
+setInterval(pollSchemaActivity, 500);
+
+// Get activity since last poll
+let lastPollTime = 0;
+function getNewActivity() {
+  const newActivity = defaultSchemaLoader.getRecentActivity(lastPollTime);
+  lastPollTime = Date.now();
+  return newActivity;
+}
+```
 
 ## Debugging Tips
 

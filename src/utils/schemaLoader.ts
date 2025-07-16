@@ -10,7 +10,6 @@ import { promises as fs } from 'fs';
 import { logger } from './logger';
 import { createHash } from 'crypto';
 import { PgqlOptions } from '../types/shared.types';
-import { EventEmitter } from 'events';
 
 export interface SchemaLoaderOptions {
   cacheEnabled?: boolean;
@@ -33,17 +32,25 @@ export interface SchemaLoadResult {
   loadTime: number;
 }
 
+export interface SchemaLoadActivity {
+  source: string;
+  cached: boolean;
+  loadTime: number;
+  fallback?: boolean;
+  timestamp: number;
+}
+
 /**
  * Centralized schema loading and caching service
  * Configurable via PgqlOptions for different environments
  */
-export class SchemaLoader extends EventEmitter {
+export class SchemaLoader {
   private static instance: SchemaLoader;
   private cache = new Map<string, CachedSchema>();
   private options: Required<SchemaLoaderOptions>;
+  private recentActivity: SchemaLoadActivity[] = [];
 
   constructor(options: SchemaLoaderOptions | PgqlOptions = {}) {
-    super();
     // Extract schema config from PgqlOptions if provided
     const schemaConfig = 'schemaConfig' in options ? options.schemaConfig : options;
     this.options = {
@@ -83,7 +90,7 @@ export class SchemaLoader extends EventEmitter {
       const cached = this.getFromCache(cacheKey);
       if (cached) {
         logger.debug(`Schema cache hit for ${source}`);
-        this.emit('schemaLoaded', { source, cached: true, loadTime: Date.now() - startTime });
+        this.recordActivity({ source, cached: true, loadTime: Date.now() - startTime, timestamp: Date.now() });
         return {
           schema: cached.schema,
           cached: true,
@@ -111,7 +118,7 @@ export class SchemaLoader extends EventEmitter {
       }
 
       logger.info(`Schema loaded successfully from ${source} in ${result.loadTime}ms`);
-      this.emit('schemaLoaded', { source, cached: false, loadTime: result.loadTime });
+      this.recordActivity({ source, cached: false, loadTime: result.loadTime, timestamp: Date.now() });
       return result;
 
     } catch (primaryError) {
@@ -139,7 +146,7 @@ export class SchemaLoader extends EventEmitter {
         }
 
         logger.info(`Schema loaded via fallback from ${source} in ${result.loadTime}ms`);
-        this.emit('schemaLoaded', { source, cached: false, loadTime: result.loadTime, fallback: true });
+        this.recordActivity({ source, cached: false, loadTime: result.loadTime, fallback: true, timestamp: Date.now() });
         return result;
 
       } catch (fallbackError) {
@@ -287,17 +294,44 @@ export class SchemaLoader extends EventEmitter {
   }
 
   /**
-   * Get cache statistics
+   * Record schema loading activity for UI polling
+   */
+  private recordActivity(activity: SchemaLoadActivity): void {
+    this.recentActivity.push(activity);
+    // Keep only last 50 activities for polling
+    if (this.recentActivity.length > 50) {
+      this.recentActivity.shift();
+    }
+  }
+
+  /**
+   * Get recent schema loading activity (for UI polling)
+   */
+  getRecentActivity(since?: number): SchemaLoadActivity[] {
+    if (since) {
+      return this.recentActivity.filter(activity => activity.timestamp > since);
+    }
+    return [...this.recentActivity];
+  }
+
+  /**
+   * Get cache statistics with recent activity for UI polling
    */
   getCacheStats(): {
     entries: number;
     totalSize: number;
     hitRate: number;
+    recentActivity: SchemaLoadActivity[];
   } {
+    const totalLoads = this.recentActivity.length;
+    const cacheHits = this.recentActivity.filter(a => a.cached).length;
+    const hitRate = totalLoads > 0 ? cacheHits / totalLoads : 0;
+
     return {
       entries: this.cache.size,
       totalSize: this.getCurrentCacheSize(),
-      hitRate: 0, // TODO: Add hit/miss tracking
+      hitRate,
+      recentActivity: this.getRecentActivity(),
     };
   }
 }
