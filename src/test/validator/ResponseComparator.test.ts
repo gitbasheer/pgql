@@ -32,7 +32,7 @@ describe('ResponseComparator', () => {
     });
   });
 
-  describe('identical responses', () => { type: 'query',
+  describe('identical responses', () => {
     it('should detect identical responses', () => {
       const baseline = createMockResponse({ user: { id: '123', name: 'John' } });
       const transformed = createMockResponse({ type: 'query', user: { id: '123', name: 'John' } });
@@ -76,7 +76,7 @@ describe('ResponseComparator', () => {
     });
   });
 
-  describe('different responses', () => { type: 'query',
+  describe('different responses', () => {
     it('should detect value changes', () => {
       const baseline = createMockResponse({ user: { id: '123', name: 'John' } });
       const transformed = createMockResponse({ type: 'query', user: { id: '123', name: 'Jane' } });
@@ -95,7 +95,7 @@ describe('ResponseComparator', () => {
       });
     });
 
-    it('should detect missing fields', () => { type: 'query',
+    it('should detect missing fields', () => {
       const baseline = createMockResponse({
         user: { id: '123', name: 'John', email: 'john@example.com' },
       });
@@ -115,7 +115,7 @@ describe('ResponseComparator', () => {
       expect(result.breakingChanges).toHaveLength(1);
     });
 
-    it('should detect added fields', () => { type: 'query',
+    it('should detect added fields', () => {
       const baseline = createMockResponse({ user: { id: '123', name: 'John' } });
       const transformed = createMockResponse({ type: 'query',
         user: { id: '123', name: 'John', email: 'john@example.com' },
@@ -180,7 +180,7 @@ describe('ResponseComparator', () => {
       );
     });
 
-    it('should compare array elements deeply', () => { type: 'query',
+    it('should compare array elements deeply', () => {
       const baseline = createMockResponse({
         users: [
           { id: '1', name: 'John' },
@@ -296,7 +296,7 @@ describe('ResponseComparator', () => {
     });
   });
 
-  describe('similarity calculation', () => { type: 'query',
+  describe('similarity calculation', () => {
     it('should calculate similarity based on differences', () => {
       const baseline = createMockResponse({
         user: {
@@ -393,7 +393,7 @@ describe('ResponseComparator', () => {
     });
   });
 
-  describe('breaking changes detection', () => { type: 'query',
+  describe('breaking changes detection', () => {
     it('should identify breaking changes', () => {
       const baseline = createMockResponse({
         user: {

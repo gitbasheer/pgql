@@ -127,7 +127,7 @@ describe('Safety and Monitoring Integration', () => {
       expect(rolloutStatus?.percentage).toBe(0);
     });
 
-    it('should handle gradual rollback with monitoring', async () => { type: 'query',
+    it('should handle gradual rollback with monitoring', async () => {
       // Setup: Multiple operations in production
       const operations: GraphQLOperation[] = [
         mockOperation,
@@ -267,7 +267,7 @@ describe('Safety and Monitoring Integration', () => {
     });
   });
 
-  describe('Real-time Dashboard Integration', () => { type: 'query',
+  describe('Real-time Dashboard Integration', () => {
     it('should provide comprehensive migration status', async () => {
       // Setup multiple operations in various states
       const operations = [
@@ -324,7 +324,7 @@ describe('Safety and Monitoring Integration', () => {
     });
   });
 
-  describe('Emergency Procedures', () => { type: 'query',
+  describe('Emergency Procedures', () => {
     it('should handle cascade failures with immediate rollback', async () => {
       // Setup: Multiple interdependent operations
       const criticalOps = [

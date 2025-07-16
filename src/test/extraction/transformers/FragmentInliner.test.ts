@@ -24,7 +24,7 @@ describe('FragmentInliner', () => {
     inliner = new FragmentInliner(mockContext);
   });
 
-  describe('transform', () => { type: 'query',
+  describe('transform', () => {
     it('should return queries unchanged when no fragments to inline', async () => {
       const queries: ResolvedQuery[] = [
         {
@@ -189,7 +189,7 @@ describe('FragmentInliner', () => {
       expect(result[0].resolvedContent).not.toContain('...UserFields');
     });
 
-    it('should handle missing fragments gracefully', async () => { type: 'query',
+    it('should handle missing fragments gracefully', async () => {
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -208,7 +208,7 @@ describe('FragmentInliner', () => {
       expect(result[0].resolvedContent).toContain('...MissingFragment');
     });
 
-    it('should handle parsing errors gracefully', async () => { type: 'query',
+    it('should handle parsing errors gracefully', async () => {
       const queries: ResolvedQuery[] = [
         {
           id: '1',

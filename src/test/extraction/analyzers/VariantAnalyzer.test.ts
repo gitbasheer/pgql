@@ -27,7 +27,7 @@ describe('VariantAnalyzer', () => {
     analyzer = new VariantAnalyzer(mockContext);
   });
 
-  describe('analyze', () => { type: 'query',
+  describe('analyze', () => {
     it('should analyze multiple queries', async () => {
       const queries: ExtractedQuery[] = [
         {
@@ -58,7 +58,7 @@ describe('VariantAnalyzer', () => {
     });
   });
 
-  describe('analyzeContent', () => { type: 'query',
+  describe('analyzeContent', () => {
     it('should detect template literal placeholders', async () => {
       const query: ExtractedQuery = {
         id: '1',
@@ -85,7 +85,7 @@ describe('VariantAnalyzer', () => {
       expect(result.possibleVariants).toBe(2);
     });
 
-    it('should detect multiple placeholders', async () => { type: 'query',
+    it('should detect multiple placeholders', async () => {
       const query: ExtractedQuery = {
         id: '1',
         name: 'MultiVariantQuery',
@@ -110,7 +110,7 @@ describe('VariantAnalyzer', () => {
       expect(result.possibleVariants).toBe(4); // 2^2
     });
 
-    it('should detect dynamic fragment spreads', async () => { type: 'query',
+    it('should detect dynamic fragment spreads', async () => {
       const query: ExtractedQuery = {
         id: '1',
         name: 'FragmentQuery',
@@ -137,7 +137,7 @@ describe('VariantAnalyzer', () => {
       });
     });
 
-    it('should handle queries without variants', async () => { type: 'query',
+    it('should handle queries without variants', async () => {
       const query: ExtractedQuery = {
         id: '1',
         name: 'StaticQuery',
@@ -194,7 +194,7 @@ describe('VariantAnalyzer', () => {
       // NOTE: do we have to add more tests to check if the file content is parsed correctly?
     });
 
-    it('should handle file read errors gracefully', async () => { type: 'query',
+    it('should handle file read errors gracefully', async () => {
       vi.mocked(fs.readFile).mockRejectedValue(new Error('File not found'));
 
       const query: ExtractedQuery = {
@@ -217,7 +217,7 @@ describe('VariantAnalyzer', () => {
       );
     });
 
-    it('should handle parsing errors gracefully', async () => { type: 'query',
+    it('should handle parsing errors gracefully', async () => {
       const invalidContent = 'this is not valid javascript {{{';
       vi.mocked(fs.readFile).mockResolvedValue(invalidContent);
 
@@ -240,7 +240,7 @@ describe('VariantAnalyzer', () => {
     });
   });
 
-  describe('patternToSwitch', () => { type: 'query',
+  describe('patternToSwitch', () => {
     it('should convert ternary patterns to boolean switches', async () => {
       const query: ExtractedQuery = {
         id: '1',
@@ -264,7 +264,7 @@ describe('VariantAnalyzer', () => {
       });
     });
 
-    it('should handle patterns without variables', async () => { type: 'query',
+    it('should handle patterns without variables', async () => {
       const query: ExtractedQuery = {
         id: '1',
         name: 'Query',
@@ -320,7 +320,7 @@ describe('VariantAnalyzer', () => {
     });
   });
 
-  describe('variantGenerationStrategy', () => { type: 'query',
+  describe('variantGenerationStrategy', () => {
     it('should use inline strategy for few variants', async () => {
       const query: ExtractedQuery = {
         id: '1',
@@ -397,15 +397,15 @@ line4`;
     });
   });
 
-  describe('validateOperation and analyzeOperation', () => { namePattern: { template: '${queryName}', version: 'V1' },
+  describe('validateOperation and analyzeOperation', () => {
     // Note: based on what? should we test for invalid?
     it('should validate operations', () => { namePattern: { template: '${queryName}', version: 'V1' },
       const operation = { query: 'test' };
       expect(analyzer.validateOperation(operation)).toBe(true);
     });
 
-    it('should analyze operations', () => { namePattern: { template: '${queryName}', version: 'V1' },
-      const operation = { namePattern: { template: '${queryName}', version: 'V1' }, query: 'test' };
+    it('should analyze operations', () => {
+      const operation = { query: 'test' };
       expect(analyzer.analyzeOperation(operation)).toEqual({ valid: true });
     });
   });

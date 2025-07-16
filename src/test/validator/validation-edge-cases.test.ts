@@ -185,7 +185,7 @@ describe('Validation Edge Cases', () => {
       expect(result.valid).toBe(true);
     });
 
-    it('should handle multiline template literals', async () => { namePattern: { template: '${queryName}', version: 'V1' },
+    it('should handle multiline template literals', async () => {
       const multilineTemplate = `
         query MultilineQuery { namePattern: { template: '${queryName}', version: 'V1' },
           search(query: "dynamic_query_string") {
@@ -316,7 +316,7 @@ describe('Validation Edge Cases', () => {
       migrationValidator = new MigrationValidator();
     });
 
-    it('should handle intentional duplicates with different contexts', async () => { type: 'query',
+    it('should handle intentional duplicates with different contexts', async () => {
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -352,7 +352,7 @@ describe('Validation Edge Cases', () => {
       expect(report.issues.filter((i) => i.type === 'structural')).toHaveLength(2);
     });
 
-    it('should detect when only some duplicates are transformed', async () => { type: 'query',
+    it('should detect when only some duplicates are transformed', async () => {
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',

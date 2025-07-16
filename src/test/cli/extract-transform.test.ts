@@ -211,7 +211,7 @@ describe('extract-transform CLI', () => {
     });
   });
 
-  describe('transform command', () => { type: 'query',
+  describe('transform command', () => {
     const mockInputData = {
       queries: [
         {

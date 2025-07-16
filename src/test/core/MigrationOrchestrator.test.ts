@@ -488,7 +488,7 @@ describe('MigrationOrchestrator', () => {
       });
     });
 
-    it('should get health for specific operation', async () => { type: 'query',
+    it('should get health for specific operation', async () => {
       const health = await orchestrator.getHealth('GetUser');
 
       expect(mockHealthCheck.performHealthCheck).toHaveBeenCalledWith(

@@ -286,7 +286,7 @@ describe('ResponseCaptureService - Capture Operations', () => {
     });
   });
 
-  describe('captureBatch', () => { type: 'query',
+  describe('captureBatch', () => {
     it('should capture batched queries', async () => {
       const queries = [mockQuery, { ...mockQuery, id: 'query-2', name: 'GetUser2' }];
 

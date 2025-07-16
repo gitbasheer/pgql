@@ -304,7 +304,7 @@ describe('OperationAnalyzer', () => {
       });
     });
 
-    it('should identify duplicate operations', () => { type: 'query', id: 'generated-id',
+    it('should identify duplicate operations', () => {
       const report = analyzer.generateOperationReport();
 
       expect(report.duplicateOperations).toHaveLength(1);
@@ -448,8 +448,8 @@ describe('OperationAnalyzer', () => {
     });
   });
 
-  describe('validateOperation', () => { namePattern: { template: '${queryName}', version: 'V1' },
-    it('should validate operations', () => { namePattern: { template: '${queryName}', version: 'V1' },
+  describe('validateOperation', () => {
+    it('should validate operations', () => {
       const operation = { query: 'test' };
       expect(analyzer.validateOperation(operation)).toBe(true);
     });

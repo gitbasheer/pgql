@@ -32,7 +32,7 @@ describe('QueryNameAnalyzer', () => {
     analyzer = new QueryNameAnalyzer(mockContext);
   });
 
-  describe('analyze', () => { type: 'query',
+  describe('analyze', () => {
     it('should process queries through naming service', async () => {
       const queries: ExtractedQuery[] = [
         {
@@ -98,7 +98,7 @@ describe('QueryNameAnalyzer', () => {
     });
   });
 
-  describe('enhanceQueryName', () => { type: 'query',
+  describe('enhanceQueryName', () => {
     it('should keep existing good names', async () => {
       const queries: ExtractedQuery[] = [
         {
@@ -137,7 +137,7 @@ describe('QueryNameAnalyzer', () => {
       expect(result[0].name).toBe('GetUser');
     });
 
-    it('should replace "unnamed" names', async () => { type: 'query',
+    it('should replace "unnamed" names', async () => {
       const queries: ExtractedQuery[] = [
         {
           id: '1',
@@ -396,14 +396,14 @@ describe('QueryNameAnalyzer', () => {
     });
   });
 
-  describe('validateOperation and analyzeOperation', () => { namePattern: { template: '${queryName}', version: 'V1' },
-    it('should validate operations', () => { namePattern: { template: '${queryName}', version: 'V1' },
+  describe('validateOperation and analyzeOperation', () => {
+    it('should validate operations', () => {
       const operation = { query: 'test' };
       expect(analyzer.validateOperation(operation)).toBe(true);
     });
 
-    it('should analyze operations', () => { namePattern: { template: '${queryName}', version: 'V1' },
-      const operation = { namePattern: { template: '${queryName}', version: 'V1' }, query: 'test' };
+    it('should analyze operations', () => {
+      const operation = { query: 'test' };
       expect(analyzer.analyzeOperation(operation)).toEqual({ valid: true });
     });
   });

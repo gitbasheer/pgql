@@ -52,7 +52,7 @@ describe('MigrationValidator', () => {
     (globalThis as any).clearMockFileSystem?.();
   });
 
-  describe('validateMigration', () => { type: 'query',
+  describe('validateMigration', () => {
     it('should pass validation when queries are identical', async () => {
       const queries: ExtractedQuery[] = [
         {
@@ -80,7 +80,7 @@ describe('MigrationValidator', () => {
       expect(report.issues).toHaveLength(0);
     });
 
-    it('should detect missing queries', async () => { type: 'query',
+    it('should detect missing queries', async () => {
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -127,7 +127,7 @@ describe('MigrationValidator', () => {
       expect(report.issues[0].queryId).toBe('query2');
     });
 
-    it('should detect extra queries', async () => { type: 'query',
+    it('should detect extra queries', async () => {
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -173,7 +173,7 @@ describe('MigrationValidator', () => {
       expect(report.issues[0].severity).toBe('warning');
     });
 
-    it('should detect name changes', async () => { type: 'query',
+    it('should detect name changes', async () => {
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -211,7 +211,7 @@ describe('MigrationValidator', () => {
       expect(report.issues.find((i) => i.type === 'naming')?.message).toContain('GetUserNew');
     });
 
-    it('should detect structural changes', async () => { type: 'query',
+    it('should detect structural changes', async () => {
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -249,7 +249,7 @@ describe('MigrationValidator', () => {
       );
     });
 
-    it('should detect type changes as errors', async () => { type: 'query',
+    it('should detect type changes as errors', async () => {
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -285,7 +285,7 @@ describe('MigrationValidator', () => {
       expect(report.issues.find((i) => i.message.includes('type changed'))).toBeDefined();
     });
 
-    it('should handle strict mode', async () => { type: 'query',
+    it('should handle strict mode', async () => {
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -321,7 +321,7 @@ describe('MigrationValidator', () => {
       expect(report.issues.find((i) => i.severity === 'error')).toBeDefined();
     });
 
-    it('should validate pattern-specific fields', async () => { type: 'query',
+    it('should validate pattern-specific fields', async () => {
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -364,7 +364,7 @@ describe('MigrationValidator', () => {
       expect(report.summary.matchedQueries).toBe(1);
     });
 
-    it('should detect interpolation detection mismatch', async () => { type: 'query',
+    it('should detect interpolation detection mismatch', async () => {
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -409,7 +409,7 @@ describe('MigrationValidator', () => {
       ).toBeDefined();
     });
 
-    it('should handle different file formats', async () => { type: 'query',
+    it('should handle different file formats', async () => {
       const beforeData = {
         queries: [
           {
@@ -448,7 +448,7 @@ describe('MigrationValidator', () => {
       expect(report.summary.matchedQueries).toBe(1);
     });
 
-    it('should generate detailed report file', async () => { type: 'query',
+    it('should generate detailed report file', async () => {
       const queries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -552,7 +552,7 @@ describe('MigrationValidator', () => {
       expect(report.status).toBe('passed');
     });
 
-    it('should handle content fingerprint matching', async () => { type: 'query',
+    it('should handle content fingerprint matching', async () => {
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',

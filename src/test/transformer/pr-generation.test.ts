@@ -139,7 +139,7 @@ describe('PR Generation with Hivemind Flags', () => {
     });
   });
 
-  describe('Enhanced PR Generation', () => { type: 'query',
+  describe('Enhanced PR Generation', () => {
     it('should create PR with A/B testing integration', async () => {
       const queries: ExtractedQuery[] = [
         {
