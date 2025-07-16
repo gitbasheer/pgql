@@ -228,7 +228,7 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
         )
       );
 
-      if (this.schemaTransformOptions.commentOutVague && deprecation.vague) {
+      if (this.schemaTransformOptions.commentOutVague && (deprecation as any).isVague) {
         // Comment out vague deprecations
         warnings.push(
           this.createWarning(
@@ -260,7 +260,7 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
           argPath,
           argNode.name.value,
           deprecation.replacement,
-          deprecation.reason || 'Argument deprecated',
+          (deprecation as any).reason || 'Argument deprecated',
           'BREAKING'
         )
       );
@@ -275,7 +275,7 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
     } else {
       warnings.push(
         this.createWarning(
-          `Deprecated argument '${argNode.name.value}' requires manual review: ${deprecation.reason}`,
+          `Deprecated argument '${argNode.name.value}' requires manual review: ${(deprecation as any).reason}`,
           'medium',
           'DEPRECATION'
         )
@@ -372,8 +372,8 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
     
     return {
       total: deprecations.length,
-      replaceable: deprecations.filter(d => !!d.replacement && !d.vague).length,
-      vague: deprecations.filter(d => d.vague).length,
+      replaceable: deprecations.filter(d => !!d.replacement && !(d as any).isVague).length,
+      vague: deprecations.filter(d => (d as any).isVague).length,
       fieldDeprecations: deprecations.filter(d => d.type === 'field').length,
       argumentDeprecations: deprecations.filter(d => d.type === 'argument').length,
     };

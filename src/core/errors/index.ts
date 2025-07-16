@@ -82,7 +82,7 @@ export const ErrorUtils = {
     try {
       const { PgqlError } = require('./ErrorTypes.js');
       if (error instanceof PgqlError) {
-        return error.getAutomatedRecovery().some((action: any) => action.type === 'RETRY');
+        return (error as any).getAutomatedRecovery().some((action: any) => action.type === 'RETRY');
       }
     } catch {
       // If PgqlError not available, assume not retryable
@@ -97,7 +97,7 @@ export const ErrorUtils = {
     try {
       const { PgqlError } = require('./ErrorTypes.js');
       if (error instanceof PgqlError) {
-        return error.details.correlationId;
+        return (error as any).details.correlationId;
       }
     } catch {
       // If PgqlError not available, return undefined

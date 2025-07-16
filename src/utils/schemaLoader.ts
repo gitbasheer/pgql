@@ -54,10 +54,10 @@ export class SchemaLoader {
     // Extract schema config from PgqlOptions if provided
     const schemaConfig = 'schemaConfig' in options ? options.schemaConfig : options;
     this.options = {
-      cacheEnabled: schemaConfig?.cacheEnabled ?? true,
-      cacheSize: schemaConfig?.cacheSize ?? 50, // MB
-      cacheTtl: schemaConfig?.cacheTtl ?? 3600000, // 1 hour
-      fallbackToFile: schemaConfig?.fallbackToFile ?? true,
+      cacheEnabled: (schemaConfig as any)?.cacheEnabled ?? true,
+      cacheSize: (schemaConfig as any)?.cacheSize ?? 50, // MB
+      cacheTtl: (schemaConfig as any)?.cacheTtl ?? 3600000, // 1 hour
+      fallbackToFile: (schemaConfig as any)?.fallbackToFile ?? true,
       enableWarmup: (schemaConfig as any)?.enableWarmup ?? false,
     };
 

@@ -160,9 +160,9 @@ export abstract class BaseTransformer {
     }
 
     try {
-      const cached = transformCache.get(cacheKey);
+      const cached = await transformCache.get<TransformResult>('transform', cacheKey);
       if (cached) {
-        return { ...cached, cached: true } as TransformResult;
+        return { ...cached, cached: true };
       }
     } catch (error) {
       logger.warn(`Cache retrieval failed: ${error}`);
@@ -183,7 +183,7 @@ export abstract class BaseTransformer {
     }
 
     try {
-      transformCache.set(cacheKey, result, 3600000);
+      await transformCache.set('transform', cacheKey, result);
     } catch (error) {
       logger.warn(`Cache storage failed: ${error}`);
     }
