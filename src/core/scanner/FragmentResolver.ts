@@ -5,7 +5,8 @@ import * as path from 'path';
 import { logger } from '../../utils/logger.js';
 import { safeParseGraphQL, logParsingError } from '../../utils/graphqlValidator.js';
 import * as babel from '@babel/parser';
-import traverse from '@babel/traverse';
+import * as traverseModule from '@babel/traverse';
+const traverse = (traverseModule as any).default || traverseModule;
 import glob from 'fast-glob';
 import { validatePath, validateReadPath } from '../../utils/securePath.js';
 
@@ -442,41 +443,46 @@ export class FragmentResolver {
         });
 
         // Extract exports via AST traversal
-        traverse(ast, {
-          // Handle: export const fragmentName = `...` or gql`...`
-          ExportNamedDeclaration(path) {
-            const declaration = path.node.declaration;
-            if (declaration && declaration.type === 'VariableDeclaration') {
-              for (const declarator of declaration.declarations) {
-                if (declarator.id.type === 'Identifier' && declarator.init) {
-                  const name = declarator.id.name;
-                  const value = extractStringValue(declarator.init);
-                  if (value && name.toLowerCase().includes('fragment')) {
-                    exports[name] = value;
+        try {
+          traverse(ast, {
+            // Handle: export const fragmentName = `...` or gql`...`
+            ExportNamedDeclaration(path) {
+              const declaration = path.node.declaration;
+              if (declaration && declaration.type === 'VariableDeclaration') {
+                for (const declarator of declaration.declarations) {
+                  if (declarator.id.type === 'Identifier' && declarator.init) {
+                    const name = declarator.id.name;
+                    const value = extractStringValue(declarator.init);
+                    if (value && name.toLowerCase().includes('fragment')) {
+                      exports[name] = value;
+                    }
                   }
                 }
               }
-            }
-          },
+            },
 
-          // Handle: module.exports = { fragmentName: `...` }
-          AssignmentExpression(path) {
-            if (
-              isModuleExportsAssignment(path.node) &&
-              path.node.right.type === 'ObjectExpression'
-            ) {
-              for (const prop of path.node.right.properties) {
-                if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
-                  const name = prop.key.name;
-                  const value = extractStringValue(prop.value);
-                  if (value && name.toLowerCase().includes('fragment')) {
-                    exports[name] = value;
+            // Handle: module.exports = { fragmentName: `...` }
+            AssignmentExpression(path) {
+              if (
+                isModuleExportsAssignment(path.node) &&
+                path.node.right.type === 'ObjectExpression'
+              ) {
+                for (const prop of path.node.right.properties) {
+                  if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
+                    const name = prop.key.name;
+                    const value = extractStringValue(prop.value);
+                    if (value && name.toLowerCase().includes('fragment')) {
+                      exports[name] = value;
+                    }
                   }
                 }
               }
-            }
-          },
-        });
+            },
+          });
+        } catch (traverseError) {
+          logger.error('AST Traverse Failed:', traverseError);
+          // Continue with what we have so far
+        }
       } catch (parseError: any) {
         logger.warn(
           `Failed to parse module for fragment extraction: ${parseError?.message || parseError}`,

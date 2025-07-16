@@ -4,7 +4,8 @@ import { logger } from '../../utils/logger.js';
 import * as fs from 'fs/promises';
 import path from 'node:path';
 import * as babel from '@babel/parser';
-import traverse from '@babel/traverse';
+import * as traverseModule from '@babel/traverse';
+const traverse = (traverseModule as any).default || traverseModule;
 import generate from '@babel/generator';
 
 export interface VariantSwitch {

@@ -5,7 +5,8 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import glob from 'fast-glob';
 import * as babel from '@babel/parser';
-import traverse from '@babel/traverse';
+import * as traverseModule from '@babel/traverse';
+const traverse = (traverseModule as any).default || traverseModule;
 import { logger } from '../../utils/logger.js';
 import { FragmentResolver } from './FragmentResolver.js';
 import { validateReadPath } from '../../utils/securePath.js';
@@ -281,37 +282,45 @@ export class GraphQLExtractor {
       });
 
       let queryIndex = 0;
-      traverse(ast, {
-        TaggedTemplateExpression: (path: any) => {
-          if (path.node.tag.name === 'gql' || path.node.tag.name === 'graphql') {
-            const quasi = path.node.quasi;
+      
+      try {
+        traverse(ast, {
+          TaggedTemplateExpression: (path: any) => {
+            if (path.node.tag.name === 'gql' || path.node.tag.name === 'graphql') {
+              const quasi = path.node.quasi;
 
-            // Look through all expressions in the template literal
-            for (let i = 0; i < quasi.expressions.length; i++) {
-              const expr = quasi.expressions[i];
+              // Look through all expressions in the template literal
+              for (let i = 0; i < quasi.expressions.length; i++) {
+                const expr = quasi.expressions[i];
 
-              // Check if this expression is queryNames.something
-              if (
-                expr.type === 'MemberExpression' &&
-                expr.object.name === 'queryNames' &&
-                this.queryNames[expr.property.name]
-              ) {
-                // Check if this is likely the query name position
-                // It should come after 'query' keyword
-                const prevQuasi = quasi.quasis[i];
-                const prevText = prevQuasi.value.raw.trim();
+                // Check if this expression is queryNames.something
+                if (
+                  expr.type === 'MemberExpression' &&
+                  expr.object.name === 'queryNames' &&
+                  this.queryNames[expr.property.name]
+                ) {
+                  // Check if this is likely the query name position
+                  // It should come after 'query' keyword
+                  const prevQuasi = quasi.quasis[i];
+                  const prevText = prevQuasi.value.raw.trim();
 
-                if (prevText.endsWith('query') || prevText.match(/query\s*$/)) {
-                  mapping.set(queryIndex, this.queryNames[expr.property.name]);
-                  break;
+                  if (prevText.endsWith('query') || prevText.match(/query\s*$/)) {
+                    mapping.set(queryIndex, this.queryNames[expr.property.name]);
+                    break;
+                  }
                 }
               }
-            }
 
-            queryIndex++;
-          }
-        },
-      });
+              queryIndex++;
+            }
+          },
+        });
+      } catch (traverseError) {
+        logger.error('AST Traverse Failed:', traverseError);
+        // Fallback to pluck strategy if traverse fails
+        logger.info('Falling back to pluck strategy for query extraction');
+        return mapping; // Return empty mapping, will use pluck results
+      }
     } catch (error) {
       logger.debug(`Could not parse file for query names: ${filePath}`, error);
     }
