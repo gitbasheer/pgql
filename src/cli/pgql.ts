@@ -438,7 +438,7 @@ migrate
       let transformedCount = 0;
 
       for (const query of queries) {
-        if (Array.from(validationResults.values()).find(v => v.queryName === query.queryName)?.valid) {
+        if (Array.from(validationResults.values()).find((v: any) => v.queryName === query.queryName)?.valid) {
           try {
             const result = await transformer.transformQuery({
               queryId: query.queryName,

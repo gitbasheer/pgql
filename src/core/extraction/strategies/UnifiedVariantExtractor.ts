@@ -362,7 +362,7 @@ export class UnifiedVariantExtractor extends GraphQLExtractor {
     filePath: string,
     node: any,
     queryIndex: number,
-  ): ExtractedQueryWithVariant | null {
+  ): Promise<ExtractedQueryWithVariant | null> {
     const context: ErrorContext = {
       file: filePath,
       operation: 'createVariant',

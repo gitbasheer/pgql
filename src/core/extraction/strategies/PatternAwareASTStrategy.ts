@@ -268,7 +268,7 @@ export class PatternAwareASTStrategy extends BaseStrategy {
   /**
    * Generate unique query ID
    */
-  private generateQueryId(filePath: string, position: number): string {
+  protected generateQueryId(filePath: string, position: number, name?: string): string {
     const fileName =
       filePath
         .split('/')

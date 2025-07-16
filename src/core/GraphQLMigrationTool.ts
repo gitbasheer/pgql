@@ -73,7 +73,7 @@ export class GraphQLMigrationTool {
 
       // Analyze patterns
       for (const query of queries) {
-        const pattern = this.patternMatcher.analyzeQueryPattern(query.ast);
+        const pattern = this.patternMatcher.analyzeQueryPattern(query.ast!);
         logger.debug(`Query ${query.name} has pattern: ${pattern.type}`);
       }
 
