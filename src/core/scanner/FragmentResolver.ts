@@ -446,7 +446,7 @@ export class FragmentResolver {
         try {
           traverse(ast, {
             // Handle: export const fragmentName = `...` or gql`...`
-            ExportNamedDeclaration(path) {
+            ExportNamedDeclaration(path: any) {
               const declaration = path.node.declaration;
               if (declaration && declaration.type === 'VariableDeclaration') {
                 for (const declarator of declaration.declarations) {
@@ -462,7 +462,7 @@ export class FragmentResolver {
             },
 
             // Handle: module.exports = { fragmentName: `...` }
-            AssignmentExpression(path) {
+            AssignmentExpression(path: any) {
               if (
                 isModuleExportsAssignment(path.node) &&
                 path.node.right.type === 'ObjectExpression'

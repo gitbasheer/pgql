@@ -52,7 +52,7 @@ export interface TransformationResult {
 }
 
 export interface TransformationChange {
-  type: 'field' | 'argument' | 'type' | 'fragment';
+  type: 'field' | 'argument' | 'type' | 'fragment' | 'field-rename' | 'nested-replacement' | 'comment-out';
   field: string;
   oldValue?: string;
   newValue?: string;
@@ -109,6 +109,53 @@ export interface PipelineStats {
   transformedQueries: number;
   errors: number;
   warnings: number;
+}
+
+// Core configuration interface referenced in documentation
+export interface PgqlOptions {
+  // Extraction Strategy
+  strategy?: 'pluck' | 'ast' | 'hybrid';
+  
+  // Cache Configuration
+  cacheConfig?: {
+    enabled?: boolean;
+    ttl?: number;        // Cache time-to-live (ms)
+    maxSize?: number;    // Memory limit (bytes)
+  };
+  
+  // Schema Configuration  
+  schemaConfig?: {
+    cacheEnabled?: boolean;
+    cacheSize?: number;   // MB
+    cacheTtl?: number;    // ms
+    fallbackToFile?: boolean;
+    enableWarmup?: boolean;
+  };
+  
+  // Transformation Settings
+  transformation?: {
+    commentOutVague?: boolean;
+    addDeprecationComments?: boolean;
+    preserveOriginalAsComment?: boolean;
+    dryRun?: boolean;
+  };
+  
+  // Performance Tuning
+  performance?: {
+    parallelFiles?: boolean;
+    concurrency?: number;     // Max concurrent operations
+    chunkSize?: number;       // Files per chunk
+  };
+  
+  // Schema Validation
+  validation?: {
+    skipInvalid?: boolean;
+    endpoint?: string;       // For real API testing
+    auth?: {
+      cookies?: string;
+      appKey?: string;
+    };
+  };
 }
 
 // Socket.io event types
