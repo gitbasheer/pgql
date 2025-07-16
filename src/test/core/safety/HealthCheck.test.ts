@@ -236,7 +236,7 @@ describe('HealthCheckSystem', () => {
     });
   });
 
-  describe('concurrent operations', () => { type: 'query',
+  describe('concurrent operations', () => {
     it('should handle multiple operations independently', async () => {
       const operation2 = { ...mockOperation, id: 'test-op-2', name: 'TestOperation2' };
 

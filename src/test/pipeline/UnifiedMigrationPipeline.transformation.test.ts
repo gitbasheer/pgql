@@ -331,7 +331,7 @@ describe('UnifiedMigrationPipeline - Transformation', () => {
       expect(result.transformed).toHaveLength(0);
     });
 
-    it('should load deprecation rules', async () => { type: 'query', id: 'generated-id',
+    it('should load deprecation rules', async () => {
       (vi.mocked(fs.readFile) as any).mockResolvedValueOnce(
         JSON.stringify({
           Query: [{ name: 'oldField', deprecationReason: 'Use `newField` instead' }],
@@ -353,7 +353,7 @@ describe('UnifiedMigrationPipeline - Transformation', () => {
     });
   });
 
-  describe('private methods - transformation', () => { type: 'query', id: 'generated-id',
+  describe('private methods - transformation', () => {
     it('should convert deprecations to rules correctly', async () => {
       (fs.readFile as any).mockImplementation((path: any) => {
         if (path === './deprecations.json') {

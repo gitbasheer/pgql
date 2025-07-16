@@ -58,7 +58,7 @@ export class SchemaLoader {
       cacheSize: schemaConfig?.cacheSize ?? 50, // MB
       cacheTtl: schemaConfig?.cacheTtl ?? 3600000, // 1 hour
       fallbackToFile: schemaConfig?.fallbackToFile ?? true,
-      enableWarmup: schemaConfig?.enableWarmup ?? false,
+      enableWarmup: (schemaConfig as any)?.enableWarmup ?? false,
     };
 
     if (this.options.enableWarmup) {
@@ -151,10 +151,10 @@ export class SchemaLoader {
 
       } catch (fallbackError) {
         logger.error(`All schema loading strategies failed for ${source}:`, {
-          primary: primaryError.message,
-          fallback: fallbackError.message,
+          primary: primaryError instanceof Error ? primaryError.message : String(primaryError),
+          fallback: fallbackError instanceof Error ? fallbackError.message : String(fallbackError),
         });
-        throw new Error(`Failed to load schema from ${source}: ${fallbackError.message}`);
+        throw new Error(`Failed to load schema from ${source}: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
       }
     }
   }

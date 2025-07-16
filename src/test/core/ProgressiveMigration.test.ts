@@ -48,7 +48,7 @@ describe('ProgressiveMigration', () => {
       expect(flag.operation).toBe('op-special');
     });
 
-    it('should create unique flags for different operations', () => { type: 'query',
+    it('should create unique flags for different operations', () => {
       const operation1: GraphQLOperation = {
         ...mockOperation,
         name: 'GetUser',

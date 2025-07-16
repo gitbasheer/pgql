@@ -28,7 +28,7 @@ describe('VariantGenerator', () => {
     generator = new VariantGenerator(mockContext);
   });
 
-  describe('generate', () => { type: 'query',
+  describe('generate', () => {
     it('should generate no variants for queries without dynamic patterns', async () => {
       const queries: ResolvedQuery[] = [
         {
@@ -52,7 +52,7 @@ describe('VariantGenerator', () => {
       expect(logger.info).toHaveBeenCalledWith('Generated 0 variants from 1 queries');
     });
 
-    it('should generate variants for simple boolean switch', async () => { type: 'query',
+    it('should generate variants for simple boolean switch', async () => {
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -98,7 +98,7 @@ describe('VariantGenerator', () => {
       expect(falseVariant!.content).not.toContain('${');
     });
 
-    it('should generate variants for multiple switches', async () => { type: 'query',
+    it('should generate variants for multiple switches', async () => {
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -184,7 +184,7 @@ describe('VariantGenerator', () => {
       }
     });
 
-    it('should handle enum switches', async () => { type: 'query',
+    it('should handle enum switches', async () => {
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -220,7 +220,7 @@ describe('VariantGenerator', () => {
       );
     });
 
-    it('should generate correct variant IDs', async () => { type: 'query',
+    it('should generate correct variant IDs', async () => {
       const queries: ResolvedQuery[] = [
         {
           id: 'query-123',
@@ -255,7 +255,7 @@ describe('VariantGenerator', () => {
       expect(result[0].id).not.toBe(result[1].id);
     });
 
-    it('should handle invalid GraphQL in variants gracefully', async () => { type: 'query',
+    it('should handle invalid GraphQL in variants gracefully', async () => {
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -292,7 +292,7 @@ describe('VariantGenerator', () => {
       expect(result).toHaveLength(0);
     });
 
-    it('should preserve fragment dependencies', async () => { type: 'query',
+    it('should preserve fragment dependencies', async () => {
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -331,7 +331,7 @@ describe('VariantGenerator', () => {
     });
   });
 
-  describe('complex ternary expressions', () => { type: 'query',
+  describe('complex ternary expressions', () => {
     it('should handle nested ternary expressions', async () => {
       const queries: ResolvedQuery[] = [
         {
@@ -371,7 +371,7 @@ describe('VariantGenerator', () => {
       expect(basicVariant!.content).not.toContain('admin');
     });
 
-    it('should handle expressions with quotes correctly', async () => { type: 'query',
+    it('should handle expressions with quotes correctly', async () => {
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -410,7 +410,7 @@ describe('VariantGenerator', () => {
     });
   });
 
-  describe('edge cases', () => { type: 'query',
+  describe('edge cases', () => {
     it('should handle empty switches map', async () => {
       const queries: ResolvedQuery[] = [
         {
@@ -448,7 +448,7 @@ describe('VariantGenerator', () => {
       expect(result).toHaveLength(0);
     });
 
-    it('should skip switches with no possible values', async () => { type: 'query',
+    it('should skip switches with no possible values', async () => {
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -480,7 +480,7 @@ describe('VariantGenerator', () => {
       expect(result).toHaveLength(0);
     });
 
-    it('should generate unique descriptions for each variant', async () => { type: 'query',
+    it('should generate unique descriptions for each variant', async () => {
       const queries: ResolvedQuery[] = [
         {
           id: '1',
