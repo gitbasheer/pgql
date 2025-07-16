@@ -102,7 +102,7 @@ export class PatternAwareASTStrategy extends BaseStrategy {
         end: node.end || 0,
         templateLiteral: {
           quasis: quasi.quasis,
-          expressions: quasi.expressions.filter((expr): expr is babel.Expression => 
+          expressions: quasi.expressions.filter((expr: any): expr is babel.Expression => 
             !babel.isTSType(expr)
           ),
         },

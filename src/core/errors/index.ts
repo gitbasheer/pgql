@@ -81,7 +81,7 @@ export const ErrorUtils = {
   isRetryable(error: Error): boolean {
     const { PgqlError } = require('./ErrorTypes.js');
     if (error instanceof PgqlError) {
-      return error.getAutomatedRecovery().some((action: any) => action.type === 'RETRY');
+      return (error as any).getAutomatedRecovery().some((action: any) => action.type === 'RETRY');
     }
     return false;
   },
@@ -92,7 +92,7 @@ export const ErrorUtils = {
   getCorrelationId(error: Error): string | undefined {
     const { PgqlError } = require('./ErrorTypes.js');
     if (error instanceof PgqlError) {
-      return error.details.correlationId;
+      return (error as any).details.correlationId;
     }
     return undefined;
   },

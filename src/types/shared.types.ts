@@ -28,16 +28,10 @@ export interface ExtractedQuery {
   // Identity
   id: string;
   queryName: string;
-  content: string;
-  fullExpandedQuery?: string;
-  
-  // Required properties for compatibility
-  id: string;
-  type: 'query' | 'mutation' | 'subscription' | 'fragment';
-  
-  // Additional properties for compatibility
   queryId?: string;
   hash?: string;
+  content: string;
+  fullExpandedQuery?: string;
 
   // Location
   filePath: string;
@@ -45,7 +39,7 @@ export interface ExtractedQuery {
   location?: SourceLocation;
 
   // GraphQL metadata
-  type: 'query' | 'mutation' | 'subscription';
+  type: 'query' | 'mutation' | 'subscription' | 'fragment';
   operation?: 'query' | 'mutation' | 'subscription';
   variables?: Record<string, string>;
   fragments?: string[];

@@ -564,10 +564,6 @@ export class UnifiedExtractor {
   private standardizeQueries(queries: ResolvedQuery[]): ExtractedQuery[] {
     return queries.map((q) => {
       const standardized: ExtractedQuery = {
-        // Required identity
-        id: q.id || this.generateUniqueName(q),
-        type: q.type || 'query',
-        
         // Identity
         id: q.id || this.generateUniqueName(q),
         queryName: this.generateUniqueName(q),

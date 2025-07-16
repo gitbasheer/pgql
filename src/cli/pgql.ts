@@ -263,7 +263,7 @@ validate
           preserveOrder: false
         },
         storage: {
-          type: 'memory',
+          type: 'file',
           path: './validation-storage'
         }
       });
