@@ -119,7 +119,7 @@ program
       const extractSpinner = ora('Extracting GraphQL operations...').start();
       // Always use dynamic extractor for production pipeline to catch all variants
       const extractor = new UnifiedExtractor({ enableIncrementalExtraction: true });
-      const queries = await extractor.extractFromDirectory(
+      const queries = await extractor.extractFromRepo(
         directory,
         ['**/*.{js,jsx,ts,tsx}'],
         !options.skipFragments,

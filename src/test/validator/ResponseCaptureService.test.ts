@@ -249,7 +249,7 @@ describe('ResponseCaptureService', () => {
       const queries = [
         mockQuery,
         { ...mockQuery, id: 'query-2', name: 'GetUser2' },
-        { ...mockQuery, id: 'query-3', name: 'GetUser3' },
+        { type: 'query', ...mockQuery, id: 'query-3', name: 'GetUser3' },
       ];
 
       const result = await service.captureBaseline(queries);

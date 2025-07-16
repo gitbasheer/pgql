@@ -95,8 +95,8 @@ describe('ConfidenceScorer', () => {
         line: 1,
         column: 1,
         variables: [
-          { name: 'filter', type: 'UserFilter!' },
-          { name: 'pagination', type: 'PaginationInput' },
+          { id: 'generated-id', name: 'filter', type: 'UserFilter!' },
+          { id: 'generated-id', name: 'pagination', type: 'PaginationInput' },
         ],
         fragments: [],
         directives: [],
@@ -265,7 +265,7 @@ describe('ConfidenceScorer', () => {
               }
             }
           `,
-          variables: [{ name: 'userId', type: 'ID!' }],
+          variables: [{ id: 'generated-id', name: 'userId', type: 'ID!' }],
         },
         pattern: 'complex-restructure',
         oldQuery: 'query GetUser { user { id name criticalData { sensitiveField } } }',
@@ -403,9 +403,9 @@ describe('ConfidenceScorer', () => {
           file: 'test.ts',
           line: 1,
           column: 1,
-          variables: [{ name: 'var1', type: 'String!' }],
-          fragments: [{ name: 'Fragment1', type: 'Type1' }],
-          directives: [{ name: 'deprecated', arguments: {} }],
+          variables: [{ id: 'generated-id', name: 'var1', type: 'String!' }],
+          fragments: [{ id: 'generated-id', name: 'Fragment1', type: 'Type1' }],
+          directives: [{ type: 'query', id: 'generated-id', name: 'deprecated', arguments: {} }],
         },
         pattern: 'complex-restructure',
         oldQuery:
@@ -463,9 +463,9 @@ describe('ConfidenceScorer', () => {
         file: 'complex.ts',
         line: 1,
         column: 1,
-        variables: [{ name: 'id', type: 'ID!' }],
-        fragments: [{ name: 'UserFragment', type: 'User' }],
-        directives: [{ name: 'deprecated', arguments: {} }],
+        variables: [{ id: 'generated-id', name: 'id', type: 'ID!' }],
+        fragments: [{ id: 'generated-id', name: 'UserFragment', type: 'User' }],
+        directives: [{ type: 'query', id: 'generated-id', name: 'deprecated', arguments: {} }],
       };
 
       const simpleChange: CodeChange = {

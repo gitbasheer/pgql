@@ -41,7 +41,7 @@ describe('QueryNameAnalyzer', () => {
           content: 'query GetUser { user { id } }',
           type: 'query',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
           hash: 'hash1',
         },
       ];
@@ -59,7 +59,7 @@ describe('QueryNameAnalyzer', () => {
           content: 'query GetUser { user { id } }',
           type: 'query',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
           hash: 'hash1',
         },
       ];
@@ -82,7 +82,7 @@ describe('QueryNameAnalyzer', () => {
           content: 'query { user { id } }',
           type: 'query',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
           hash: 'hash1',
         },
       ];
@@ -107,7 +107,7 @@ describe('QueryNameAnalyzer', () => {
           content: 'query { user { id } }',
           type: 'query',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
           hash: 'hash1',
         },
       ];
@@ -126,7 +126,7 @@ describe('QueryNameAnalyzer', () => {
           content: 'query GetUser { user { id } }',
           type: 'query',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
           hash: 'hash1',
         },
       ];
@@ -145,7 +145,7 @@ describe('QueryNameAnalyzer', () => {
           content: 'mutation CreateUser { createUser { id } }',
           type: 'mutation',
           filePath: '/src/mutations.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
           hash: 'hash1',
         },
       ];
@@ -207,7 +207,7 @@ describe('QueryNameAnalyzer', () => {
             content,
             type,
             filePath: '/src/queries.ts',
-            location: { line: 1, column: 1 },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
             hash: 'hash1',
           },
         ];
@@ -241,7 +241,7 @@ describe('QueryNameAnalyzer', () => {
           type: 'query',
           context,
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
           hash: 'hash1',
         },
       ];
@@ -265,7 +265,7 @@ describe('QueryNameAnalyzer', () => {
           type: 'query',
           context,
           filePath: '/src/components/UserProfile.tsx',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
           hash: 'hash1',
         },
       ];
@@ -289,7 +289,7 @@ describe('QueryNameAnalyzer', () => {
           type: 'query',
           context,
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
           hash: 'hash1',
         },
       ];
@@ -310,7 +310,7 @@ describe('QueryNameAnalyzer', () => {
           content: '{ user { id } }',
           type: 'query',
           filePath: '/src/UserProfile.tsx',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
           hash: 'hash1',
         },
       ];
@@ -332,7 +332,7 @@ describe('QueryNameAnalyzer', () => {
             content: '{ user { id } }',
             type: 'query',
             filePath: `/src/${genericName}.ts`,
-            location: { line: 1, column: 1 },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
             hash: 'hash1',
           },
         ];
@@ -381,7 +381,7 @@ describe('QueryNameAnalyzer', () => {
             type,
             context: { functionName: baseName },
             filePath: '/src/queries.ts',
-            location: { line: 1, column: 1 },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/analyzers/QueryNameAnalyzer.test.ts' },
             hash: 'hash1',
           },
         ];

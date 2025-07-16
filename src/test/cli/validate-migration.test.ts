@@ -90,7 +90,7 @@ describe('MigrationValidator', () => {
           filePath: 'test.ts',
           fragments: [],
         },
-        {
+        { type: 'query',
           id: 'query2',
           name: 'GetVenture',
           source: 'query GetVenture { venture { id name } }',
@@ -101,7 +101,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: ExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
@@ -140,7 +140,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: ExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
@@ -148,7 +148,7 @@ describe('MigrationValidator', () => {
           filePath: 'test.ts',
           fragments: [],
         },
-        {
+        { type: 'query',
           id: 'query2',
           name: 'GetVenture',
           source: 'query GetVenture { venture { id name } }',
@@ -186,7 +186,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: ExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUserNew',
           source: 'query GetUser { user { id name } }',
@@ -224,7 +224,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: ExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'query GetUser { user { id name email } }',
@@ -262,7 +262,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: ExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'mutation GetUser { user { id name } }',
@@ -298,7 +298,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: ExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUserNew',
           source: 'query GetUser { user { id name } }',
@@ -334,7 +334,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: PatternExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'query ${queryNames.getUserById} { user { id name } }',
@@ -377,7 +377,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: PatternExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'query ${queryNames.getUserById} { user { id name } }',
@@ -423,7 +423,7 @@ describe('MigrationValidator', () => {
         ],
       };
 
-      const afterData = {
+      const afterData = { type: 'query',
         extractedQueries: [
           {
             id: 'query1',
@@ -565,7 +565,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: PatternExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',

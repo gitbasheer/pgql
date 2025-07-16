@@ -34,7 +34,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
       };
 
       // Mock unified-cli.ts analyze output (equivalent to extract)
-      const unifiedCliOutput = {
+      const unifiedCliOutput = { id: 'generated-id',
         operations: [
           {
             name: 'GetUser',
@@ -78,7 +78,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
       };
 
       // Mock unified-cli.ts transform output
-      const unifiedCliTransform = {
+      const unifiedCliTransform = { type: 'query', id: 'generated-id',
         transformed: 3,
         automatic: 2,
         semiAutomatic: 1,

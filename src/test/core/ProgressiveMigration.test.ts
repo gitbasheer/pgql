@@ -55,7 +55,7 @@ describe('ProgressiveMigration', () => {
         id: 'op1',
       };
 
-      const operation2: GraphQLOperation = {
+      const operation2: GraphQLOperation = { type: 'query',
         ...mockOperation,
         name: 'GetPost',
         id: 'op2',
@@ -509,7 +509,7 @@ describe('ProgressiveMigration', () => {
           file: 'user.ts',
           line: 10,
           column: 1,
-          variables: [{ name: 'input', type: 'CreateUserInput!' }],
+          variables: [{ id: 'generated-id', name: 'input', type: 'CreateUserInput!' }],
           fragments: [],
           directives: [],
         },

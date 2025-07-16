@@ -320,7 +320,7 @@ describe('GraphQLMigrationTool', () => {
 
       mockExtractor.extractQueries.mockResolvedValue([queryWithFragment]);
       mockExtractor.extractFragments.mockResolvedValue([
-        {
+        { id: 'generated-id',
           name: 'UserFragment',
           type: 'User',
           source: 'fragment UserFragment on User { id name email }',

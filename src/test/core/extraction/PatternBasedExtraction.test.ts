@@ -18,7 +18,7 @@ vi.mock('../../../core/extraction/engine/QueryPatternRegistry.js', async () => {
           migrationPath: 'V3'
         },
         contentFingerprint: 'mock-fingerprint-abc123'
-      })),
+      }),
       generateContentFingerprint: vi.fn().mockReturnValue('mock-fingerprint-abc123'),
       groupQueriesByFingerprint: vi.fn().mockReturnValue(new Map([
         ['mock-fingerprint-abc123', [
@@ -75,10 +75,10 @@ describe('Pattern-Based Extraction', () => {
               } as any,
             ],
             expressions: [
-              {
+              { id: 'generated-id',
                 type: 'MemberExpression',
                 object: { type: 'Identifier', name: 'queryNames' },
-                property: { type: 'Identifier', name: 'byIdV1' },
+                property: { id: 'generated-id', type: 'Identifier', name: 'byIdV1' },
               } as any,
             ],
           },

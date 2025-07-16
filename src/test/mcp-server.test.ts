@@ -76,7 +76,7 @@ describe('MCP Server Integration Tests', () => {
     writeFileSync(join(testFixturesDir, 'schema.graphql'), sampleSchema);
 
     // Create a queries.json file for transformation tests
-    const queriesJson = {
+    const queriesJson = { type: 'query',
       queries: [
         {
           id: 'GetUser',
@@ -87,7 +87,7 @@ describe('MCP Server Integration Tests', () => {
           line: 5,
           type: 'query',
         },
-        {
+        { type: 'query',
           id: 'UpdateUser',
           name: 'UpdateUser',
           content:
@@ -457,7 +457,7 @@ describe('MCP Server Integration Tests', () => {
       };
       writeFileSync(transformedPath, JSON.stringify(transformedData, null, 2));
 
-      const response = await sendRequest('tools/call', {
+      const response = await sendRequest('tools/call', { type: 'query', id: 'generated-id',
         name: 'create_rollback_plan',
         arguments: {
           transformedFile: transformedPath,

@@ -107,7 +107,7 @@ describe('UnifiedMigrationPipeline - Application', () => {
             content: 'query TestQuery { test }',
             filePath: 'test.ts',
             sourceAST: { node: {}, start: 0, end: 10 },
-            location: { line: 1, column: 1 },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/pipeline/UnifiedMigrationPipeline.application.test.ts' },
             fragments: [],
           },
         ],

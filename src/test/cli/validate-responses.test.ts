@@ -199,7 +199,7 @@ describe('validate-responses CLI', () => {
       (SSOService.getInstance as Mock).mockReturnValue(mockSSOService);
 
       // Would test SSO authentication flow
-      const result = await mockSSOService.authenticate({
+      const result = await mockSSOService.authenticate({ type: 'query', id: 'generated-id',
         provider: 'godaddy',
         credentials: { username: 'test', password: 'pass' },
       });

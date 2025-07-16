@@ -71,7 +71,7 @@ async function scanCommand(options: ScanOptions): Promise<void> {
 
   try {
     const extractor = new GraphQLExtractor();
-    const results = await extractor.extractFromDirectory(options.apps);
+    const results = await extractor.extractFromRepo(options.apps);
 
     // Type-safe output handling
     match(options.format)

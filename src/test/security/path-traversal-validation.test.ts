@@ -61,7 +61,7 @@ describe('Path Traversal Security Validation', () => {
       // Special characters and spaces
       { name: 'spaces in path', path: '../.. /../../etc/passwd' },
       { name: 'special chars', path: '../$(whoami)/../../etc/passwd' },
-      { name: 'backticks', path: '../`id`/../../etc/passwd' },
+      { type: 'query', id: 'generated-id', name: 'backticks', path: '../`id`/../../etc/passwd' },
 
       // Symbolic links (conceptual test)
       { name: 'symlink attempt', path: './symlink-to-etc/../passwd' },
@@ -137,7 +137,7 @@ describe('Path Traversal Security Validation', () => {
         { name: 'windows separators', input: 'file\\..\\..\\windows\\system32' },
         { name: 'null bytes', input: 'file.txt\0.jpg' },
         { name: 'special chars', input: 'file`rm -rf /`.txt' },
-        { name: 'unicode', input: 'file\u002e\u002e/\u002e\u002eetc.txt' },
+        { type: 'query', id: 'generated-id', name: 'unicode', input: 'file\u002e\u002e/\u002e\u002eetc.txt' },
       ];
 
       maliciousFilenames.forEach(({ name, input }) => {
@@ -305,7 +305,7 @@ describe('Path Traversal Security Validation', () => {
             filePath: 'test.js',
             name: '<img src=x onerror="alert(1)">',
             type: 'query' as const,
-            location: { line: 1, column: 1 },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/security/path-traversal-validation.test.ts' },
           },
         ];
 
@@ -365,7 +365,7 @@ describe('Path Traversal Security Validation', () => {
             resolvedContent: 'query Test { field }',
             filePath: 'test.js',
             type: 'query' as const,
-            location: { line: 1, column: 1 },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/security/path-traversal-validation.test.ts' },
             metadata: circular,
           },
         ];
@@ -563,7 +563,7 @@ describe('Path Traversal Security Validation', () => {
             filePath: 'test.graphql',
             content: maliciousQuery,
             ast: null as any,
-            location: { line: 1, column: 1 },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/security/path-traversal-validation.test.ts' },
             type: 'query',
           },
         ]),

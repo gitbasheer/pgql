@@ -128,7 +128,7 @@ describe('UnifiedMigrationPipeline', () => {
             content: 'query TestQuery { test }',
             filePath: 'test.ts',
             sourceAST: { node: {}, start: 0, end: 10 },
-            location: { line: 1, column: 1 },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/core/pipeline/UnifiedMigrationPipeline.test.ts' },
             fragments: [],
           },
         ],
@@ -739,7 +739,7 @@ describe('UnifiedMigrationPipeline', () => {
         if (path === './deprecations.json') {
           return JSON.stringify({
             Query: [{ name: 'oldField', deprecationReason: 'Use `newField` instead' }],
-            User: [{ name: 'email', deprecationReason: 'Use `emailAddress` instead' }],
+            User: [{ type: 'query', id: 'generated-id', name: 'email', deprecationReason: 'Use `emailAddress` instead' }],
           });
         }
         return 'schema content';
