@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 // Import vm is mocked below
 import * as fs from 'fs/promises';
-import { FragmentResolver } from '../../core/extraction/resolvers/FragmentResolver.js';
+import { FragmentResolver } from '../../core/extraction/utils/FragmentResolver.js';
 import { ExtractionContext } from '../../core/extraction/engine/ExtractionContext.js';
 import { ExtractionOptions, ExtractedQuery } from '../../core/extraction/types.js';
 import { safeParseGraphQL } from '../../utils/graphqlValidator.js';

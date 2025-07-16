@@ -1,21 +1,17 @@
-// @ts-nocheck
 import {
   GraphQLSchema,
   validate,
   parse,
   DocumentNode,
   GraphQLError,
-  buildSchema,
   visit,
   visitWithTypeInfo,
   TypeInfo,
 } from 'graphql';
-import { loadSchema } from '@graphql-tools/load';
-import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
-import * as fs from 'fs/promises';
 import { logger } from '../../utils/logger.js';
 import { createTwoFilesPatch } from 'diff';
 import { SchemaAnalyzer } from '../analyzer/SchemaAnalyzer.js';
+import { SchemaLoader } from '../../utils/schemaLoader.js';
 
 export interface ValidationResult {
   valid: boolean;
@@ -42,79 +38,35 @@ export interface ValidationWarning {
 
 export class SchemaValidator {
   private schema?: GraphQLSchema;
-  private schemaCache: Map<string, { schema: GraphQLSchema; loadTime: number; size: number }> = new Map();
   private schemaAnalyzer?: SchemaAnalyzer;
-  private maxCacheSize: number = 10; // Max number of schemas to cache
-  private cacheTimeout: number = 3600000; // 1 hour in milliseconds
+  private schemaLoader: SchemaLoader;
 
-  async loadSchemaFromFile(schemaPath: string): Promise<GraphQLSchema> {
-    // Check cache first with expiry
-    const cached = this.schemaCache.get(schemaPath);
-    if (cached) {
-      const age = Date.now() - cached.loadTime;
-      if (age < this.cacheTimeout) {
-        logger.debug(`Schema cache hit for ${schemaPath} (age: ${age}ms)`);
-        return cached.schema;
-      } else {
-        logger.debug(`Schema cache expired for ${schemaPath}`);
-        this.schemaCache.delete(schemaPath);
-      }
-    }
-
-    try {
-      // Try loading with GraphQL tools
-      const schema = await loadSchema(schemaPath, {
-        loaders: [new GraphQLFileLoader()],
-      });
-
-      this.schema = schema;
-      this.addToCache(schemaPath, schema);
-      this.schemaAnalyzer = new SchemaAnalyzer(schema);
-      return schema;
-    } catch (error) {
-      // Fallback to manual loading
-      logger.warn('Failed to load schema with GraphQL tools, trying manual load');
-      const schemaContent = await fs.readFile(schemaPath, 'utf-8');
-      const schema = buildSchema(schemaContent);
-
-      this.schema = schema;
-      this.addToCache(schemaPath, schema);
-      this.schemaAnalyzer = new SchemaAnalyzer(schema);
-      return schema;
-    }
+  constructor() {
+    this.schemaLoader = SchemaLoader.getInstance();
   }
 
-  private addToCache(path: string, schema: GraphQLSchema): void {
-    // Estimate schema size (rough approximation)
-    const schemaString = JSON.stringify(schema.toConfig());
-    const size = new Blob([schemaString]).size;
-
-    // Implement LRU eviction if cache is full
-    if (this.schemaCache.size >= this.maxCacheSize) {
-      // Find and remove oldest entry
-      let oldestPath = '';
-      let oldestTime = Date.now();
-      
-      for (const [cachePath, cacheEntry] of this.schemaCache.entries()) {
-        if (cacheEntry.loadTime < oldestTime) {
-          oldestTime = cacheEntry.loadTime;
-          oldestPath = cachePath;
-        }
-      }
-      
-      if (oldestPath) {
-        logger.debug(`Evicting oldest schema from cache: ${oldestPath}`);
-        this.schemaCache.delete(oldestPath);
-      }
-    }
-
-    this.schemaCache.set(path, {
-      schema,
-      loadTime: Date.now(),
-      size
-    });
+  async loadSchemaFromFile(schemaPath: string): Promise<GraphQLSchema> {
+    const result = await this.schemaLoader.loadSchema(schemaPath);
     
-    logger.debug(`Cached schema for ${path} (size: ${size} bytes)`);
+    this.schema = result.schema;
+    this.schemaAnalyzer = new SchemaAnalyzer(result.schema);
+    
+    logger.debug(`Schema loaded for ${schemaPath} (cached: ${result.cached}, time: ${result.loadTime}ms)`);
+    
+    return result.schema;
+  }
+
+  clearCache(): void {
+    this.schemaLoader.clearCache();
+    logger.info('Schema cache cleared');
+  }
+
+  getCacheSize(): number {
+    return this.schemaLoader.getCacheStats().size;
+  }
+
+  getCacheStats() {
+    return this.schemaLoader.getCacheStats();
   }
 
   /**

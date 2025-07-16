@@ -16,7 +16,7 @@ import { QueryNameAnalyzer } from '../analyzers/QueryNameAnalyzer.js';
 import { TemplateResolver } from '../analyzers/TemplateResolver.js';
 
 // Resolvers
-import { FragmentResolver } from '../resolvers/FragmentResolver.js';
+import { FragmentResolver } from '../utils/FragmentResolver.js';
 import { NameResolver } from '../resolvers/NameResolver.js';
 
 // Transformers

@@ -4,13 +4,13 @@ import {
   MigrationOptions,
   MigrationResult,
 } from '../../core/GraphQLMigrationTool.js';
-import { GraphQLExtractor } from '../../core/scanner/GraphQLExtractor.js';
+import { GraphQLExtractor } from '../../core/extraction/compat/GraphQLExtractor.js';
 import { SchemaAnalyzer } from '../../core/analyzer/SchemaAnalyzer.js';
 import { PatternMatcher } from '../../core/analyzer/PatternMatcher.js';
 import * as fs from 'fs/promises';
 
 // Mock dependencies
-vi.mock('../../core/scanner/GraphQLExtractor');
+vi.mock('../../core/extraction/compat/GraphQLExtractor');
 vi.mock('../../core/analyzer/SchemaAnalyzer');
 vi.mock('../../core/analyzer/PatternMatcher');
 vi.mock('../../core/config/ConfigValidator');

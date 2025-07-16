@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { FragmentResolver } from '../../core/extraction/resolvers/FragmentResolver.js';
-import { GraphQLExtractor } from '../../core/scanner/GraphQLExtractor.js';
+import { FragmentResolver } from '../../core/extraction/utils/FragmentResolver.js';
+import { GraphQLExtractor } from '../../core/extraction/compat/GraphQLExtractor.js';
 import { FileReporter } from '../../core/extraction/reporters/FileReporter.js';
 import { HTMLReporter } from '../../core/extraction/reporters/HTMLReporter.js';
 import { JSONReporter } from '../../core/extraction/reporters/JSONReporter.js';
 import { ConfigLoader } from '../../utils/ConfigLoader.js';
-import { DynamicGraphQLExtractor } from '../../core/scanner/DynamicGraphQLExtractor.js';
+// DynamicGraphQLExtractor was deprecated and removed
 import { TemplateResolver } from '../../core/extraction/analyzers/TemplateResolver.js';
 import { validateReadPath, validateWritePath, sanitizeFileName } from '../../utils/securePath.js';
 

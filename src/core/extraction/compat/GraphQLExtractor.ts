@@ -7,7 +7,7 @@ import glob from 'fast-glob';
 import * as babel from '@babel/parser';
 import traverse from '@babel/traverse';
 import { logger } from '../../utils/logger.js';
-import { FragmentResolver } from './FragmentResolver.js';
+import { FragmentResolver } from '../utils/FragmentResolver.js';
 import { validateReadPath } from '../../utils/securePath.js';
 import {
   safeParseGraphQL,

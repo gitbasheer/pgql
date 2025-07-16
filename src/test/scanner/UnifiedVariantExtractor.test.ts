@@ -1,5 +1,5 @@
-import { UnifiedVariantExtractor } from '../../core/scanner/UnifiedVariantExtractor.js';
-import { EnhancedDynamicExtractor } from '../../core/scanner/EnhancedDynamicExtractor.js';
+import { UnifiedVariantExtractor } from '../../core/extraction/strategies/UnifiedVariantExtractor.js';
+// EnhancedDynamicExtractor was deprecated and removed
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { DocumentNode, parse, print } from 'graphql';

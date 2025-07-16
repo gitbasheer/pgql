@@ -1,9 +1,9 @@
-import { DocumentNode, visit, GraphQLSchema, buildSchema, validate } from 'graphql';
+import { DocumentNode, visit, GraphQLSchema, validate } from 'graphql';
 import { Result, ok, err } from 'neverthrow';
 import { BaseTransformer, TransformContext, TransformResult, TransformError, TransformChange, TransformWarning } from './BaseTransformer.js';
 import { SchemaDeprecationAnalyzer, DeprecationRule } from '../analyzer/SchemaDeprecationAnalyzer.js';
 import { logger } from '../../utils/logger.js';
-import * as fs from 'fs/promises';
+import { SchemaLoader } from '../../utils/schemaLoader.js';
 
 export interface SchemaTransformOptions {
   commentOutVague?: boolean;
@@ -22,6 +22,7 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
   private deprecationMap: Map<string, DeprecationRule> = new Map();
   private schema?: GraphQLSchema;
   private schemaTransformOptions: SchemaTransformOptions;
+  private schemaLoader: SchemaLoader;
 
   constructor(
     baseOptions = {},
@@ -29,6 +30,7 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
   ) {
     super(baseOptions);
     this.deprecationAnalyzer = new SchemaDeprecationAnalyzer();
+    this.schemaLoader = SchemaLoader.getInstance();
     this.schemaTransformOptions = {
       commentOutVague: true,
       addDeprecationComments: true,
@@ -48,8 +50,8 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
    */
   async loadSchema(schemaPath: string): Promise<Result<void, TransformError>> {
     try {
-      const schemaContent = await fs.readFile(schemaPath, 'utf-8');
-      this.schema = buildSchema(schemaContent);
+      const result = await this.schemaLoader.loadSchema(schemaPath);
+      this.schema = result.schema;
       
       // Analyze schema for deprecations
       const deprecations = await this.deprecationAnalyzer.analyzeSchemaFile(schemaPath);
@@ -59,7 +61,7 @@ export class UnifiedSchemaTransformer extends BaseTransformer {
         this.deprecationMap.set(dep.fieldPath, dep);
       });
 
-      logger.info(`Loaded schema with ${deprecations.length} deprecations`);
+      logger.info(`Loaded schema with ${deprecations.length} deprecations (cached: ${result.cached}, time: ${result.loadTime}ms)`);
       return ok(undefined);
     } catch (error) {
       return err({
