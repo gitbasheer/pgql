@@ -1,86 +1,23 @@
-/** @fileoverview Sample fragments converted from data/sample_data for testing */
+/** @fileoverview Consolidated sample fragments for testing - removes redundancy */
 
-export const PROJECT_FRAGMENT = `
-projects {
-  id
-  product {
-    id
-    ...on DomainProduct {
-      dns {
-        hostingProvider
-        emailProvider
-        hosting_ip
-        email_ip
-      }
-      isListedForSaleByOwner
-    }
-    ...on ExternalProduct {
-      type
-      entitlementsBlob
-      planType
-      status
-      properties
-      billing {
-        id
-      }
-    }
-    ...on WebsiteProduct {
-      type
-      entitlementsBlob
-      domainName
-      businessName
-      status
-      isPublished
-      planType
-      properties
-      data
-      createDate
-      homepageId
-      options
-      websiteSessionStats {
-        last12Months
-      }
-      billing {
-        id
-      }
-      backgroundImage
-    }
-    ...on WordpressProduct {
-      accountStatus
-      id
-      maxSites
-      sites {
-        blogTitle
-        siteUid
-        manageWpSiteId
-        cName
-        ipAddress
-        status
-        published
-        sslCertificateId
-        entity {
-          features {
-            isDomainAttached
-            domain
-          }
-        }
-      }
-    }
-    ... on AllAccessPassProduct {
-      domainCreditAvailable
-    }
-  }
-  group
-  created
-  status
+// Base fragments - building blocks
+export const BILLING_FRAGMENT = `
   billing {
     id
     plan
   }
-  accessed
-  domain
-  domainUnicode
-  domainPunycode
+`;
+
+export const DNS_FRAGMENT = `
+  dns {
+    hostingProvider
+    emailProvider
+    hosting_ip
+    email_ip
+  }
+`;
+
+export const SUBSCRIPTION_FRAGMENT = `
   subscription {
     id
     autoRenew
@@ -99,6 +36,113 @@ projects {
       }
     }
   }
+`;
+
+// Product type fragments
+export const DOMAIN_PRODUCT_FRAGMENT = `
+  ...on DomainProduct {
+    ${DNS_FRAGMENT}
+    isListedForSaleByOwner
+    domainName
+    hasAutoRenew
+    expirationDate
+    estimatedValue
+    dangerousProtectionPlan
+    dangerousIsPrivate
+    dangerousHasProtectedRegistration
+    renewalPrice {
+      listPrice
+      message
+      salePrice
+      years
+    }
+  }
+`;
+
+export const EXTERNAL_PRODUCT_FRAGMENT = `
+  ...on ExternalProduct {
+    type
+    entitlementsBlob
+    planType
+    status
+    properties
+    ${BILLING_FRAGMENT}
+  }
+`;
+
+export const WEBSITE_PRODUCT_FRAGMENT = `
+  ...on WebsiteProduct {
+    type
+    entitlementsBlob
+    domainName
+    businessName
+    status
+    isPublished
+    planType
+    properties
+    data
+    createDate
+    homepageId
+    options
+    websiteSessionStats {
+      last12Months
+    }
+    ${BILLING_FRAGMENT}
+    backgroundImage
+  }
+`;
+
+export const WORDPRESS_PRODUCT_FRAGMENT = `
+  ...on WordpressProduct {
+    accountStatus
+    id
+    maxSites
+    sites {
+      blogTitle
+      siteUid
+      manageWpSiteId
+      cName
+      ipAddress
+      status
+      published
+      sslCertificateId
+      entity {
+        features {
+          isDomainAttached
+          domain
+        }
+      }
+    }
+  }
+`;
+
+export const ALL_ACCESS_PASS_PRODUCT_FRAGMENT = `
+  ... on AllAccessPassProduct {
+    domainCreditAvailable
+  }
+`;
+
+// Consolidated project fragment
+export const PROJECT_FRAGMENT = `
+projects {
+  id
+  product {
+    id
+    ${DOMAIN_PRODUCT_FRAGMENT}
+    ${EXTERNAL_PRODUCT_FRAGMENT}
+    ${WEBSITE_PRODUCT_FRAGMENT}
+    ${WORDPRESS_PRODUCT_FRAGMENT}
+    ${ALL_ACCESS_PASS_PRODUCT_FRAGMENT}
+  }
+  group
+  created
+  status
+  ${BILLING_FRAGMENT}
+  accessed
+  domain
+  domainUnicode
+  domainPunycode
+  ${SUBSCRIPTION_FRAGMENT}
 }
 `;
 
@@ -109,23 +153,8 @@ export const USER_CUSTOMER_TYPE_FRAGMENT = `
   }
 `;
 
-export const WEBSITES_FRAGMENT = `
-    ...on WebsiteProduct {
-      entitlementsBlob
-      createDate
-      homepageId
-      domainName
-      businessName
-      status
-      isPublished
-      planType
-      properties
-      options
-      billing {
-        id
-      }
-    }
-`;
+// Simplified website fragment (use WEBSITE_PRODUCT_FRAGMENT instead)
+export const WEBSITES_FRAGMENT = WEBSITE_PRODUCT_FRAGMENT;
 
 export const USER_FRAGMENT_PROJECT_COUNTS = `
   projectCounts (groups:[
@@ -144,7 +173,25 @@ export const USER_FRAGMENT_PROJECT_COUNTS = `
   ])
 `;
 
-export const VENTURE_FRAGMENT_PROJECT_GROUPS = `
+// Profile fragments
+export const PROFILE_METADATA_FRAGMENT = `
+  metadata {
+    createdAt
+    updatedAt
+  }
+`;
+
+export const PROFILE_BASE_FRAGMENT = `
+  aapOnboarded
+  aiOnboarded
+  lastVisited
+  numVisits
+  name
+  ${PROFILE_METADATA_FRAGMENT}
+`;
+
+// Consolidated venture fragments
+export const VENTURE_PROJECT_GROUPS_FRAGMENT = `
  fragment ventureProjectGroupsField on Venture {
   projects {
     group
@@ -152,49 +199,16 @@ export const VENTURE_FRAGMENT_PROJECT_GROUPS = `
  }
 `;
 
-export const VENTURE_FRAGMENT = `
+export const VENTURE_BASE_FRAGMENT = `
 fragment ventureFields on Venture {
   id
   assetContainerId
   logoUrl
   profile {
-    aapOnboarded
-    aiOnboarded
-    lastVisited
-    metadata {
-      createdAt
-      updatedAt
-    }
-    name
-    numVisits
+    ${PROFILE_BASE_FRAGMENT}
   }
   ${PROJECT_FRAGMENT}
 }`;
-
-export const DOMAIN_PRODUCT_FRAGMENT = `
-fragment domainProductFields on Venture {
-  projects {
-    product {
-      ...on DomainProduct {
-        id
-        domainName
-        hasAutoRenew
-        expirationDate
-        estimatedValue
-        dangerousProtectionPlan
-        dangerousIsPrivate
-        dangerousHasProtectedRegistration
-        renewalPrice {
-          listPrice
-          message
-          salePrice
-          years
-        }
-      }
-    }
-  }
-}
-`;
 
 export const RGBA_FRAGMENT = `
   r
@@ -321,52 +335,30 @@ export const PROFILE_INFINITY_STONE_FRAGMENT = `
   numVisits
 `;
 
-export const VENTURE_IS_DATA_FIELDS_FRAGMENT = `
+// Enhanced venture fragments
+export const VENTURE_INFINITY_STONE_FRAGMENT = `
   fragment ventureInfinityStoneDataFields on Venture {
     id
     assetContainerId
     logoUrl
     isAAP @experimentalOptIn
     profile {
-    ${PROFILE_INFINITY_STONE_FRAGMENT}
-      metadata {
-        createdAt
-        updatedAt
-      }
+      ${PROFILE_INFINITY_STONE_FRAGMENT}
+      ${PROFILE_METADATA_FRAGMENT}
       name
     }
     ${PROJECT_FRAGMENT}
   }
 `;
 
-export const VENTURE_INFINITY_STONE_FRAGMENT = `
- ${VENTURE_IS_DATA_FIELDS_FRAGMENT}
-
- fragment ventureIsInfinityStoneFields on Venture {
-   id
-   assetContainerId
-   logoUrl
-   profile {
-    aapOnboarded
-    aiOnboarded
-    metadata {
-      createdAt
-      updatedAt
-    }
-    name
-   }
-   ${PROJECT_FRAGMENT}
- }
-`;
-
-export const VENTURE_FRAGMENT_WITHOUT_PROFILE = `
-fragment ventureFields on Venture {
+export const VENTURE_MINIMAL_FRAGMENT = `
+fragment ventureMinimal on Venture {
   id
   logoUrl
-  ${PROJECT_FRAGMENT}
   profile {
     aapOnboarded
     aiOnboarded
   }
+  ${PROJECT_FRAGMENT}
 }
 `;

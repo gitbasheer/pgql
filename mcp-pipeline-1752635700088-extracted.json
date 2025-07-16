@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-07-16T03:15:00.752Z",
+  "directory": "test/fixtures/mcp-test",
+  "totalQueries": 2,
+  "queries": [
+    {
+      "id": "queries-0-GetUser",
+      "file": "/Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts",
+      "name": "GetUser",
+      "type": "query",
+      "location": {
+        "line": 4,
+        "column": 33,
+        "file": "/Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts"
+      },
+      "content": "query GetUser($id: ID!) {\n  user(id: $id) {\n    id\n    name\n    email\n    profile {\n      avatar\n      bio\n    }\n  }\n}\n"
+    },
+    {
+      "id": "queries-1-UpdateUser",
+      "file": "/Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts",
+      "name": "UpdateUser",
+      "type": "mutation",
+      "location": {
+        "line": 18,
+        "column": 36,
+        "file": "/Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts"
+      },
+      "content": "mutation UpdateUser($id: ID!, $input: UserInput!) {\n  updateUser(id: $id, input: $input) {\n    id\n    name\n    email\n  }\n}\n"
+    }
+  ]
+}

@@ -30,3 +30,20 @@ describe('Full pipeline on mock vnext-dashboard', () => {
     });
   });
 });
+
+describe('UI Pipeline Flow', () => {
+  it('completes basic workflow', () => {
+    cy.visit('/');
+    cy.get('[data-cy=repo-input]').type('test-repo');
+    cy.get('[data-cy=start-pipeline]').click();
+    cy.get('[data-cy=pipeline-stage]').should('contain', 'Extraction');
+    cy.get('[data-cy=pipeline-complete]', { timeout: 30000 }).should('be.visible');
+  });
+
+  it('handles errors gracefully', () => {
+    cy.intercept('/api/pipeline/start', { statusCode: 500 }).as('apiError');
+    cy.visit('/');
+    cy.get('[data-cy=start-pipeline]').click();
+    cy.get('[data-cy=error-message]').should('be.visible');
+  });
+});

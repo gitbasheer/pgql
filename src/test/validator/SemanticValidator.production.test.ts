@@ -3,7 +3,7 @@ import { SemanticValidator } from '../../core/validator/SemanticValidator.js';
 import { performanceMonitor } from '../../core/monitoring/PerformanceMonitor.js';
 import { validationCache, astCache } from '../../core/cache/CacheManager.js';
 import { logger } from '../../utils/logger.js';
-import { parse, print, buildSchema } from 'graphql';
+import { buildSchema } from 'graphql';
 
 describe('SemanticValidator - Production Schema Tests', () => {
   let validator: SemanticValidator;
@@ -21,44 +21,28 @@ describe('SemanticValidator - Production Schema Tests', () => {
       type User {
         id: ID!
         name: String!
-        fullName: String!
-        displayName: String!
         email: String!
-        emailAddress: String!
-        contactEmail: String!
         avatar: String!
-        avatarUrl: String!
-        profileImage: String!
         profile: UserProfile
-        userProfile: UserProfile
       }
 
       type UserProfile {
         bio: String!
-        biography: String!
         company: String!
-        companyName: String!
         role: String!
-        jobTitle: String!
         socialLinks: [SocialLink!]!
-        socialProfiles: [SocialLink!]!
       }
 
       type SocialLink {
         platform: String!
-        platformName: String!
         url: String!
-        profileUrl: String!
       }
 
       type Project {
         id: ID!
         name: String!
-        projectName: String!
         owner: User!
-        projectOwner: User!
         collaborators: CollaboratorConnection!
-        projectCollaborators: CollaboratorConnection!
       }
 
       type CollaboratorConnection {
@@ -72,19 +56,14 @@ describe('SemanticValidator - Production Schema Tests', () => {
       type Collaborator {
         id: ID!
         user: User!
-        collaboratorUser: User!
         permissions: [String!]!
-        accessPermissions: [String!]!
       }
 
       type Post {
         id: ID!
         title: String!
-        postTitle: String!
         content: String!
-        postContent: String!
         author: User!
-        postAuthor: User!
       }
 
 
@@ -99,6 +78,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
 
       directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
       directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+      directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE
     `;
 
     productionSchema = buildSchema(testSchemaSDL);

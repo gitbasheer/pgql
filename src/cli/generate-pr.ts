@@ -8,6 +8,7 @@ import { GitHubService, MigrationSummary } from '../core/integration/GitHubServi
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import chalk from 'chalk';
+import { execGit, validateBranchName } from '../utils/secureCommand.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -151,16 +152,8 @@ program
 
       // Check for modified files if not in summary
       if (summary.filesModified.length === 0 && gitStatus.hasUncommittedChanges) {
-        const { stdout } = await import('child_process').then(
-          (cp) =>
-            new Promise<{ stdout: string }>((resolve, reject) => {
-              cp.exec('git diff --name-only', (error, stdout) => {
-                if (error) reject(error);
-                else resolve({ stdout });
-              });
-            }),
-        );
-        summary.filesModified = stdout
+        const result = await execGit(['diff', '--name-only']);
+        summary.filesModified = result.stdout
           .trim()
           .split('\n')
           .filter((f) => f);
@@ -172,6 +165,11 @@ program
 
       // Generate branch name
       const branchName = options.branch || githubService.generateBranchName();
+      
+      // Validate branch name for security
+      if (!validateBranchName(branchName)) {
+        throw new Error(`Invalid branch name: ${branchName}. Branch names must only contain alphanumeric characters, hyphens, underscores, and forward slashes.`);
+      }
 
       // Create feature branch
       try {
@@ -180,16 +178,8 @@ program
       } catch (error: any) {
         if (error.message.includes('already exists')) {
           logger.warn(`Branch ${branchName} already exists. Using existing branch.`);
-          // Checkout the existing branch
-          await import('child_process').then(
-            (cp) =>
-              new Promise<void>((resolve, reject) => {
-                cp.exec(`git checkout ${branchName}`, (error) => {
-                  if (error) reject(error);
-                  else resolve();
-                });
-              }),
-          );
+          // Checkout the existing branch using secure command
+          await execGit(['checkout', branchName]);
         } else {
           throw error;
         }

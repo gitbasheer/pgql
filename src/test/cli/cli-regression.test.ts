@@ -303,16 +303,20 @@ describe('CLI Regression Test Suite', () => {
   describe('Security Tests', () => {
     it('should validate branch names with safe regex pattern', async () => {
       const safeBranchRegex = /^[a-zA-Z0-9/_-]+$/;
-
+      
       const testBranches = [
         { name: 'feature/add-auth', valid: true },
         { name: 'fix-123_bug', valid: true },
-        { name: 'release/v1.0.0', valid: true },
+        { name: 'release/v1-0-0', valid: true }, // Updated to use hyphens instead of dots
         { name: 'feature/../../etc/passwd', valid: false },
         { name: 'branch; rm -rf /', valid: false },
         { name: 'branch$(whoami)', valid: false },
         { name: 'branch`ls`', valid: false },
         { name: 'branch&&echo', valid: false },
+        { name: 'branch.with.dots', valid: false }, // Dots no longer allowed
+        { name: 'branch with spaces', valid: false },
+        { name: 'branch"quotes"', valid: false },
+        { name: "branch'quotes'", valid: false },
       ];
 
       testBranches.forEach(({ name, valid }) => {

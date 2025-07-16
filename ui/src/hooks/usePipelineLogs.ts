@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Socket } from 'socket.io-client';
 import { LogDetail } from '../types/api.types';
 
@@ -13,11 +13,11 @@ export interface LogEntry {
 
 export function usePipelineLogs(socket: Socket | null) {
   const [logs, setLogs] = useState<LogEntry[]>([]);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleLog = (data: LogDetail) => {
+  const debouncedLogHandler = useCallback((data: LogDetail) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
       // Validate log data
       if (!data || typeof data !== 'object' || !('message' in data)) {
         return; // Skip malformed log data
@@ -32,16 +32,21 @@ export function usePipelineLogs(socket: Socket | null) {
         timestamp: data.timestamp ? new Date(data.timestamp) : new Date(),
       };
       setLogs((prev) => [...prev, logEntry]);
-    };
+    }, 50); // 50ms debounce
+  }, []);
 
-    socket.on('log', handleLog);
-    socket.on('pipeline:log', handleLog);
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('log', debouncedLogHandler);
+    socket.on('pipeline:log', debouncedLogHandler);
 
     return () => {
-      socket.off('log', handleLog);
-      socket.off('pipeline:log', handleLog);
+      socket.off('log', debouncedLogHandler);
+      socket.off('pipeline:log', debouncedLogHandler);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [socket]);
+  }, [socket, debouncedLogHandler]);
 
   const clearLogs = () => setLogs([]);
 

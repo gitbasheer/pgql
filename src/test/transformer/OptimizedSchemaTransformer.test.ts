@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { OptimizedSchemaTransformer } from '../../core/transformer/OptimizedSchemaTransformer.js';
 import { sampleDeprecationRules, testQueries } from '../fixtures/schema-deprecations.js';
 import { parse, print } from 'graphql';
@@ -36,6 +36,238 @@ describe('OptimizedSchemaTransformer', () => {
       commentOutVague: true,
       addDeprecationComments: true,
       preserveOriginalAsComment: false,
+    });
+  });
+
+  describe('Nested Diff Handling', () => {
+    it('should handle nested diffs correctly', async () => {
+      const input = `
+        query GetUserProfile {
+          user {
+            id
+            profile {
+              bio
+              old_settings {
+                theme
+                notifications
+              }
+            }
+          }
+        }
+      `;
+
+      const result = await transformer.transformQuery(input);
+      
+      expect(result.modified).toBe(true);
+      expect(result.transformedQuery).toContain('settings');
+      expect(result.transformedQuery).not.toContain('old_settings');
+    });
+
+    it('should handle deeply nested field replacements', async () => {
+      const input = `
+        query ComplexNesting {
+          user {
+            profile {
+              settings {
+                old_settings {
+                  deprecated_field
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const result = await transformer.transformQuery(input);
+      expect(result.modified).toBe(true);
+      expect(result.changes).toHaveLength(2); // Both deprecated_field and old_settings
+    });
+
+    it('should preserve query structure while transforming nested fields', async () => {
+      const input = `
+        query PreserveStructure {
+          user {
+            id
+            name
+            profile {
+              bio
+              old_settings {
+                theme
+              }
+              socialLinks {
+                platform
+                url
+              }
+            }
+          }
+        }
+      `;
+
+      const result = await transformer.transformQuery(input);
+      
+      // Should preserve id, name, bio, socialLinks
+      expect(result.transformedQuery).toContain('id');
+      expect(result.transformedQuery).toContain('name');
+      expect(result.transformedQuery).toContain('bio');
+      expect(result.transformedQuery).toContain('socialLinks');
+      
+      // Should transform old_settings to settings
+      expect(result.transformedQuery).toContain('settings');
+      expect(result.transformedQuery).not.toContain('old_settings');
+    });
+  });
+
+  describe('Edge Case Handling', () => {
+    it('should handle fragments with deprecated fields', async () => {
+      const input = `
+        fragment UserFragment on User {
+          id
+          deprecated_field
+          name
+        }
+        
+        query GetUsers {
+          users {
+            ...UserFragment
+          }
+        }
+      `;
+
+      const result = await transformer.transformQuery(input);
+      expect(result.modified).toBe(true);
+      expect(result.transformedQuery).toContain('new_field');
+      expect(result.transformedQuery).not.toContain('deprecated_field');
+    });
+
+    it('should handle inline fragments', async () => {
+      const input = `
+        query GetUserTypes {
+          user {
+            ... on User {
+              deprecated_field
+            }
+            ... on AdminUser {
+              adminLevel
+            }
+          }
+        }
+      `;
+
+      const result = await transformer.transformQuery(input);
+      expect(result.modified).toBe(true);
+      expect(result.transformedQuery).toContain('new_field');
+    });
+
+    it('should handle variables and arguments', async () => {
+      const input = `
+        query GetUserWithVar($userId: ID!) {
+          user(id: $userId) {
+            deprecated_field
+          }
+        }
+      `;
+
+      const result = await transformer.transformQuery(input);
+      expect(result.modified).toBe(true);
+      expect(result.transformedQuery).toContain('$userId: ID!');
+      expect(result.transformedQuery).toContain('user(id: $userId)');
+      expect(result.transformedQuery).toContain('new_field');
+    });
+
+    it('should handle mutations and subscriptions', async () => {
+      const mutation = `
+        mutation UpdateUser($input: UserInput!) {
+          updateUser(input: $input) {
+            deprecated_field
+            id
+          }
+        }
+      `;
+
+      const result = await transformer.transformQuery(mutation);
+      expect(result.modified).toBe(true);
+      expect(result.transformedQuery).toContain('new_field');
+      expect(result.transformedQuery).toContain('mutation UpdateUser');
+    });
+
+    it('should handle directives', async () => {
+      const input = `
+        query GetUserConditional($includeProfile: Boolean!) {
+          user {
+            id
+            deprecated_field @include(if: $includeProfile)
+            profile @skip(if: false) {
+              bio
+            }
+          }
+        }
+      `;
+
+      const result = await transformer.transformQuery(input);
+      expect(result.modified).toBe(true);
+      expect(result.transformedQuery).toContain('new_field @include(if: $includeProfile)');
+      expect(result.transformedQuery).toContain('@skip(if: false)');
+    });
+  });
+
+  describe('Performance and Error Handling', () => {
+    it('should handle malformed queries gracefully', async () => {
+      const malformedQuery = `
+        query InvalidSyntax {
+          user {
+            deprecated_field
+          // Missing closing brace
+        }
+      `;
+
+      const result = await transformer.transformQuery(malformedQuery);
+      expect(result.modified).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].type).toBe('syntax');
+    });
+
+    it('should handle empty queries', async () => {
+      const result = await transformer.transformQuery('');
+      expect(result.modified).toBe(false);
+      expect(result.transformedQuery).toBe('');
+    });
+
+    it('should handle queries with no deprecated fields', async () => {
+      const input = `
+        query CleanQuery {
+          user {
+            id
+            name
+            email
+          }
+        }
+      `;
+
+      const result = await transformer.transformQuery(input);
+      expect(result.modified).toBe(false);
+      expect(result.transformedQuery).toBe(input);
+      expect(result.changes).toHaveLength(0);
+    });
+
+    it('should handle large queries efficiently', async () => {
+      // Generate a large query with many fields
+      const fields = Array.from({ length: 100 }, (_, i) => `field${i}`).join('\n');
+      const largeQuery = `
+        query LargeQuery {
+          user {
+            id
+            deprecated_field
+            ${fields}
+          }
+        }
+      `;
+
+      const startTime = Date.now();
+      const result = await transformer.transformQuery(largeQuery);
+      const duration = Date.now() - startTime;
+
+      expect(result.modified).toBe(true);
+      expect(duration).toBeLessThan(1000); // Should complete within 1 second
     });
   });
 

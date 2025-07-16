@@ -1,0 +1,173 @@
+## GraphQL Migration Summary
+
+This PR contains automated GraphQL migration changes based on schema deprecations.
+
+### Statistics
+- **Operations Processed**: 78
+- **Successful Transformations**: 30
+- **Files Modified**: 7
+- **Average Confidence**: 80.0%
+
+### Changes
+- **FindUnifiedBillDetails** in `offer-graph-queries.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **ModifyBasketWithOptions** in `offer-graph-queries.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetQuickLinksData** in `quicklinks.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetVentureHomeDataAllDashboard** in `shared-graph-queries-v1.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **SingleVentureByVentureId** in `shared-graph-queries-v1.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **SingleVentureByVentureId** in `shared-graph-queries-v1.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **ByIdV1** in `shared-graph-queries-v1.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **ProjectByEntitlement** in `shared-graph-queries-v1.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **AllVentures** in `shared-graph-queries-v1.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **VentureInfinityStoneDataByVentureId** in `shared-graph-queries-v1.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **VentureInfinityStoneDataByDomain** in `shared-graph-queries-v1.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetVentureHomeDataByVentureIdDashboardV2** in `shared-graph-queries-v2.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetVentureSkeleton** in `shared-graph-queries-v2.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetVentureHomeDataByDomainNameDashboardV2** in `shared-graph-queries-v2.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetVentureHomeDataAllDashboard** in `shared-graph-queries-v3.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetVentureHomeDataByVentureIdDashboardV3** in `shared-graph-queries-v3.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetVentureHomeDataByDomainNameDashboardV3** in `shared-graph-queries-v3.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetVentureHomeDataByVentureIdDashboardV3airo** in `shared-graph-queries-v3.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetVentureHomeDataByDomainNameDashboardV3airo** in `shared-graph-queries-v3.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetUserDataDashboardV3** in `shared-graph-queries-v3.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetUserDataDashboardV3** in `shared-graph-queries-v3.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetClientSideDataDashboardV3** in `shared-graph-queries-v3.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetVentureDomainInfo** in `shared-graph-queries-v3.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetAapdomainSuccessPoll** in `shared-graph-queries-v3.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetAaprenewalSuccessPoll** in `shared-graph-queries-v3.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetAapemailClaimPoll** in `shared-graph-queries-v3.js`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **UpdateOffer** in `hooks.ts`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetVentures** in `ventures.ts`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **GetProjectDetails** in `ventures.ts`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+- **UpdateProjectSettings** in `ventures.ts`
+  - field-rename: `allVentures` → `ventures`
+  - field-rename: `user` → `account`
+  - field-rename: `edges` → `nodes`
+  - field-rename: `fullName` → `displayName`
+
+### Safety Features
+- Progressive rollout enabled at 1%
+- Automatic rollback available
+- Health monitoring active
+
+### Next Steps
+1. Review the changes
+2. Monitor health metrics after merge
+3. Gradually increase rollout percentage
+
+Generated by pg-migration-620
