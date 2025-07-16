@@ -127,7 +127,7 @@ describe('API Service - Comprehensive Coverage', () => {
     });
 
     it('should handle network timeout', async () => {
-      (global.fetch as any).mockRejectedValueOnce(new Error('Network timeout'));
+      (global.fetch as any).mockRejectedValue(new Error('Network timeout'));
 
       await expect(testOnRealApi(mockTestParams)).rejects.toThrow(
         'Network timeout'
@@ -218,7 +218,8 @@ describe('API Service - Comprehensive Coverage', () => {
       const result = await getBaselineComparisons('getUser');
 
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/pipeline/baselines/getUser'
+        '/api/pipeline/baselines/getUser',
+        {}
       );
       expect(result).toEqual(mockBaselines);
     });
@@ -234,7 +235,8 @@ describe('API Service - Comprehensive Coverage', () => {
       await getBaselineComparisons(queryName);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        `/api/pipeline/baselines/${encodeURIComponent(queryName)}`
+        `/api/pipeline/baselines/${encodeURIComponent(queryName)}`,
+        {}
       );
     });
 
@@ -322,7 +324,8 @@ describe('API Service - Comprehensive Coverage', () => {
       const result = await getRealApiTestResults('pipeline-123');
 
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/pipeline/pipeline-123/real-api-tests'
+        '/api/pipeline/pipeline-123/real-api-tests',
+        {}
       );
       expect(result).toEqual(mockTestResults);
     });
@@ -466,7 +469,7 @@ describe('API Service - Comprehensive Coverage', () => {
     });
 
     it('should handle network connectivity issues', async () => {
-      (global.fetch as any).mockRejectedValueOnce(new Error('ECONNREFUSED'));
+      (global.fetch as any).mockRejectedValue(new Error('ECONNREFUSED'));
 
       await expect(
         triggerRealApiTests('pipeline-123', mockAuth)
@@ -530,11 +533,9 @@ describe('API Service - Comprehensive Coverage', () => {
     });
 
     it('should handle response timeout scenarios', async () => {
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Request timeout')), 100)
+      (global.fetch as any).mockImplementation(() => 
+        Promise.reject(new Error('Request timeout'))
       );
-
-      (global.fetch as any).mockImplementationOnce(() => timeoutPromise);
 
       await expect(
         testOnRealApi({
