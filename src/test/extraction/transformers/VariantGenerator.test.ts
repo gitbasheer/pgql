@@ -28,7 +28,7 @@ describe('VariantGenerator', () => {
     generator = new VariantGenerator(mockContext);
   });
 
-  describe('generate', () => {
+  describe('generate', () => { type: 'query',
     it('should generate no variants for queries without dynamic patterns', async () => {
       const queries: ResolvedQuery[] = [
         {
@@ -37,7 +37,7 @@ describe('VariantGenerator', () => {
           content: 'query StaticQuery { user { id name } }',
           resolvedContent: 'query StaticQuery { user { id name } }',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/VariantGenerator.test.ts' },
           hash: 'hash1',
           resolvedFragments: [],
           type: 'query',
@@ -52,7 +52,7 @@ describe('VariantGenerator', () => {
       expect(logger.info).toHaveBeenCalledWith('Generated 0 variants from 1 queries');
     });
 
-    it('should generate variants for simple boolean switch', async () => {
+    it('should generate variants for simple boolean switch', async () => { type: 'query',
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -60,7 +60,7 @@ describe('VariantGenerator', () => {
           content: 'query DynamicQuery { user { id ${includeEmail ? "email" : ""} } }',
           resolvedContent: 'query DynamicQuery { user { id ${includeEmail ? "email" : ""} } }',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/VariantGenerator.test.ts' },
           hash: 'hash1',
           resolvedFragments: [],
           type: 'query',
@@ -98,7 +98,7 @@ describe('VariantGenerator', () => {
       expect(falseVariant!.content).not.toContain('${');
     });
 
-    it('should generate variants for multiple switches', async () => {
+    it('should generate variants for multiple switches', async () => { type: 'query',
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -118,7 +118,7 @@ describe('VariantGenerator', () => {
             } 
           }`,
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/VariantGenerator.test.ts' },
           hash: 'hash1',
           resolvedFragments: [],
           type: 'query',
@@ -184,7 +184,7 @@ describe('VariantGenerator', () => {
       }
     });
 
-    it('should handle enum switches', async () => {
+    it('should handle enum switches', async () => { type: 'query',
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -192,7 +192,7 @@ describe('VariantGenerator', () => {
           content: 'query EnumQuery { user { id ${userType} } }',
           resolvedContent: 'query EnumQuery { user { id ${userType} } }',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/VariantGenerator.test.ts' },
           hash: 'hash1',
           resolvedFragments: [],
           type: 'query',
@@ -220,7 +220,7 @@ describe('VariantGenerator', () => {
       );
     });
 
-    it('should generate correct variant IDs', async () => {
+    it('should generate correct variant IDs', async () => { type: 'query',
       const queries: ResolvedQuery[] = [
         {
           id: 'query-123',
@@ -228,7 +228,7 @@ describe('VariantGenerator', () => {
           content: 'query TestQuery { user { id ${flag ? "name" : ""} } }',
           resolvedContent: 'query TestQuery { user { id ${flag ? "name" : ""} } }',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/VariantGenerator.test.ts' },
           hash: 'hash1',
           resolvedFragments: [],
           type: 'query',
@@ -255,7 +255,7 @@ describe('VariantGenerator', () => {
       expect(result[0].id).not.toBe(result[1].id);
     });
 
-    it('should handle invalid GraphQL in variants gracefully', async () => {
+    it('should handle invalid GraphQL in variants gracefully', async () => { type: 'query',
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -263,7 +263,7 @@ describe('VariantGenerator', () => {
           content: 'query { ${broken',
           resolvedContent: 'query { ${broken',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/VariantGenerator.test.ts' },
           hash: 'hash1',
           resolvedFragments: [],
           type: 'query',
@@ -292,7 +292,7 @@ describe('VariantGenerator', () => {
       expect(result).toHaveLength(0);
     });
 
-    it('should preserve fragment dependencies', async () => {
+    it('should preserve fragment dependencies', async () => { type: 'query',
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -301,7 +301,7 @@ describe('VariantGenerator', () => {
           resolvedContent:
             'query QueryWithFragments { user { ...UserFields ${extra ? "extra" : ""} } }',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/VariantGenerator.test.ts' },
           hash: 'hash1',
           resolvedFragments: [],
           allDependencies: ['UserFields', 'BaseFields'],
@@ -331,7 +331,7 @@ describe('VariantGenerator', () => {
     });
   });
 
-  describe('complex ternary expressions', () => {
+  describe('complex ternary expressions', () => { type: 'query',
     it('should handle nested ternary expressions', async () => {
       const queries: ResolvedQuery[] = [
         {
@@ -340,7 +340,7 @@ describe('VariantGenerator', () => {
           content: 'query { user { id ${isAdmin ? "admin { level }" : "basic"} } }',
           resolvedContent: 'query { user { id ${isAdmin ? "admin { level }" : "basic"} } }',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/VariantGenerator.test.ts' },
           hash: 'hash1',
           resolvedFragments: [],
           type: 'query',
@@ -371,7 +371,7 @@ describe('VariantGenerator', () => {
       expect(basicVariant!.content).not.toContain('admin');
     });
 
-    it('should handle expressions with quotes correctly', async () => {
+    it('should handle expressions with quotes correctly', async () => { type: 'query',
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -379,7 +379,7 @@ describe('VariantGenerator', () => {
           content: 'query { user { ${flag ? \'field1\' : "field2"} } }',
           resolvedContent: 'query { user { ${flag ? \'field1\' : "field2"} } }',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/VariantGenerator.test.ts' },
           hash: 'hash1',
           resolvedFragments: [],
           type: 'query',
@@ -410,7 +410,7 @@ describe('VariantGenerator', () => {
     });
   });
 
-  describe('edge cases', () => {
+  describe('edge cases', () => { type: 'query',
     it('should handle empty switches map', async () => {
       const queries: ResolvedQuery[] = [
         {
@@ -419,7 +419,7 @@ describe('VariantGenerator', () => {
           content: 'query { user { id } }',
           resolvedContent: 'query { user { id } }',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/VariantGenerator.test.ts' },
           hash: 'hash1',
           resolvedFragments: [],
           type: 'query',
@@ -448,7 +448,7 @@ describe('VariantGenerator', () => {
       expect(result).toHaveLength(0);
     });
 
-    it('should skip switches with no possible values', async () => {
+    it('should skip switches with no possible values', async () => { type: 'query',
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -456,7 +456,7 @@ describe('VariantGenerator', () => {
           content: 'query { user { id ${empty} } }',
           resolvedContent: 'query { user { id ${empty} } }',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/VariantGenerator.test.ts' },
           hash: 'hash1',
           resolvedFragments: [],
           type: 'query',
@@ -480,7 +480,7 @@ describe('VariantGenerator', () => {
       expect(result).toHaveLength(0);
     });
 
-    it('should generate unique descriptions for each variant', async () => {
+    it('should generate unique descriptions for each variant', async () => { type: 'query',
       const queries: ResolvedQuery[] = [
         {
           id: '1',
@@ -488,7 +488,7 @@ describe('VariantGenerator', () => {
           content: 'query { ${a ? "a" : ""} ${b ? "b" : ""} }',
           resolvedContent: 'query { ${a ? "a" : ""} ${b ? "b" : ""} }',
           filePath: '/src/queries.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/extraction/transformers/VariantGenerator.test.ts' },
           hash: 'hash1',
           resolvedFragments: [],
           type: 'query',

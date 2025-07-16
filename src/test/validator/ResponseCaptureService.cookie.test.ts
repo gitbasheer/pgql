@@ -80,7 +80,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
           content: '{ __typename }',
           type: 'query',
           filePath: 'test.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/validator/ResponseCaptureService.cookie.test.ts' },
           hash: 'test-hash',
         },
       ]);
@@ -119,7 +119,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
           content: '{ __typename }',
           type: 'query',
           filePath: 'test.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/validator/ResponseCaptureService.cookie.test.ts' },
           hash: 'test-hash',
         },
       ]);
@@ -151,7 +151,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
           content: '{ __typename }',
           type: 'query',
           filePath: 'test.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/validator/ResponseCaptureService.cookie.test.ts' },
           hash: 'test-hash',
         },
       ]);
@@ -188,7 +188,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
           content: '{ __typename }',
           type: 'query',
           filePath: 'test.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/validator/ResponseCaptureService.cookie.test.ts' },
           hash: 'test-hash',
         },
       ]);
@@ -238,7 +238,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
           content: '{ __typename }',
           type: 'query',
           filePath: 'test.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/validator/ResponseCaptureService.cookie.test.ts' },
           hash: 'test-hash',
         },
       ]);
@@ -293,7 +293,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
           content: '{ __typename }',
           type: 'query',
           filePath: 'test.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/validator/ResponseCaptureService.cookie.test.ts' },
           hash: 'test-hash',
         },
       ]);
@@ -330,7 +330,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
           content: '{ __typename }',
           type: 'query',
           filePath: 'test.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/validator/ResponseCaptureService.cookie.test.ts' },
           hash: 'test-hash',
         },
       ]);
@@ -362,7 +362,7 @@ describe('ResponseCaptureService - Cookie Authentication', () => {
           content: '{ __typename }',
           type: 'query',
           filePath: 'test.ts',
-          location: { line: 1, column: 1 },
+          location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/validator/ResponseCaptureService.cookie.test.ts' },
           hash: 'test-hash',
         },
       ]);

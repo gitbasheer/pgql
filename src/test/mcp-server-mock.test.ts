@@ -109,7 +109,7 @@ describe('MCP Server Mock Tests', () => {
       expect(mockExistsSync).toHaveBeenCalledWith('test.json');
     });
 
-    it('should handle reading JSON files', () => {
+    it('should handle reading JSON files', () => { type: 'query',
       const mockReadFileSync = vi.mocked(readFileSync);
       const mockData = JSON.stringify({ queries: [{ id: '1', name: 'TestQuery' }] });
       mockReadFileSync.mockReturnValue(mockData);

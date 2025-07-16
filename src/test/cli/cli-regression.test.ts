@@ -315,8 +315,8 @@ describe('CLI Regression Test Suite', () => {
         { name: 'branch&&echo', valid: false },
         { name: 'branch.with.dots', valid: false }, // Dots no longer allowed
         { name: 'branch with spaces', valid: false },
-        { name: 'branch"quotes"', valid: false },
-        { name: "branch'quotes'", valid: false },
+        { type: 'query', name: 'branch"quotes"', valid: false },
+        { type: 'query', name: "branch'quotes'", valid: false },
       ];
 
       testBranches.forEach(({ name, valid }) => {

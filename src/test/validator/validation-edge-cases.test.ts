@@ -185,7 +185,7 @@ describe('Validation Edge Cases', () => {
       expect(result.valid).toBe(true);
     });
 
-    it('should handle multiline template literals', async () => {
+    it('should handle multiline template literals', async () => { namePattern: { template: '${queryName}', version: 'V1' },
       const multilineTemplate = `
         query MultilineQuery {
           search(query: "dynamic_query_string") {
@@ -316,7 +316,7 @@ describe('Validation Edge Cases', () => {
       migrationValidator = new MigrationValidator();
     });
 
-    it('should handle intentional duplicates with different contexts', async () => {
+    it('should handle intentional duplicates with different contexts', async () => { type: 'query',
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -326,7 +326,7 @@ describe('Validation Edge Cases', () => {
           filePath: 'admin/users.ts',
           fragments: [],
         },
-        {
+        { type: 'query',
           id: 'query2',
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
@@ -352,7 +352,7 @@ describe('Validation Edge Cases', () => {
       expect(report.issues.filter((i) => i.type === 'structural')).toHaveLength(2);
     });
 
-    it('should detect when only some duplicates are transformed', async () => {
+    it('should detect when only some duplicates are transformed', async () => { type: 'query',
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -362,7 +362,7 @@ describe('Validation Edge Cases', () => {
           filePath: 'feature1.ts',
           fragments: [],
         },
-        {
+        { type: 'query',
           id: 'query2',
           name: 'GetVenture',
           source: 'query GetVenture { venture { id name } }',
@@ -370,7 +370,7 @@ describe('Validation Edge Cases', () => {
           filePath: 'feature2.ts',
           fragments: [],
         },
-        {
+        { type: 'query',
           id: 'query3',
           name: 'GetVenture',
           source: 'query GetVenture { venture { id name } }',
@@ -471,19 +471,19 @@ describe('Validation Edge Cases', () => {
         ],
       });
 
-      const baseline = createResponse({
+      const baseline = createResponse({ type: 'query',
         items: [
           { id: '1', name: 'A' },
-          { id: '2', name: 'B' },
-          { id: '3', name: 'C' },
+          { type: 'query', id: '2', name: 'B' },
+          { type: 'query', id: '3', name: 'C' },
         ],
       });
 
-      const transformed = createResponse({
+      const transformed = createResponse({ type: 'query',
         items: [
           { id: '3', name: 'C' },
-          { id: '1', name: 'A' },
-          { id: '2', name: 'B' },
+          { type: 'query', id: '1', name: 'A' },
+          { type: 'query', id: '2', name: 'B' },
         ],
       });
 

@@ -61,7 +61,7 @@ describe('extract-transform CLI', () => {
           filePath: '/src/queries.ts',
           name: 'GetUser',
           type: 'query',
-          location: { line: 10, column: 5 },
+          location: { line: 10, column: 5, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/cli/extract-transform.test.ts' },
           content: 'query GetUser { user { id name } }',
           resolvedContent: 'query GetUser { user { id name } }',
           hash: 'hash1',
@@ -73,7 +73,7 @@ describe('extract-transform CLI', () => {
           filePath: '/src/mutations.ts',
           name: 'CreateUser',
           type: 'mutation',
-          location: { line: 20, column: 5 },
+          location: { line: 20, column: 5, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/cli/extract-transform.test.ts' },
           content: 'mutation CreateUser { createUser { id } }',
           resolvedContent: 'mutation CreateUser { createUser { id } }',
           hash: 'hash2',
@@ -211,7 +211,7 @@ describe('extract-transform CLI', () => {
     });
   });
 
-  describe('transform command', () => {
+  describe('transform command', () => { type: 'query',
     const mockInputData = {
       queries: [
         {
@@ -585,7 +585,7 @@ describe('extract-transform CLI', () => {
                 errors: [
                   {
                     message: 'Field "unknown" not found',
-                    locations: [{ line: 1, column: 15 }],
+                    locations: [{ line: 1, column: 15, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/cli/extract-transform.test.ts' }],
                     suggestion: 'Did you mean "id"?',
                   },
                 ],
@@ -608,7 +608,7 @@ describe('extract-transform CLI', () => {
               errors: [
                 {
                   message: 'Field "unknown" not found',
-                  locations: [{ line: 1, column: 15 }],
+                  locations: [{ line: 1, column: 15, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/cli/extract-transform.test.ts' }],
                   suggestion: 'Did you mean "id"?',
                 },
               ],

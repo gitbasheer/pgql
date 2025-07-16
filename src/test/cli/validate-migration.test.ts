@@ -52,7 +52,7 @@ describe('MigrationValidator', () => {
     (globalThis as any).clearMockFileSystem?.();
   });
 
-  describe('validateMigration', () => {
+  describe('validateMigration', () => { type: 'query',
     it('should pass validation when queries are identical', async () => {
       const queries: ExtractedQuery[] = [
         {
@@ -80,7 +80,7 @@ describe('MigrationValidator', () => {
       expect(report.issues).toHaveLength(0);
     });
 
-    it('should detect missing queries', async () => {
+    it('should detect missing queries', async () => { type: 'query',
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -90,7 +90,7 @@ describe('MigrationValidator', () => {
           filePath: 'test.ts',
           fragments: [],
         },
-        {
+        { type: 'query',
           id: 'query2',
           name: 'GetVenture',
           source: 'query GetVenture { venture { id name } }',
@@ -101,7 +101,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: ExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
@@ -127,7 +127,7 @@ describe('MigrationValidator', () => {
       expect(report.issues[0].queryId).toBe('query2');
     });
 
-    it('should detect extra queries', async () => {
+    it('should detect extra queries', async () => { type: 'query',
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -140,7 +140,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: ExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
@@ -148,7 +148,7 @@ describe('MigrationValidator', () => {
           filePath: 'test.ts',
           fragments: [],
         },
-        {
+        { type: 'query',
           id: 'query2',
           name: 'GetVenture',
           source: 'query GetVenture { venture { id name } }',
@@ -173,7 +173,7 @@ describe('MigrationValidator', () => {
       expect(report.issues[0].severity).toBe('warning');
     });
 
-    it('should detect name changes', async () => {
+    it('should detect name changes', async () => { type: 'query',
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -186,7 +186,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: ExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUserNew',
           source: 'query GetUser { user { id name } }',
@@ -211,7 +211,7 @@ describe('MigrationValidator', () => {
       expect(report.issues.find((i) => i.type === 'naming')?.message).toContain('GetUserNew');
     });
 
-    it('should detect structural changes', async () => {
+    it('should detect structural changes', async () => { type: 'query',
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -224,7 +224,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: ExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'query GetUser { user { id name email } }',
@@ -249,7 +249,7 @@ describe('MigrationValidator', () => {
       );
     });
 
-    it('should detect type changes as errors', async () => {
+    it('should detect type changes as errors', async () => { type: 'query',
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -262,7 +262,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: ExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'mutation GetUser { user { id name } }',
@@ -285,7 +285,7 @@ describe('MigrationValidator', () => {
       expect(report.issues.find((i) => i.message.includes('type changed'))).toBeDefined();
     });
 
-    it('should handle strict mode', async () => {
+    it('should handle strict mode', async () => { type: 'query',
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -298,7 +298,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: ExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUserNew',
           source: 'query GetUser { user { id name } }',
@@ -321,7 +321,7 @@ describe('MigrationValidator', () => {
       expect(report.issues.find((i) => i.severity === 'error')).toBeDefined();
     });
 
-    it('should validate pattern-specific fields', async () => {
+    it('should validate pattern-specific fields', async () => { type: 'query',
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -334,7 +334,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: PatternExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'query ${queryNames.getUserById} { user { id name } }',
@@ -364,7 +364,7 @@ describe('MigrationValidator', () => {
       expect(report.summary.matchedQueries).toBe(1);
     });
 
-    it('should detect interpolation detection mismatch', async () => {
+    it('should detect interpolation detection mismatch', async () => { type: 'query',
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -377,7 +377,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: PatternExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'query ${queryNames.getUserById} { user { id name } }',
@@ -409,7 +409,7 @@ describe('MigrationValidator', () => {
       ).toBeDefined();
     });
 
-    it('should handle different file formats', async () => {
+    it('should handle different file formats', async () => { type: 'query',
       const beforeData = {
         queries: [
           {
@@ -423,7 +423,7 @@ describe('MigrationValidator', () => {
         ],
       };
 
-      const afterData = {
+      const afterData = { type: 'query',
         extractedQueries: [
           {
             id: 'query1',
@@ -448,7 +448,7 @@ describe('MigrationValidator', () => {
       expect(report.summary.matchedQueries).toBe(1);
     });
 
-    it('should generate detailed report file', async () => {
+    it('should generate detailed report file', async () => { type: 'query',
       const queries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -552,7 +552,7 @@ describe('MigrationValidator', () => {
       expect(report.status).toBe('passed');
     });
 
-    it('should handle content fingerprint matching', async () => {
+    it('should handle content fingerprint matching', async () => { type: 'query',
       const beforeQueries: ExtractedQuery[] = [
         {
           id: 'query1',
@@ -565,7 +565,7 @@ describe('MigrationValidator', () => {
       ];
 
       const afterQueries: PatternExtractedQuery[] = [
-        {
+        { type: 'query',
           id: 'query1',
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',

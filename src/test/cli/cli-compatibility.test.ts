@@ -12,7 +12,7 @@ describe('CLI Compatibility Tests', () => {
     vi.clearAllMocks();
   });
 
-  describe('Output Format Compatibility', () => {
+  describe('Output Format Compatibility', () => { type: 'query',
     it('should maintain stable extraction output format across versions', async () => {
       const mockData = {
         timestamp: '2025-01-10T10:00:00Z',
@@ -43,7 +43,7 @@ describe('CLI Compatibility Tests', () => {
       expect(v09Output).not.toHaveProperty('stats');
     });
 
-    it('should handle transformation output versioning', async () => {
+    it('should handle transformation output versioning', async () => { namePattern: { template: '${queryName}', version: 'V1' },
       const mockData = {
         timestamp: '2025-01-10T10:00:00Z',
         totalTransformed: 3,
