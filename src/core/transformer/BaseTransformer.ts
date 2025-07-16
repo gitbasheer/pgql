@@ -3,6 +3,7 @@ import { Result, ok, err } from 'neverthrow';
 import { createHash } from 'crypto';
 import { logger } from '../../utils/logger.js';
 import { transformCache } from '../cache/CacheManager.js';
+import { TransformationError, handleError } from '../errors/index.js';
 
 // Unified types for all transformers
 export interface TransformOptions {
@@ -106,6 +107,20 @@ export abstract class BaseTransformer {
       const ast = parse(query);
       return ok(ast);
     } catch (error) {
+      const transformationError = new TransformationError(
+        `Failed to parse GraphQL query: ${error}`,
+        { 
+          queryId: 'unknown',
+          additionalData: { 
+            location: this.extractErrorLocation(error) 
+          }
+        },
+        error instanceof Error ? error : new Error(String(error))
+      );
+      
+      // Handle error through unified system
+      await handleError(transformationError);
+      
       const parseError: TransformError = {
         type: 'PARSE_ERROR',
         message: `Failed to parse GraphQL query: ${error}`,

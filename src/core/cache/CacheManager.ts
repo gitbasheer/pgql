@@ -2,6 +2,7 @@ import { LRUCache } from 'lru-cache';
 import { Level } from 'level';
 import { createHash } from 'crypto';
 import { logger } from '../../utils/logger.js';
+import { CacheError, handleError } from '../errors/index.js';
 import { performance } from 'perf_hooks';
 import type { GraphQLSchema } from 'graphql';
 import type { ExtractedQuery } from '../extraction/types/index.js';
@@ -82,7 +83,12 @@ export class CacheManager {
       }
       logger.info(`Persistent cache initialized at ${dbPath}`);
     } catch (error) {
-      logger.error('Failed to initialize persistent cache:', error);
+      const cacheError = new CacheError(
+        'Failed to initialize persistent cache',
+        { additionalData: { dbPath } },
+        error instanceof Error ? error : new Error(String(error))
+      );
+      await handleError(cacheError);
     }
   }
 
