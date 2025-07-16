@@ -30,6 +30,14 @@ export interface ExtractedQuery {
   queryName: string;
   content: string;
   fullExpandedQuery?: string;
+  
+  // Required properties for compatibility
+  id: string;
+  type: 'query' | 'mutation' | 'subscription' | 'fragment';
+  
+  // Additional properties for compatibility
+  queryId?: string;
+  hash?: string;
 
   // Location
   filePath: string;
@@ -62,7 +70,7 @@ export interface TransformationResult {
 }
 
 export interface TransformationChange {
-  type: 'field' | 'argument' | 'type' | 'fragment' | 'field-rename' | 'nested-replacement' | 'comment-out';
+  type: 'field' | 'argument' | 'type' | 'fragment' | 'field-rename' | 'nested-replacement' | 'comment-out' | 'enum-value-rename';
   field: string;
   oldValue?: string;
   newValue?: string;
@@ -244,6 +252,7 @@ export interface GeneratePRResponse {
 // Validation result
 export interface ValidationResult {
   queryName: string;
+  queryId?: string; // Optional ID for compatibility
   endpoint: Endpoint;
   valid: boolean;
   errors?: string[];

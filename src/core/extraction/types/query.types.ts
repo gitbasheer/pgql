@@ -29,6 +29,12 @@ export interface ExtractedQuery {
   name?: string;
   originalName?: string;
   type: OperationType;
+  
+  // Additional properties for compatibility
+  queryId?: string;
+  hash?: string;
+  lineNumber?: number; // For compatibility with shared types
+  queryName?: string; // For compatibility with shared types
 
   // Source AST mapping
   sourceAST?: SourceAST;
@@ -81,4 +87,15 @@ export interface ResolvedQuery extends ExtractedQuery {
   resolvedContent: string;
   resolvedFragments: FragmentDefinition[];
   allDependencies: string[];
+  
+  // Additional properties for compatibility
+  namePattern?: {
+    template: string;
+    resolvedName: string;
+    possibleValues: string[];
+    patternKey: string;
+    version: string;
+    isDeprecated: boolean;
+    migrationPath?: string;
+  };
 }

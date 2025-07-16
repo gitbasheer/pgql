@@ -90,19 +90,19 @@ describe('PR Generation with Hivemind Flags', () => {
     it('should generate PR content with util generation tracking', () => {
       const changes = [
         {
-          file: 'src/queries/user.ts',
+          file: 'src/queries/user.js',
           oldContent: 'user { profilePicture }',
           newContent: 'user { profile { logoUrl } }',
           utilGenerated: true,
         },
         {
-          file: 'src/queries/venture.ts',
+          file: 'src/queries/venture.js',
           oldContent: 'venture { logoImage }',
           newContent: 'venture { logoUrl }',
           utilGenerated: true,
         },
         {
-          file: 'src/queries/project.ts',
+          file: 'src/queries/project.js',
           oldContent: 'project { name }',
           newContent: 'project { name }',
           utilGenerated: false,
@@ -126,7 +126,7 @@ describe('PR Generation with Hivemind Flags', () => {
     it('should not include utility section if no utils generated', () => {
       const changes = [
         {
-          file: 'src/queries/simple.ts',
+          file: 'src/queries/simple.js',
           oldContent: 'query { ventures }',
           newContent: 'query { ventures }',
           utilGenerated: false,
@@ -147,7 +147,7 @@ describe('PR Generation with Hivemind Flags', () => {
           name: 'GetUserData',
           query: 'query GetUserData { user { profilePicture } }',
           fullExpandedQuery: 'query GetUserData { user { profilePicture } }',
-          sourceFile: '/test/queries.ts',
+          sourceFile: '/test/queries.js',
           endpoint: 'productGraph' as const,
         },
       ];

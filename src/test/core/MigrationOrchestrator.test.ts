@@ -110,7 +110,7 @@ describe('MigrationOrchestrator', () => {
         name: 'GetUser',
         ast: {} as any,
         source: 'query GetUser { user { id name } }',
-        file: 'user.ts',
+        file: 'user.js',
         line: 1,
         column: 1,
         variables: [],
@@ -124,7 +124,7 @@ describe('MigrationOrchestrator', () => {
         ast: {} as any,
         source:
           'mutation CreateUser($input: CreateUserInput!) { createUser(input: $input) { id } }',
-        file: 'user.ts',
+        file: 'user.js',
         line: 10,
         column: 1,
         variables: [{ id: 'generated-id', name: 'input', type: 'CreateUserInput!' }],
@@ -137,7 +137,7 @@ describe('MigrationOrchestrator', () => {
         name: 'UserUpdated',
         ast: {} as any,
         source: 'subscription UserUpdated { userUpdated { id name } }',
-        file: 'user.ts',
+        file: 'user.js',
         line: 20,
         column: 1,
         variables: [],
@@ -212,7 +212,7 @@ describe('MigrationOrchestrator', () => {
         name: 'GetUser',
         ast: {} as any,
         source: 'query GetUser { user { id name } }',
-        file: 'user.ts',
+        file: 'user.js',
         line: 1,
         column: 1,
         variables: [],
@@ -225,7 +225,7 @@ describe('MigrationOrchestrator', () => {
       mockScriptsAdapter.extractOperations.mockResolvedValue(mockOperations);
       mockScriptsAdapter.transformOperation.mockResolvedValue([
         {
-          file: 'user.ts',
+          file: 'user.js',
           operation: mockOperations[0],
           pattern: 'GetUser',
           oldQuery: 'query GetUser { user { id name } }',
@@ -367,7 +367,7 @@ describe('MigrationOrchestrator', () => {
         name: 'GetUser',
         ast: {} as any,
         source: 'query GetUser { user { id name } }',
-        file: 'user.ts',
+        file: 'user.js',
         line: 1,
         column: 1,
         variables: [],
@@ -423,7 +423,7 @@ describe('MigrationOrchestrator', () => {
         name: 'GetUser',
         ast: {} as any,
         source: 'query GetUser { user { id name } }',
-        file: 'user.ts',
+        file: 'user.js',
         line: 1,
         column: 1,
         variables: [],
@@ -437,7 +437,7 @@ describe('MigrationOrchestrator', () => {
         ast: {} as any,
         source:
           'mutation CreateUser($input: CreateUserInput!) { createUser(input: $input) { id } }',
-        file: 'user.ts',
+        file: 'user.js',
         line: 10,
         column: 1,
         variables: [{ id: 'generated-id', name: 'input', type: 'CreateUserInput!' }],
@@ -511,7 +511,7 @@ describe('MigrationOrchestrator', () => {
           name: 'GetUser',
           ast: {} as any,
           source: 'query GetUser { user { id name } }',
-          file: 'user.ts',
+          file: 'user.js',
           line: 1,
           column: 1,
           variables: [],
@@ -554,7 +554,7 @@ describe('MigrationOrchestrator', () => {
         name: 'GetUser',
         ast: {} as any,
         source: 'query GetUser { user { id name } }',
-        file: 'user.ts',
+        file: 'user.js',
         line: 1,
         column: 1,
         variables: [],
@@ -601,7 +601,7 @@ describe('MigrationOrchestrator', () => {
         name: 'GetUser',
         ast: {} as any,
         source: 'query GetUser { user { id name } }',
-        file: 'user.ts',
+        file: 'user.js',
         line: 1,
         column: 1,
         variables: [],
@@ -658,7 +658,7 @@ describe('MigrationOrchestrator', () => {
           name: 'GetUser',
           ast: {} as any,
           source: 'query GetUser { user { id name } }',
-          file: 'user.ts',
+          file: 'user.js',
           line: 1,
           column: 1,
           variables: [],
@@ -682,7 +682,7 @@ describe('MigrationOrchestrator', () => {
       });
       mockScriptsAdapter.transformOperation.mockResolvedValue([
         {
-          file: 'user.ts',
+          file: 'user.js',
           operation: mockOperations[0],
           pattern: 'GetUser',
           oldQuery: 'query GetUser { user { id name } }',
@@ -740,7 +740,7 @@ describe('MigrationOrchestrator', () => {
           name: 'GetUser',
           ast: {} as any,
           source: 'query GetUser { user { id name } }',
-          file: 'user.ts',
+          file: 'user.js',
           line: 1,
           column: 1,
           variables: [],
@@ -824,7 +824,7 @@ describe('MigrationOrchestrator', () => {
           name: 'GetUser',
           ast: {} as any,
           source: 'query GetUser { user { id name } }',
-          file: 'user.ts',
+          file: 'user.js',
           line: 1,
           column: 1,
           variables: [],
@@ -837,7 +837,7 @@ describe('MigrationOrchestrator', () => {
           name: 'GetPost',
           ast: {} as any,
           source: 'query GetPost { post { id title } }',
-          file: 'post.ts',
+          file: 'post.js',
           line: 1,
           column: 1,
           variables: [],
@@ -850,7 +850,7 @@ describe('MigrationOrchestrator', () => {
       mockScriptsAdapter.transformOperation
         .mockResolvedValueOnce([
           {
-            file: 'user.ts',
+            file: 'user.js',
             operation: mockOperations[0],
             pattern: 'GetUser',
             oldQuery: 'query GetUser { user { id name } }',
@@ -860,7 +860,7 @@ describe('MigrationOrchestrator', () => {
         ])
         .mockResolvedValueOnce([
           {
-            file: 'post.ts',
+            file: 'post.js',
             operation: mockOperations[1],
             pattern: 'GetPost',
             oldQuery: 'query GetPost { post { id title } }',

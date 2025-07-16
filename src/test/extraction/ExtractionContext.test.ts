@@ -97,19 +97,19 @@ describe('ExtractionContext', () => {
       expect(context.errors).toHaveLength(0);
       expect(context.stats.totalErrors).toBe(0);
 
-      context.addError('file1.ts', 'Error 1', 10, 5);
-      context.addError('file2.ts', 'Error 2');
+      context.addError('file1.js', 'Error 1', 10, 5);
+      context.addError('file2.js', 'Error 2');
 
       expect(context.errors).toHaveLength(2);
       expect(context.stats.totalErrors).toBe(2);
       expect(context.errors[0]).toEqual({
-        file: 'file1.ts',
+        file: 'file1.js',
         message: 'Error 1',
         line: 10,
         column: 5,
       });
       expect(context.errors[1]).toEqual({
-        file: 'file2.ts',
+        file: 'file2.js',
         message: 'Error 2',
         line: undefined,
         column: undefined,
@@ -173,10 +173,10 @@ describe('ExtractionContext', () => {
         name: 'GetUser',
         content: content1,
         type: 'query' as const,
-        filePath: 'test.ts',
+        filePath: 'test.js',
         fragments: [],
         ast: null,
-        location: { line: 1, column: 1, file: 'test.ts' },
+        location: { line: 1, column: 1, file: 'test.js' },
         namePattern: {
           template: 'GetUser',
           resolvedName: 'GetUser',
@@ -192,10 +192,10 @@ describe('ExtractionContext', () => {
         name: 'GetUser',
         content: content2,
         type: 'query' as const,
-        filePath: 'test.ts',
+        filePath: 'test.js',
         fragments: [],
         ast: null,
-        location: { line: 1, column: 1, file: 'test.ts' },
+        location: { line: 1, column: 1, file: 'test.js' },
         namePattern: {
           template: 'GetUser',
           resolvedName: 'GetUser',

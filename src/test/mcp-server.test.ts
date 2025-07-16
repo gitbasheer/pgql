@@ -72,7 +72,7 @@ describe('MCP Server Integration Tests', () => {
     `;
 
     // Create test files
-    writeFileSync(join(testFixturesDir, 'queries.ts'), sampleQuery);
+    writeFileSync(join(testFixturesDir, 'queries.js'), sampleQuery);
     writeFileSync(join(testFixturesDir, 'schema.graphql'), sampleSchema);
 
     // Create a queries.json file for transformation tests
@@ -83,7 +83,7 @@ describe('MCP Server Integration Tests', () => {
           name: 'GetUser',
           content:
             'query GetUser($id: ID!) { user(id: $id) { id name email profile { avatar bio } } }',
-          filePath: join(testFixturesDir, 'queries.ts'),
+          filePath: join(testFixturesDir, 'queries.js'),
           line: 5,
           type: 'query',
         },
@@ -92,7 +92,7 @@ describe('MCP Server Integration Tests', () => {
           name: 'UpdateUser',
           content:
             'mutation UpdateUser($id: ID!, $input: UserInput!) { updateUser(id: $id, input: $input) { id name email } }',
-          filePath: join(testFixturesDir, 'queries.ts'),
+          filePath: join(testFixturesDir, 'queries.js'),
           line: 18,
           type: 'mutation',
         },
@@ -449,7 +449,7 @@ describe('MCP Server Integration Tests', () => {
             originalQuery: 'query GetUser($id: ID!) { user(id: $id) { id name email } }',
             transformedQuery:
               'query GetUser($id: ID!) { user(id: $id) { id name email profile { avatar bio } } }',
-            filePath: join(testFixturesDir, 'queries.ts'),
+            filePath: join(testFixturesDir, 'queries.js'),
             line: 5,
             confidence: 95,
           },

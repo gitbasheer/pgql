@@ -49,7 +49,7 @@ export class MockFactory {
       id: 'test-query-1',
       name: 'TestQuery',
       content: 'query TestQuery { users { id name } }',
-      filePath: '/test/file.ts',
+      filePath: '/test/file.js',
       startLine: 1,
       endLine: 3,
       type: 'query',

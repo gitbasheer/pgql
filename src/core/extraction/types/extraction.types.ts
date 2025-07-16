@@ -71,6 +71,7 @@ export interface ExtractionStats {
 
 export interface ExtractionContext {
   options: ExtractionOptions;
+  projectRoot: string;
   cache: Map<string, any>;
   fragments: Map<string, string>;
   queryNames: Record<string, string>;

@@ -298,10 +298,10 @@ const QUERY_B = gql\`
       const queries = [
         {
           id: 'test-1',
-          filePath: '/test/file1.ts',
+          filePath: '/test/file1.js',
           content: 'query ${queryNames.byIdV1} { venture { id } }',
           ast: null,
-          location: { line: 1, column: 1, file: '/test/file1.ts' },
+          location: { line: 1, column: 1, file: '/test/file1.js' },
           type: 'query' as const,
           namePattern: {
             template: '${queryNames.byIdV1}',

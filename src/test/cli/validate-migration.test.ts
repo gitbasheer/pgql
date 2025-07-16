@@ -60,7 +60,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -87,7 +87,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
         { type: 'query',
@@ -95,7 +95,7 @@ describe('MigrationValidator', () => {
           name: 'GetVenture',
           source: 'query GetVenture { venture { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -106,7 +106,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -134,7 +134,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -145,7 +145,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
         { type: 'query',
@@ -153,7 +153,7 @@ describe('MigrationValidator', () => {
           name: 'GetVenture',
           source: 'query GetVenture { venture { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -180,7 +180,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -191,7 +191,7 @@ describe('MigrationValidator', () => {
           name: 'GetUserNew',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -218,7 +218,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -229,7 +229,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name email } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -256,7 +256,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -267,7 +267,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'mutation GetUser { user { id name } }',
           type: 'mutation',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -292,7 +292,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -303,7 +303,7 @@ describe('MigrationValidator', () => {
           name: 'GetUserNew',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -328,7 +328,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query ${queryNames.getUserById} { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -339,7 +339,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query ${queryNames.getUserById} { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
           namePattern: '${queryNames.getUserById}',
           resolvedName: 'GetUser',
@@ -371,7 +371,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query ${queryNames.getUserById} { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -382,7 +382,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query ${queryNames.getUserById} { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
           namePattern: '${queryNames.getUserById}',
           resolvedName: 'GetUser',
@@ -417,7 +417,7 @@ describe('MigrationValidator', () => {
             name: 'GetUser',
             source: 'query GetUser { user { id name } }',
             type: 'query',
-            filePath: 'test.ts',
+            filePath: 'test.js',
             fragments: [],
           },
         ],
@@ -430,7 +430,7 @@ describe('MigrationValidator', () => {
             name: 'GetUser',
             source: 'query GetUser { user { id name } }',
             type: 'query',
-            filePath: 'test.ts',
+            filePath: 'test.js',
             fragments: [],
           },
         ],
@@ -455,7 +455,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -498,7 +498,7 @@ describe('MigrationValidator', () => {
         name: `GetQuery${i}`,
         source: `query GetQuery${i} { data${i} { id } }`,
         type: 'query',
-        filePath: 'test.ts',
+        filePath: 'test.js',
         fragments: [],
       }));
 
@@ -536,7 +536,7 @@ describe('MigrationValidator', () => {
           name: undefined,
           source: 'query { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -559,7 +559,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
         },
       ];
@@ -570,7 +570,7 @@ describe('MigrationValidator', () => {
           name: 'GetUser',
           source: 'query GetUser { user { id name } }',
           type: 'query',
-          filePath: 'test.ts',
+          filePath: 'test.js',
           fragments: [],
           namePattern: undefined,
           resolvedName: 'GetUser',

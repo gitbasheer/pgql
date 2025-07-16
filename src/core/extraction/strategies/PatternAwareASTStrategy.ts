@@ -6,7 +6,7 @@ import { ExtractionContext } from '../engine/ExtractionContext.js';
 import { logger } from '../../../utils/logger.js';
 import { parse as parseGraphQL, DocumentNode } from 'graphql';
 import { parse as parseBabel } from '@babel/parser';
-import traverse from '@babel/traverse';
+import traverse, { NodePath } from '@babel/traverse';
 import * as babel from '@babel/types';
 
 export class PatternAwareASTStrategy extends BaseStrategy {
@@ -102,7 +102,9 @@ export class PatternAwareASTStrategy extends BaseStrategy {
         end: node.end || 0,
         templateLiteral: {
           quasis: quasi.quasis,
-          expressions: quasi.expressions,
+          expressions: quasi.expressions.filter((expr): expr is babel.Expression => 
+            !babel.isTSType(expr)
+          ),
         },
         parent: path.parent,
       };
@@ -268,13 +270,13 @@ export class PatternAwareASTStrategy extends BaseStrategy {
   /**
    * Generate unique query ID
    */
-  protected generateQueryId(filePath: string, position: number, name?: string): string {
+  protected generateQueryId(filePath: string, index: number, name?: string): string {
     const fileName =
       filePath
         .split('/')
         .pop()
         ?.replace(/\.[^.]+$/, '') || 'unknown';
-    return `${fileName}-${position}-${Date.now()}`;
+    return `${fileName}-${index}-${name || 'unnamed'}`;
   }
 
   /**

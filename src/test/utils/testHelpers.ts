@@ -285,7 +285,7 @@ export const mockFactories = {
   createConfigLoader: (): typeof ConfigLoader => {
     const mock = {
       load: vi.fn().mockResolvedValue({
-        source: { include: ['src/**/*.ts'], exclude: ['node_modules'] },
+        source: { include: ['src/**/*.js'], exclude: ['node_modules'] },
         schemaPath: './schema.graphql',
       }),
       loadSchema: vi.fn().mockResolvedValue('type Query { test: String }'),
@@ -322,12 +322,12 @@ export class TestDataBuilder {
       name: 'TestQuery',
       content: 'query TestQuery { test }',
       type: 'query',
-      filePath: '/test/file.ts',
+      filePath: '/test/file.js',
       ast: null,
       location: {
         line: 1,
         column: 1,
-        file: '/test/file.ts',
+        file: '/test/file.js',
       },
       ...overrides,
     };
@@ -463,7 +463,7 @@ export const setupIntegrationTest = async () => {
   );
 
   await fs.writeFile(
-    join(tempDir, 'test.ts'),
+    join(tempDir, 'test.js'),
     `
       import { gql } from '@apollo/client';
       

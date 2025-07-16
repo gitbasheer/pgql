@@ -144,7 +144,7 @@ describe('GitHubService', () => {
       mockExecAsync
         .mockResolvedValueOnce({ stdout: '.git', stderr: '' }) // git rev-parse --git-dir
         .mockResolvedValueOnce({ stdout: 'main\n', stderr: '' }) // git branch --show-current
-        .mockResolvedValueOnce({ stdout: 'M  src/file.ts', stderr: '' }); // git status --porcelain
+        .mockResolvedValueOnce({ stdout: 'M  src/file.js', stderr: '' }); // git status --porcelain
 
       await expect(service.createFeatureBranch('feature-branch')).rejects.toThrow(
         'Uncommitted changes detected',
@@ -154,7 +154,7 @@ describe('GitHubService', () => {
 
   describe('stageFiles', () => {
     it('should stage multiple files', async () => {
-      const files = ['file1.ts', 'file2.ts'];
+      const files = ['file1.js', 'file2.js'];
       mockExecAsync.mockResolvedValue({ stdout: '', stderr: '' });
 
       await service.stageFiles(files);
@@ -171,8 +171,8 @@ describe('GitHubService', () => {
     it('should throw error if staging fails', async () => {
       mockExecAsync.mockRejectedValueOnce(new Error('Failed to stage'));
 
-      await expect(service.stageFiles(['file.ts'])).rejects.toThrow(
-        'Failed to stage file: file.ts',
+      await expect(service.stageFiles(['file.js'])).rejects.toThrow(
+        'Failed to stage file: file.js',
       );
     });
   });
@@ -242,7 +242,7 @@ describe('GitHubService', () => {
         totalQueries: 25,
         transformedQueries: 20,
         deprecationsFixed: 15,
-        filesModified: ['src/file1.ts', 'src/file2.ts'],
+        filesModified: ['src/file1.js', 'src/file2.js'],
         validationPassed: true,
       };
 
@@ -252,7 +252,7 @@ describe('GitHubService', () => {
       expect(body).toContain('**Total files scanned**: 10');
       expect(body).toContain('**Queries transformed**: 20');
       expect(body).toContain('**Deprecations fixed**: 15');
-      expect(body).toContain('src/file1.ts');
+      expect(body).toContain('src/file1.js');
       expect(body).toContain('✅ All transformations validated successfully');
     });
 

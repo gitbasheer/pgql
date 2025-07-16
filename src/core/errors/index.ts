@@ -37,6 +37,10 @@ export type {
   ErrorReport,
 } from './ErrorHandler.js';
 
+// Import handleError and PgqlError for use in ErrorUtils
+import { handleError } from './ErrorHandler.js';
+import { PgqlError } from './ErrorTypes.js';
+
 // Utility functions for common error scenarios
 export const ErrorUtils = {
   /**

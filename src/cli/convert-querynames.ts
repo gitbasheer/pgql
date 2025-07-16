@@ -134,7 +134,7 @@ export class QueryNamesConverter {
 
     if (options.format === 'typescript') {
       const tsContent = this.generateTypeScriptRegistry(registry);
-      await fs.writeFile(outputPath.replace('.json', '.ts'), tsContent, 'utf-8');
+      await fs.writeFile(outputPath.replace('.json', '.js'), tsContent, 'utf-8');
     } else {
       await fs.writeFile(outputPath, JSON.stringify(registry, null, 2), 'utf-8');
     }

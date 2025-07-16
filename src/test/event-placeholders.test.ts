@@ -8,7 +8,7 @@ describe('Event Placeholders for AWS Event Bus Integration', () => {
   };
 
   it('should have event placeholders in UnifiedExtractor.extractFromRepo()', () => {
-    const source = readSource('src/core/extraction/engine/UnifiedExtractor.ts');
+    const source = readSource('src/core/extraction/engine/UnifiedExtractor.js');
 
     // Check for event placeholder comments
     expect(source).toContain('EVENT_PLACEHOLDER: Publish to Event Bus instead of direct socket');
@@ -19,7 +19,7 @@ describe('Event Placeholders for AWS Event Bus Integration', () => {
   });
 
   it('should have event placeholders in VariantGenerator.generateQueryVariants()', () => {
-    const source = readSource('src/core/extraction/transformers/VariantGenerator.ts');
+    const source = readSource('src/core/extraction/transformers/VariantGenerator.js');
 
     // Check for event placeholder comments
     expect(source).toContain('EVENT_PLACEHOLDER: Publish variant generation start');
@@ -30,7 +30,7 @@ describe('Event Placeholders for AWS Event Bus Integration', () => {
   });
 
   it('should have event placeholders in ResponseValidationService.testOnRealApi()', () => {
-    const source = readSource('src/core/validator/ResponseValidationService.ts');
+    const source = readSource('src/core/validator/ResponseValidationService.js');
 
     // Check for event placeholder comments
     expect(source).toContain('EVENT_PLACEHOLDER: Publish to Event Bus instead of direct socket');
@@ -44,9 +44,9 @@ describe('Event Placeholders for AWS Event Bus Integration', () => {
 
   it('should follow consistent event placeholder pattern', () => {
     const files = [
-      'src/core/extraction/engine/UnifiedExtractor.ts',
-      'src/core/extraction/transformers/VariantGenerator.ts',
-      'src/core/validator/ResponseValidationService.ts',
+      'src/core/extraction/engine/UnifiedExtractor.js',
+      'src/core/extraction/transformers/VariantGenerator.js',
+      'src/core/validator/ResponseValidationService.js',
     ];
 
     files.forEach((filePath) => {
@@ -62,9 +62,9 @@ describe('Event Placeholders for AWS Event Bus Integration', () => {
   });
 
   it('should prepare for AWS Event Bus architecture pattern', () => {
-    const extractorSource = readSource('src/core/extraction/engine/UnifiedExtractor.ts');
-    const variantSource = readSource('src/core/extraction/transformers/VariantGenerator.ts');
-    const validationSource = readSource('src/core/validator/ResponseValidationService.ts');
+    const extractorSource = readSource('src/core/extraction/engine/UnifiedExtractor.js');
+    const variantSource = readSource('src/core/extraction/transformers/VariantGenerator.js');
+    const validationSource = readSource('src/core/validator/ResponseValidationService.js');
 
     // Check that key placeholders mention Event Bus (at least UnifiedExtractor and ResponseValidationService)
     expect(extractorSource).toContain('Event Bus');

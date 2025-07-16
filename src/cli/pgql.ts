@@ -255,11 +255,7 @@ validate
         },
         comparison: {
           strict: false,
-          ignorePaths: [],
-          customComparators: {}
-        },
-        validation: {
-          ignorePatterns: []
+          ignorePaths: []
         },
         alignment: {
           strict: false,
@@ -267,7 +263,7 @@ validate
           preserveOrder: false
         },
         storage: {
-          type: 'file',
+          type: 'memory',
           path: './validation-storage'
         }
       });

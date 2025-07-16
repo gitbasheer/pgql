@@ -104,9 +104,9 @@ describe('CLI Command Injection Security Tests', () => {
   describe('validateFilePath', () => {
     it('should accept valid file paths within base directory', () => {
       const basePath = '/project';
-      expect(validateFilePath('src/file.ts', basePath)).toBe(true);
-      expect(validateFilePath('./src/file.ts', basePath)).toBe(true);
-      expect(validateFilePath('deeply/nested/file.ts', basePath)).toBe(true);
+      expect(validateFilePath('src/file.js', basePath)).toBe(true);
+      expect(validateFilePath('./src/file.js', basePath)).toBe(true);
+      expect(validateFilePath('deeply/nested/file.js', basePath)).toBe(true);
     });
 
     it('should reject path traversal attempts', () => {

@@ -33,13 +33,13 @@ export function getDefaultExtractionResult(): ExtractionResult {
         id: '1',
         name: 'TestQuery',
         content: 'query TestQuery { field }',
-        filePath: 'test.ts',
+        filePath: 'test.js',
         type: 'query',
-        location: { line: 1, column: 1, file: 'test.ts' },
+        location: { line: 1, column: 1, file: 'test.js' },
         ast: null,
       },
     ],
-    files: ['test.ts'],
+    files: ['test.js'],
     summary: { queries: 1, mutations: 0, subscriptions: 0 },
   };
 }
@@ -70,7 +70,7 @@ export function getDefaultTransformationResult(): TransformationResult {
 
 export function getDefaultApplicationResult(): ApplicationResult {
   return {
-    modifiedFiles: ['test.ts'],
+    modifiedFiles: ['test.js'],
     operationsUpdated: 1,
     linesAdded: 5,
     linesRemoved: 3,
@@ -292,7 +292,7 @@ export const testScenarios = {
           id: '1',
           name: 'Query1',
           content: 'query { a }',
-          filePath: 'a.ts',
+          filePath: 'a.js',
           type: 'query' as const,
           loc: { start: 0, end: 10 },
         },
@@ -300,7 +300,7 @@ export const testScenarios = {
           id: '2',
           name: 'Query2',
           content: 'query { b }',
-          filePath: 'b.ts',
+          filePath: 'b.js',
           type: 'query' as const,
           loc: { start: 0, end: 10 },
         },
@@ -308,12 +308,12 @@ export const testScenarios = {
           id: '3',
           name: 'Mutation1',
           content: 'mutation { c }',
-          filePath: 'c.ts',
+          filePath: 'c.js',
           type: 'mutation' as const,
           loc: { start: 0, end: 10 },
         },
       ],
-      files: ['a.ts', 'b.ts', 'c.ts'],
+      files: ['a.js', 'b.js', 'c.js'],
       summary: { queries: 2, mutations: 1, subscriptions: 0 },
     },
     transformation: {

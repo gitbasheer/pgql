@@ -126,9 +126,9 @@ describe('UnifiedMigrationPipeline', () => {
             name: 'TestQuery',
             type: 'query',
             content: 'query TestQuery { test }',
-            filePath: 'test.ts',
+            filePath: 'test.js',
             sourceAST: { node: {}, start: 0, end: 10 },
-            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/core/pipeline/UnifiedMigrationPipeline.test.ts' },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/core/pipeline/UnifiedMigrationPipeline.test.js' },
             fragments: [],
           },
         ],
@@ -230,7 +230,7 @@ describe('UnifiedMigrationPipeline', () => {
       expect(mockSourceMapper.register).toHaveBeenCalledWith('q1', expect.any(Object));
       expect(result).toEqual({
         operations: expect.any(Array),
-        files: ['test.ts'],
+        files: ['test.js'],
         summary: {
           queries: 1,
           mutations: 0,
@@ -255,7 +255,7 @@ describe('UnifiedMigrationPipeline', () => {
             name: 'TestQuery',
             type: 'query',
             content: 'query TestQuery { test }',
-            filePath: 'test.ts',
+            filePath: 'test.js',
           },
         ],
         variants: [],
@@ -273,9 +273,9 @@ describe('UnifiedMigrationPipeline', () => {
     it('should correctly categorize operation types', async () => {
       mockExtractor.extract.mockResolvedValue({
         queries: [
-          { id: 'q1', type: 'query', filePath: 'file1.ts' },
-          { id: 'm1', type: 'mutation', filePath: 'file2.ts' },
-          { id: 's1', type: 'subscription', filePath: 'file3.ts' },
+          { id: 'q1', type: 'query', filePath: 'file1.js' },
+          { id: 'm1', type: 'mutation', filePath: 'file2.js' },
+          { id: 's1', type: 'subscription', filePath: 'file3.js' },
         ],
         variants: [],
         fragments: new Map(),
@@ -415,8 +415,8 @@ describe('UnifiedMigrationPipeline', () => {
 
       mockExtractor.extract.mockResolvedValue({
         queries: [
-          { id: 'q1', content: 'query Q1 { test }', filePath: 'f1.ts' },
-          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.ts' },
+          { id: 'q1', content: 'query Q1 { test }', filePath: 'f1.js' },
+          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.js' },
         ],
         variants: [],
         fragments: new Map(),
@@ -517,9 +517,9 @@ describe('UnifiedMigrationPipeline', () => {
       const result = await pipeline.apply();
 
       expect(mockApplicator.applyTransformation).toHaveBeenCalled();
-      expect(fs.writeFile).toHaveBeenCalledWith('test.ts', 'modified code', 'utf-8');
+      expect(fs.writeFile).toHaveBeenCalledWith('test.js', 'modified code', 'utf-8');
       expect(result).toEqual({
-        modifiedFiles: ['test.ts'],
+        modifiedFiles: ['test.js'],
         operationsUpdated: 1,
         linesAdded: 5,
         linesRemoved: 3,
@@ -555,11 +555,11 @@ describe('UnifiedMigrationPipeline', () => {
     it('should handle multiple transformations per file', async () => {
       mockExtractor.extract.mockResolvedValue({
         queries: [
-          { id: 'q1', content: 'query Q1 { test }', filePath: 'same.ts', sourceAST: { start: 0 } },
+          { id: 'q1', content: 'query Q1 { test }', filePath: 'same.js', sourceAST: { start: 0 } },
           {
             id: 'q2',
             content: 'query Q2 { test }',
-            filePath: 'same.ts',
+            filePath: 'same.js',
             sourceAST: { start: 100 },
           },
         ],
@@ -652,7 +652,7 @@ describe('UnifiedMigrationPipeline', () => {
 
     it('should handle operations without names', async () => {
       mockExtractor.extract.mockResolvedValue({
-        queries: [{ id: 'q1', content: 'query { test }', filePath: 'test.ts' }],
+        queries: [{ id: 'q1', content: 'query { test }', filePath: 'test.js' }],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
@@ -707,8 +707,8 @@ describe('UnifiedMigrationPipeline', () => {
     it('should deduplicate risks', async () => {
       mockExtractor.extract.mockResolvedValue({
         queries: [
-          { id: 'q1', content: 'query Q1 { test }', filePath: 'f1.ts' },
-          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.ts' },
+          { id: 'q1', content: 'query Q1 { test }', filePath: 'f1.js' },
+          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.js' },
         ],
         variants: [],
         fragments: new Map(),

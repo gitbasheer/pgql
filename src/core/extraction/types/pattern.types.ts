@@ -4,6 +4,7 @@ import { ExtractedQuery } from './query.types.js';
 export interface QueryPattern {
   templatePattern: string; // e.g., "query ${queryNames.byIdV1}"
   possibleNames: string[]; // All possible runtime values
+  name?: string; // Pattern name for compatibility
   usageContext: {
     file: string;
     conditions: string[]; // e.g., ["infinityStoneEnabled", "ventureId"]

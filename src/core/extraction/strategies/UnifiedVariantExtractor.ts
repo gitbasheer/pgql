@@ -7,7 +7,8 @@ import { logger } from '../../../utils/logger.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import { GraphQLExtractor, ExtractedQuery } from '../compat/GraphQLExtractor.js';
+import { GraphQLExtractor } from '../compat/GraphQLExtractor.js';
+import { ExtractedQuery } from '../types/query.types.js';
 import { ErrorHandler, ErrorContext } from '../utils/ErrorHandler.js';
 import {
   VariantMetadata,
@@ -411,6 +412,7 @@ export class UnifiedVariantExtractor extends GraphQLExtractor {
         location: {
           line: node.loc?.start.line || 0,
           column: node.loc?.start.column || 0,
+          file: filePath,
         },
         name: variantName,
         type: operationInfo.type,
@@ -448,6 +450,7 @@ export class UnifiedVariantExtractor extends GraphQLExtractor {
           location: {
             line: node.loc?.start.line || 0,
             column: node.loc?.start.column || 0,
+            file: filePath,
           },
           name: operationInfo.name,
           type: operationInfo.type,

@@ -89,8 +89,8 @@ describe('Path Traversal Security Validation', () => {
 
       it('should allow valid project paths', () => {
         const validPaths = [
-          'src/utils/logger.ts',
-          './src/core/scanner/GraphQLExtractor.ts',
+          'src/utils/logger.js',
+          './src/core/scanner/GraphQLExtractor.js',
           'test-pipeline/security-dataset/fragment-malicious-1.js',
         ];
 
@@ -305,7 +305,7 @@ describe('Path Traversal Security Validation', () => {
             filePath: 'test.js',
             name: '<img src=x onerror="alert(1)">',
             type: 'query' as const,
-            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/security/path-traversal-validation.test.ts' },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/security/path-traversal-validation.test.js' },
           },
         ];
 
@@ -365,7 +365,7 @@ describe('Path Traversal Security Validation', () => {
             resolvedContent: 'query Test { field }',
             filePath: 'test.js',
             type: 'query' as const,
-            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/security/path-traversal-validation.test.ts' },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/security/path-traversal-validation.test.js' },
             metadata: circular,
           },
         ];
@@ -563,7 +563,7 @@ describe('Path Traversal Security Validation', () => {
             filePath: 'test.graphql',
             content: maliciousQuery,
             ast: null as any,
-            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/security/path-traversal-validation.test.ts' },
+            location: { line: 1, column: 1, file: '/Users/balkhalil/gd/demo/pg-migration-620/src/test/security/path-traversal-validation.test.js' },
             type: 'query',
           },
         ]),
