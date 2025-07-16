@@ -5,43 +5,40 @@ import * as fs from 'fs/promises';
 import { parse } from 'graphql';
 // Mock modules
 vi.mock('graphql', () => ({
-  parse: vi.fn().mockReturnValue({ kind: 'Document' })
-}))
+  parse: vi.fn().mockReturnValue({ kind: 'Document' }),
+}));
 
 // Mock modules
 
-
 // Mock modules
-
-
 
 // Mock dependencies
 vi.mock('../../../core/extraction/engine/UnifiedExtractor', () => ({
-  UnifiedExtractor: vi.fn()
+  UnifiedExtractor: vi.fn(),
 }));
 vi.mock('../../../core/validator/SchemaValidator', () => ({
-  SchemaValidator: vi.fn()
+  SchemaValidator: vi.fn(),
 }));
 vi.mock('../../../core/analyzer/SchemaDeprecationAnalyzer', () => ({
-  SchemaDeprecationAnalyzer: vi.fn()
+  SchemaDeprecationAnalyzer: vi.fn(),
 }));
 vi.mock('../../../core/analyzer/ConfidenceScorer', () => ({
-  ConfidenceScorer: vi.fn()
+  ConfidenceScorer: vi.fn(),
 }));
 vi.mock('../../../core/safety/ProgressiveMigration', () => ({
-  ProgressiveMigration: vi.fn()
+  ProgressiveMigration: vi.fn(),
 }));
 vi.mock('../../../core/safety/HealthCheck', () => ({
-  HealthCheckSystem: vi.fn()
+  HealthCheckSystem: vi.fn(),
 }));
 vi.mock('../../../core/safety/Rollback', () => ({
-  RollbackSystem: vi.fn()
+  RollbackSystem: vi.fn(),
 }));
 vi.mock('../../../core/applicator/ASTCodeApplicator', () => ({
-  ASTCodeApplicator: vi.fn()
+  ASTCodeApplicator: vi.fn(),
 }));
 vi.mock('../../../core/extraction/utils/SourceMapper', () => ({
-  SourceMapper: vi.fn()
+  SourceMapper: vi.fn(),
 }));
 vi.mock('../../../utils/logger');
 vi.mock('fs/promises');
@@ -57,13 +54,13 @@ vi.mock('../../../core/transformer/QueryTransformer', () => {
         transformed: transformedContent,
         ast: { kind: 'Document' },
         changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
-        rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }]
+        rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
       };
-    })
+    }),
   });
 
   return {
-    QueryTransformer: vi.fn().mockImplementation(createMockQueryTransformer)
+    QueryTransformer: vi.fn().mockImplementation(createMockQueryTransformer),
   };
 });
 
@@ -88,24 +85,24 @@ describe('UnifiedMigrationPipeline', () => {
     mockConfig = {
       source: {
         include: ['./src'],
-        exclude: []
+        exclude: [],
       },
       confidence: {
         automatic: 90,
         semiAutomatic: 70,
-        manual: 0
+        manual: 0,
       },
       rollout: {
         initial: 1,
         increment: 10,
         interval: '1h',
-        maxErrors: 5
+        maxErrors: 5,
       },
       safety: {
         requireApproval: false,
         autoRollback: true,
-        healthCheckInterval: 60
-      }
+        healthCheckInterval: 60,
+      },
     };
 
     mockOptions = {
@@ -113,7 +110,7 @@ describe('UnifiedMigrationPipeline', () => {
       dryRun: false,
       interactive: false,
       enableSafety: true,
-      rolloutPercentage: 1
+      rolloutPercentage: 1,
     };
 
     // Mock file system
@@ -132,29 +129,32 @@ describe('UnifiedMigrationPipeline', () => {
             filePath: 'test.ts',
             sourceAST: { node: {}, start: 0, end: 10 },
             location: { line: 1, column: 1 },
-            fragments: []
-          }
+            fragments: [],
+          },
         ],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
-      })
+        stats: {},
+      }),
     };
 
     mockValidator = {
       loadSchema: vi.fn().mockResolvedValue({ schema: 'mock' }),
-      validateOperation: vi.fn().mockReturnValue({
+      validateOperation: vi
+        .fn()
+        .mockReturnValue({
           isValid: true,
           errors: [],
           warnings: [],
-          hasDeprecations: false
-        }).mockResolvedValue([])
+          hasDeprecations: false,
+        })
+        .mockResolvedValue([]),
     };
 
     mockDeprecationAnalyzer = {
-      analyzeOperation: vi.fn().mockResolvedValue([])
+      analyzeOperation: vi.fn().mockResolvedValue([]),
     };
 
     mockConfidenceScorer = {
@@ -163,41 +163,45 @@ describe('UnifiedMigrationPipeline', () => {
         category: 'automatic',
         factors: {},
         risks: [],
-        requiresReview: false
-      })
+        requiresReview: false,
+      }),
     };
 
     mockProgressiveMigration = {
       createFeatureFlag: vi.fn(),
-      startRollout: vi.fn().mockResolvedValue(undefined)
+      startRollout: vi.fn().mockResolvedValue(undefined),
     };
 
     mockHealthCheck = {};
 
     mockRollbackSystem = {
-      createRollbackPlan: vi.fn().mockResolvedValue({})
+      createRollbackPlan: vi.fn().mockResolvedValue({}),
     };
 
     mockApplicator = {
       applyTransformation: vi.fn().mockResolvedValue({
         code: 'modified code',
         linesAdded: 5,
-        linesRemoved: 3
-      })
+        linesRemoved: 3,
+      }),
     };
 
     mockSourceMapper = {
       register: vi.fn(),
-      getMapping: vi.fn().mockReturnValue({ node: {}, start: 0, end: 10 })
+      getMapping: vi.fn().mockReturnValue({ node: {}, start: 0, end: 10 }),
     };
 
     // Now that we have the mock objects setup, we can create the pipeline
     // The mocks are already defined above via vi.mock() statements
-    
+
     // Wire up the mocks to return our mock instances
-    const { UnifiedExtractor } = await import('../../../core/extraction/engine/UnifiedExtractor.js');
+    const { UnifiedExtractor } = await import(
+      '../../../core/extraction/engine/UnifiedExtractor.js'
+    );
     const { SchemaValidator } = await import('../../../core/validator/SchemaValidator.js');
-    const { SchemaDeprecationAnalyzer } = await import('../../../core/analyzer/SchemaDeprecationAnalyzer.js');
+    const { SchemaDeprecationAnalyzer } = await import(
+      '../../../core/analyzer/SchemaDeprecationAnalyzer.js'
+    );
     const { ConfidenceScorer } = await import('../../../core/analyzer/ConfidenceScorer.js');
     const { ProgressiveMigration } = await import('../../../core/safety/ProgressiveMigration.js');
     const { HealthCheckSystem } = await import('../../../core/safety/HealthCheck.js');
@@ -230,16 +234,16 @@ describe('UnifiedMigrationPipeline', () => {
         summary: {
           queries: 1,
           mutations: 0,
-          subscriptions: 0
-        }
+          subscriptions: 0,
+        },
       });
-      
+
       // Verify the operations are correctly extracted
       expect(result.operations).toHaveLength(1);
       expect(result.operations[0]).toMatchObject({
         id: 'q1',
         name: 'TestQuery',
-        type: 'query'
+        type: 'query',
       });
     });
 
@@ -251,14 +255,14 @@ describe('UnifiedMigrationPipeline', () => {
             name: 'TestQuery',
             type: 'query',
             content: 'query TestQuery { test }',
-            filePath: 'test.ts'
-          }
+            filePath: 'test.ts',
+          },
         ],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
+        stats: {},
       });
 
       await pipeline.extract();
@@ -271,13 +275,13 @@ describe('UnifiedMigrationPipeline', () => {
         queries: [
           { id: 'q1', type: 'query', filePath: 'file1.ts' },
           { id: 'm1', type: 'mutation', filePath: 'file2.ts' },
-          { id: 's1', type: 'subscription', filePath: 'file3.ts' }
+          { id: 's1', type: 'subscription', filePath: 'file3.ts' },
         ],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
+        stats: {},
       });
 
       const result = await pipeline.extract();
@@ -285,7 +289,7 @@ describe('UnifiedMigrationPipeline', () => {
       expect(result.summary).toEqual({
         queries: 1,
         mutations: 1,
-        subscriptions: 1
+        subscriptions: 1,
       });
     });
   });
@@ -303,14 +307,12 @@ describe('UnifiedMigrationPipeline', () => {
       expect(result).toEqual({
         hasErrors: false,
         errors: [],
-        warnings: []
+        warnings: [],
       });
     });
 
     it('should handle validation errors', async () => {
-      mockValidator.validateOperation.mockResolvedValue([
-        { message: 'Invalid field' }
-      ]);
+      mockValidator.validateOperation.mockResolvedValue([{ message: 'Invalid field' }]);
 
       const result = await pipeline.validate();
 
@@ -319,13 +321,13 @@ describe('UnifiedMigrationPipeline', () => {
       expect(result.errors[0]).toEqual({
         operation: 'TestQuery',
         message: 'Invalid field',
-        severity: 'error'
+        severity: 'error',
       });
     });
 
     it('should handle deprecation warnings', async () => {
       mockDeprecationAnalyzer.analyzeOperation.mockResolvedValue([
-        { field: 'oldField', reason: 'Use newField instead' }
+        { field: 'oldField', reason: 'Use newField instead' },
       ]);
 
       const result = await pipeline.validate();
@@ -333,7 +335,7 @@ describe('UnifiedMigrationPipeline', () => {
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0]).toEqual({
         operation: 'TestQuery',
-        message: 'Using deprecated field: oldField - Use newField instead'
+        message: 'Using deprecated field: oldField - Use newField instead',
       });
     });
 
@@ -347,7 +349,7 @@ describe('UnifiedMigrationPipeline', () => {
 
       expect(result.hasErrors).toBe(true);
       expect(result.errors[0].message).toContain('Failed to parse operation');
-      
+
       // Restore the mock
       (parse as any).mockImplementation(originalMock || (() => ({ kind: 'Document' })));
     });
@@ -378,7 +380,7 @@ describe('UnifiedMigrationPipeline', () => {
 
     it('should categorize transformations by confidence', async () => {
       const imported = await import('../../../core/transformer/QueryTransformer.js');
-    const { QueryTransformer } = imported;
+      const { QueryTransformer } = imported;
 
       // Create two different mock transformers for the two queries
       let callCount = 0;
@@ -391,8 +393,8 @@ describe('UnifiedMigrationPipeline', () => {
               transformed: 'query Q1 { newTest }',
               ast: { kind: 'Document' },
               changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
-              rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }]
-            })
+              rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
+            }),
           };
         } else {
           return {
@@ -401,8 +403,8 @@ describe('UnifiedMigrationPipeline', () => {
               transformed: 'query Q2 { newTest }',
               ast: { kind: 'Document' },
               changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
-              rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }]
-            })
+              rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
+            }),
           };
         }
       });
@@ -414,13 +416,13 @@ describe('UnifiedMigrationPipeline', () => {
       mockExtractor.extract.mockResolvedValue({
         queries: [
           { id: 'q1', content: 'query Q1 { test }', filePath: 'f1.ts' },
-          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.ts' }
+          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.ts' },
         ],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
+        stats: {},
       });
 
       await pipeline.extract();
@@ -432,15 +434,15 @@ describe('UnifiedMigrationPipeline', () => {
 
     it('should skip unchanged operations', async () => {
       const imported = await import('../../../core/transformer/QueryTransformer.js');
-    const { QueryTransformer } = imported;
+      const { QueryTransformer } = imported;
       (QueryTransformer as any).mockImplementation(() => ({
         transform: vi.fn().mockReturnValue({
           original: 'query TestQuery { test }',
           transformed: 'query TestQuery { test }', // Same - no change
           ast: { kind: 'Document' },
           changes: [],
-          rules: []
-        })
+          rules: [],
+        }),
       }));
 
       const result = await pipeline.transform();
@@ -451,11 +453,11 @@ describe('UnifiedMigrationPipeline', () => {
 
     it('should handle transformation errors', async () => {
       const imported = await import('../../../core/transformer/QueryTransformer.js');
-    const { QueryTransformer } = imported;
+      const { QueryTransformer } = imported;
       (QueryTransformer as any).mockImplementation(() => ({
         transform: vi.fn().mockImplementation(() => {
           throw new Error('Transform error');
-        })
+        }),
       }));
 
       const result = await pipeline.transform();
@@ -465,11 +467,11 @@ describe('UnifiedMigrationPipeline', () => {
     });
 
     it('should load deprecation rules', async () => {
-      (fs.readFile as any).mockResolvedValueOnce(JSON.stringify({
-        Query: [
-          { name: 'oldField', deprecationReason: 'Use `newField` instead' }
-        ]
-      }));
+      (fs.readFile as any).mockResolvedValueOnce(
+        JSON.stringify({
+          Query: [{ name: 'oldField', deprecationReason: 'Use `newField` instead' }],
+        }),
+      );
 
       await pipeline.transform();
 
@@ -491,7 +493,7 @@ describe('UnifiedMigrationPipeline', () => {
       // Ensure the QueryTransformer mock is properly set up
       const imported = await import('../../../core/transformer/QueryTransformer.js');
       const { QueryTransformer } = imported;
-      
+
       // Reset the mock and set up proper implementation
       (QueryTransformer as any).mockClear();
       (QueryTransformer as any).mockImplementation(() => ({
@@ -502,11 +504,11 @@ describe('UnifiedMigrationPipeline', () => {
             transformed: transformedContent,
             ast: { kind: 'Document' },
             changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
-            rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }]
+            rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
           };
-        })
+        }),
       }));
-      
+
       await pipeline.extract();
       await pipeline.transform();
     });
@@ -520,7 +522,7 @@ describe('UnifiedMigrationPipeline', () => {
         modifiedFiles: ['test.ts'],
         operationsUpdated: 1,
         linesAdded: 5,
-        linesRemoved: 3
+        linesRemoved: 3,
       });
     });
 
@@ -539,7 +541,7 @@ describe('UnifiedMigrationPipeline', () => {
     it('should skip low confidence transformations', async () => {
       mockConfidenceScorer.scoreTransformation.mockReturnValue({
         score: 50, // Below minConfidence
-        category: 'manual'
+        category: 'manual',
       });
 
       await pipeline.extract();
@@ -554,13 +556,18 @@ describe('UnifiedMigrationPipeline', () => {
       mockExtractor.extract.mockResolvedValue({
         queries: [
           { id: 'q1', content: 'query Q1 { test }', filePath: 'same.ts', sourceAST: { start: 0 } },
-          { id: 'q2', content: 'query Q2 { test }', filePath: 'same.ts', sourceAST: { start: 100 } }
+          {
+            id: 'q2',
+            content: 'query Q2 { test }',
+            filePath: 'same.ts',
+            sourceAST: { start: 100 },
+          },
         ],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
+        stats: {},
       });
 
       await pipeline.extract();
@@ -607,7 +614,10 @@ describe('UnifiedMigrationPipeline', () => {
     });
 
     it('should use custom rollout percentage', async () => {
-      pipeline = new UnifiedMigrationPipeline(mockConfig, { ...mockOptions, rolloutPercentage: 10 });
+      pipeline = new UnifiedMigrationPipeline(mockConfig, {
+        ...mockOptions,
+        rolloutPercentage: 10,
+      });
       await pipeline.extract();
       await pipeline.transform();
 
@@ -642,14 +652,12 @@ describe('UnifiedMigrationPipeline', () => {
 
     it('should handle operations without names', async () => {
       mockExtractor.extract.mockResolvedValue({
-        queries: [
-          { id: 'q1', content: 'query { test }', filePath: 'test.ts' }
-        ],
+        queries: [{ id: 'q1', content: 'query { test }', filePath: 'test.ts' }],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
+        stats: {},
       });
 
       await pipeline.extract();
@@ -667,7 +675,7 @@ describe('UnifiedMigrationPipeline', () => {
         score: 85,
         category: 'automatic',
         risks: ['High complexity', 'Low test coverage'],
-        requiresReview: false
+        requiresReview: false,
       });
 
       await pipeline.extract();
@@ -680,7 +688,7 @@ describe('UnifiedMigrationPipeline', () => {
         successfulTransformations: 1,
         filesModified: 1,
         averageConfidence: 85,
-        risks: ['High complexity', 'Low test coverage']
+        risks: ['High complexity', 'Low test coverage'],
       });
     });
 
@@ -692,7 +700,7 @@ describe('UnifiedMigrationPipeline', () => {
         successfulTransformations: 0,
         filesModified: 0,
         averageConfidence: 0,
-        risks: []
+        risks: [],
       });
     });
 
@@ -700,20 +708,20 @@ describe('UnifiedMigrationPipeline', () => {
       mockExtractor.extract.mockResolvedValue({
         queries: [
           { id: 'q1', content: 'query Q1 { test }', filePath: 'f1.ts' },
-          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.ts' }
+          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.ts' },
         ],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
+        stats: {},
       });
 
       mockConfidenceScorer.scoreTransformation.mockReturnValue({
         score: 85,
         category: 'automatic',
         risks: ['Same risk', 'Same risk'],
-        requiresReview: false
+        requiresReview: false,
       });
 
       await pipeline.extract();
@@ -730,12 +738,8 @@ describe('UnifiedMigrationPipeline', () => {
       (fs.readFile as any).mockImplementation((path: string) => {
         if (path === './deprecations.json') {
           return JSON.stringify({
-            Query: [
-              { name: 'oldField', deprecationReason: 'Use `newField` instead' }
-            ],
-            User: [
-              { name: 'email', deprecationReason: 'Use `emailAddress` instead' }
-            ]
+            Query: [{ name: 'oldField', deprecationReason: 'Use `newField` instead' }],
+            User: [{ name: 'email', deprecationReason: 'Use `emailAddress` instead' }],
           });
         }
         return 'schema content';
@@ -746,7 +750,7 @@ describe('UnifiedMigrationPipeline', () => {
 
       const imported = await import('../../../core/transformer/QueryTransformer.js');
       const { QueryTransformer } = imported;
-      
+
       // Check that QueryTransformer was called with deprecation rules
       expect((QueryTransformer as any).mock.calls.length).toBeGreaterThan(0);
       const constructorCall = (QueryTransformer as any).mock.calls[0];
@@ -758,7 +762,7 @@ describe('UnifiedMigrationPipeline', () => {
         to: 'newField',
         parent: undefined,
         automated: true,
-        description: 'Use `newField` instead'
+        description: 'Use `newField` instead',
       });
       expect(rules).toContainEqual({
         type: 'field-rename',
@@ -766,13 +770,13 @@ describe('UnifiedMigrationPipeline', () => {
         to: 'emailAddress',
         parent: 'User',
         automated: true,
-        description: 'Use `emailAddress` instead'
+        description: 'Use `emailAddress` instead',
       });
     });
 
     it('should detect transformation patterns', async () => {
       const imported = await import('../../../core/transformer/QueryTransformer.js');
-    const { QueryTransformer } = imported;
+      const { QueryTransformer } = imported;
       (QueryTransformer as any).mockImplementation(() => ({
         transform: vi.fn().mockReturnValue({
           original: 'query { test }',
@@ -781,9 +785,9 @@ describe('UnifiedMigrationPipeline', () => {
           changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
           rules: [
             { type: 'field-rename', from: 'a', to: 'b' },
-            { type: 'field-rename', from: 'c', to: 'd' }
-          ]
-        })
+            { type: 'field-rename', from: 'c', to: 'd' },
+          ],
+        }),
       }));
 
       // Pattern detection is tested through transform method
@@ -792,8 +796,8 @@ describe('UnifiedMigrationPipeline', () => {
 
       expect(mockConfidenceScorer.scoreTransformation).toHaveBeenCalledWith(
         expect.objectContaining({
-          pattern: 'simple-field-rename'
-        })
+          pattern: 'simple-field-rename',
+        }),
       );
     });
   });

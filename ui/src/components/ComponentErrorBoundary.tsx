@@ -24,7 +24,9 @@ export class ComponentErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(_error: Error, _errorInfo: React.ErrorInfo) {
     // Show user-friendly notification
-    toast.error('A component error occurred. The page may not display correctly.');
+    toast.error(
+      'A component error occurred. The page may not display correctly.'
+    );
   }
 
   render() {
@@ -40,7 +42,7 @@ export class ComponentErrorBoundary extends Component<Props, State> {
           <div className="error-content">
             <h3>Something went wrong</h3>
             <p>This section couldn't be displayed due to an error.</p>
-            <button 
+            <button
               onClick={() => this.setState({ hasError: false, error: null })}
               className="retry-button"
             >

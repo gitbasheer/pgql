@@ -22,9 +22,7 @@ describe('QueryNameAnalyzer', () => {
     vi.clearAllMocks();
 
     mockNamingService = {
-      processQueries: vi.fn((queries) => 
-        queries.map((q: any) => ({ ...q, namePattern: null }))
-      ),
+      processQueries: vi.fn((queries) => queries.map((q: any) => ({ ...q, namePattern: null }))),
     };
 
     mockContext = {
@@ -114,9 +112,7 @@ describe('QueryNameAnalyzer', () => {
         },
       ];
 
-      mockNamingService.processQueries.mockReturnValueOnce([
-        { ...queries[0], namePattern: null },
-      ]);
+      mockNamingService.processQueries.mockReturnValueOnce([{ ...queries[0], namePattern: null }]);
 
       const result = await analyzer.analyze(queries);
       expect(result[0].name).toBe('ExistingGoodName');
@@ -135,9 +131,7 @@ describe('QueryNameAnalyzer', () => {
         },
       ];
 
-      mockNamingService.processQueries.mockReturnValueOnce([
-        { ...queries[0], namePattern: null },
-      ]);
+      mockNamingService.processQueries.mockReturnValueOnce([{ ...queries[0], namePattern: null }]);
 
       const result = await analyzer.analyze(queries);
       expect(result[0].name).toBe('GetUser');
@@ -156,9 +150,7 @@ describe('QueryNameAnalyzer', () => {
         },
       ];
 
-      mockNamingService.processQueries.mockReturnValueOnce([
-        { ...queries[0], namePattern: null },
-      ]);
+      mockNamingService.processQueries.mockReturnValueOnce([{ ...queries[0], namePattern: null }]);
 
       const result = await analyzer.analyze(queries);
       expect(result[0].name).toBe('CreateUser');
@@ -225,7 +217,7 @@ describe('QueryNameAnalyzer', () => {
         ]);
 
         const result = await analyzer.analyze(queries);
-        
+
         if (expectedName) {
           expect(result[0].name).toBe(expectedName);
         } else {
@@ -254,9 +246,7 @@ describe('QueryNameAnalyzer', () => {
         },
       ];
 
-      mockNamingService.processQueries.mockReturnValueOnce([
-        { ...queries[0], namePattern: null },
-      ]);
+      mockNamingService.processQueries.mockReturnValueOnce([{ ...queries[0], namePattern: null }]);
 
       const result = await analyzer.analyze(queries);
       expect(result[0].name).toBe('GetUserData');
@@ -280,9 +270,7 @@ describe('QueryNameAnalyzer', () => {
         },
       ];
 
-      mockNamingService.processQueries.mockReturnValueOnce([
-        { ...queries[0], namePattern: null },
-      ]);
+      mockNamingService.processQueries.mockReturnValueOnce([{ ...queries[0], namePattern: null }]);
 
       const result = await analyzer.analyze(queries);
       expect(result[0].name).toBe('UserProfileQuery');
@@ -306,9 +294,7 @@ describe('QueryNameAnalyzer', () => {
         },
       ];
 
-      mockNamingService.processQueries.mockReturnValueOnce([
-        { ...queries[0], namePattern: null },
-      ]);
+      mockNamingService.processQueries.mockReturnValueOnce([{ ...queries[0], namePattern: null }]);
 
       const result = await analyzer.analyze(queries);
       expect(result[0].name).toBe('USER_QUERY');
@@ -329,9 +315,7 @@ describe('QueryNameAnalyzer', () => {
         },
       ];
 
-      mockNamingService.processQueries.mockReturnValueOnce([
-        { ...queries[0], namePattern: null },
-      ]);
+      mockNamingService.processQueries.mockReturnValueOnce([{ ...queries[0], namePattern: null }]);
 
       const result = await analyzer.analyze(queries);
       expect(result[0].name).toBe('QueryUserProfile');
@@ -339,7 +323,7 @@ describe('QueryNameAnalyzer', () => {
 
     it('should skip generic file names', async () => {
       const genericNames = ['index', 'queries', 'graphql'];
-      
+
       for (const genericName of genericNames) {
         const queries: ExtractedQuery[] = [
           {

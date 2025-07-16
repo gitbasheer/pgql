@@ -5,7 +5,7 @@ import LogViewer from '../src/components/LogViewer';
 describe('LogViewer', () => {
   it('shows empty state when no logs', () => {
     render(<LogViewer logs={[]} />);
-    
+
     expect(screen.getByText('Waiting for logs...')).toBeInTheDocument();
   });
 
@@ -24,7 +24,7 @@ describe('LogViewer', () => {
     ];
 
     render(<LogViewer logs={logs} />);
-    
+
     expect(screen.getByText('Started extraction process')).toBeInTheDocument();
     expect(screen.getByText('Found 10 queries')).toBeInTheDocument();
   });
@@ -54,7 +54,7 @@ describe('LogViewer', () => {
     ];
 
     const { container } = render(<LogViewer logs={logs} />);
-    
+
     expect(container.querySelector('.log-info')).toBeInTheDocument();
     expect(container.querySelector('.log-warn')).toBeInTheDocument();
     expect(container.querySelector('.log-error')).toBeInTheDocument();
@@ -74,8 +74,12 @@ describe('LogViewer', () => {
     ];
 
     render(<LogViewer logs={logs} />);
-    
-    expect(screen.getByText('"query": "test query"', { exact: false })).toBeInTheDocument();
-    expect(screen.getByText('"file": "test.ts"', { exact: false })).toBeInTheDocument();
+
+    expect(
+      screen.getByText('"query": "test query"', { exact: false })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('"file": "test.ts"', { exact: false })
+    ).toBeInTheDocument();
   });
 });

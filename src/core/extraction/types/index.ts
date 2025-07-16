@@ -12,5 +12,5 @@ export {
   type PatternExtractedQuery,
   type QueryPattern,
   type QueryPatternRegistry,
-  type MigrationManifest
+  type MigrationManifest,
 } from './pattern.types.js';

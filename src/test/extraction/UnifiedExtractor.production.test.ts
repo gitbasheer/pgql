@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import { UnifiedExtractor } from '../../core/extraction/engine/UnifiedExtractor.js';
 import { performanceMonitor } from '../../core/monitoring/PerformanceMonitor.js';
-import { astCache, validationCache, transformCache } from 'from '../../core/cache/CacheManager.js'.js';
+import { astCache, validationCache, transformCache } from '../../core/cache/CacheManager.js';
 import { logger } from '../../utils/logger.js';
 import { readFileSync, mkdirSync, writeFileSync, rmSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
@@ -28,7 +28,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
     logger.info(`Created test files: ${files.join(', ')}`);
 
     // Verify file contents
-    files.forEach(file => {
+    files.forEach((file) => {
       const content = readFileSync(join(testDir, file), 'utf-8');
       logger.info(`File ${file} content length: ${content.length}`);
     });
@@ -43,7 +43,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
     // Clean up test directory
     rmSync(testDir, {
       recursive: true,
-      force: true
+      force: true,
     });
 
     // Generate performance report
@@ -57,7 +57,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
     const cacheStats = {
       ast: astCache.getStats(),
       validation: validationCache.getStats(),
-      transform: transformCache.getStats()
+      transform: transformCache.getStats(),
     };
     logger.info('Cache Statistics:', JSON.stringify(cacheStats, null, 2));
   });
@@ -78,7 +78,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
         maxConcurrency: 4,
         resolveFragments: true,
         resolveNames: true,
-        preserveSourceAST: true
+        preserveSourceAST: true,
       });
 
       // Debug: Check what files the extractor finds
@@ -108,7 +108,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
         maxConcurrency: 4,
         resolveFragments: true,
         resolveNames: true,
-        preserveSourceAST: true
+        preserveSourceAST: true,
       });
       const result2 = await extractor.extract();
       const metrics2 = performanceMonitor.endOperation(opId2);
@@ -124,7 +124,9 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
       // Check cache effectiveness (more lenient expectations)
       const cacheStats = astCache.getStats();
       expect(cacheStats.hits).toBeGreaterThanOrEqual(0);
-      logger.info(`Cache performance: First run: ${metrics1?.duration?.toFixed(2)}ms, Cached run: ${metrics2?.duration?.toFixed(2)}ms`);
+      logger.info(
+        `Cache performance: First run: ${metrics1?.duration?.toFixed(2)}ms, Cached run: ${metrics2?.duration?.toFixed(2)}ms`,
+      );
     });
     it('should handle parallel extraction efficiently', async () => {
       const concurrencyLevels = [1, 2, 4, 8];
@@ -139,7 +141,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
           ignore: ['**/node_modules/**'],
           // Override default ignore patterns
           parallel: concurrency > 1,
-          maxConcurrency: concurrency
+          maxConcurrency: concurrency,
         });
         await extractor.extract();
         const metrics = performanceMonitor.endOperation(opId);
@@ -158,7 +160,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
         patterns: ['**/complex-*.{js,ts}'],
         ignore: ['**/node_modules/**'], // Override default ignore patterns
         resolveFragments: true,
-        preserveSourceAST: true
+        preserveSourceAST: true,
       });
       const result = await extractor.extract();
       performanceMonitor.endOperation(opId);
@@ -168,19 +170,21 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
 
       // Should find queries with fragments (more lenient check)
       if (result.queries.length > 0) {
-        const queriesWithFragments = result.queries.filter(q => q.content.includes('...'));
+        const queriesWithFragments = result.queries.filter((q) => q.content.includes('...'));
         expect(queriesWithFragments.length).toBeGreaterThanOrEqual(0);
 
         // Should resolve fragments
-        const resolvedQueries = result.queries.filter(q => q.metadata?.hasFragments);
+        const resolvedQueries = result.queries.filter((q) => q.metadata?.hasFragments);
         expect(resolvedQueries.length).toBeGreaterThanOrEqual(0);
 
         // Source AST should be preserved
-        const queriesWithAST = result.queries.filter(q => q.sourceAST);
+        const queriesWithAST = result.queries.filter((q) => q.sourceAST);
         expect(queriesWithAST.length).toBe(result.queries.length);
       } else {
         // If no queries found, just log for debugging
-        logger.warn('No complex fragments found - this may indicate file creation or pattern matching issues');
+        logger.warn(
+          'No complex fragments found - this may indicate file creation or pattern matching issues',
+        );
       }
     });
     it('should generate variants efficiently', async () => {
@@ -189,47 +193,57 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
         directory: testDir,
         patterns: ['**/variant-*.{js,ts}'],
         ignore: ['**/node_modules/**'], // Override default ignore patterns
-        generateVariants: true
+        generateVariants: true,
       });
       const result = await extractor.extract();
       performanceMonitor.endOperation(opId);
 
       // Debug logging
-      logger.info(`Variants extraction: ${result.queries.length} queries, ${result.variants.length} variants found`);
+      logger.info(
+        `Variants extraction: ${result.queries.length} queries, ${result.variants.length} variants found`,
+      );
 
       // More lenient expectations - variants are optional
       if (result.queries.length > 0) {
         expect(result.variants.length).toBeGreaterThanOrEqual(0);
-        expect(result.variants.length).toBeLessThanOrEqual((result.queries && result.queries.length) * 10);
+        expect(result.variants.length).toBeLessThanOrEqual(
+          (result.queries && result.queries.length) * 10,
+        );
 
         // Variants should have proper metadata
-        result.variants.forEach(variant => {
+        result.variants.forEach((variant) => {
           expect(variant.originalQueryId).toBeDefined();
           expect(variant.content).toBeDefined();
           expect(variant.switchConfig).toBeDefined();
         });
       } else {
-        logger.warn('No variant queries found - this may indicate file creation or pattern matching issues');
+        logger.warn(
+          'No variant queries found - this may indicate file creation or pattern matching issues',
+        );
       }
     });
   });
   describe('Performance Benchmarks', () => {
     it('should meet performance targets for various project sizes', async () => {
-      const benchmarks = [{
-        files: 10,
-        maxDuration: 500
-      }, {
-        files: 50,
-        maxDuration: 2000
-      }, {
-        files: 100,
-        maxDuration: 5000
-      }];
+      const benchmarks = [
+        {
+          files: 10,
+          maxDuration: 500,
+        },
+        {
+          files: 50,
+          maxDuration: 2000,
+        },
+        {
+          files: 100,
+          maxDuration: 5000,
+        },
+      ];
       for (const benchmark of benchmarks) {
         // Create specific number of files
         const benchmarkDir = join(testDir, `benchmark-${benchmark.files}`);
         mkdirSync(benchmarkDir, {
-          recursive: true
+          recursive: true,
         });
         for (let i = 0; i < benchmark.files; i++) {
           const content = generateTestFile(i);
@@ -244,17 +258,19 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
           ignore: ['**/node_modules/**'],
           // Override default ignore patterns
           parallel: true,
-          maxConcurrency: 4
+          maxConcurrency: 4,
         });
         await extractor.extract();
         const metrics = performanceMonitor.endOperation(opId);
         expect(metrics?.duration).toBeLessThan(benchmark.maxDuration);
-        logger.info(`${benchmark.files} files: ${metrics?.duration?.toFixed(2)}ms (target: <${benchmark.maxDuration}ms)`);
+        logger.info(
+          `${benchmark.files} files: ${metrics?.duration?.toFixed(2)}ms (target: <${benchmark.maxDuration}ms)`,
+        );
 
         // Clean up
         rmSync(benchmarkDir, {
           recursive: true,
-          force: true
+          force: true,
         });
       }
     });
@@ -265,7 +281,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
       extractor = new UnifiedExtractor({
         directory: testDir,
         patterns: ['**/*.{js,ts}'],
-        ignore: ['**/node_modules/**'] // Override default ignore patterns
+        ignore: ['**/node_modules/**'], // Override default ignore patterns
       });
       await extractor.extract();
       const coldMetrics = performanceMonitor.endOperation(opId1);
@@ -278,7 +294,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
       extractor = new UnifiedExtractor({
         directory: testDir,
         patterns: ['**/*.{js,ts}'],
-        ignore: ['**/node_modules/**'] // Override default ignore patterns
+        ignore: ['**/node_modules/**'], // Override default ignore patterns
       });
       await extractor.extract();
       const warmMetrics = performanceMonitor.endOperation(opId2);
@@ -286,7 +302,9 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
       // Warm start should be faster (more realistic expectation)
       if (coldMetrics?.duration && warmMetrics?.duration) {
         expect(warmMetrics.duration).toBeLessThan(coldMetrics.duration * 1.5); // Allow for some variance
-        logger.info(`Cache warming impact: Cold: ${coldMetrics.duration.toFixed(2)}ms, Warm: ${warmMetrics.duration.toFixed(2)}ms`);
+        logger.info(
+          `Cache warming impact: Cold: ${coldMetrics.duration.toFixed(2)}ms, Warm: ${warmMetrics.duration.toFixed(2)}ms`,
+        );
       } else {
         logger.warn('Performance metrics not available for cache warming test');
       }
@@ -309,7 +327,7 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
       extractor = new UnifiedExtractor({
         directory: testDir,
         patterns: ['large-file.ts'],
-        ignore: ['**/node_modules/**'] // Override default ignore patterns
+        ignore: ['**/node_modules/**'], // Override default ignore patterns
       });
       const result = await extractor.extract();
       const metrics = performanceMonitor.endOperation(opId);
@@ -317,13 +335,17 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
       const memDelta = memAfter - memBefore;
 
       // Debug logging
-      logger.info(`Large file extraction: ${result.queries.length} queries found from file with 1000 expected`);
+      logger.info(
+        `Large file extraction: ${result.queries.length} queries found from file with 1000 expected`,
+      );
 
       // More realistic expectations - the extraction might not find all queries
       if (result.queries.length > 0) {
         expect(result.queries.length).toBeGreaterThan(0);
         expect(memDelta).toBeLessThan(100 * 1024 * 1024); // Less than 100MB
-        logger.info(`Memory usage for ${result.queries.length} queries: ${(memDelta / 1024 / 1024).toFixed(2)}MB`);
+        logger.info(
+          `Memory usage for ${result.queries.length} queries: ${(memDelta / 1024 / 1024).toFixed(2)}MB`,
+        );
       } else {
         logger.warn('No queries found in large file - check generation and extraction logic');
         // Still test memory usage even if no queries found
@@ -342,9 +364,10 @@ describe.skip('UnifiedExtractor - Production Tests with Caching', () => {
 function createTestFiles() {
   const testDir = './test-extraction-production';
   // Create various types of test files
-  const files = [{
-    name: 'simple-queries.js',
-    content: `
+  const files = [
+    {
+      name: 'simple-queries.js',
+      content: `
         import { gql } from '@apollo/client';
 
         export const GET_USER = gql\`
@@ -370,10 +393,11 @@ function createTestFiles() {
             }
           }
         \`;
-      `
-  }, {
-    name: 'complex-fragments.ts',
-    content: `
+      `,
+    },
+    {
+      name: 'complex-fragments.ts',
+      content: `
         import { gql } from 'graphql-tag';
 
         const UserFragment = gql\`
@@ -414,10 +438,11 @@ function createTestFiles() {
             }
           }
         \`;
-      `
-  }, {
-    name: 'variant-queries.ts',
-    content: `
+      `,
+    },
+    {
+      name: 'variant-queries.ts',
+      content: `
         import { graphql } from 'react-relay';
 
         export const UserQuery = graphql\`
@@ -445,19 +470,21 @@ function createTestFiles() {
             }
           }
         \`;
-      `
-  }, {
-            name: 'queryNames.js', // Legacy query naming file - now deprecated
-    content: `
+      `,
+    },
+    {
+      name: 'queryNames.js', // Legacy query naming file - now deprecated
+      content: `
         export const queryNames = {
           GetUser: 'USER_QUERY',
           GetPosts: 'POSTS_QUERY',
           GetFeed: 'FEED_QUERY',
           UserQuery: 'USER_PROFILE_QUERY'
         };
-      `
-  }];
-  files.forEach(file => {
+      `,
+    },
+  ];
+  files.forEach((file) => {
     writeFileSync(join(testDir, file.name), file.content);
   });
 }

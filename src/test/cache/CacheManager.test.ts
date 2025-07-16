@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { CacheManager } from 'from '../../core/cache/CacheManager.js'.js';
+import { CacheManager } from '../../core/cache/CacheManager.js';
 import { Level } from 'level';
 import { performance } from 'perf_hooks';
 import * as fs from 'fs/promises';
@@ -15,16 +15,16 @@ vi.mock('../../utils/logger', () => ({
 }));
 
 vi.mock('level', () => ({
-  Level: vi.fn()
+  Level: vi.fn(),
 }));
 
 describe('CacheManager', () => {
   let cacheManager: CacheManager;
   const testCachePath = '.test-cache';
-  
+
   beforeEach(async () => {
     vi.clearAllMocks();
-    
+
     // Clean up test cache directory
     try {
       await fs.rm(testCachePath, { recursive: true, force: true });
@@ -37,7 +37,7 @@ describe('CacheManager', () => {
     if (cacheManager) {
       await cacheManager.close();
     }
-    
+
     // Clean up test cache directory
     try {
       await fs.rm(testCachePath, { recursive: true, force: true });
@@ -69,7 +69,7 @@ describe('CacheManager', () => {
         open: mockOpen,
         close: vi.fn().mockResolvedValue(undefined),
       };
-      
+
       (Level as any).mockImplementation(() => mockLevel as any);
 
       cacheManager = new CacheManager({
@@ -79,7 +79,7 @@ describe('CacheManager', () => {
       });
 
       // Wait for initialization
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(Level).toHaveBeenCalledWith(testCachePath, { valueEncoding: 'json' });
       expect(mockOpen).toHaveBeenCalled();
@@ -92,7 +92,7 @@ describe('CacheManager', () => {
         open: mockOpen,
         close: vi.fn(),
       };
-      
+
       (Level as any).mockImplementation(() => mockLevel as any);
 
       cacheManager = new CacheManager({
@@ -102,9 +102,11 @@ describe('CacheManager', () => {
       });
 
       // Wait for initialization
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(logger.warn).toHaveBeenCalledWith('Database locked, falling back to memory cache only');
+      expect(logger.warn).toHaveBeenCalledWith(
+        'Database locked, falling back to memory cache only',
+      );
     });
 
     it('should handle database initialization errors', async () => {
@@ -113,7 +115,7 @@ describe('CacheManager', () => {
         open: mockOpen,
         close: vi.fn(),
       };
-      
+
       (Level as any).mockImplementation(() => mockLevel as any);
 
       cacheManager = new CacheManager({
@@ -123,14 +125,17 @@ describe('CacheManager', () => {
       });
 
       // Wait for initialization
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(logger.error).toHaveBeenCalledWith('Failed to initialize persistent cache:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith(
+        'Failed to initialize persistent cache:',
+        expect.any(Error),
+      );
     });
 
     it('should warm cache on init when requested', async () => {
       const warmCacheSpy = vi.spyOn(CacheManager.prototype as any, 'warmCache');
-      
+
       cacheManager = new CacheManager({
         maxSize: 100,
         warmOnInit: true,
@@ -151,10 +156,10 @@ describe('CacheManager', () => {
     it('should set and get values from memory cache', async () => {
       const value = { data: 'test' };
       await cacheManager.set('namespace', 'key', value);
-      
+
       const retrieved = await cacheManager.get('namespace', 'key');
       expect(retrieved).toEqual(value);
-      
+
       const stats = cacheManager.getStats();
       expect(stats.hits).toBe(1);
       expect(stats.misses).toBe(0);
@@ -164,7 +169,7 @@ describe('CacheManager', () => {
     it('should return undefined for missing keys', async () => {
       const result = await cacheManager.get('namespace', 'missing');
       expect(result).toBeUndefined();
-      
+
       const stats = cacheManager.getStats();
       expect(stats.hits).toBe(0);
       expect(stats.misses).toBe(1);
@@ -172,13 +177,13 @@ describe('CacheManager', () => {
 
     it('should respect TTL settings', async () => {
       await cacheManager.set('namespace', 'key', 'value', 50); // 50ms TTL
-      
+
       // Should exist immediately
       expect(await cacheManager.get('namespace', 'key')).toBe('value');
-      
+
       // Wait for TTL to expire
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       // Should be gone
       expect(await cacheManager.get('namespace', 'key')).toBeUndefined();
     });
@@ -203,10 +208,10 @@ describe('CacheManager', () => {
     it('should generate consistent cache keys', async () => {
       const value1 = 'test1';
       const value2 = 'test2';
-      
+
       await cacheManager.set('namespace', 'key', value1);
       await cacheManager.set('namespace', 'key', value2); // Overwrite
-      
+
       const retrieved = await cacheManager.get('namespace', 'key');
       expect(retrieved).toBe(value2); // Should get the latest value
     });
@@ -224,7 +229,7 @@ describe('CacheManager', () => {
         clear: vi.fn().mockResolvedValue(undefined),
         close: vi.fn().mockResolvedValue(undefined),
       };
-      
+
       (Level as any).mockImplementation(() => mockLevel as any);
     });
 
@@ -236,15 +241,12 @@ describe('CacheManager', () => {
       });
 
       // Wait for initialization
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       const value = { data: 'persistent' };
       await cacheManager.set('namespace', 'key', value);
 
-      expect(mockLevel.put).toHaveBeenCalledWith(
-        expect.any(String),
-        JSON.stringify(value)
-      );
+      expect(mockLevel.put).toHaveBeenCalledWith(expect.any(String), JSON.stringify(value));
     });
 
     it('should retrieve from persistent cache when not in memory', async () => {
@@ -255,7 +257,7 @@ describe('CacheManager', () => {
       });
 
       // Wait for initialization
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       const value = { data: 'persistent' };
       mockLevel.get.mockResolvedValue(JSON.stringify(value));
@@ -273,13 +275,16 @@ describe('CacheManager', () => {
       });
 
       // Wait for initialization
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       mockLevel.put.mockRejectedValue(new Error('DB Error'));
-      
+
       // Should not throw
       await expect(cacheManager.set('namespace', 'key', 'value')).resolves.toBeUndefined();
-      expect(logger.error).toHaveBeenCalledWith('Failed to persist cache entry:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith(
+        'Failed to persist cache entry:',
+        expect.any(Error),
+      );
     });
 
     it('should handle LEVEL_NOT_FOUND errors silently', async () => {
@@ -290,10 +295,10 @@ describe('CacheManager', () => {
       });
 
       // Wait for initialization
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       mockLevel.get.mockRejectedValue({ code: 'LEVEL_NOT_FOUND' });
-      
+
       const result = await cacheManager.get('namespace', 'missing');
       expect(result).toBeUndefined();
       expect(logger.error).not.toHaveBeenCalled();
@@ -310,7 +315,7 @@ describe('CacheManager', () => {
     it('should delete values from cache', async () => {
       await cacheManager.set('namespace', 'key', 'value');
       expect(await cacheManager.get('namespace', 'key')).toBe('value');
-      
+
       await cacheManager.delete('namespace', 'key');
       expect(await cacheManager.get('namespace', 'key')).toBeUndefined();
     });
@@ -331,9 +336,9 @@ describe('CacheManager', () => {
     it('should clear entire cache', async () => {
       await cacheManager.set('ns1', 'key1', 'value1');
       await cacheManager.set('ns2', 'key2', 'value2');
-      
+
       await cacheManager.clear();
-      
+
       expect(await cacheManager.get('ns1', 'key1')).toBeUndefined();
       expect(await cacheManager.get('ns2', 'key2')).toBeUndefined();
       expect(cacheManager.getStats().size).toBe(0);
@@ -343,9 +348,9 @@ describe('CacheManager', () => {
       await cacheManager.set('ns1', 'key1', 'value1');
       await cacheManager.set('ns1', 'key2', 'value2');
       await cacheManager.set('ns2', 'key3', 'value3');
-      
+
       await cacheManager.clear('ns1');
-      
+
       expect(await cacheManager.get('ns1', 'key1')).toBeUndefined();
       expect(await cacheManager.get('ns1', 'key2')).toBeUndefined();
       expect(await cacheManager.get('ns2', 'key3')).toBe('value3');
@@ -361,18 +366,18 @@ describe('CacheManager', () => {
       await cacheManager.set('namespace', 'key1', 'value1');
       await cacheManager.set('namespace', 'key2', 'value2');
       await cacheManager.set('namespace', 'key3', 'value3');
-      
+
       const statsBefore = cacheManager.getStats();
       expect(statsBefore.size).toBe(3);
       expect(statsBefore.evictions).toBe(0);
-      
+
       // This should evict key1
       await cacheManager.set('namespace', 'key4', 'value4');
-      
+
       const statsAfter = cacheManager.getStats();
       expect(statsAfter.size).toBe(3);
       expect(statsAfter.evictions).toBe(1);
-      
+
       expect(await cacheManager.get('namespace', 'key1')).toBeUndefined();
       expect(await cacheManager.get('namespace', 'key4')).toBe('value4');
     });
@@ -383,16 +388,16 @@ describe('CacheManager', () => {
       });
 
       await cacheManager.set('namespace', 'key', 'value');
-      
+
       // 3 hits
       await cacheManager.get('namespace', 'key');
       await cacheManager.get('namespace', 'key');
       await cacheManager.get('namespace', 'key');
-      
+
       // 2 misses
       await cacheManager.get('namespace', 'missing1');
       await cacheManager.get('namespace', 'missing2');
-      
+
       const stats = cacheManager.getStats();
       expect(stats.hits).toBe(3);
       expect(stats.misses).toBe(2);
@@ -411,19 +416,19 @@ describe('CacheManager', () => {
       await cacheManager.set('namespace', 'key', 'value');
       await cacheManager.get('namespace', 'key'); // hit
       await cacheManager.get('namespace', 'missing'); // miss
-      
+
       const metrics = cacheManager.getPerformanceMetrics();
-      
+
       expect(metrics).toHaveProperty('set');
       expect(metrics).toHaveProperty('get:hit');
       expect(metrics).toHaveProperty('get:miss');
-      
+
       expect(metrics.set.count).toBe(1);
       expect(metrics['get:hit'].count).toBe(1);
       expect(metrics['get:miss'].count).toBe(1);
-      
+
       // Check that metrics have reasonable values
-      Object.values(metrics).forEach(metric => {
+      Object.values(metrics).forEach((metric) => {
         expect(metric.avg).toBeGreaterThanOrEqual(0);
         expect(metric.min).toBeGreaterThanOrEqual(0);
         expect(metric.max).toBeGreaterThanOrEqual(metric.min);
@@ -439,7 +444,7 @@ describe('CacheManager', () => {
       for (let i = 0; i < 1100; i++) {
         await cacheManager.set('namespace', `key${i}`, `value${i}`);
       }
-      
+
       const metrics = cacheManager.getPerformanceMetrics();
       expect(metrics.set.count).toBe(1000); // Should be capped at 1000
     });
@@ -454,12 +459,12 @@ describe('CacheManager', () => {
 
     it('should warm cache with predefined data', async () => {
       const setSpy = vi.spyOn(cacheManager, 'set');
-      
+
       await cacheManager.warmCache();
-      
+
       expect(logger.info).toHaveBeenCalledWith('Warming cache...');
       expect(logger.info).toHaveBeenCalledWith(expect.stringMatching(/Cache warmed in \d+\.\d+ms/));
-      
+
       // Check that various items were cached
       expect(setSpy).toHaveBeenCalledWith('schema', expect.any(String), null, 3600000);
       expect(setSpy).toHaveBeenCalledWith('pattern', expect.any(String), expect.any(String));
@@ -468,9 +473,9 @@ describe('CacheManager', () => {
 
     it('should handle warming errors gracefully', async () => {
       vi.spyOn(cacheManager, 'set').mockRejectedValue(new Error('Warming error'));
-      
+
       await cacheManager.warmCache();
-      
+
       expect(logger.error).toHaveBeenCalledWith('Cache warming failed:', expect.any(Error));
     });
   });
@@ -478,26 +483,26 @@ describe('CacheManager', () => {
   describe('memoize decorator', () => {
     it('should cache method results', async () => {
       const mockFn = vi.fn().mockResolvedValue('result');
-      
+
       class TestClass {
         @CacheManager.memoize('test-namespace', 1000)
         async testMethod(arg: string) {
           return mockFn(arg);
         }
       }
-      
+
       const instance = new TestClass();
-      
+
       // First call
       const result1 = await instance.testMethod('arg1');
       expect(result1).toBe('result');
       expect(mockFn).toHaveBeenCalledTimes(1);
-      
+
       // Second call with same args - should use cache
       const result2 = await instance.testMethod('arg1');
       expect(result2).toBe('result');
       expect(mockFn).toHaveBeenCalledTimes(1); // Still 1
-      
+
       // Call with different args
       const result3 = await instance.testMethod('arg2');
       expect(result3).toBe('result');
@@ -512,7 +517,7 @@ describe('CacheManager', () => {
         open: vi.fn().mockResolvedValue(undefined),
         close: mockClose,
       };
-      
+
       (Level as any).mockImplementation(() => mockLevel as any);
 
       cacheManager = new CacheManager({
@@ -522,7 +527,7 @@ describe('CacheManager', () => {
       });
 
       // Wait for initialization
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       await cacheManager.close();
       expect(mockClose).toHaveBeenCalled();
@@ -534,7 +539,7 @@ describe('CacheManager', () => {
         open: vi.fn().mockResolvedValue(undefined),
         close: mockClose,
       };
-      
+
       (Level as any).mockImplementation(() => mockLevel as any);
 
       cacheManager = new CacheManager({
@@ -544,7 +549,7 @@ describe('CacheManager', () => {
       });
 
       // Wait for initialization
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       await cacheManager.close();
       expect(logger.error).toHaveBeenCalledWith('Error closing cache:', expect.any(Error));
@@ -556,7 +561,7 @@ describe('CacheManager', () => {
         open: vi.fn().mockResolvedValue(undefined),
         close: mockClose,
       };
-      
+
       (Level as any).mockImplementation(() => mockLevel as any);
 
       cacheManager = new CacheManager({
@@ -566,7 +571,7 @@ describe('CacheManager', () => {
       });
 
       // Wait for initialization
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       await cacheManager.close();
       expect(logger.error).not.toHaveBeenCalled();

@@ -15,7 +15,7 @@ import {
   TransformedResponses,
   CapturedResponse,
   ABTestConfig,
-  AlignmentFunction
+  AlignmentFunction,
 } from '../../core/validator/types.js';
 import { ResolvedQuery } from '../../core/extraction/types/query.types.js';
 import { logger } from '../../utils/logger.js';
@@ -36,13 +36,12 @@ vi.mock('fs', () => ({
     mkdir: vi.fn(),
     rm: vi.fn(),
     stat: vi.fn(),
-    access: vi.fn()
-  }
+    access: vi.fn(),
+  },
 }));
 vi.mock('../../utils/logger');
 
 describe('ResponseValidationService', () => {
-
   let service: ResponseValidationService;
   let mockCaptureService: any;
   let mockComparator: any;
@@ -52,29 +51,31 @@ describe('ResponseValidationService', () => {
   let mockReportGenerator: any;
 
   const mockConfig: ResponseValidationConfig = {
-    endpoints: [{
-      url: 'https://api.example.com/graphql',
-      headers: { 'Authorization': 'Bearer test' }
-    }],
+    endpoints: [
+      {
+        url: 'https://api.example.com/graphql',
+        headers: { Authorization: 'Bearer test' },
+      },
+    ],
     capture: {
       parallel: true,
       maxConcurrency: 5,
       timeout: 30000,
-      variableGeneration: 'auto'
+      variableGeneration: 'auto',
     },
     comparison: {
       strict: false,
-      ignorePaths: ['data.__typename']
+      ignorePaths: ['data.__typename'],
     },
     alignment: {
       strict: false,
       preserveNulls: true,
-      preserveOrder: false
+      preserveOrder: false,
     },
     storage: {
       type: 'file',
-      path: './test-storage'
-    }
+      path: './test-storage',
+    },
   };
 
   const mockQuery: ResolvedQuery = {
@@ -87,7 +88,7 @@ describe('ResponseValidationService', () => {
     ast: null,
     resolvedContent: 'query { test }',
     resolvedFragments: [],
-    allDependencies: []
+    allDependencies: [],
   };
 
   const mockCapturedResponse: CapturedResponse = {
@@ -101,10 +102,10 @@ describe('ResponseValidationService', () => {
       headers: {},
       size: 100,
       endpoint: 'https://api.example.com/graphql',
-      environment: 'production'
+      environment: 'production',
     },
     timestamp: new Date(),
-    version: 'baseline'
+    version: 'baseline',
   };
 
   function createFreshMocks() {
@@ -113,17 +114,17 @@ describe('ResponseValidationService', () => {
         captureBaseline: vi.fn(),
         captureTransformed: vi.fn(),
         testOnRealApi: vi.fn(),
-        destroy: vi.fn()
+        destroy: vi.fn(),
       },
       mockComparator: {
-        compare: vi.fn()
+        compare: vi.fn(),
       },
       mockAlignmentGenerator: {
-        generateAlignmentFunction: vi.fn()
+        generateAlignmentFunction: vi.fn(),
       },
       mockABTestingFramework: {
         createTest: vi.fn(),
-        registerRollbackHandler: vi.fn()
+        registerRollbackHandler: vi.fn(),
       },
       mockStorage: {
         store: vi.fn(),
@@ -134,13 +135,13 @@ describe('ResponseValidationService', () => {
         cleanup: vi.fn(),
         close: vi.fn(),
         exportData: vi.fn(),
-        importData: vi.fn()
+        importData: vi.fn(),
       },
       mockReportGenerator: {
         generateFullReport: vi.fn(),
         generatePRSummary: vi.fn(),
-        generateCIReport: vi.fn()
-      }
+        generateCIReport: vi.fn(),
+      },
     };
   }
 
@@ -192,13 +193,13 @@ describe('ResponseValidationService', () => {
           totalQueries: 1,
           successCount: 1,
           errorCount: 0,
-          endpoint: mockConfig.endpoints[0]
-        }
+          endpoint: mockConfig.endpoints[0],
+        },
       };
 
       const mockTransformedResponses: TransformedResponses = {
         ...mockBaselineResponses,
-        transformationVersion: 'latest'
+        transformationVersion: 'latest',
       };
 
       const mockComparison: ComparisonResult = {
@@ -207,8 +208,12 @@ describe('ResponseValidationService', () => {
         similarity: 1.0,
         differences: [],
         breakingChanges: [],
-        performanceImpact: { latencyChange: 0, sizeChange: 0, recommendation: 'Performance impact is acceptable' },
-        recommendation: 'safe'
+        performanceImpact: {
+          latencyChange: 0,
+          sizeChange: 0,
+          recommendation: 'Performance impact is acceptable',
+        },
+        recommendation: 'safe',
       };
 
       const mockReport: ValidationReport = {
@@ -221,12 +226,12 @@ describe('ResponseValidationService', () => {
           breakingChanges: 0,
           averageSimilarity: 1.0,
           safeToMigrate: true,
-          estimatedRisk: 'low'
+          estimatedRisk: 'low',
         },
         comparisons: [mockComparison],
         alignments: [],
         abTestConfig: undefined,
-        recommendations: []
+        recommendations: [],
       };
 
       // Set up fresh mocks for this test
@@ -237,23 +242,22 @@ describe('ResponseValidationService', () => {
       mockStorage.store.mockResolvedValue(undefined);
       mockStorage.storeReport.mockResolvedValue(undefined);
 
-      const result = await service.validateTransformation(
-        baselineQueries,
-        transformedQueries,
-        {
-          generateAlignments: false,
-          setupABTest: false
-        }
-      );
+      const result = await service.validateTransformation(baselineQueries, transformedQueries, {
+        generateAlignments: false,
+        setupABTest: false,
+      });
 
       expect(result).toEqual(mockReport);
       expect(mockCaptureService.captureBaseline).toHaveBeenCalledWith(baselineQueries, undefined);
-      expect(mockCaptureService.captureTransformed).toHaveBeenCalledWith(transformedQueries, undefined);
+      expect(mockCaptureService.captureTransformed).toHaveBeenCalledWith(
+        transformedQueries,
+        undefined,
+      );
       expect(mockComparator.compare).toHaveBeenCalled();
       expect(mockReportGenerator.generateFullReport).toHaveBeenCalledWith(
         [mockComparison],
         [],
-        undefined
+        undefined,
       );
       expect(mockStorage.storeReport).toHaveBeenCalledWith(mockReport);
     });
@@ -269,26 +273,32 @@ describe('ResponseValidationService', () => {
           totalQueries: 1,
           successCount: 1,
           errorCount: 0,
-          endpoint: mockConfig.endpoints[0]
-        }
+          endpoint: mockConfig.endpoints[0],
+        },
       };
 
       const mockComparison: ComparisonResult = {
         queryId: 'test-query-1',
         identical: false,
         similarity: 0.9,
-        differences: [{
-          path: ['data', 'test'],
-          type: 'value-change',
-          baseline: 'value1',
-          transformed: 'value2',
-          fixable: true,
-          severity: 'low',
-          description: 'Value changed from value1 to value2'
-        }],
+        differences: [
+          {
+            path: ['data', 'test'],
+            type: 'value-change',
+            baseline: 'value1',
+            transformed: 'value2',
+            fixable: true,
+            severity: 'low',
+            description: 'Value changed from value1 to value2',
+          },
+        ],
         breakingChanges: [],
-        performanceImpact: { latencyChange: 10, sizeChange: 0, recommendation: 'Acceptable performance impact' },
-        recommendation: 'safe'
+        performanceImpact: {
+          latencyChange: 10,
+          sizeChange: 0,
+          recommendation: 'Acceptable performance impact',
+        },
+        recommendation: 'safe',
       };
 
       const mockAlignment: AlignmentFunction = {
@@ -297,7 +307,7 @@ describe('ResponseValidationService', () => {
         differences: mockComparison.differences,
         transform: (response: any) => response,
         code: 'function align(response) { return response; }',
-        tests: []
+        tests: [],
       };
 
       const mockReportWithAlignment: ValidationReport = {
@@ -310,18 +320,18 @@ describe('ResponseValidationService', () => {
           breakingChanges: 0,
           averageSimilarity: 0.9,
           safeToMigrate: true,
-          estimatedRisk: 'low'
+          estimatedRisk: 'low',
         },
         comparisons: [mockComparison],
         alignments: [mockAlignment],
-        recommendations: []
+        recommendations: [],
       };
 
       // Set up fresh mocks for this test
       mockCaptureService.captureBaseline.mockResolvedValue(mockBaselineResponses);
       mockCaptureService.captureTransformed.mockResolvedValue({
         ...mockBaselineResponses,
-        transformationVersion: 'latest'
+        transformationVersion: 'latest',
       });
       mockComparator.compare.mockReturnValue(mockComparison);
       mockAlignmentGenerator.generateAlignmentFunction.mockReturnValue(mockAlignment);
@@ -330,17 +340,13 @@ describe('ResponseValidationService', () => {
       mockStorage.storeReport.mockResolvedValue(undefined);
       mockReportGenerator.generateFullReport.mockResolvedValue(mockReportWithAlignment);
 
-      await service.validateTransformation(
-        baselineQueries,
-        transformedQueries,
-        {
-          generateAlignments: true
-        }
-      );
+      await service.validateTransformation(baselineQueries, transformedQueries, {
+        generateAlignments: true,
+      });
 
       expect(mockAlignmentGenerator.generateAlignmentFunction).toHaveBeenCalledWith(
         'test-query-1',
-        [mockComparison.differences[0]]
+        [mockComparison.differences[0]],
       );
       expect(mockStorage.storeAlignment).toHaveBeenCalledWith(mockAlignment);
     });
@@ -355,8 +361,12 @@ describe('ResponseValidationService', () => {
         similarity: 1.0,
         differences: [],
         breakingChanges: [],
-        performanceImpact: { latencyChange: 0, sizeChange: 0, recommendation: 'Performance impact is acceptable' },
-        recommendation: 'safe'
+        performanceImpact: {
+          latencyChange: 0,
+          sizeChange: 0,
+          recommendation: 'Performance impact is acceptable',
+        },
+        recommendation: 'safe',
       };
 
       const mockABTestConfig: ABTestConfig = {
@@ -374,7 +384,7 @@ describe('ResponseValidationService', () => {
             averageLatency: 100,
             p95Latency: 150,
             p99Latency: 200,
-            errorTypes: {}
+            errorTypes: {},
           },
           variant: {
             requests: 1000,
@@ -383,21 +393,21 @@ describe('ResponseValidationService', () => {
             averageLatency: 100,
             p95Latency: 150,
             p99Latency: 200,
-            errorTypes: {}
+            errorTypes: {},
           },
           summary: {
             winner: 'tie',
             confidence: 0.95,
-            recommendation: 'Continue monitoring'
-          }
+            recommendation: 'Continue monitoring',
+          },
         },
         autoRollback: {
           enabled: true,
           errorThreshold: 0.05,
           latencyThreshold: 0.2,
           evaluationWindow: '5m',
-          cooldownPeriod: '10m'
-        }
+          cooldownPeriod: '10m',
+        },
       };
 
       const mockReport: ValidationReport = {
@@ -410,12 +420,12 @@ describe('ResponseValidationService', () => {
           breakingChanges: 0,
           averageSimilarity: 1.0,
           safeToMigrate: true,
-          estimatedRisk: 'low'
+          estimatedRisk: 'low',
         },
         comparisons: [mockComparison],
         alignments: [],
         abTestConfig: mockABTestConfig,
-        recommendations: []
+        recommendations: [],
       };
 
       // Set up fresh mocks for this test
@@ -426,8 +436,8 @@ describe('ResponseValidationService', () => {
           totalQueries: 1,
           successCount: 1,
           errorCount: 0,
-          endpoint: mockConfig.endpoints[0]
-        }
+          endpoint: mockConfig.endpoints[0],
+        },
       });
       mockCaptureService.captureTransformed.mockResolvedValue({
         responses: new Map([['test-query-1', mockCapturedResponse]]),
@@ -436,9 +446,9 @@ describe('ResponseValidationService', () => {
           totalQueries: 1,
           successCount: 1,
           errorCount: 0,
-          endpoint: mockConfig.endpoints[0]
+          endpoint: mockConfig.endpoints[0],
         },
-        transformationVersion: 'latest'
+        transformationVersion: 'latest',
       });
       mockComparator.compare.mockReturnValue(mockComparison);
       mockABTestingFramework.createTest.mockResolvedValue(mockABTestConfig);
@@ -447,19 +457,15 @@ describe('ResponseValidationService', () => {
       mockStorage.store.mockResolvedValue(undefined);
       mockStorage.storeReport.mockResolvedValue(undefined);
 
-      await service.validateTransformation(
-        baselineQueries,
-        transformedQueries,
-        {
-          generateAlignments: false,
-          setupABTest: true
-        }
-      );
+      await service.validateTransformation(baselineQueries, transformedQueries, {
+        generateAlignments: false,
+        setupABTest: true,
+      });
 
       expect(mockABTestingFramework.createTest).toHaveBeenCalled();
       expect(mockABTestingFramework.registerRollbackHandler).toHaveBeenCalledWith(
         'test-123',
-        expect.any(Function)
+        expect.any(Function),
       );
     });
   });
@@ -474,8 +480,8 @@ describe('ResponseValidationService', () => {
           totalQueries: 1,
           successCount: 1,
           errorCount: 0,
-          endpoint: mockConfig.endpoints[0]
-        }
+          endpoint: mockConfig.endpoints[0],
+        },
       };
 
       mockCaptureService.captureBaseline.mockResolvedValue(mockResponses);
@@ -491,7 +497,7 @@ describe('ResponseValidationService', () => {
       const queries = [mockQuery];
       const customEndpoint: EndpointConfig = {
         url: 'https://custom.api.com/graphql',
-        headers: { 'X-API-Key': 'custom-key' }
+        headers: { 'X-API-Key': 'custom-key' },
       };
 
       mockCaptureService.captureBaseline.mockResolvedValue({
@@ -501,8 +507,8 @@ describe('ResponseValidationService', () => {
           totalQueries: 1,
           successCount: 1,
           errorCount: 0,
-          endpoint: mockConfig.endpoints[0]
-        }
+          endpoint: mockConfig.endpoints[0],
+        },
       });
 
       await service.captureBaseline(queries, customEndpoint);
@@ -523,8 +529,12 @@ describe('ResponseValidationService', () => {
         similarity: 1.0,
         differences: [],
         breakingChanges: [],
-        performanceImpact: { latencyChange: 0, sizeChange: 0, recommendation: 'Performance impact is acceptable' },
-        recommendation: 'safe'
+        performanceImpact: {
+          latencyChange: 0,
+          sizeChange: 0,
+          recommendation: 'Performance impact is acceptable',
+        },
+        recommendation: 'safe',
       };
 
       // Set up fresh, specific mock returns for this test
@@ -539,10 +549,7 @@ describe('ResponseValidationService', () => {
       expect(results[0]).toEqual(mockComparison);
       expect(mockStorage.retrieve).toHaveBeenCalledWith('test-query-1', 'baseline');
       expect(mockStorage.retrieve).toHaveBeenCalledWith('test-query-1', 'transformed');
-      expect(mockComparator.compare).toHaveBeenCalledWith(
-          baselineResponse,
-          transformedResponse
-        );
+      expect(mockComparator.compare).toHaveBeenCalledWith(baselineResponse, transformedResponse);
     });
 
     it('should handle missing responses gracefully', async () => {
@@ -558,7 +565,7 @@ describe('ResponseValidationService', () => {
 
       expect(results).toHaveLength(2); // One failed comparison for each query with missing responses
       expect(mockComparator.compare).not.toHaveBeenCalled(); // No actual comparisons since responses are missing
-      
+
       // Verify both results are marked as failed
       expect(results[0].identical).toBe(false);
       expect(results[0].similarity).toBe(0);
@@ -580,11 +587,11 @@ describe('ResponseValidationService', () => {
           breakingChanges: 0,
           averageSimilarity: 0.95,
           safeToMigrate: true,
-          estimatedRisk: 'low'
+          estimatedRisk: 'low',
         },
         comparisons: [],
         alignments: [],
-        recommendations: []
+        recommendations: [],
       };
 
       const expectedSummary = '## Validation Summary\n- Total: 10\n- Safe: true';
@@ -603,7 +610,7 @@ describe('ResponseValidationService', () => {
       mockStorage.retrieveReport.mockResolvedValue(null);
 
       await expect(service.generatePRSummary('missing-report')).rejects.toThrow(
-        'Report missing-report not found'
+        'Report missing-report not found',
       );
     });
   });
@@ -648,48 +655,49 @@ describe('ResponseValidationService', () => {
           id: 'test-cookie-auth',
           name: 'GetUserProfile',
           query: 'query GetUserProfile($ventureId: UUID!) { user { id profile { name } } }',
-          endpoint: 'productGraph' as const
+          endpoint: 'productGraph' as const,
         };
-        
+
         const variables = { ventureId: 'test-venture-id' };
-        
+
         // Mock environment variables per CLAUDE.local.md: Use parameter comments for auth calls
         process.env.auth_idp = 'test-auth-idp';
-        process.env.cust_idp = 'test-cust-idp';  
+        process.env.cust_idp = 'test-cust-idp';
         process.env.info_cust_idp = 'test-info-cust-idp';
         process.env.info_idp = 'test-info-idp';
-        
+
         const mockResponse = {
           statusCode: 200,
           headers: { 'content-type': 'application/json' },
           body: { data: { user: { id: '123', profile: { name: 'Test User' } } } },
-          timing: { total: 100, networkLatency: 50 }
+          timing: { total: 100, networkLatency: 50 },
         };
-        
+
         mockCaptureService.testOnRealApi.mockResolvedValue(mockResponse);
-        
+
         const testParams = {
           query: {
             ...query,
-            fullExpandedQuery: query.query
+            fullExpandedQuery: query.query,
           },
           auth: {
-            cookies: 'auth_idp=test-auth-idp; cust_idp=test-cust-idp; info_cust_idp=test-info-cust-idp; info_idp=test-info-idp',
-            appKey: 'test-app-key'
+            cookies:
+              'auth_idp=test-auth-idp; cust_idp=test-cust-idp; info_cust_idp=test-info-cust-idp; info_idp=test-info-idp',
+            appKey: 'test-app-key',
           },
           testingAccount: {
             ventures: [{ id: 'test-venture-id' }],
-            projects: []
-          }
+            projects: [],
+          },
         };
-        
+
         // Mock GraphQLClient query method
         const { GraphQLClient } = await import('../../core/testing/GraphQLClient.js');
         const mockGraphQLClient = GraphQLClient as any;
         mockGraphQLClient.prototype.query = vi.fn().mockResolvedValue(mockResponse.body);
-        
+
         const result = await service.testOnRealApi(testParams);
-        
+
         // Verify the service constructed proper auth cookies and called GraphQL client
         expect(result).toEqual(mockResponse.body);
       } catch (error) {
@@ -697,20 +705,21 @@ describe('ResponseValidationService', () => {
         throw error;
       }
     });
-    
+
     it('should build dynamic variables from testing account data', async () => {
       const testingAccount = {
         ventures: [{ id: 'venture-123', name: 'Test Venture' }],
-        projects: [{ domain: 'example.com', id: 'project-456' }]
+        projects: [{ domain: 'example.com', id: 'project-456' }],
       };
-      
+
       const query = {
         id: 'test-dynamic-vars',
         name: 'GetVentureData',
-        query: 'query GetVentureData($ventureId: UUID!, $domainName: String!) { venture(id: $ventureId) { name } }',
-        endpoint: 'productGraph' as const
+        query:
+          'query GetVentureData($ventureId: UUID!, $domainName: String!) { venture(id: $ventureId) { name } }',
+        endpoint: 'productGraph' as const,
       };
-      
+
       // Mock the dynamic variable building (this would be in the actual implementation)
       const buildDynamicVariables = (vars: any) => {
         const result: any = {};
@@ -725,28 +734,28 @@ describe('ResponseValidationService', () => {
         }
         return result;
       };
-      
+
       const dynamicVars = buildDynamicVariables({ ventureId: null, domainName: null });
-      
+
       expect(dynamicVars.ventureId).toBe('venture-123');
       expect(dynamicVars.domainName).toBe('example.com');
     });
-    
+
     it('should mask sensitive data in logs', async () => {
       const sensitiveQuery = {
         id: 'test-sensitive',
         name: 'CreateApiKey',
         query: 'mutation CreateApiKey { createApiKey { key secret } }',
-        endpoint: 'productGraph' as const
+        endpoint: 'productGraph' as const,
       };
-      
+
       const mockResponse = {
         statusCode: 200,
         headers: { 'content-type': 'application/json' },
         body: { data: { createApiKey: { key: 'ak_123', secret: 'secret123' } } },
-        timing: { total: 200, networkLatency: 100 }
+        timing: { total: 200, networkLatency: 100 },
       };
-      
+
       mockCaptureService.captureBaseline.mockResolvedValue({
         responses: new Map([['test-sensitive', mockResponse]]),
         metadata: {
@@ -754,26 +763,26 @@ describe('ResponseValidationService', () => {
           totalQueries: 1,
           successCount: 1,
           errorCount: 0,
-          endpoint: mockConfig.endpoints[0]
-        }
+          endpoint: mockConfig.endpoints[0],
+        },
       });
-      
+
       const logSpy = vi.spyOn(logger, 'info');
-      
+
       await service.captureBaseline([sensitiveQuery]);
-      
+
       // Verify that sensitive data is not logged
       const logCalls = logSpy.mock.calls;
-      const logContent = logCalls.map(call => JSON.stringify(call)).join(' ');
-      
+      const logContent = logCalls.map((call) => JSON.stringify(call)).join(' ');
+
       expect(logContent).not.toContain('secret123');
       expect(logContent).not.toContain('ak_123');
     });
-    
+
     it('should validate endpoint URL generation with environment variables', async () => {
       process.env.APOLLO_PG_ENDPOINT = 'https://pg.api.example.com/graphql';
       process.env.APOLLO_OG_ENDPOINT = 'https://og.api.example.com/graphql';
-      
+
       const getEndpointUrl = (endpoint: string): string => {
         switch (endpoint) {
           case 'productGraph':
@@ -784,7 +793,7 @@ describe('ResponseValidationService', () => {
             return 'https://default.api.com/graphql';
         }
       };
-      
+
       expect(getEndpointUrl('productGraph')).toBe('https://pg.api.example.com/graphql');
       expect(getEndpointUrl('offerGraph')).toBe('https://og.api.example.com/graphql');
       expect(getEndpointUrl('unknown')).toBe('https://default.api.com/graphql');
@@ -842,7 +851,9 @@ comparison:
 
       expect(service).toBeDefined();
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Embedded JavaScript functions are no longer supported for path 'data.createdAt'")
+        expect.stringContaining(
+          "Embedded JavaScript functions are no longer supported for path 'data.createdAt'",
+        ),
       );
 
       // Verify that only the valid comparator is loaded
@@ -855,9 +866,9 @@ comparison:
   describe('Edge Cases and Error Handling', () => {
     it('handles malformed GraphQL queries gracefully', async () => {
       const malformedQuery = 'invalid graphql syntax {';
-      
+
       const result = await service.validateAgainstSchema(malformedQuery, 'productGraph');
-      
+
       expect(result.valid).toBe(false);
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0]).toContain('Syntax Error');
@@ -865,9 +876,9 @@ comparison:
 
     it('handles empty query validation', async () => {
       const emptyQuery = '';
-      
+
       const result = await service.validateAgainstSchema(emptyQuery, 'productGraph');
-      
+
       expect(result.valid).toBe(false);
       expect(result.errors).toHaveLength(1);
     });
@@ -877,9 +888,9 @@ comparison:
         endpoints: [],
         capture: { parallel: false, maxConcurrency: 1, timeout: 1000 },
         comparison: { strict: false },
-        storage: { type: 'memory' }
+        storage: { type: 'memory' },
       });
-      
+
       expect(basicService).toBeDefined();
       expect(basicService.getComparisonConfig).toBeDefined();
     });
@@ -888,11 +899,11 @@ comparison:
       // Mock the comparator method that's missing
       mockComparator.getConfiguration = vi.fn().mockReturnValue({
         ignorePatterns: [],
-        expectedDifferences: []
+        expectedDifferences: [],
       });
-      
+
       const config = service.getComparisonConfig();
-      
+
       expect(config).toBeDefined();
       expect(config.ignorePatterns).toBeDefined();
       expect(config.expectedDifferences).toBeDefined();
@@ -903,9 +914,9 @@ comparison:
       const variables = await service.buildVariables('query { user { id } }', {
         id: 'test-user',
         ventures: [{ id: 'venture-123' }],
-        projects: [{ domain: 'test.com' }]
+        projects: [{ domain: 'test.com' }],
       });
-      
+
       expect(variables).toBeDefined();
       expect(typeof variables).toBe('object');
       // Note: The actual variable mapping depends on query AST parsing which is complex in mocked env

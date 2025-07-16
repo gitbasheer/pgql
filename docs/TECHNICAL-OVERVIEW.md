@@ -107,18 +107,21 @@ src/
 ### 1. **GraphQL Query Extraction** (95% Complete)
 
 **What it does:**
+
 - Scans TypeScript/JavaScript codebases for GraphQL operations
 - Supports multiple query formats (tagged templates, function calls)
 - Resolves fragments across files with interpolation support
 - Handles dynamic variants and conditional fragments
 
 **Key Features:**
+
 - **Multi-strategy extraction**: Pluck, AST, and hybrid approaches
 - **Parallel processing**: Handles large codebases efficiently
 - **Smart caching**: Avoids re-processing unchanged files
 - **Location tracking**: Line and column precision
 
 **Example:**
+
 ```typescript
 // Handles all these patterns:
 gql\`query { users { id } }\`
@@ -129,24 +132,27 @@ Apollo.gql\`query { \${fragment} }\`
 ### 2. **Intelligent Transformation** (85% Complete)
 
 **What it does:**
+
 - Analyzes GraphQL schema for deprecations
 - Automatically generates transformation rules
 - Applies field renaming and restructuring
 - Preserves query semantics
 
 **Key Features:**
+
 - **AST-based transformation**: No regex, pure AST manipulation
 - **Confidence scoring**: Each transformation has a confidence level
 - **Dry-run mode**: Preview changes before applying
 - **Validation**: Ensures transformed queries are valid
 
 **Example Transformation:**
+
 ```graphql
 # Before
 query GetUser {
   user {
-    fullName      # @deprecated Use 'name' instead
-    isAvailable   # @deprecated Use 'availability.inStock'
+    fullName # @deprecated Use 'name' instead
+    isAvailable # @deprecated Use 'availability.inStock'
   }
 }
 
@@ -164,12 +170,14 @@ query GetUser {
 ### 3. **AST-Based Code Application** (100% Complete)
 
 **What it does:**
+
 - Modifies source files with surgical precision
 - Preserves all formatting, comments, and interpolations
 - Calculates minimal changes using LCS algorithm
 - Creates backups before modifications
 
 **Key Features:**
+
 - **100% accuracy**: No string replacement, pure AST manipulation
 - **Interpolation-aware**: Preserves dynamic content
 - **Minimal diffs**: Only changes what's necessary
@@ -178,19 +186,21 @@ query GetUser {
 ### 4. **Natural Language Interface** (100% Complete)
 
 **What it does:**
+
 - Wraps CLI complexity in conversational interface
 - Provides intelligent error handling and recovery
 - Formats responses for AI understanding
 - Supports 8 comprehensive tools
 
 **Example Interaction:**
+
 ```
 User: "Help me migrate my GraphQL queries safely"
 
 AI: "I'll analyze your GraphQL operations first..."
 [Runs full pipeline with safety checks]
 
-AI: "Found 47 operations, 12 use deprecated fields. 
+AI: "Found 47 operations, 12 use deprecated fields.
      8 can be migrated automatically (95% confidence).
      Should I proceed?"
 ```
@@ -198,12 +208,14 @@ AI: "Found 47 operations, 12 use deprecated fields.
 ### 5. **Safety & Monitoring** (75% Complete)
 
 **What it does:**
+
 - Scores transformation confidence
 - Enables progressive rollouts
 - Monitors migration health
 - Provides rollback capabilities
 
 **Key Features:**
+
 - **Confidence thresholds**: Only apply high-confidence changes
 - **Feature flags**: LaunchDarkly integration ready
 - **Health metrics**: Response time, error rate monitoring
@@ -221,8 +233,8 @@ const extractor = new UnifiedExtractor({
   strategies: ['pluck', 'ast', 'hybrid'],
   resolvers: {
     fragment: new FragmentResolver(),
-    name: new NameResolver()
-  }
+    name: new NameResolver(),
+  },
 });
 
 // 2. Multi-strategy extraction
@@ -252,7 +264,7 @@ const matches = matcher.findMatches(query);
 const transformer = new OptimizedSchemaTransformer({
   rules,
   preserveStructure: true,
-  validateOutput: true
+  validateOutput: true,
 });
 
 // 4. Confidence scoring evaluates safety
@@ -278,7 +290,7 @@ const applicator = new ASTCodeApplicator();
 const result = await applicator.applyTransformation({
   filePath,
   transformations,
-  options: { backup: true, dryRun: false }
+  options: { backup: true, dryRun: false },
 });
 ```
 
@@ -318,8 +330,8 @@ const migration = new ProgressiveMigration({
     { percentage: 1, confidence: 95 },
     { percentage: 10, confidence: 90 },
     { percentage: 50, confidence: 85 },
-    { percentage: 100, confidence: 80 }
-  ]
+    { percentage: 100, confidence: 80 },
+  ],
 });
 
 // Automatic rollback on errors
@@ -335,12 +347,12 @@ migration.onError((error) => {
 
 ### Benchmarks
 
-| Operation | Small Codebase (100 files) | Medium (1,000 files) | Large (10,000 files) |
-|-----------|---------------------------|---------------------|---------------------|
-| Extraction | < 1 second | 5-10 seconds | 30-60 seconds |
-| Transformation | < 0.5 second | 2-5 seconds | 10-20 seconds |
-| Application | < 1 second | 5-10 seconds | 30-60 seconds |
-| Full Pipeline | < 3 seconds | 15-30 seconds | 1-2 minutes |
+| Operation      | Small Codebase (100 files) | Medium (1,000 files) | Large (10,000 files) |
+| -------------- | -------------------------- | -------------------- | -------------------- |
+| Extraction     | < 1 second                 | 5-10 seconds         | 30-60 seconds        |
+| Transformation | < 0.5 second               | 2-5 seconds          | 10-20 seconds        |
+| Application    | < 1 second                 | 5-10 seconds         | 30-60 seconds        |
+| Full Pipeline  | < 3 seconds                | 15-30 seconds        | 1-2 minutes          |
 
 ### Optimization Strategies
 
@@ -388,7 +400,7 @@ const tools = [
   'apply_changes',
   'assess_migration_impact',
   'create_rollback_plan',
-  'run_migration_pipeline'
+  'run_migration_pipeline',
 ];
 ```
 
@@ -403,8 +415,8 @@ const tool = new GraphQLMigrationTool({
   options: {
     dryRun: false,
     backup: true,
-    confidenceThreshold: 90
-  }
+    confidenceThreshold: 90,
+  },
 });
 
 const result = await tool.migrate();

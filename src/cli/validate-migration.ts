@@ -53,11 +53,11 @@ export class MigrationValidator {
     logger.info(`After: ${options.after}`);
 
     // Load query data - handle both file paths and direct arrays
-    const beforeQueries = Array.isArray(options.before) 
-      ? options.before 
+    const beforeQueries = Array.isArray(options.before)
+      ? options.before
       : await this.loadQueries(options.before);
-    const afterQueries = Array.isArray(options.after) 
-      ? options.after 
+    const afterQueries = Array.isArray(options.after)
+      ? options.after
       : await this.loadQueries(options.after);
 
     // Perform validation
@@ -67,12 +67,12 @@ export class MigrationValidator {
       matchedQueries: 0,
       missingQueries: 0,
       extraQueries: 0,
-      modifiedQueries: 0
+      modifiedQueries: 0,
     };
 
     // Create lookup maps
-    const beforeMap = new Map(beforeQueries.map(q => [this.getQueryKey(q), q]));
-    const afterMap = new Map(afterQueries.map(q => [this.getQueryKey(q), q]));
+    const beforeMap = new Map(beforeQueries.map((q) => [this.getQueryKey(q), q]));
+    const afterMap = new Map(afterQueries.map((q) => [this.getQueryKey(q), q]));
 
     // Check for missing queries
     for (const [key, beforeQuery] of beforeMap) {
@@ -84,7 +84,7 @@ export class MigrationValidator {
           severity: 'error',
           queryId: beforeQuery.id,
           message: `Query missing after migration: ${beforeQuery.name || beforeQuery.id}`,
-          details: { before: beforeQuery }
+          details: { before: beforeQuery },
         });
         summary.missingQueries++;
       } else {
@@ -106,15 +106,15 @@ export class MigrationValidator {
           severity: 'warning',
           queryId: afterQuery.id,
           message: `New query found after migration: ${afterQuery.name || afterQuery.id}`,
-          details: { after: afterQuery }
+          details: { after: afterQuery },
         });
         summary.extraQueries++;
       }
     }
 
     // Determine overall status
-    const errorCount = issues.filter(i => i.severity === 'error').length;
-    const warningCount = issues.filter(i => i.severity === 'warning').length;
+    const errorCount = issues.filter((i) => i.severity === 'error').length;
+    const warningCount = issues.filter((i) => i.severity === 'warning').length;
 
     let status: 'passed' | 'failed' | 'warning';
     if (errorCount > 0) {
@@ -134,8 +134,8 @@ export class MigrationValidator {
       issues,
       performance: {
         validationTime,
-        queriesPerSecond: Math.round((beforeQueries.length / validationTime) * 1000)
-      }
+        queriesPerSecond: Math.round((beforeQueries.length / validationTime) * 1000),
+      },
     };
 
     // Output report
@@ -178,7 +178,7 @@ export class MigrationValidator {
     // This allows us to track the same logical query even if content changes
     const filePath = query.filePath || query.sourceFile || '';
     const queryName = query.name || 'unnamed';
-    
+
     // Use file path + name as key to identify the same query across migrations
     return `${filePath}:${queryName}`;
   }
@@ -193,7 +193,7 @@ export class MigrationValidator {
   private async compareQueries(
     before: ExtractedQuery,
     after: ExtractedQuery,
-    options: ValidationOptions
+    options: ValidationOptions,
   ): Promise<ValidationIssue[]> {
     const issues: ValidationIssue[] = [];
 
@@ -207,8 +207,8 @@ export class MigrationValidator {
         message: `Query name changed: "${before.name}" → "${after.name}"`,
         details: {
           before: before.name,
-          after: after.name
-        }
+          after: after.name,
+        },
       });
     }
 
@@ -226,8 +226,8 @@ export class MigrationValidator {
         details: {
           before: beforeContent,
           after: afterContent,
-          diff: this.generateDiff(beforeContent, afterContent)
-        }
+          diff: this.generateDiff(beforeContent, afterContent),
+        },
       });
     }
 
@@ -240,8 +240,8 @@ export class MigrationValidator {
         message: `Query type changed: ${before.type} → ${after.type}`,
         details: {
           before: before.type,
-          after: after.type
-        }
+          after: after.type,
+        },
       });
     }
 
@@ -260,7 +260,7 @@ export class MigrationValidator {
   private async validatePatternSpecificFields(
     before: ExtractedQuery,
     after: PatternExtractedQuery,
-    issues: ValidationIssue[]
+    issues: ValidationIssue[],
   ): Promise<void> {
     // Validate pattern metadata
     if (after.patternMetadata) {
@@ -275,8 +275,8 @@ export class MigrationValidator {
           message: `Interpolation detection mismatch: expected ${beforeHasInterpolation}, got ${hasInterpolation}`,
           details: {
             before: beforeHasInterpolation,
-            after: hasInterpolation
-          }
+            after: hasInterpolation,
+          },
         });
       }
     }
@@ -289,8 +289,8 @@ export class MigrationValidator {
         queryId: before.id,
         message: `Query converted to static pattern: ${after.namePattern}`,
         details: {
-          pattern: after.namePattern
-        }
+          pattern: after.namePattern,
+        },
       });
     }
   }
@@ -353,13 +353,13 @@ export class MigrationValidator {
     if (issues.length > 0) {
       console.log('\n🔍 Issues Found:');
 
-      const errorIssues = issues.filter(i => i.severity === 'error');
-      const warningIssues = issues.filter(i => i.severity === 'warning');
-      const infoIssues = issues.filter(i => i.severity === 'info');
+      const errorIssues = issues.filter((i) => i.severity === 'error');
+      const warningIssues = issues.filter((i) => i.severity === 'warning');
+      const infoIssues = issues.filter((i) => i.severity === 'info');
 
       if (errorIssues.length > 0) {
         console.log(`\n❌ Errors (${errorIssues.length}):`);
-        errorIssues.slice(0, 5).forEach(issue => {
+        errorIssues.slice(0, 5).forEach((issue) => {
           console.log(`  • ${issue.message}`);
         });
         if (errorIssues.length > 5) {
@@ -369,7 +369,7 @@ export class MigrationValidator {
 
       if (warningIssues.length > 0) {
         console.log(`\n⚠️ Warnings (${warningIssues.length}):`);
-        warningIssues.slice(0, 3).forEach(issue => {
+        warningIssues.slice(0, 3).forEach((issue) => {
           console.log(`  • ${issue.message}`);
         });
         if (warningIssues.length > 3) {
@@ -379,7 +379,7 @@ export class MigrationValidator {
 
       if (infoIssues.length > 0) {
         console.log(`\nℹ️ Info (${infoIssues.length}):`);
-        infoIssues.slice(0, 2).forEach(issue => {
+        infoIssues.slice(0, 2).forEach((issue) => {
           console.log(`  • ${issue.message}`);
         });
         if (infoIssues.length > 2) {
@@ -428,7 +428,7 @@ program
         after: options.after,
         output: options.output,
         strictMode: options.strict,
-        ignoreWhitespace: options.ignoreWhitespace
+        ignoreWhitespace: options.ignoreWhitespace,
       });
 
       // Exit with appropriate code

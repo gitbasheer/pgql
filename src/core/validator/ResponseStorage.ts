@@ -3,12 +3,7 @@ import { LRUCache } from 'lru-cache';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { logger } from '../../utils/logger.js';
-import {
-  CapturedResponse,
-  StorageOptions,
-  ValidationReport,
-  AlignmentFunction
-} from './types.js';
+import { CapturedResponse, StorageOptions, ValidationReport, AlignmentFunction } from './types.js';
 
 export class ResponseStorage {
   private cache: LRUCache<string, any>;
@@ -21,7 +16,7 @@ export class ResponseStorage {
       max: 1000, // Maximum items
       ttl: 1000 * 60 * 60, // 1 hour TTL
       sizeCalculation: (value) => JSON.stringify(value).length,
-      maxSize: 50 * 1024 * 1024 // 50MB max size
+      maxSize: 50 * 1024 * 1024, // 50MB max size
     });
 
     this.initialize();
@@ -67,8 +62,8 @@ export class ResponseStorage {
   }
 
   async retrieve(
-    queryId: string, 
-    version: 'baseline' | 'transformed'
+    queryId: string,
+    version: 'baseline' | 'transformed',
   ): Promise<CapturedResponse | null> {
     const key = `response:${queryId}:${version}`;
 
@@ -121,7 +116,7 @@ export class ResponseStorage {
 
   async retrieveReport(reportId: string): Promise<ValidationReport | null> {
     const key = `report:${reportId}`;
-    
+
     const cached = this.cache.get(key);
     if (cached) {
       return this.decompress(cached);
@@ -154,7 +149,7 @@ export class ResponseStorage {
     const data = {
       ...alignment,
       // Don't store the actual function, just the code
-      transform: undefined
+      transform: undefined,
     };
 
     this.cache.set(key, data);
@@ -173,7 +168,7 @@ export class ResponseStorage {
   async diff(
     queryId: string,
     v1: 'baseline' | 'transformed',
-    v2: 'baseline' | 'transformed'
+    v2: 'baseline' | 'transformed',
   ): Promise<{ v1: CapturedResponse | null; v2: CapturedResponse | null }> {
     const response1 = await this.retrieve(queryId, v1);
     const response2 = await this.retrieve(queryId, v2);
@@ -267,18 +262,14 @@ export class ResponseStorage {
     for (const queryId of queries) {
       const baseline = await this.retrieve(queryId, 'baseline');
       const transformed = await this.retrieve(queryId, 'transformed');
-      
+
       data[queryId] = {
         baseline,
-        transformed
+        transformed,
       };
     }
 
-    await fs.writeFile(
-      outputPath,
-      JSON.stringify(data, null, 2),
-      'utf-8'
-    );
+    await fs.writeFile(outputPath, JSON.stringify(data, null, 2), 'utf-8');
 
     logger.info(`Exported ${queries.length} queries to ${outputPath}`);
   }
@@ -310,10 +301,12 @@ export class ResponseStorage {
     if (!this.options.compression) return data;
 
     // Simple compression: remove null/undefined values
-    const compressed = JSON.parse(JSON.stringify(data, (key, value) => {
-      if (value === null || value === undefined) return undefined;
-      return value;
-    }));
+    const compressed = JSON.parse(
+      JSON.stringify(data, (key, value) => {
+        if (value === null || value === undefined) return undefined;
+        return value;
+      }),
+    );
 
     return compressed;
   }
@@ -334,12 +327,8 @@ export class ResponseStorage {
   private async storeToFile(key: string, data: any): Promise<void> {
     const filename = key.replace(/:/g, '-') + '.json';
     const filePath = path.join(this.storagePath!, filename);
-    
-    await fs.writeFile(
-      filePath,
-      JSON.stringify(data, null, 2),
-      'utf-8'
-    );
+
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
   }
 
   private async retrieveFromFile(key: string): Promise<any | null> {
@@ -375,4 +364,4 @@ export class ResponseStorage {
     }
     this.cache.clear();
   }
-} 
+}

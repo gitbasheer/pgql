@@ -54,8 +54,8 @@ const validator = new SchemaValidator({
   schema: buildSchema(schemaSDL),
   options: {
     strict: true,
-    allowDeprecated: false
-  }
+    allowDeprecated: false,
+  },
 });
 
 // Validate single query
@@ -66,7 +66,7 @@ if (!result.valid) {
 
 // Batch validation
 const results = await validator.validateBatch(queries);
-const failed = results.filter(r => !r.valid);
+const failed = results.filter((r) => !r.valid);
 ```
 
 ### Validation Rules
@@ -108,24 +108,24 @@ import { ResponseCaptureService } from '@core/validator/ResponseCaptureService';
 const captureService = new ResponseCaptureService({
   endpoints: {
     original: 'https://api.example.com/graphql',
-    transformed: 'https://api-new.example.com/graphql'
+    transformed: 'https://api-new.example.com/graphql',
   },
   auth: {
     type: 'bearer',
-    token: process.env.API_TOKEN
+    token: process.env.API_TOKEN,
   },
   options: {
     timeout: 30000,
     retries: 3,
-    captureHeaders: true
-  }
+    captureHeaders: true,
+  },
 });
 
 // Capture responses for comparison
 const { original, transformed } = await captureService.captureResponses({
   originalQuery,
   transformedQuery,
-  variables
+  variables,
 });
 ```
 
@@ -137,9 +137,9 @@ import { ResponseComparator } from '@core/validator/ResponseComparator';
 const comparator = new ResponseComparator({
   ignoreFields: ['__typename', 'timestamp'],
   customComparators: {
-    'date': { type: 'date-tolerance', options: { tolerance: 60000 } },
-    'score': { type: 'numeric-tolerance', options: { tolerance: 0.01 } }
-  }
+    date: { type: 'date-tolerance', options: { tolerance: 60000 } },
+    score: { type: 'numeric-tolerance', options: { tolerance: 0.01 } },
+  },
 });
 
 const comparisonResult = comparator.compare(original, transformed);
@@ -171,8 +171,8 @@ if (!comparisonResult.equivalent) {
 
 ```typescript
 interface Difference {
-  path: string;           // "data.user.profile.name"
-  type: DifferenceType;   // 'missing' | 'extra' | 'changed' | 'type'
+  path: string; // "data.user.profile.name"
+  type: DifferenceType; // 'missing' | 'extra' | 'changed' | 'type'
   original?: any;
   transformed?: any;
   severity: 'error' | 'warning' | 'info';
@@ -190,6 +190,7 @@ console.log(visualization);
 ```
 
 Example output:
+
 ```diff
   data.user {
     id: "123"
@@ -210,9 +211,9 @@ Example output:
 const aligner = new ResponseAligner();
 const aligned = aligner.align(original, transformed, {
   fieldMappings: {
-    'fullName': ['firstName', 'lastName'],
-    'isAvailable': 'availability.inStock'
-  }
+    fullName: ['firstName', 'lastName'],
+    isAvailable: 'availability.inStock',
+  },
 });
 ```
 
@@ -231,8 +232,8 @@ const config = new GoDaddyEndpointConfig({
   endpoints: {
     care: 'https://care.api.godaddy.com/v1/graphql',
     gateway: 'https://gateway.api.godaddy.com/graphql',
-    phoenix: 'https://phoenix.api.godaddy.com/graphql'
-  }
+    phoenix: 'https://phoenix.api.godaddy.com/graphql',
+  },
 });
 ```
 
@@ -255,8 +256,8 @@ const ssoService = new SSOService({
   refreshUrl: 'https://sso.godaddy.com/token',
   credentials: {
     username: process.env.SSO_USERNAME,
-    password: process.env.SSO_PASSWORD
-  }
+    password: process.env.SSO_PASSWORD,
+  },
 });
 
 // Auto-refresh on 401
@@ -295,8 +296,8 @@ class ValidationPipeline {
         schema: schemaValid,
         semantic: semanticValid,
         response: responseValid,
-        performance: perfValid
-      }
+        performance: perfValid,
+      },
     };
   }
 }
@@ -308,7 +309,7 @@ class ValidationPipeline {
 // Validate multiple queries in parallel
 const validator = new ParallelValidator({
   concurrency: 10,
-  timeout: 60000
+  timeout: 60000,
 });
 
 const results = await validator.validateBatch(transformations);
@@ -351,11 +352,7 @@ const retryConfig = {
   backoff: 'exponential',
   initialDelay: 1000,
   maxDelay: 10000,
-  retryableErrors: [
-    'NETWORK_ERROR',
-    'TIMEOUT',
-    'RATE_LIMIT'
-  ]
+  retryableErrors: ['NETWORK_ERROR', 'TIMEOUT', 'RATE_LIMIT'],
 };
 ```
 
@@ -368,10 +365,10 @@ const retryConfig = {
 ```typescript
 // Always validate in stages
 const stages = [
-  'syntax',      // Quick syntax check
-  'schema',      // Schema compatibility
-  'semantic',    // Meaning preservation
-  'response'     // Real-world validation
+  'syntax', // Quick syntax check
+  'schema', // Schema compatibility
+  'semantic', // Meaning preservation
+  'response', // Real-world validation
 ];
 
 // Stop on first failure for efficiency
@@ -388,12 +385,12 @@ for (const stage of stages) {
 const comparisonConfig = {
   queries: {
     ignoreOrder: true,
-    ignoreNullVsUndefined: true
+    ignoreNullVsUndefined: true,
   },
   mutations: {
     ignoreOrder: false,
-    compareTimestamps: false
-  }
+    compareTimestamps: false,
+  },
 };
 ```
 
@@ -403,13 +400,13 @@ const comparisonConfig = {
 // Cache validation results
 const cache = new ValidationCache({
   ttl: 3600, // 1 hour
-  maxSize: 1000
+  maxSize: 1000,
 });
 
 // Batch API calls
 const batcher = new QueryBatcher({
   maxBatchSize: 50,
-  debounceMs: 100
+  debounceMs: 100,
 });
 ```
 
@@ -422,12 +419,12 @@ class ValidationReporter {
     return {
       summary: {
         total: results.length,
-        passed: results.filter(r => r.success).length,
-        failed: results.filter(r => !r.success).length
+        passed: results.filter((r) => r.success).length,
+        failed: results.filter((r) => !r.success).length,
       },
       failures: this.groupByErrorType(results),
       suggestions: this.generateSuggestions(results),
-      exportFormats: ['json', 'html', 'csv']
+      exportFormats: ['json', 'html', 'csv'],
     };
   }
 }
@@ -439,9 +436,9 @@ class ValidationReporter {
 // Test with mock responses
 const mockValidator = new MockResponseValidator({
   responses: {
-    'GetUser': { data: { user: { id: '1', name: 'Test' } } },
-    'UpdateUser': { data: { updateUser: { success: true } } }
-  }
+    GetUser: { data: { user: { id: '1', name: 'Test' } } },
+    UpdateUser: { data: { updateUser: { success: true } } },
+  },
 });
 
 // Test edge cases
@@ -460,12 +457,12 @@ describe('Validation Edge Cases', () => {
 
 ### Success Criteria
 
-| Metric | Target | Description |
-|--------|--------|-------------|
-| **Schema Validity** | 100% | All queries valid against schema |
-| **Response Equivalence** | 95%+ | Responses semantically equivalent |
-| **Performance** | <10% degradation | Minimal performance impact |
-| **Error Rate** | <0.1% | Very low error rate in production |
+| Metric                   | Target           | Description                       |
+| ------------------------ | ---------------- | --------------------------------- |
+| **Schema Validity**      | 100%             | All queries valid against schema  |
+| **Response Equivalence** | 95%+             | Responses semantically equivalent |
+| **Performance**          | <10% degradation | Minimal performance impact        |
+| **Error Rate**           | <0.1%            | Very low error rate in production |
 
 ### Monitoring
 
@@ -475,7 +472,7 @@ const metrics = {
   validationDuration: histogram('validation_duration_ms'),
   validationSuccess: counter('validation_success_total'),
   validationFailure: counter('validation_failure_total'),
-  responseTimeDiff: histogram('response_time_diff_ms')
+  responseTimeDiff: histogram('response_time_diff_ms'),
 };
 ```
 

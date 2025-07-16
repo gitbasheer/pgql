@@ -45,8 +45,8 @@ export class QueryNamesConverter {
       fragments: [],
       metadata: {
         sourceKey: key,
-        convertedFrom: 'queryNames.js'
-      }
+        convertedFrom: 'queryNames.js',
+      },
     }));
 
     const registry: PatternRegistry = {
@@ -54,8 +54,8 @@ export class QueryNamesConverter {
       metadata: {
         convertedFrom: options.input,
         convertedAt: new Date().toISOString(),
-        totalPatterns: patterns.length
-      }
+        totalPatterns: patterns.length,
+      },
     };
 
     if (!options.dryRun) {
@@ -72,7 +72,7 @@ export class QueryNamesConverter {
     try {
       const ast = parse(content, {
         sourceType: 'module',
-        plugins: ['jsx', 'typescript']
+        plugins: ['jsx', 'typescript'],
       });
 
       traverse(ast, {
@@ -80,8 +80,8 @@ export class QueryNamesConverter {
           const parent = path.parent;
           if (
             (parent.type === 'VariableDeclarator' && parent.id.name === 'queryNames') ||
-            (parent.type === 'ExportDefaultDeclaration') ||
-            (parent.type === 'ExportNamedDeclaration')
+            parent.type === 'ExportDefaultDeclaration' ||
+            parent.type === 'ExportNamedDeclaration'
           ) {
             path.node.properties.forEach((prop: any) => {
               if (prop.type === 'ObjectProperty') {
@@ -93,7 +93,7 @@ export class QueryNamesConverter {
               }
             });
           }
-        }
+        },
       });
     } catch (error) {
       logger.error(`Failed to parse queryNames file: ${error}`);
@@ -126,7 +126,10 @@ export class QueryNamesConverter {
     return undefined;
   }
 
-  private async writePatternRegistry(registry: PatternRegistry, options: ConversionOptions): Promise<void> {
+  private async writePatternRegistry(
+    registry: PatternRegistry,
+    options: ConversionOptions,
+  ): Promise<void> {
     const outputPath = options.output;
 
     if (options.format === 'typescript') {

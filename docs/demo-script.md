@@ -8,6 +8,7 @@
 ## Pre-Demo Setup (5 minutes)
 
 ### 1. Environment Configuration
+
 ```bash
 # Navigate to project root
 cd /Users/balkhalil/gd/demo/pg-migration-620
@@ -18,7 +19,7 @@ cat .env | grep -E "auth_idp|cust_idp|info_.*idp|APOLLO_.*_ENDPOINT"
 
 # Expected output:
 # auth_idp=<masked-auth-token>
-# cust_idp=<masked-cust-token>  
+# cust_idp=<masked-cust-token>
 # info_cust_idp=<masked-info-cust-token>
 # info_idp=<masked-info-token>
 # APOLLO_PG_ENDPOINT=https://pg.api.godaddy.com/v1/gql/customer
@@ -26,6 +27,7 @@ cat .env | grep -E "auth_idp|cust_idp|info_.*idp|APOLLO_.*_ENDPOINT"
 ```
 
 ### 2. Start UI Development Server
+
 ```bash
 # Start the UI in background
 pnpm ui:dev &
@@ -39,6 +41,7 @@ curl -s http://localhost:5173 | grep -q "GraphQL Migration" && echo "✅ UI Read
 ```
 
 ### 3. Verify Backend Pipeline
+
 ```bash
 # Quick pipeline validation test
 npx tsx validate-vnext-flow.ts
@@ -49,8 +52,10 @@ npx tsx validate-vnext-flow.ts
 ## Demo Flow (15 minutes)
 
 ### Step 1: Dashboard Overview (2 minutes)
+
 ```markdown
 **What to show:**
+
 1. Open http://localhost:5173
 2. Point out key features:
    - Real-time connection status indicator
@@ -59,24 +64,28 @@ npx tsx validate-vnext-flow.ts
    - Socket.io connection status
 
 **Talking points:**
+
 - "This UI integrates our entire GraphQL migration pipeline"
 - "We have 77.89% test coverage with 142/142 tests passing"
 - "Real-time updates via WebSocket with 5-attempt reconnection"
 ```
 
 ### Step 2: vnext Sample Data Extraction (3 minutes)
+
 ```markdown
 **Actions:**
+
 1. Click "🧪 Test vnext Sample" button
 2. Watch real-time progress through 6 stages:
    - 📦 Extraction
-   - 🔍 Classification  
+   - 🔍 Classification
    - ✅ Validation
    - 🧪 Testing
    - 🔄 Transformation
    - 📝 PR Generation
 
 **Expected Results:**
+
 - 30 queries extracted from sample data
 - 0 AST errors (our fix working!)
 - Template variables resolved (${queryNames.xxx} patterns)
@@ -84,46 +93,55 @@ npx tsx validate-vnext-flow.ts
 ```
 
 ### Step 3: Real API Testing with Authentication (4 minutes)
+
 ```markdown
 **Demonstrate:**
+
 1. Show query diff viewer modal opening
 2. Point out side-by-side comparison
 3. Highlight real API testing section
 4. Show authentication is working (cookies properly formatted)
 
 **Technical Details:**
+
 - Cookie format: "auth_idp=xxx; cust_idp=xxx; info_cust_idp=xxx; info_idp=xxx"
 - Sensitive data masked in logs (security feature)
 - Dynamic variable building from testing account data
 - Environment-aware endpoint resolution
 
 **Code Reference:**
-/* testOnRealApi call with proper auth */
+/_ testOnRealApi call with proper auth _/
 testOnRealApi(query, variables, {
-  headers: {
-    Cookie: buildCookieString(/* masked tokens */)
-  }
+headers: {
+Cookie: buildCookieString(/_ masked tokens _/)
+}
 })
 ```
 
 ### Step 4: Query Transformation & Mapping (3 minutes)
-```markdown
+
+````markdown
 **Show:**
+
 1. Field deprecation handling
 2. Hivemind A/B testing flags generated:
    ```javascript
-   if (hivemind.flag("new-queries-getuserprofile")) {
+   if (hivemind.flag('new-queries-getuserprofile')) {
      return transformToNewFormat(oldData);
    }
    ```
+````
+
 3. Backward-compatible response mapping utilities
 4. Diff preview with syntax highlighting
 
 **Emphasize:**
+
 - Zero-risk migration approach
 - Automatic rollback capabilities
 - Production-ready with comprehensive error handling
-```
+
+````
 
 ### Step 5: PR Generation (2 minutes)
 ```markdown
@@ -140,11 +158,13 @@ testOnRealApi(query, variables, {
 - Uses simple-git for branch creation
 - Generates descriptive commit messages
 - Links to transformation utilities
-```
+````
 
 ### Step 6: Security & Production Features (1 minute)
+
 ```markdown
 **Highlight:**
+
 1. Command injection protection (regex: /^[a-zA-Z0-9/_-]+$/)
 2. Path traversal prevention
 3. Sensitive data masking in all logs
@@ -152,6 +172,7 @@ testOnRealApi(query, variables, {
 5. Comprehensive error handling
 
 **Production Stats:**
+
 - 84.1% backend test coverage (1032/1227 tests)
 - 77.89% UI test coverage (142/142 tests)
 - 30 queries extracted with 0 AST errors
@@ -180,22 +201,25 @@ A: Yes! We have comprehensive error handling, security protections, real API tes
 ## Post-Demo Actions
 
 ### Immediate Next Steps
+
 1. **Merge to Main**: Final testing → merge to main branch
 2. **Documentation**: Update README with demo instructions
 3. **Deployment**: Deploy to staging environment
 4. **Training**: Schedule team training sessions
 
 ### Success Metrics
+
 - ✅ Full pipeline functional end-to-end
 - ✅ Real API integration with auth
-- ✅ Security protections in place  
+- ✅ Security protections in place
 - ✅ UI/Backend integration complete
 - ✅ PR generation automated
 - ✅ Test coverage >80% combined
 
 ## Emergency Contacts
+
 - **Y (Testing Lead)**: Pipeline validation, test coverage
-- **X (UI Lead)**: Dashboard functionality, WebSocket issues  
+- **X (UI Lead)**: Dashboard functionality, WebSocket issues
 - **Z (Backend Lead)**: Query extraction, API integration
 
 ---

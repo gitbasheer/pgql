@@ -1,17 +1,20 @@
 # Code Standards and Best Practices
 
 ## Overview
+
 This document defines the coding standards and best practices for the pg-migration-620 project. Following these guidelines ensures consistency, maintainability, and quality across the codebase.
 
 ## TypeScript Standards
 
 ### General Principles
+
 - **Strict Mode**: Always use TypeScript strict mode
 - **No Any**: Avoid `any` type; use `unknown` with type guards
 - **Explicit Types**: Be explicit with return types and parameters
 - **Null Safety**: Handle null/undefined cases explicitly
 
 ### Type Definitions
+
 ```typescript
 // ✅ GOOD - Explicit types, interfaces for objects
 interface QueryOptions {
@@ -31,6 +34,7 @@ function processQuery(query: any, options: any) {
 ```
 
 ### Async/Await Patterns
+
 ```typescript
 // ✅ GOOD - Clean async/await with proper error handling
 async function loadSchema(path: string): Promise<GraphQLSchema> {
@@ -44,13 +48,17 @@ async function loadSchema(path: string): Promise<GraphQLSchema> {
 
 // ❌ BAD - Promise chains, poor error handling
 function loadSchema(path: string): Promise<GraphQLSchema> {
-  return fs.readFile(path, 'utf-8')
-    .then(content => buildSchema(content))
-    .catch(err => { throw err; }); // Lost context
+  return fs
+    .readFile(path, 'utf-8')
+    .then((content) => buildSchema(content))
+    .catch((err) => {
+      throw err;
+    }); // Lost context
 }
 ```
 
 ### Error Handling
+
 ```typescript
 // ✅ GOOD - Custom error classes with context
 export class ExtractionError extends Error {
@@ -58,7 +66,7 @@ export class ExtractionError extends Error {
     message: string,
     public readonly file: string,
     public readonly location?: { line: number; column: number },
-    options?: ErrorOptions
+    options?: ErrorOptions,
   ) {
     super(message, options);
     this.name = 'ExtractionError';
@@ -70,7 +78,7 @@ throw new ExtractionError(
   'Invalid GraphQL syntax',
   filePath,
   { line: 10, column: 5 },
-  { cause: originalError }
+  { cause: originalError },
 );
 
 // ❌ BAD - Generic errors without context
@@ -80,6 +88,7 @@ throw new Error('Extraction failed');
 ## Code Organization
 
 ### File Structure
+
 ```typescript
 // ✅ GOOD - Clear separation of concerns
 // UserService.ts
@@ -89,7 +98,7 @@ export interface UserServiceOptions {
 
 export class UserService {
   constructor(private options: UserServiceOptions) {}
-  
+
   async getUser(id: string): Promise<User> {
     // Implementation
   }
@@ -100,6 +109,7 @@ export class UserService {
 ```
 
 ### Module Exports
+
 ```typescript
 // ✅ GOOD - Explicit exports from index
 // index.ts
@@ -112,6 +122,7 @@ export * from './UserService';
 ```
 
 ### Import Organization
+
 ```typescript
 // ✅ GOOD - Organized imports
 // 1. Node built-ins
@@ -134,6 +145,7 @@ import type { LocalType } from './types';
 ## Naming Conventions
 
 ### Variables and Functions
+
 ```typescript
 // ✅ GOOD - Descriptive names, camelCase
 const queryResults = await extractor.extract(sourcePath);
@@ -149,6 +161,7 @@ const valid = check(q);
 ```
 
 ### Classes and Interfaces
+
 ```typescript
 // ✅ GOOD - PascalCase, descriptive
 class QueryExtractor {
@@ -161,11 +174,12 @@ interface ExtractionResult {
 }
 
 // ❌ BAD - Wrong case, unclear
-class query_extractor { }
-interface Result { }
+class query_extractor {}
+interface Result {}
 ```
 
 ### Constants and Enums
+
 ```typescript
 // ✅ GOOD - UPPER_SNAKE_CASE for constants
 const MAX_QUERY_DEPTH = 10;
@@ -174,7 +188,7 @@ const DEFAULT_TIMEOUT_MS = 30000;
 enum LogLevel {
   Debug = 'debug',
   Info = 'info',
-  Error = 'error'
+  Error = 'error',
 }
 
 // ❌ BAD - Inconsistent naming
@@ -185,6 +199,7 @@ const timeout_ms = 30000;
 ## Testing Standards
 
 ### Test Structure
+
 ```typescript
 // ✅ GOOD - Clear structure with AAA pattern
 describe('QueryExtractor', () => {
@@ -193,15 +208,15 @@ describe('QueryExtractor', () => {
       // Arrange
       const extractor = new QueryExtractor();
       const testFile = createTestFile('query.ts');
-      
+
       // Act
       const result = await extractor.extract(testFile);
-      
+
       // Assert
       expect(result.queries).toHaveLength(1);
       expect(result.queries[0].type).toBe('query');
     });
-    
+
     it('should handle syntax errors gracefully', async () => {
       // Test error cases
     });
@@ -210,6 +225,7 @@ describe('QueryExtractor', () => {
 ```
 
 ### Mock Usage
+
 ```typescript
 // ✅ GOOD - Type-safe mocks with vi
 import { vi, expect, describe, it } from 'vitest';
@@ -218,8 +234,8 @@ vi.mock('@/utils/logger', () => ({
   logger: {
     info: vi.fn(),
     error: vi.fn(),
-    debug: vi.fn()
-  }
+    debug: vi.fn(),
+  },
 }));
 
 // ❌ BAD - Untyped mocks, using jest
@@ -229,11 +245,12 @@ jest.mock('../logger'); // No types!
 ## Documentation Standards
 
 ### JSDoc Comments
-```typescript
+
+````typescript
 // ✅ GOOD - Comprehensive JSDoc
 /**
  * Extracts GraphQL operations from source files.
- * 
+ *
  * @param sourcePaths - Array of file or directory paths to scan
  * @param options - Extraction options
  * @returns Extraction result containing operations and metadata
@@ -246,15 +263,13 @@ jest.mock('../logger'); // No types!
  * });
  * ```
  */
-async function extract(
-  sourcePaths: string[],
-  options?: ExtractOptions
-): Promise<ExtractionResult> {
+async function extract(sourcePaths: string[], options?: ExtractOptions): Promise<ExtractionResult> {
   // Implementation
 }
-```
+````
 
 ### Inline Comments
+
 ```typescript
 // ✅ GOOD - Explains "why", not "what"
 // Use binary search for performance with large arrays
@@ -279,6 +294,7 @@ for (const item of items) {
 ## Performance Considerations
 
 ### Efficient Algorithms
+
 ```typescript
 // ✅ GOOD - Use efficient data structures
 const queryMap = new Map<string, Query>();
@@ -290,17 +306,18 @@ for (const query of queries) {
 const query = queryMap.get(id);
 
 // ❌ BAD - Inefficient lookup
-const query = queries.find(q => q.id === id); // O(n)
+const query = queries.find((q) => q.id === id); // O(n)
 ```
 
 ### Memory Management
+
 ```typescript
 // ✅ GOOD - Stream large files
 import { createReadStream } from 'fs';
 
 async function processLargeFile(path: string) {
   const stream = createReadStream(path, { encoding: 'utf8' });
-  
+
   for await (const chunk of stream) {
     processChunk(chunk);
   }
@@ -313,6 +330,7 @@ const content = await fs.readFile(hugePath, 'utf-8');
 ## Security Standards
 
 ### Input Validation
+
 ```typescript
 // ✅ GOOD - Validate and sanitize inputs
 import { z } from 'zod';
@@ -320,7 +338,7 @@ import { z } from 'zod';
 const QuerySchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).max(100),
-  content: z.string().max(10000)
+  content: z.string().max(10000),
 });
 
 function validateQuery(input: unknown): Query {
@@ -334,6 +352,7 @@ function processQuery(query: any) {
 ```
 
 ### Path Handling
+
 ```typescript
 // ✅ GOOD - Safe path handling
 import path from 'path';
@@ -341,12 +360,12 @@ import path from 'path';
 function readQueryFile(userPath: string): Promise<string> {
   // Resolve and validate path
   const safePath = path.resolve(process.cwd(), userPath);
-  
+
   // Ensure path is within project
   if (!safePath.startsWith(process.cwd())) {
     throw new Error('Path traversal attempt detected');
   }
-  
+
   return fs.readFile(safePath, 'utf-8');
 }
 ```
@@ -354,18 +373,19 @@ function readQueryFile(userPath: string): Promise<string> {
 ## CLI Standards
 
 ### Output Consistency
+
 ```typescript
 // ✅ GOOD - Structured output with exit codes
 export async function executeCommand(): Promise<void> {
   try {
     const result = await doWork();
-    
+
     if (options.json) {
       console.log(JSON.stringify(result, null, 2));
     } else {
       console.log(`✓ Processed ${result.count} queries`);
     }
-    
+
     process.exit(0);
   } catch (error) {
     console.error('Error:', error.message);
@@ -375,6 +395,7 @@ export async function executeCommand(): Promise<void> {
 ```
 
 ### Progress Reporting
+
 ```typescript
 // ✅ GOOD - Conditional progress based on environment
 import ora from 'ora';
@@ -394,6 +415,7 @@ try {
 ## Git and Version Control
 
 ### Commit Messages
+
 ```
 ✅ GOOD:
 feat: add variant extraction to UnifiedExtractor
@@ -409,6 +431,7 @@ WIP
 ```
 
 ### Branch Naming
+
 ```
 ✅ GOOD:
 feature/variant-extraction
@@ -425,8 +448,9 @@ new-stuff
 ## Code Review Checklist
 
 Before submitting PR:
+
 - [ ] TypeScript strict mode passes
-- [ ] No `any` types without justification  
+- [ ] No `any` types without justification
 - [ ] All functions have explicit return types
 - [ ] Error handling is comprehensive
 - [ ] Tests cover happy path and edge cases
@@ -439,6 +463,7 @@ Before submitting PR:
 ## Enforcement
 
 These standards are enforced through:
+
 1. **ESLint** - Catches style violations
 2. **TypeScript** - Enforces type safety
 3. **Prettier** - Ensures consistent formatting

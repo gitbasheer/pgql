@@ -13,35 +13,46 @@ interface QueryWithTransformation {
   transformation?: TransformationResult;
 }
 
-export default function QueryResults({ pipelineId, isActive }: QueryResultsProps) {
-  const { data: queries, isLoading, error } = useQuery({
+export default function QueryResults({
+  pipelineId,
+  isActive,
+}: QueryResultsProps) {
+  const {
+    data: queries,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['pipeline-queries', pipelineId],
     queryFn: async (): Promise<QueryWithTransformation[]> => {
       if (!pipelineId) throw new Error('No pipeline ID');
-      
+
       const response = await fetch(`/api/pipeline/${pipelineId}/queries`);
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Failed to fetch queries: ${response.status} ${errorText || 'Unknown error'}`);
+        throw new Error(
+          `Failed to fetch queries: ${response.status} ${errorText || 'Unknown error'}`
+        );
       }
-      
+
       const data = await response.json();
-      
+
       // Validate response is an array
       if (!Array.isArray(data)) {
         throw new Error('Invalid response format: expected array of queries');
       }
-      
+
       // Validate each query object
       return data.filter((item): item is QueryWithTransformation => {
-        return item && 
-               typeof item === 'object' && 
-               'query' in item && 
-               item.query &&
-               typeof item.query === 'object' &&
-               'queryName' in item.query &&
-               'content' in item.query &&
-               'filePath' in item.query;
+        return (
+          item &&
+          typeof item === 'object' &&
+          'query' in item &&
+          item.query &&
+          typeof item.query === 'object' &&
+          'queryName' in item.query &&
+          'content' in item.query &&
+          'filePath' in item.query
+        );
       });
     },
     enabled: !!pipelineId,
@@ -89,14 +100,21 @@ export default function QueryResults({ pipelineId, isActive }: QueryResultsProps
         <h3>Extracted Queries</h3>
         <div className="results-stats">
           <span>Total: {Array.isArray(queries) ? queries.length : 0}</span>
-          <span>Transformed: {Array.isArray(queries) ? queries.filter(q => q.transformation).length : 0}</span>
+          <span>
+            Transformed:{' '}
+            {Array.isArray(queries)
+              ? queries.filter((q) => q.transformation).length
+              : 0}
+          </span>
         </div>
       </div>
       {queries && Array.isArray(queries) && queries.length > 0 ? (
         <QueryDiffViewer queries={queries} />
       ) : (
         <div className="empty-state">
-          <p>No queries found yet. They will appear as the extraction progresses.</p>
+          <p>
+            No queries found yet. They will appear as the extraction progresses.
+          </p>
         </div>
       )}
     </div>

@@ -9,10 +9,13 @@ import traverse from '@babel/traverse';
 import { logger } from '../../utils/logger.js';
 import { FragmentResolver } from './FragmentResolver.js';
 import { validateReadPath } from '../../utils/securePath.js';
-import { safeParseGraphQL, detectOperationType, logParsingError } from '../../utils/graphqlValidator.js';
+import {
+  safeParseGraphQL,
+  detectOperationType,
+  logParsingError,
+} from '../../utils/graphqlValidator.js';
 import { createDefaultQueryServices } from '../extraction/services/QueryServicesFactory.js';
 import { PatternExtractedQuery } from '../extraction/types/pattern.types.js';
-
 
 export interface ExtractedQuery {
   id: string;
@@ -39,7 +42,11 @@ export class GraphQLExtractor {
     this.fragmentResolver = new FragmentResolver();
   }
 
-  async extractFromDirectory(directory: string, patterns: string[] = ['**/*.{js,jsx,ts,tsx}'], resolveFragments: boolean = true): Promise<ExtractedQuery[]> {
+  async extractFromDirectory(
+    directory: string,
+    patterns: string[] = ['**/*.{js,jsx,ts,tsx}'],
+    resolveFragments: boolean = true,
+  ): Promise<ExtractedQuery[]> {
     // Initialize pattern-based query services
     if (!this.queryServices) {
       this.queryServices = await createDefaultQueryServices({
@@ -48,7 +55,7 @@ export class GraphQLExtractor {
         cacheConfig: {
           memoryLimit: 50 * 1024 * 1024, // 50MB
           ttl: 30 * 60 * 1000, // 30 minutes
-        }
+        },
       });
     }
 
@@ -61,7 +68,7 @@ export class GraphQLExtractor {
     const files = await glob(patterns, {
       cwd: directory,
       absolute: true,
-      ignore: ['**/node_modules/**', '**/__generated__/**', '**/*.test.*']
+      ignore: ['**/node_modules/**', '**/__generated__/**', '**/*.test.*'],
     });
 
     const allQueries: ExtractedQuery[] = [];
@@ -85,15 +92,18 @@ export class GraphQLExtractor {
       logger.info(`Found ${fragmentMap.size} fragment files`);
 
       // Convert to format expected by resolver
-      const queriesToResolve = allQueries.map(q => ({
+      const queriesToResolve = allQueries.map((q) => ({
         id: q.id,
         filePath: q.filePath,
         content: q.content,
-        name: q.name
+        name: q.name,
       }));
 
       // Resolve fragments for all queries
-      const resolvedQueries = await this.fragmentResolver.resolveQueriesWithFragments(queriesToResolve, directory);
+      const resolvedQueries = await this.fragmentResolver.resolveQueriesWithFragments(
+        queriesToResolve,
+        directory,
+      );
 
       // Update the extracted queries with resolved content
       for (let i = 0; i < allQueries.length; i++) {
@@ -117,7 +127,7 @@ export class GraphQLExtractor {
       logger.warn(`Invalid or potentially malicious file path blocked: ${filePath}`);
       return [];
     }
-    
+
     const content = await fs.readFile(validatedPath, 'utf-8');
     const extracted: ExtractedQuery[] = [];
 
@@ -133,21 +143,21 @@ export class GraphQLExtractor {
         modules: [
           {
             name: 'graphql-tag',
-            identifier: 'gql'
+            identifier: 'gql',
           },
           {
             name: '@apollo/client',
-            identifier: 'gql'
+            identifier: 'gql',
           },
           {
             name: 'apollo-boost',
-            identifier: 'gql'
+            identifier: 'gql',
           },
           {
             name: 'react-relay',
-            identifier: 'graphql'
-          }
-        ]
+            identifier: 'graphql',
+          },
+        ],
       });
 
       if (sources && sources.length > 0) {
@@ -178,15 +188,19 @@ export class GraphQLExtractor {
               ast: validation.ast,
               location: {
                 line: source.locationOffset?.line || 1,
-                column: source.locationOffset?.column || 1
+                column: source.locationOffset?.column || 1,
               },
               name: normalizedName || name,
               originalName: normalizedName !== name ? name : undefined,
-              type
+              type,
             });
           } else {
             // Only log at debug level for cleaner output
-            logParsingError(source.body, validation.error!, `${filePath}:${source.locationOffset?.line || 1}`);
+            logParsingError(
+              source.body,
+              validation.error!,
+              `${filePath}:${source.locationOffset?.line || 1}`,
+            );
           }
         });
       }
@@ -199,7 +213,9 @@ export class GraphQLExtractor {
   }
 
   private async loadQueryNames(directory: string): Promise<void> {
-    logger.warn('loadQueryNames is deprecated. Pattern-based services handle query naming automatically.');
+    logger.warn(
+      'loadQueryNames is deprecated. Pattern-based services handle query naming automatically.',
+    );
 
     try {
       // Look for queryNames file in common locations
@@ -207,7 +223,7 @@ export class GraphQLExtractor {
         path.join(directory, 'queryNames.js'),
         path.join(directory, 'src/queryNames.js'),
         path.join(directory, 'data/sample_data/queryNames.js'),
-        path.join(directory, 'graphql/queryNames.js')
+        path.join(directory, 'graphql/queryNames.js'),
       ];
 
       for (const queryNamesPath of possiblePaths) {
@@ -220,7 +236,7 @@ export class GraphQLExtractor {
           const content = await fs.readFile(validatedPath, 'utf-8');
           const ast = babel.parse(content, {
             sourceType: 'module',
-            plugins: ['jsx', 'typescript']
+            plugins: ['jsx', 'typescript'],
           });
 
           traverse(ast, {
@@ -233,11 +249,13 @@ export class GraphQLExtractor {
                   }
                 });
               }
-            }
+            },
           });
 
           if (Object.keys(this.queryNames).length > 0) {
-            logger.info(`Loaded ${Object.keys(this.queryNames).length} query names from ${queryNamesPath}`);
+            logger.info(
+              `Loaded ${Object.keys(this.queryNames).length} query names from ${queryNamesPath}`,
+            );
             this.queryNamesLoaded = true;
             break;
           }
@@ -250,13 +268,16 @@ export class GraphQLExtractor {
     }
   }
 
-  private async extractQueryNamesFromSource(content: string, filePath: string): Promise<Map<number, string>> {
+  private async extractQueryNamesFromSource(
+    content: string,
+    filePath: string,
+  ): Promise<Map<number, string>> {
     const mapping = new Map<number, string>();
 
     try {
       const ast = babel.parse(content, {
         sourceType: 'module',
-        plugins: ['jsx', 'typescript']
+        plugins: ['jsx', 'typescript'],
       });
 
       let queryIndex = 0;
@@ -270,10 +291,11 @@ export class GraphQLExtractor {
               const expr = quasi.expressions[i];
 
               // Check if this expression is queryNames.something
-              if (expr.type === 'MemberExpression' &&
-                  expr.object.name === 'queryNames' &&
-                  this.queryNames[expr.property.name]) {
-
+              if (
+                expr.type === 'MemberExpression' &&
+                expr.object.name === 'queryNames' &&
+                this.queryNames[expr.property.name]
+              ) {
                 // Check if this is likely the query name position
                 // It should come after 'query' keyword
                 const prevQuasi = quasi.quasis[i];
@@ -288,7 +310,7 @@ export class GraphQLExtractor {
 
             queryIndex++;
           }
-        }
+        },
       });
     } catch (error) {
       logger.debug(`Could not parse file for query names: ${filePath}`, error);
@@ -297,7 +319,12 @@ export class GraphQLExtractor {
     return mapping;
   }
 
-  private enhanceQueryName(queryContent: string, extractedName: string | undefined, queryNameMapping: Map<number, string>, index: number): string | undefined {
+  private enhanceQueryName(
+    queryContent: string,
+    extractedName: string | undefined,
+    queryNameMapping: Map<number, string>,
+    index: number,
+  ): string | undefined {
     // First check if we have a mapping from our AST analysis
     const mappedName = queryNameMapping.get(index);
     if (mappedName) {
@@ -318,8 +345,10 @@ export class GraphQLExtractor {
     return extractedName;
   }
 
-    private normalizeQueryName(name: string | undefined, content: string): string | undefined {
-    logger.warn('normalizeQueryName is deprecated. Use pattern-based processing with QueryNamingService instead.');
+  private normalizeQueryName(name: string | undefined, content: string): string | undefined {
+    logger.warn(
+      'normalizeQueryName is deprecated. Use pattern-based processing with QueryNamingService instead.',
+    );
 
     if (!name) return name;
 
@@ -338,8 +367,8 @@ export class GraphQLExtractor {
         patternMetadata: {
           isDynamic: false,
           hasInterpolation: content.includes('${'),
-          confidence: 1.0
-        }
+          confidence: 1.0,
+        },
       };
 
       const processed = this.queryServices.namingService.processQuery(patternQuery);
@@ -383,7 +412,7 @@ export class GraphQLExtractor {
     let hash = 0;
     for (let i = 0; i < normalized.length; i++) {
       const char = normalized.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32bit integer
     }
 
@@ -398,7 +427,9 @@ export class GraphQLExtractor {
       .trim();
   }
 
-  private detectOperationType(ast: DocumentNode): 'query' | 'mutation' | 'subscription' | 'fragment' {
+  private detectOperationType(
+    ast: DocumentNode,
+  ): 'query' | 'mutation' | 'subscription' | 'fragment' {
     const definition = ast.definitions[0];
 
     if (definition.kind === 'OperationDefinition') {
@@ -429,15 +460,17 @@ export class GraphQLExtractor {
       const type = this.detectOperationType(validation.ast);
       const name = this.extractOperationName(validation.ast);
 
-      return [{
-        id: `inline-${name || 'unnamed'}`,
-        filePath: 'inline',
-        content: source,
-        ast: validation.ast,
-        location: { line: 1, column: 1 },
-        name,
-        type
-      }];
+      return [
+        {
+          id: `inline-${name || 'unnamed'}`,
+          filePath: 'inline',
+          content: source,
+          ast: validation.ast,
+          location: { line: 1, column: 1 },
+          name,
+          type,
+        },
+      ];
     } else {
       logParsingError(source, validation.error!, 'inline source');
       return [];

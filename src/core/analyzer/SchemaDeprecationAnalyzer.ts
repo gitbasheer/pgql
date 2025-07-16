@@ -13,7 +13,7 @@ export interface DeprecationRule {
 
 export class SchemaDeprecationAnalyzer {
   private deprecationRules: DeprecationRule[] = [];
-  
+
   determineEndpoint(fileName: string): string {
     if (fileName.includes('offer-graph')) {
       return 'https://og.api.example.com';
@@ -21,37 +21,43 @@ export class SchemaDeprecationAnalyzer {
     return 'https://pg.api.example.com';
   }
 
-  async validateAgainstSchema(query: string, schemaType: string): Promise<{ errors: string[]; suggestions: string[] }> {
+  async validateAgainstSchema(
+    query: string,
+    schemaType: string,
+  ): Promise<{ errors: string[]; suggestions: string[] }> {
     const errors: string[] = [];
     const suggestions: string[] = [];
-    
+
     if (query.includes('logoUrl') && schemaType === 'productGraph') {
       errors.push('deprecated');
       suggestions.push('profile.logoUrl');
     }
-    
+
     return { errors, suggestions };
   }
 
-  async compareSchemas(oldSchema: string, newSchema: string): Promise<{ breaking: any[]; deprecated: any[] }> {
+  async compareSchemas(
+    oldSchema: string,
+    newSchema: string,
+  ): Promise<{ breaking: any[]; deprecated: any[] }> {
     const breaking: any[] = [];
     const deprecated: any[] = [];
-    
+
     // Check for @deprecated annotations in old schema
     const deprecatedMatches = oldSchema.match(/@deprecated/g);
     if (deprecatedMatches) {
       deprecated.push({ field: 'logoUrl', replacement: 'profile.logoUrl' });
     }
-    
+
     // Check for removed fields - check if logoUrl is directly in Venture type but not in new schema's Venture type
     // Use dotall flag to match across newlines
     const oldVentureMatch = oldSchema.match(/type Venture\s*\{[^}]*logoUrl:/s);
     const newVentureMatch = newSchema.match(/type Venture\s*\{[^}]*logoUrl:/s);
-    
+
     if (oldVentureMatch && !newVentureMatch) {
       breaking.push({ field: 'logoUrl', type: 'field_removed' });
     }
-    
+
     return { breaking, deprecated };
   }
 
@@ -89,11 +95,13 @@ export class SchemaDeprecationAnalyzer {
       // Handles both multi-line and single-line formats:
       // Multi-line: fieldName: ReturnType @deprecated(reason: "...")
       // Single-line: type Test { fieldName: ReturnType @deprecated(reason: "...") }
-      const deprecatedMatch = line.match(/(\w+)\s*(?:\([^)]*\))?\s*:\s*[^@]*@deprecated\(reason:\s*"([^"]+)"\)/);
+      const deprecatedMatch = line.match(
+        /(\w+)\s*(?:\([^)]*\))?\s*:\s*[^@]*@deprecated\(reason:\s*"([^"]+)"\)/,
+      );
       if (deprecatedMatch) {
         const fieldName = deprecatedMatch[1];
         const reason = deprecatedMatch[2];
-        
+
         // For single-line format, extract the type name if we don't have currentType
         let typeForRule = currentType;
         if (!typeForRule) {
@@ -105,7 +113,7 @@ export class SchemaDeprecationAnalyzer {
             continue;
           }
         }
-        
+
         const ruleKey = `${typeForRule}.${fieldName}.${reason}`;
 
         // Avoid duplicates
@@ -114,7 +122,7 @@ export class SchemaDeprecationAnalyzer {
           this.addDeprecationRule(typeForRule, fieldName, reason);
         }
       }
-      
+
       // Reset type after processing deprecations if we found a closing brace
       if (isClosingType) {
         currentType = '';
@@ -134,7 +142,11 @@ export class SchemaDeprecationAnalyzer {
     logger.debug(`Found deprecation: ${objectType}.${fieldName} - ${reason}`);
   }
 
-  private parseDeprecationReason(objectType: string, fieldName: string, reason: string): DeprecationRule {
+  private parseDeprecationReason(
+    objectType: string,
+    fieldName: string,
+    reason: string,
+  ): DeprecationRule {
     // Pattern 1: "Use X" or "Use X instead"
     const usePattern = /^Use\s+`?(\w+(?:\.\w+)*)`?(?:\s+instead)?$/i;
     const useMatch = reason.match(usePattern);
@@ -148,7 +160,7 @@ export class SchemaDeprecationAnalyzer {
         deprecationReason: reason,
         replacement,
         isVague: false,
-        action: 'replace'
+        action: 'replace',
       };
     }
 
@@ -165,7 +177,7 @@ export class SchemaDeprecationAnalyzer {
         deprecationReason: reason,
         replacement,
         isVague: false,
-        action: 'replace'
+        action: 'replace',
       };
     }
 
@@ -182,7 +194,7 @@ export class SchemaDeprecationAnalyzer {
         deprecationReason: reason,
         replacement,
         isVague: false,
-        action: 'replace'
+        action: 'replace',
       };
     }
 
@@ -194,22 +206,22 @@ export class SchemaDeprecationAnalyzer {
       deprecationReason: reason,
       replacement: undefined,
       isVague: true,
-      action: 'comment-out'
+      action: 'comment-out',
     };
   }
 
   getTransformationRules(): DeprecationRule[] {
-    return this.deprecationRules.filter(rule => !rule.isVague && rule.replacement);
+    return this.deprecationRules.filter((rule) => !rule.isVague && rule.replacement);
   }
 
   getVagueDeprecations(): DeprecationRule[] {
-    return this.deprecationRules.filter(rule => rule.isVague);
+    return this.deprecationRules.filter((rule) => rule.isVague);
   }
 
   getSummary(): { total: number; replaceable: number; vague: number } {
     const total = this.deprecationRules.length;
-    const replaceable = this.deprecationRules.filter(r => !r.isVague).length;
-    const vague = this.deprecationRules.filter(r => r.isVague).length;
+    const replaceable = this.deprecationRules.filter((r) => !r.isVague).length;
+    const vague = this.deprecationRules.filter((r) => r.isVague).length;
 
     return { total, replaceable, vague };
   }
@@ -224,4 +236,3 @@ export class SchemaDeprecationAnalyzer {
     return [];
   }
 }
-

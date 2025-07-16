@@ -18,7 +18,7 @@ const ScanOptionsSchema = z.object({
   schema: z.string(),
   output: z.string().optional(),
   format: z.enum(['json', 'csv', 'html']).default('json'),
-  verbose: z.boolean().default(false)
+  verbose: z.boolean().default(false),
 });
 
 type ScanOptions = z.infer<typeof ScanOptionsSchema>;
@@ -27,10 +27,7 @@ type ScanOptions = z.infer<typeof ScanOptionsSchema>;
 function createCLI(): Command {
   const program = new Command();
 
-  program
-    .name('graphql-migrate')
-    .version('1.0.0')
-    .description('Type-safe GraphQL migration tool');
+  program.name('graphql-migrate').version('1.0.0').description('Type-safe GraphQL migration tool');
 
   program
     .command('scan')
@@ -71,7 +68,7 @@ function createCLI(): Command {
 
 async function scanCommand(options: ScanOptions): Promise<void> {
   const spinner = ora('Scanning for GraphQL queries...').start();
-  
+
   try {
     const extractor = new GraphQLExtractor();
     const results = await extractor.extractFromDirectory(options.apps);
@@ -81,7 +78,7 @@ async function scanCommand(options: ScanOptions): Promise<void> {
       .with('json', () => outputJSON(results, options.output))
       .with('csv', () => outputCSV(results, options.output))
       .with('html', () => outputHTML(results, options.output))
-      .exhaustive();  // TypeScript ensures all cases handled
+      .exhaustive(); // TypeScript ensures all cases handled
 
     spinner.succeed(`Found ${results.length} queries`);
   } catch (error) {
@@ -93,11 +90,11 @@ async function scanCommand(options: ScanOptions): Promise<void> {
 
 async function analyzeCommand(options: any): Promise<void> {
   const spinner = ora('Analyzing schema...').start();
-  
+
   try {
     const schemaContent = await fs.readFile(options.schema, 'utf-8');
     const schema = buildSchema(schemaContent);
-    
+
     const analyzer = new SchemaAnalyzer(schema);
     const deprecatedFields = analyzer.findDeprecatedFields();
     const rules = analyzer.generateMigrationRules();
@@ -107,8 +104,8 @@ async function analyzeCommand(options: any): Promise<void> {
       migrationRules: rules,
       summary: {
         totalDeprecations: Array.from(deprecatedFields.values()).flat().length,
-        typesAffected: deprecatedFields.size
-      }
+        typesAffected: deprecatedFields.size,
+      },
     };
 
     if (options.output) {
@@ -125,19 +122,19 @@ async function analyzeCommand(options: any): Promise<void> {
 
 async function transformCommand(options: any): Promise<void> {
   const spinner = ora('Transforming queries...').start();
-  
+
   try {
     const schemaContent = await fs.readFile(options.schema, 'utf-8');
     const schema = buildSchema(schemaContent);
-    
+
     const analyzer = new SchemaAnalyzer(schema);
     const rules = analyzer.generateMigrationRules();
-    
+
     const transformer = new TypeSafeTransformer(schema, rules);
-    
+
     // Load queries
     const queriesData = JSON.parse(await fs.readFile(options.input, 'utf-8'));
-    
+
     let successCount = 0;
     let errorCount = 0;
 
@@ -148,13 +145,13 @@ async function transformCommand(options: any): Promise<void> {
         options: {
           preserveAliases: true,
           addTypeAnnotations: false,
-          generateTests: false
-        }
+          generateTests: false,
+        },
       });
 
       if (result.isOk()) {
         successCount++;
-        
+
         if (!options.dryRun && options.output) {
           // Save transformed query
           const outputPath = `${options.output}/${query.id}.transformed.graphql`;
@@ -177,7 +174,7 @@ async function transformCommand(options: any): Promise<void> {
 // Output functions with type safety
 async function outputJSON(data: any, outputPath?: string): Promise<void> {
   const json = JSON.stringify(data, null, 2);
-  
+
   if (outputPath) {
     await fs.writeFile(outputPath, json);
   } else {
@@ -187,9 +184,10 @@ async function outputJSON(data: any, outputPath?: string): Promise<void> {
 
 async function outputCSV(data: any, outputPath?: string): Promise<void> {
   // Convert to CSV format
-  const csv = 'id,file,type,name\n' + 
+  const csv =
+    'id,file,type,name\n' +
     data.map((q: any) => `${q.id},${q.filePath},${q.type},${q.name || ''}`).join('\n');
-  
+
   if (outputPath) {
     await fs.writeFile(outputPath, csv);
   } else {
@@ -220,19 +218,23 @@ async function outputHTML(data: any, outputPath?: string): Promise<void> {
           <th>Type</th>
           <th>Name</th>
         </tr>
-        ${data.map((q: any) => `
+        ${data
+          .map(
+            (q: any) => `
           <tr>
             <td>${q.id}</td>
             <td>${q.filePath}</td>
             <td>${q.type}</td>
             <td>${q.name || '-'}</td>
           </tr>
-        `).join('')}
+        `,
+          )
+          .join('')}
       </table>
     </body>
     </html>
   `;
-  
+
   if (outputPath) {
     await fs.writeFile(outputPath, html);
   } else {

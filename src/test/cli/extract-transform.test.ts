@@ -35,9 +35,13 @@ function runCLI(args: string[]): Promise<{ stdout: string; stderr: string; code:
     let stdout = '';
     let stderr = '';
 
-    proc.stdout.on('data', (data) => { stdout += data.toString(); });
-    proc.stderr.on('data', (data) => { stderr += data.toString(); });
-    
+    proc.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+    proc.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
     proc.on('close', (code) => {
       resolve({ stdout, stderr, code: code || 0 });
     });
@@ -103,7 +107,7 @@ describe('extract-transform CLI', () => {
       expect(stdout).toContain('Found 2 GraphQL operations');
       expect(stdout).toContain('query: 1');
       expect(stdout).toContain('mutation: 1');
-      
+
       expect(UnifiedExtractor).toHaveBeenCalledWith({
         directory: './src',
         patterns: ['**/*.{js,jsx,ts,tsx}'],
@@ -124,7 +128,7 @@ describe('extract-transform CLI', () => {
       expect(UnifiedExtractor).toHaveBeenCalledWith(
         expect.objectContaining({
           patterns: ['**/*.graphql', '**/*.gql'],
-        })
+        }),
       );
     });
 
@@ -147,12 +151,12 @@ describe('extract-transform CLI', () => {
 
       expect(code).toBe(0);
       expect(stdout).toContain('Dynamic variants: 2');
-      
+
       expect(UnifiedExtractor).toHaveBeenCalledWith(
         expect.objectContaining({
           detectVariants: true,
           generateVariants: true,
-        })
+        }),
       );
     });
 
@@ -164,7 +168,7 @@ describe('extract-transform CLI', () => {
       expect(UnifiedExtractor).toHaveBeenCalledWith(
         expect.objectContaining({
           resolveFragments: false,
-        })
+        }),
       );
     });
 
@@ -175,12 +179,12 @@ describe('extract-transform CLI', () => {
 
       expect(fs.writeFile).toHaveBeenCalledWith(
         'output.json',
-        expect.stringContaining('"timestamp"')
+        expect.stringContaining('"timestamp"'),
       );
-      
+
       const writeCall = vi.mocked(fs.writeFile).mock.calls[0];
       const output = JSON.parse(writeCall[1] as string);
-      
+
       expect(output).toMatchObject({
         directory: './src',
         totalQueries: 2,
@@ -235,7 +239,9 @@ describe('extract-transform CLI', () => {
           return Promise.resolve(JSON.stringify(mockInputData));
         }
         if (filePath === './schema.graphql') {
-          return Promise.resolve('type User { id: ID! deprecatedField: String @deprecated(reason: "Use newField") newField: String }');
+          return Promise.resolve(
+            'type User { id: ID! deprecatedField: String @deprecated(reason: "Use newField") newField: String }',
+          );
         }
         return Promise.reject(new Error('File not found'));
       });
@@ -277,15 +283,15 @@ describe('extract-transform CLI', () => {
       expect(code).toBe(0);
       expect(stdout).toContain('Found 1 deprecations');
       expect(stdout).toContain('Transformed 1 queries');
-      
+
       expect(mockTransformer.transform).toHaveBeenCalledWith(mockInputData.queries[0].content);
     });
 
     it('should validate queries when requested', async () => {
       const mockValidator = {
-        validateQueries: vi.fn().mockResolvedValue(new Map([
-          ['1', { valid: true, errors: [], warnings: [] }],
-        ])),
+        validateQueries: vi
+          .fn()
+          .mockResolvedValue(new Map([['1', { valid: true, errors: [], warnings: [] }]])),
         generateValidationReport: vi.fn().mockReturnValue({
           total: 1,
           valid: 1,
@@ -321,24 +327,31 @@ describe('extract-transform CLI', () => {
 
     it('should skip invalid queries when requested', async () => {
       const mockValidator = {
-        validateQueries: vi.fn().mockResolvedValue(new Map([
-          ['1', { 
-            valid: false, 
-            errors: [{ message: 'Field does not exist' }], 
-            warnings: [] 
-          }],
-        ])),
+        validateQueries: vi.fn().mockResolvedValue(
+          new Map([
+            [
+              '1',
+              {
+                valid: false,
+                errors: [{ message: 'Field does not exist' }],
+                warnings: [],
+              },
+            ],
+          ]),
+        ),
         generateValidationReport: vi.fn().mockReturnValue({
           total: 1,
           valid: 0,
           invalid: 1,
           warnings: 0,
-          summary: [{
-            id: '1',
-            valid: false,
-            errorCount: 1,
-            errors: [{ message: 'Field does not exist' }],
-          }],
+          summary: [
+            {
+              id: '1',
+              valid: false,
+              errorCount: 1,
+              errors: [{ message: 'Field does not exist' }],
+            },
+          ],
         }),
       };
       vi.mocked(SchemaValidator).mockImplementation(() => mockValidator as any);
@@ -349,9 +362,15 @@ describe('extract-transform CLI', () => {
       };
       vi.mocked(SchemaDeprecationAnalyzer).mockImplementation(() => mockAnalyzer as any);
 
-      vi.mocked(OptimizedSchemaTransformer).mockImplementation(() => ({} as any));
+      vi.mocked(OptimizedSchemaTransformer).mockImplementation(() => ({}) as any);
 
-      const { code, stdout } = await runCLI(['transform', '-s', './schema.graphql', '--validate', '--skip-invalid']);
+      const { code, stdout } = await runCLI([
+        'transform',
+        '-s',
+        './schema.graphql',
+        '--validate',
+        '--skip-invalid',
+      ]);
 
       expect(code).toBe(0);
       expect(stdout).toContain('Invalid queries found:');
@@ -410,11 +429,13 @@ describe('extract-transform CLI', () => {
         applyTransformations: vi.fn().mockResolvedValue({
           success: true,
           newContent: 'const query = gql`query GetUser { user { id newField } }`;',
-          changes: [{
-            reason: 'Updated deprecated field',
-            originalText: 'oldField',
-            newText: 'newField',
-          }],
+          changes: [
+            {
+              reason: 'Updated deprecated field',
+              originalText: 'oldField',
+              newText: 'newField',
+            },
+          ],
         }),
       };
       vi.mocked(ASTCodeApplicator).mockImplementation(() => mockApplicator as any);
@@ -423,11 +444,15 @@ describe('extract-transform CLI', () => {
     it('should apply transformations to source files', async () => {
       vi.mocked(fs.writeFile).mockResolvedValue();
 
-      const { code, stdout } = await runCLI(['apply', '-i', './transformed/transformed-queries.json']);
+      const { code, stdout } = await runCLI([
+        'apply',
+        '-i',
+        './transformed/transformed-queries.json',
+      ]);
 
       expect(code).toBe(0);
       expect(stdout).toContain('Updated 1 files');
-      
+
       expect(ASTCodeApplicator).toHaveBeenCalledWith({
         preserveFormatting: true,
         preserveComments: true,
@@ -439,7 +464,12 @@ describe('extract-transform CLI', () => {
     it('should create backups when requested', async () => {
       vi.mocked(fs.writeFile).mockResolvedValue();
 
-      const { code, stdout } = await runCLI(['apply', '-i', './transformed/transformed-queries.json', '--backup']);
+      const { code, stdout } = await runCLI([
+        'apply',
+        '-i',
+        './transformed/transformed-queries.json',
+        '--backup',
+      ]);
 
       expect(code).toBe(0);
       expect(fs.writeFile).toHaveBeenCalledWith('/src/queries.ts.backup', expect.any(String));
@@ -447,21 +477,28 @@ describe('extract-transform CLI', () => {
     });
 
     it('should handle dry run mode', async () => {
-      const { code, stdout } = await runCLI(['apply', '-i', './transformed/transformed-queries.json', '--dry-run']);
+      const { code, stdout } = await runCLI([
+        'apply',
+        '-i',
+        './transformed/transformed-queries.json',
+        '--dry-run',
+      ]);
 
       expect(code).toBe(0);
       expect(stdout).toContain('Changes for /src/queries.ts:');
       expect(stdout).toContain('Updated deprecated field');
       expect(stdout).toContain('Dry run completed - no files were modified');
-      
+
       expect(fs.writeFile).not.toHaveBeenCalledWith('/src/queries.ts', expect.any(String));
     });
 
     it('should re-extract missing source AST', async () => {
-      const queriesWithoutAST = [{
-        ...mockTransformedQueries[0],
-        sourceAST: undefined,
-      }];
+      const queriesWithoutAST = [
+        {
+          ...mockTransformedQueries[0],
+          sourceAST: undefined,
+        },
+      ];
 
       vi.mocked(fs.readFile).mockImplementation((filePath) => {
         if (filePath === './transformed/transformed-queries.json') {
@@ -472,10 +509,12 @@ describe('extract-transform CLI', () => {
 
       const mockExtractor = {
         extract: vi.fn().mockResolvedValue({
-          queries: [{
-            content: queriesWithoutAST[0].content,
-            sourceAST: { type: 'TaggedTemplateExpression' },
-          }],
+          queries: [
+            {
+              content: queriesWithoutAST[0].content,
+              sourceAST: { type: 'TaggedTemplateExpression' },
+            },
+          ],
         }),
       };
       vi.mocked(UnifiedExtractor).mockImplementation(() => mockExtractor as any);
@@ -484,7 +523,9 @@ describe('extract-transform CLI', () => {
 
       expect(code).toBe(0);
       expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('missing source AST'));
-      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Successfully re-extracted'));
+      expect(logger.info).toHaveBeenCalledWith(
+        expect.stringContaining('Successfully re-extracted'),
+      );
     });
   });
 
@@ -509,10 +550,12 @@ describe('extract-transform CLI', () => {
 
     it('should validate queries against schema', async () => {
       const mockValidator = {
-        validateQueries: vi.fn().mockResolvedValue(new Map([
-          ['1', { valid: true, errors: [], warnings: [] }],
-          ['2', { valid: true, errors: [], warnings: [] }],
-        ])),
+        validateQueries: vi.fn().mockResolvedValue(
+          new Map([
+            ['1', { valid: true, errors: [], warnings: [] }],
+            ['2', { valid: true, errors: [], warnings: [] }],
+          ]),
+        ),
         generateValidationReport: vi.fn().mockReturnValue({
           total: 2,
           valid: 2,
@@ -533,33 +576,44 @@ describe('extract-transform CLI', () => {
 
     it('should show validation errors', async () => {
       const mockValidator = {
-        validateQueries: vi.fn().mockResolvedValue(new Map([
-          ['1', { 
-            valid: false, 
-            errors: [{
-              message: 'Field "unknown" not found',
-              locations: [{ line: 1, column: 15 }],
-              suggestion: 'Did you mean "id"?',
-            }],
-            warnings: [],
-          }],
-          ['2', { valid: true, errors: [], warnings: [] }],
-        ])),
+        validateQueries: vi.fn().mockResolvedValue(
+          new Map([
+            [
+              '1',
+              {
+                valid: false,
+                errors: [
+                  {
+                    message: 'Field "unknown" not found',
+                    locations: [{ line: 1, column: 15 }],
+                    suggestion: 'Did you mean "id"?',
+                  },
+                ],
+                warnings: [],
+              },
+            ],
+            ['2', { valid: true, errors: [], warnings: [] }],
+          ]),
+        ),
         generateValidationReport: vi.fn().mockReturnValue({
           total: 2,
           valid: 1,
           invalid: 1,
           warnings: 0,
-          summary: [{
-            id: '1',
-            valid: false,
-            errorCount: 1,
-            errors: [{
-              message: 'Field "unknown" not found',
-              locations: [{ line: 1, column: 15 }],
-              suggestion: 'Did you mean "id"?',
-            }],
-          }],
+          summary: [
+            {
+              id: '1',
+              valid: false,
+              errorCount: 1,
+              errors: [
+                {
+                  message: 'Field "unknown" not found',
+                  locations: [{ line: 1, column: 15 }],
+                  suggestion: 'Did you mean "id"?',
+                },
+              ],
+            },
+          ],
         }),
       };
       vi.mocked(SchemaValidator).mockImplementation(() => mockValidator as any);
@@ -574,9 +628,7 @@ describe('extract-transform CLI', () => {
     });
 
     it('should validate transformed queries when requested', async () => {
-      const transformedData = [
-        { id: '1', transformed: 'query GetUser { user { id name } }' },
-      ];
+      const transformedData = [{ id: '1', transformed: 'query GetUser { user { id name } }' }];
 
       vi.mocked(fs.readFile).mockImplementation((filePath) => {
         if (filePath === './transformed.json') {
@@ -601,7 +653,7 @@ describe('extract-transform CLI', () => {
 
       expect(mockValidator.validateQueries).toHaveBeenCalledWith(
         [{ id: '1', content: 'query GetUser { user { id name } }' }],
-        './schema.graphql'
+        './schema.graphql',
       );
     });
 
@@ -622,7 +674,7 @@ describe('extract-transform CLI', () => {
 
       expect(fs.writeFile).toHaveBeenCalledWith(
         './extracted-queries-validation.json',
-        expect.stringContaining('"total": 2')
+        expect.stringContaining('"total": 2'),
       );
     });
   });

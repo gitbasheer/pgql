@@ -19,7 +19,7 @@ describe('PipelineProgress', () => {
 
   it('should render all pipeline stages', () => {
     renderComponent();
-    
+
     expect(screen.getByText('Extraction')).toBeInTheDocument();
     expect(screen.getByText('Classification')).toBeInTheDocument();
     expect(screen.getByText('Validation')).toBeInTheDocument();
@@ -30,10 +30,10 @@ describe('PipelineProgress', () => {
 
   it('should show pending state for all stages initially', () => {
     renderComponent();
-    
+
     const stages = document.querySelectorAll('.pipeline-stage');
     expect(stages).toHaveLength(6);
-    stages.forEach(stage => {
+    stages.forEach((stage) => {
       expect(stage).toHaveClass('pending');
     });
   });
@@ -44,10 +44,12 @@ describe('PipelineProgress', () => {
         stage: 'extraction',
         status: 'running',
         progress: 50,
-      }
+      },
     });
-    
-    const extractionStage = document.querySelector('.pipeline-stage.in_progress');
+
+    const extractionStage = document.querySelector(
+      '.pipeline-stage.in_progress'
+    );
     expect(extractionStage).toBeInTheDocument();
     expect(extractionStage).toHaveTextContent('Extraction');
   });
@@ -58,9 +60,9 @@ describe('PipelineProgress', () => {
       pipelineStatus: {
         stage: 'validation',
         status: 'running',
-      }
+      },
     });
-    
+
     // First two stages should be completed
     expect(screen.getAllByText('✓')).toHaveLength(2); // extraction and classification
     expect(screen.getByText('⊙')).toBeInTheDocument(); // validation in progress
@@ -73,15 +75,15 @@ describe('PipelineProgress', () => {
       pipelineStatus: {
         stage: 'testing',
         status: 'running',
-      }
+      },
     });
-    
+
     // Verify some stages are marked as completed
     expect(screen.getAllByText('✓').length).toBeGreaterThan(0);
-    
+
     // Re-render with isActive false
     rerender(<PipelineProgress isActive={false} />);
-    
+
     // All stages should be pending again
     const stages = document.querySelectorAll('.pipeline-stage.pending');
     expect(stages).toHaveLength(6);
@@ -92,12 +94,13 @@ describe('PipelineProgress', () => {
       pipelineStatus: {
         stage: 'validation',
         status: 'failed',
-      }
+      },
     });
-    
+
     // Check that error status is reflected (component might treat 'failed' as 'error')
-    const validationStage = Array.from(document.querySelectorAll('.pipeline-stage'))
-      .find(el => el.textContent?.includes('Validation'));
+    const validationStage = Array.from(
+      document.querySelectorAll('.pipeline-stage')
+    ).find((el) => el.textContent?.includes('Validation'));
     expect(validationStage).toBeInTheDocument();
   });
 
@@ -107,9 +110,9 @@ describe('PipelineProgress', () => {
         stage: 'extraction',
         status: 'running',
         progress: 75,
-      }
+      },
     });
-    
+
     const progressBar = document.querySelector('.progress-fill');
     expect(progressBar).toBeInTheDocument();
     expect(progressBar).toHaveStyle({ width: '75%' });
@@ -121,14 +124,15 @@ describe('PipelineProgress', () => {
       pipelineStatus: {
         stage: 'pr generation',
         status: 'completed',
-      }
+      },
     });
-    
+
     // PR Generation stage should be completed
-    const prStage = Array.from(document.querySelectorAll('.pipeline-stage'))
-      .find(el => el.textContent?.includes('PR Generation'));
+    const prStage = Array.from(
+      document.querySelectorAll('.pipeline-stage')
+    ).find((el) => el.textContent?.includes('PR Generation'));
     expect(prStage).toHaveClass('completed');
-    
+
     // All previous stages should also be completed
     expect(screen.getAllByText('✓').length).toBeGreaterThanOrEqual(5);
   });

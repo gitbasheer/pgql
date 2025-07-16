@@ -1,11 +1,13 @@
 # Test Writing Best Practices Guide
 
 ## Overview
+
 This guide provides best practices for writing tests in the pg-migration-620 project. We use Vitest as our test runner, emphasizing clear, maintainable, and reliable tests.
 
 ## Test Philosophy
 
 ### Core Principles
+
 1. **Test Behavior, Not Implementation** - Focus on what the code does, not how
 2. **Clear Test Names** - Should describe the scenario and expected outcome
 3. **Isolated Tests** - Each test should be independent
@@ -15,18 +17,19 @@ This guide provides best practices for writing tests in the pg-migration-620 pro
 ## Test Structure
 
 ### Basic Test Template
+
 ```typescript
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('ModuleName', () => {
   // Setup shared across tests in this describe block
   let instance: ModuleName;
-  
+
   beforeEach(() => {
     // Fresh setup for each test
     instance = new ModuleName();
   });
-  
+
   afterEach(() => {
     // Cleanup after each test
     vi.clearAllMocks();
@@ -37,10 +40,10 @@ describe('ModuleName', () => {
       // Arrange
       const input = 'valid input';
       const expected = 'expected output';
-      
+
       // Act
       const result = instance.methodName(input);
-      
+
       // Assert
       expect(result).toBe(expected);
     });
@@ -48,16 +51,16 @@ describe('ModuleName', () => {
     it('should throw error for invalid input', () => {
       // Arrange
       const invalidInput = null;
-      
+
       // Act & Assert
-      expect(() => instance.methodName(invalidInput))
-        .toThrow('Input cannot be null');
+      expect(() => instance.methodName(invalidInput)).toThrow('Input cannot be null');
     });
   });
 });
 ```
 
 ### Test Naming Conventions
+
 ```typescript
 // ✅ GOOD - Descriptive test names
 it('should extract GraphQL queries from TypeScript files');
@@ -73,6 +76,7 @@ it('test 1');
 ## Types of Tests
 
 ### 1. Unit Tests
+
 Test individual functions or classes in isolation:
 
 ```typescript
@@ -87,9 +91,9 @@ describe('UnifiedExtractor', () => {
         }
       \`;
     `);
-    
+
     const result = await extractor.extractFromFile(mockFile);
-    
+
     expect(result.operations).toHaveLength(1);
     expect(result.operations[0].name).toBe('GetUser');
   });
@@ -97,6 +101,7 @@ describe('UnifiedExtractor', () => {
 ```
 
 ### 2. Integration Tests
+
 Test how multiple components work together:
 
 ```typescript
@@ -115,17 +120,17 @@ describe('Extraction Integration', () => {
           oldField: String @deprecated(reason: "Use newField")
           newField: String
         }
-      `
+      `,
     });
-    
+
     // Run extraction
     const extractor = new UnifiedExtractor();
     const extracted = await extractor.extract({ sourcePaths: [testDir] });
-    
+
     // Run transformation
     const transformer = new OptimizedSchemaTransformer();
     const transformed = await transformer.transformBatch(extracted.operations);
-    
+
     // Verify transformation
     expect(transformed[0].content).toContain('newField');
     expect(transformed[0].content).not.toContain('oldField');
@@ -134,6 +139,7 @@ describe('Extraction Integration', () => {
 ```
 
 ### 3. Edge Case Tests
+
 Test boundary conditions and error scenarios:
 
 ```typescript
@@ -147,7 +153,7 @@ describe('Edge Cases', () => {
   it('should handle malformed GraphQL', async () => {
     const malformed = createMockFile('gql`query {`'); // Missing closing
     const result = await extractor.extractFromFile(malformed);
-    
+
     expect(result.operations).toEqual([]);
     expect(result.errors).toHaveLength(1);
     expect(result.errors[0].type).toBe('PARSE_ERROR');
@@ -158,9 +164,10 @@ describe('Edge Cases', () => {
       fragment A on User { ...B }
       fragment B on User { ...A }
     `;
-    
-    await expect(resolver.resolveFragments(circular))
-      .rejects.toThrow('Circular fragment reference detected');
+
+    await expect(resolver.resolveFragments(circular)).rejects.toThrow(
+      'Circular fragment reference detected',
+    );
   });
 });
 ```
@@ -168,24 +175,26 @@ describe('Edge Cases', () => {
 ## Mocking Best Practices
 
 ### Mock External Dependencies
+
 ```typescript
 // ✅ GOOD - Mock external services
 vi.mock('@/utils/logger', () => ({
   logger: {
     info: vi.fn(),
     error: vi.fn(),
-    debug: vi.fn()
-  }
+    debug: vi.fn(),
+  },
 }));
 
 vi.mock('fs/promises', () => ({
   readFile: vi.fn(),
   writeFile: vi.fn(),
-  access: vi.fn()
+  access: vi.fn(),
 }));
 ```
 
 ### Create Typed Mocks
+
 ```typescript
 // ✅ GOOD - Type-safe mock creation
 import type { Logger } from '@/utils/logger';
@@ -195,7 +204,7 @@ function createMockLogger(): Logger {
     info: vi.fn(),
     error: vi.fn(),
     debug: vi.fn(),
-    warn: vi.fn()
+    warn: vi.fn(),
   };
 }
 
@@ -205,6 +214,7 @@ const service = new MyService(mockLogger);
 ```
 
 ### Mock Return Values
+
 ```typescript
 // ✅ GOOD - Clear mock setup
 import { readFile } from 'fs/promises';
@@ -221,16 +231,17 @@ vi.mocked(readFile)
 ## Testing Async Code
 
 ### Async/Await Pattern
+
 ```typescript
 // ✅ GOOD - Clean async testing
 it('should load schema from file', async () => {
   const schemaPath = '/path/to/schema.graphql';
   const schemaContent = 'type Query { hello: String }';
-  
+
   vi.mocked(readFile).mockResolvedValue(schemaContent);
-  
+
   const schema = await loadSchema(schemaPath);
-  
+
   expect(schema).toBeDefined();
   expect(readFile).toHaveBeenCalledWith(schemaPath, 'utf-8');
 });
@@ -238,25 +249,25 @@ it('should load schema from file', async () => {
 // ✅ GOOD - Testing rejected promises
 it('should throw when schema file not found', async () => {
   vi.mocked(readFile).mockRejectedValue(new Error('ENOENT'));
-  
-  await expect(loadSchema('missing.graphql'))
-    .rejects.toThrow('Failed to load schema');
+
+  await expect(loadSchema('missing.graphql')).rejects.toThrow('Failed to load schema');
 });
 ```
 
 ### Testing Streams
+
 ```typescript
 it('should process large files in chunks', async () => {
   const chunks = ['chunk1', 'chunk2', 'chunk3'];
   const mockStream = createMockReadStream(chunks);
-  
+
   vi.mocked(createReadStream).mockReturnValue(mockStream);
-  
+
   const processed: string[] = [];
-  await processLargeFile('/large/file', chunk => {
+  await processLargeFile('/large/file', (chunk) => {
     processed.push(chunk);
   });
-  
+
   expect(processed).toEqual(chunks);
 });
 ```
@@ -264,6 +275,7 @@ it('should process large files in chunks', async () => {
 ## Test Data Management
 
 ### Test Fixtures
+
 ```typescript
 // fixtures/queries.ts
 export const SIMPLE_QUERY = `
@@ -294,6 +306,7 @@ it('should parse simple query', () => {
 ```
 
 ### Test Builders
+
 ```typescript
 // builders/query.builder.ts
 export class QueryBuilder {
@@ -301,7 +314,7 @@ export class QueryBuilder {
     id: 'test-id',
     name: 'TestQuery',
     content: 'query { test }',
-    type: 'query' as const
+    type: 'query' as const,
   };
 
   withName(name: string): this {
@@ -329,6 +342,7 @@ const query = new QueryBuilder()
 ## Performance Testing
 
 ### Benchmark Tests
+
 ```typescript
 // UnifiedExtractor.bench.ts
 import { bench, describe } from 'vitest';
@@ -338,12 +352,16 @@ describe('UnifiedExtractor Performance', () => {
     await extractor.extractFromFile(smallFile);
   });
 
-  bench('extract from large file', async () => {
-    await extractor.extractFromFile(largeFile);
-  }, {
-    // Only run 100 iterations for large files
-    iterations: 100
-  });
+  bench(
+    'extract from large file',
+    async () => {
+      await extractor.extractFromFile(largeFile);
+    },
+    {
+      // Only run 100 iterations for large files
+      iterations: 100,
+    },
+  );
 
   bench('extract with caching', async () => {
     await extractorWithCache.extractFromFile(testFile);
@@ -352,12 +370,13 @@ describe('UnifiedExtractor Performance', () => {
 ```
 
 ### Performance Assertions
+
 ```typescript
 it('should complete extraction within time limit', async () => {
   const start = performance.now();
-  
+
   await extractor.extract({ sourcePaths: [largeProject] });
-  
+
   const duration = performance.now() - start;
   expect(duration).toBeLessThan(5000); // 5 seconds max
 });
@@ -366,13 +385,12 @@ it('should complete extraction within time limit', async () => {
 ## Common Patterns
 
 ### Testing Error Messages
+
 ```typescript
 // ✅ GOOD - Specific error testing
 it('should provide helpful error message for missing schema', async () => {
-  const error = await captureError(() => 
-    validator.validate(query, undefined)
-  );
-  
+  const error = await captureError(() => validator.validate(query, undefined));
+
   expect(error).toBeInstanceOf(ValidationError);
   expect(error.message).toContain('Schema is required');
   expect(error.code).toBe('MISSING_SCHEMA');
@@ -380,35 +398,37 @@ it('should provide helpful error message for missing schema', async () => {
 ```
 
 ### Testing Side Effects
+
 ```typescript
 it('should create backup before applying changes', async () => {
   const backupSpy = vi.spyOn(backupService, 'createBackup');
-  
+
   await applicator.apply(changes, { backup: true });
-  
+
   expect(backupSpy).toHaveBeenCalledWith(
     expect.objectContaining({
-      files: expect.arrayContaining(['file1.ts', 'file2.ts'])
-    })
+      files: expect.arrayContaining(['file1.ts', 'file2.ts']),
+    }),
   );
 });
 ```
 
 ### Testing Event Emissions
+
 ```typescript
 it('should emit progress events during extraction', async () => {
   const events: ProgressEvent[] = [];
-  
-  extractor.on('progress', event => events.push(event));
-  
+
+  extractor.on('progress', (event) => events.push(event));
+
   await extractor.extract({ sourcePaths: [testDir] });
-  
+
   expect(events).toContainEqual(
     expect.objectContaining({
       type: 'file-processed',
       current: expect.any(Number),
-      total: expect.any(Number)
-    })
+      total: expect.any(Number),
+    }),
   );
 });
 ```
@@ -416,20 +436,22 @@ it('should emit progress events during extraction', async () => {
 ## Test Debugging
 
 ### Debug Output
+
 ```typescript
 // Temporarily add debug output
 it.only('debug failing test', async () => {
   console.log('Input:', input);
-  
+
   const result = await process(input);
-  
+
   console.log('Result:', JSON.stringify(result, null, 2));
-  
+
   expect(result).toMatchObject(expected);
 });
 ```
 
 ### Using Test Utilities
+
 ```typescript
 // Create debug utilities
 export function debugQuery(query: Query): void {
@@ -437,7 +459,7 @@ export function debugQuery(query: Query): void {
     name: query.name,
     type: query.type,
     contentLength: query.content.length,
-    ast: query.ast ? 'present' : 'missing'
+    ast: query.ast ? 'present' : 'missing',
   });
 }
 
@@ -445,7 +467,7 @@ export function debugQuery(query: Query): void {
 it('should transform complex query', async () => {
   const query = createComplexQuery();
   debugQuery(query);
-  
+
   const result = await transformer.transform(query);
   // ... assertions
 });
@@ -454,6 +476,7 @@ it('should transform complex query', async () => {
 ## CI Considerations
 
 ### Environment-Specific Tests
+
 ```typescript
 // Skip tests in CI that require local resources
 it.skipIf(process.env.CI)('should connect to local database', async () => {
@@ -469,18 +492,24 @@ it.runIf(process.env.CI)('should work with CI database', async () => {
 ```
 
 ### Timeout Configuration
+
 ```typescript
 // Increase timeout for slow operations
-it('should process large dataset', async () => {
-  await processLargeDataset();
-}, {
-  timeout: 30000 // 30 seconds
-});
+it(
+  'should process large dataset',
+  async () => {
+    await processLargeDataset();
+  },
+  {
+    timeout: 30000, // 30 seconds
+  },
+);
 ```
 
 ## Common Pitfalls to Avoid
 
 ### 1. Test Interdependence
+
 ```typescript
 // ❌ BAD - Tests depend on order
 it('test 1', () => {
@@ -502,6 +531,7 @@ it('test 2', () => {
 ```
 
 ### 2. Testing Implementation Details
+
 ```typescript
 // ❌ BAD - Testing private methods
 it('should call private method', () => {
@@ -518,6 +548,7 @@ it('should return processed result', () => {
 ```
 
 ### 3. Overuse of Mocks
+
 ```typescript
 // ❌ BAD - Mocking everything
 vi.mock('./entire-module');
@@ -531,6 +562,7 @@ vi.mock('@/external/api-client');
 ## Test Coverage
 
 ### Achieving Good Coverage
+
 1. Test all public methods
 2. Test error conditions
 3. Test edge cases
@@ -538,6 +570,7 @@ vi.mock('@/external/api-client');
 5. Don't chase 100% - focus on critical paths
 
 ### Coverage Reports
+
 ```bash
 # Generate coverage report
 pnpm test:coverage

@@ -4,7 +4,7 @@ export class ProcessingError extends Error {
   constructor(
     message: string,
     public readonly file?: string,
-    public readonly cause?: unknown
+    public readonly cause?: unknown,
   ) {
     super(message);
     this.name = 'ProcessingError';
@@ -25,10 +25,12 @@ export class ErrorHandler {
    */
   handleError(error: unknown, context: ErrorContext): void {
     const errorObj = error instanceof Error ? error : new Error(String(error));
-    
+
     // Log at appropriate level
     if (this.isExpectedError(errorObj)) {
-      logger.debug(`${context.operation || 'Operation'} warning in ${context.file}: ${errorObj.message}`);
+      logger.debug(
+        `${context.operation || 'Operation'} warning in ${context.file}: ${errorObj.message}`,
+      );
     } else {
       logger.error(`${context.operation || 'Operation'} failed in ${context.file}:`, errorObj);
     }
@@ -50,7 +52,7 @@ export class ErrorHandler {
   async tryOperation<T>(
     operation: () => Promise<T>,
     context: ErrorContext,
-    defaultValue?: T
+    defaultValue?: T,
   ): Promise<T | undefined> {
     try {
       return await operation();
@@ -66,21 +68,24 @@ export class ErrorHandler {
   async tryPartialOperation<T>(
     operation: () => Promise<T>,
     context: ErrorContext,
-    recoverFn?: (error: unknown) => T
+    recoverFn?: (error: unknown) => T,
   ): Promise<T | null> {
     try {
       return await operation();
     } catch (error) {
       this.handleError(error, context);
-      
+
       if (recoverFn) {
         try {
           return recoverFn(error);
         } catch (recoveryError) {
-          this.handleError(recoveryError, { ...context, operation: `${context.operation} recovery` });
+          this.handleError(recoveryError, {
+            ...context,
+            operation: `${context.operation} recovery`,
+          });
         }
       }
-      
+
       return null;
     }
   }
@@ -102,7 +107,10 @@ export class ErrorHandler {
         errorsByFile.set(context.file, (errorsByFile.get(context.file) || 0) + 1);
       }
       if (context.operation) {
-        errorsByOperation.set(context.operation, (errorsByOperation.get(context.operation) || 0) + 1);
+        errorsByOperation.set(
+          context.operation,
+          (errorsByOperation.get(context.operation) || 0) + 1,
+        );
       }
     }
 
@@ -110,7 +118,7 @@ export class ErrorHandler {
       totalErrors: this.errors.length,
       errorsByFile,
       errorsByOperation,
-      errors: this.errors
+      errors: this.errors,
     };
   }
 
@@ -129,9 +137,9 @@ export class ErrorHandler {
       'graphql-tag-pluck might throw for files without GraphQL',
       'Failed to parse',
       'Syntax Error',
-      'Expected Name'
+      'Expected Name',
     ];
 
-    return expectedMessages.some(msg => error.message.includes(msg));
+    return expectedMessages.some((msg) => error.message.includes(msg));
   }
 }

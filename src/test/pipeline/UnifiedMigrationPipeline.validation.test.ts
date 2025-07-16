@@ -5,62 +5,62 @@ import * as fs from 'fs/promises';
 import { parse } from 'graphql';
 // Mock modules
 vi.mock('graphql', () => ({
-  parse: vi.fn()
-}))
+  parse: vi.fn(),
+}));
 vi.mock('../../core/extraction/engine/UnifiedExtractor', () => ({
   UnifiedExtractor: vi.fn(() => {
     mockExtractor = createMockExtractor();
     return mockExtractor;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/validator/SchemaValidator', () => ({
   SchemaValidator: vi.fn(() => {
     mockValidator = createMockValidator();
     return mockValidator;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/analyzer/SchemaDeprecationAnalyzer', () => ({
   SchemaDeprecationAnalyzer: vi.fn(() => {
     mockDeprecationAnalyzer = createMockDeprecationAnalyzer();
     return mockDeprecationAnalyzer;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/analyzer/ConfidenceScorer', () => ({
   ConfidenceScorer: vi.fn(() => {
     mockConfidenceScorer = createMockConfidenceScorer();
     return mockConfidenceScorer;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/safety/ProgressiveMigration', () => ({
   ProgressiveMigration: vi.fn(() => {
     mockProgressiveMigration = createMockProgressiveMigration();
     return mockProgressiveMigration;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/safety/HealthCheck', () => ({
   HealthCheckSystem: vi.fn(() => {
     mockHealthCheck = createMockHealthCheck();
     return mockHealthCheck;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/safety/Rollback', () => ({
   RollbackSystem: vi.fn(() => {
     mockRollbackSystem = createMockRollbackSystem();
     return mockRollbackSystem;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/applicator/ASTCodeApplicator', () => ({
   ASTCodeApplicator: vi.fn(() => {
     mockApplicator = createMockApplicator();
     return mockApplicator;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/extraction/utils/SourceMapper', () => ({
   SourceMapper: vi.fn(() => {
     mockSourceMapper = createMockSourceMapper();
     return mockSourceMapper;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/transformer/QueryTransformer', () => ({
   QueryTransformer: vi.fn(() => ({
     transform: vi.fn().mockReturnValue({
@@ -68,1447 +68,41 @@ vi.mock('../../core/transformer/QueryTransformer', () => ({
       transformed: 'query TestQuery { newTest }',
       ast: { kind: 'Document' },
       changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
-      rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }]
-    })
-  }))
-}))
+      rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
+    }),
+  })),
+}));
 
 // Mock modules
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Create factory functions for mock instances
 const createMockExtractor = () => ({
-  extract: vi.fn()
+  extract: vi.fn(),
 });
 const createMockValidator = () => ({
   loadSchema: vi.fn(),
-  validateOperation: vi.fn()
+  validateOperation: vi.fn(),
 });
 const createMockDeprecationAnalyzer = () => ({
-  analyzeOperation: vi.fn()
+  analyzeOperation: vi.fn(),
 });
 const createMockConfidenceScorer = () => ({
-  scoreTransformation: vi.fn()
+  scoreTransformation: vi.fn(),
 });
 const createMockProgressiveMigration = () => ({
   createFeatureFlag: vi.fn(),
-  startRollout: vi.fn()
+  startRollout: vi.fn(),
 });
 const createMockHealthCheck = () => ({});
 const createMockRollbackSystem = () => ({
-  createRollbackPlan: vi.fn()
+  createRollbackPlan: vi.fn(),
 });
 const createMockApplicator = () => ({
-  applyTransformation: vi.fn()
+  applyTransformation: vi.fn(),
 });
 const createMockSourceMapper = () => ({
   register: vi.fn(),
-  getMapping: vi.fn()
+  getMapping: vi.fn(),
 });
 
 // Store current mock instances
@@ -1537,24 +131,24 @@ describe.sequential('UnifiedMigrationPipeline - Validation', () => {
     mockConfig = {
       source: {
         include: ['./src'],
-        exclude: []
+        exclude: [],
       },
       confidence: {
         automatic: 90,
         semiAutomatic: 70,
-        manual: 0
+        manual: 0,
       },
       rollout: {
         initial: 1,
         increment: 10,
         interval: '1h',
-        maxErrors: 5
+        maxErrors: 5,
       },
       safety: {
         requireApproval: false,
         autoRollback: true,
-        healthCheckInterval: 60
-      }
+        healthCheckInterval: 60,
+      },
     };
 
     mockOptions = {
@@ -1562,7 +156,7 @@ describe.sequential('UnifiedMigrationPipeline - Validation', () => {
       dryRun: false,
       interactive: false,
       enableSafety: true,
-      rolloutPercentage: 1
+      rolloutPercentage: 1,
     };
 
     // Mock file system
@@ -1591,21 +185,21 @@ describe.sequential('UnifiedMigrationPipeline - Validation', () => {
             filePath: 'test.ts',
             sourceAST: { node: {}, start: 0, end: 10 },
             location: { line: 1, column: 1 },
-            fragments: []
-          }
+            fragments: [],
+          },
         ],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
+        stats: {},
       });
 
       await pipeline.extract();
       return pipeline;
     }
 
-        it('should validate all operations successfully', async () => {
+    it('should validate all operations successfully', async () => {
       const pipeline = await setupPipelineAndExtract();
 
       // Ensure parse is working correctly for this test
@@ -1622,20 +216,18 @@ describe.sequential('UnifiedMigrationPipeline - Validation', () => {
       expect(result).toEqual({
         hasErrors: false,
         errors: [],
-        warnings: []
+        warnings: [],
       });
     });
 
-        it('should handle validation errors', async () => {
+    it('should handle validation errors', async () => {
       const pipeline = await setupPipelineAndExtract();
 
       // Ensure parse is working correctly for this test
       vi.mocked(parse).mockReturnValue({ kind: 'Document' } as any);
 
       mockValidator.loadSchema.mockResolvedValue({ schema: 'mock' });
-      mockValidator.validateOperation.mockResolvedValue([
-        { message: 'Invalid field' }
-      ]);
+      mockValidator.validateOperation.mockResolvedValue([{ message: 'Invalid field' }]);
 
       const result = await pipeline.validate();
 
@@ -1644,11 +236,11 @@ describe.sequential('UnifiedMigrationPipeline - Validation', () => {
       expect(result.errors[0]).toEqual({
         operation: 'TestQuery',
         message: 'Invalid field',
-        severity: 'error'
+        severity: 'error',
       });
     });
 
-        it('should handle deprecation warnings', async () => {
+    it('should handle deprecation warnings', async () => {
       const pipeline = await setupPipelineAndExtract();
 
       // Ensure parse is working correctly for this test
@@ -1657,7 +249,7 @@ describe.sequential('UnifiedMigrationPipeline - Validation', () => {
       mockValidator.loadSchema.mockResolvedValue({ schema: 'mock' });
       mockValidator.validateOperation.mockResolvedValue([]);
       mockDeprecationAnalyzer.analyzeOperation.mockResolvedValue([
-        { field: 'oldField', reason: 'Use newField instead' }
+        { field: 'oldField', reason: 'Use newField instead' },
       ]);
 
       const result = await pipeline.validate();
@@ -1665,7 +257,7 @@ describe.sequential('UnifiedMigrationPipeline - Validation', () => {
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0]).toEqual({
         operation: 'TestQuery',
-        message: 'Using deprecated field: oldField - Use newField instead'
+        message: 'Using deprecated field: oldField - Use newField instead',
       });
     });
 

@@ -13,17 +13,17 @@ dotenv.config();
  */
 async function testCurrentAuth() {
   logger.info('🔍 Testing current auth tokens validity...');
-  
+
   const authTokens = {
     auth_idp: process.env.auth_idp,
     cust_idp: process.env.cust_idp,
     info_cust_idp: process.env.info_cust_idp,
-    info_idp: process.env.info_idp
+    info_idp: process.env.info_idp,
   };
 
   // Check if tokens exist
-  const hasTokens = Object.values(authTokens).every(token => 
-    token && token.length > 50 && !token.includes('test-')
+  const hasTokens = Object.values(authTokens).every(
+    (token) => token && token.length > 50 && !token.includes('test-'),
   );
 
   if (!hasTokens) {
@@ -37,22 +37,22 @@ async function testCurrentAuth() {
     .join('; ');
 
   const testQuery = {
-    query: `query TestAuth { user { id } }`
+    query: `query TestAuth { user { id } }`,
   };
 
   const endpoint = process.env.APOLLO_PG_ENDPOINT || 'https://pg.api.godaddy.com/v1/gql/customer';
 
   try {
     logger.info(`🌐 Testing endpoint: ${endpoint}`);
-    
+
     const response = await axios.post(endpoint, testQuery, {
       headers: {
         'Content-Type': 'application/json',
-        'Cookie': cookieString,
-        'User-Agent': 'pg-migration-620/1.0.0'
+        Cookie: cookieString,
+        'User-Agent': 'pg-migration-620/1.0.0',
       },
       timeout: 10000,
-      validateStatus: () => true // Don't throw on non-2xx status
+      validateStatus: () => true, // Don't throw on non-2xx status
     });
 
     // Check if we got HTML (redirect to login)
@@ -62,37 +62,36 @@ async function testCurrentAuth() {
 
     if (isHTML || isRedirect || isLoginPage) {
       logger.warn('⚠️ Auth tokens appear to be expired - redirected to login');
-      return { 
-        valid: false, 
+      return {
+        valid: false,
         reason: 'Tokens expired - redirected to login page',
         status: response.status,
-        redirected: response.request?.res?.responseUrl || response.url
+        redirected: response.request?.res?.responseUrl || response.url,
       };
     }
 
     // Check for GraphQL response
     if (response.data?.data || response.data?.errors) {
       logger.info('✅ Auth tokens appear to be valid - got GraphQL response');
-      return { 
-        valid: true, 
+      return {
+        valid: true,
         data: response.data,
-        status: response.status
+        status: response.status,
       };
     }
 
     logger.warn('⚠️ Unexpected response format');
-    return { 
-      valid: false, 
+    return {
+      valid: false,
       reason: 'Unexpected response format',
       status: response.status,
-      contentType: response.headers['content-type']
+      contentType: response.headers['content-type'],
     };
-
   } catch (error) {
     logger.error('❌ Auth test failed:', error instanceof Error ? error.message : 'Unknown error');
-    return { 
-      valid: false, 
-      reason: `Request failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    return {
+      valid: false,
+      reason: `Request failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
     };
   }
 }
@@ -102,15 +101,15 @@ async function testCurrentAuth() {
  */
 async function refreshAuthWithSSO() {
   logger.info('🔄 Attempting to refresh auth using SSO service...');
-  
+
   const ssoService = SSOService.getInstance();
-  
+
   const ssoConfig = {
     provider: 'godaddy' as const,
     credentials: {
       username: process.env.SSO_USER,
-      password: process.env.SSO_PASS
-    }
+      password: process.env.SSO_PASS,
+    },
   };
 
   if (!ssoConfig.credentials.username || !ssoConfig.credentials.password) {
@@ -120,14 +119,14 @@ async function refreshAuthWithSSO() {
 
   try {
     const ssoResult = await ssoService.authenticate(ssoConfig);
-    
+
     if (!ssoResult.success || !ssoResult.cookies) {
       logger.error('❌ SSO authentication failed:', ssoResult.error);
       return { success: false, error: ssoResult.error };
     }
 
     logger.info('✅ SSO authentication successful');
-    
+
     // Display new tokens for manual .env update
     console.log('\n🔑 New auth tokens (update your .env file):');
     console.log('# SSO-refreshed tokens');
@@ -136,17 +135,19 @@ async function refreshAuthWithSSO() {
     });
     console.log(`# Expires: ${ssoResult.expiresAt?.toISOString() || 'Unknown'}\n`);
 
-    return { 
-      success: true, 
-      cookies: ssoResult.cookies, 
-      expiresAt: ssoResult.expiresAt 
+    return {
+      success: true,
+      cookies: ssoResult.cookies,
+      expiresAt: ssoResult.expiresAt,
     };
-
   } catch (error) {
-    logger.error('❌ SSO refresh failed:', error instanceof Error ? error.message : 'Unknown error');
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    logger.error(
+      '❌ SSO refresh failed:',
+      error instanceof Error ? error.message : 'Unknown error',
+    );
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
@@ -156,11 +157,11 @@ async function refreshAuthWithSSO() {
  */
 async function diagnoseAuth() {
   console.log('🩺 Auth Token Diagnosis and Refresh Tool\n');
-  
+
   try {
     // Step 1: Test current auth
     const authTest = await testCurrentAuth();
-    
+
     if (authTest.valid) {
       console.log('✅ Current auth tokens are working!');
       console.log(`📊 Response status: ${authTest.status}`);
@@ -170,7 +171,7 @@ async function diagnoseAuth() {
       if (authTest.data?.errors) {
         console.log('⚠️ GraphQL errors:', authTest.data.errors);
       }
-      
+
       console.log('\n🎉 Real vnext validation is ready to proceed with current tokens!');
       return;
     }
@@ -188,7 +189,7 @@ async function diagnoseAuth() {
     // Step 3: Attempt SSO refresh
     console.log('\n🔄 Attempting to refresh tokens with SSO...');
     const refreshResult = await refreshAuthWithSSO();
-    
+
     if (refreshResult.success) {
       console.log('✅ SSO refresh successful!');
       console.log('📝 Please update your .env file with the new tokens shown above');
@@ -201,9 +202,11 @@ async function diagnoseAuth() {
       console.log('   2. SSO authentication flow');
       console.log('   3. Contact team lead for current valid tokens');
     }
-
   } catch (error) {
-    console.error('❌ Auth diagnosis failed:', error instanceof Error ? error.message : 'Unknown error');
+    console.error(
+      '❌ Auth diagnosis failed:',
+      error instanceof Error ? error.message : 'Unknown error',
+    );
     process.exit(1);
   }
 }

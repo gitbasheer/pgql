@@ -19,7 +19,12 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
       const schemaPath = join(process.cwd(), 'data', 'schema.graphql');
       console.log('Trying schema path:', schemaPath);
       schemaContent = await readFile(schemaPath, 'utf-8');
-      console.log('Schema loaded, length:', schemaContent.length, 'lines:', schemaContent.split('\n').length);
+      console.log(
+        'Schema loaded, length:',
+        schemaContent.length,
+        'lines:',
+        schemaContent.split('\n').length,
+      );
       analyzer = new SchemaDeprecationAnalyzer();
       if (schemaContent) {
         deprecationRules = analyzer.analyzeSchema(schemaContent);
@@ -57,7 +62,7 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
 
       // Log a sample of deprecations found
       const sample = deprecationRules.slice(0, 5);
-      sample.forEach(rule => {
+      sample.forEach((rule) => {
         expect(rule).toHaveProperty('type');
         expect(rule).toHaveProperty('objectType');
         expect(rule).toHaveProperty('fieldName');
@@ -70,9 +75,8 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
         console.warn('Skipping test: deprecationRules not loaded');
         return;
       }
-      const projectDeprecation = deprecationRules.find(rule =>
-        rule.objectType === 'CustomerQuery' &&
-        rule.fieldName === 'project'
+      const projectDeprecation = deprecationRules.find(
+        (rule) => rule.objectType === 'CustomerQuery' && rule.fieldName === 'project',
       );
 
       expect(projectDeprecation).toBeDefined();
@@ -87,9 +91,8 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
         console.warn('Skipping test: deprecationRules not loaded');
         return;
       }
-      const ventureDeprecation = deprecationRules.find(rule =>
-        rule.objectType === 'CustomerQuery' &&
-        rule.fieldName === 'venture'
+      const ventureDeprecation = deprecationRules.find(
+        (rule) => rule.objectType === 'CustomerQuery' && rule.fieldName === 'venture',
       );
 
       expect(ventureDeprecation).toBeDefined();
@@ -102,9 +105,8 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
         console.warn('Skipping test: deprecationRules not loaded');
         return;
       }
-      const logoDeprecation = deprecationRules.find(rule =>
-        rule.objectType === 'Venture' &&
-        rule.fieldName === 'logoUrl'
+      const logoDeprecation = deprecationRules.find(
+        (rule) => rule.objectType === 'Venture' && rule.fieldName === 'logoUrl',
       );
 
       expect(logoDeprecation).toBeDefined();
@@ -119,20 +121,22 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
         return;
       }
       // Find projects deprecation in User interface implementations
-      const projectsDeprecations = deprecationRules.filter(rule =>
-        rule.fieldName === 'projects' &&
-        rule.deprecationReason.includes('Use CustomerQuery.projects')
+      const projectsDeprecations = deprecationRules.filter(
+        (rule) =>
+          rule.fieldName === 'projects' &&
+          rule.deprecationReason.includes('Use CustomerQuery.projects'),
       );
 
       expect(projectsDeprecations.length).toBeGreaterThan(0);
-      projectsDeprecations.forEach(dep => {
+      projectsDeprecations.forEach((dep) => {
         expect(dep.replacement).toBe('CustomerQuery.projects');
       });
 
       // Find ventures deprecation
-      const venturesDeprecations = deprecationRules.filter(rule =>
-        rule.fieldName === 'ventures' &&
-        rule.deprecationReason.includes('Use CustomerQuery.ventures')
+      const venturesDeprecations = deprecationRules.filter(
+        (rule) =>
+          rule.fieldName === 'ventures' &&
+          rule.deprecationReason.includes('Use CustomerQuery.ventures'),
       );
 
       expect(venturesDeprecations.length).toBeGreaterThan(0);
@@ -144,23 +148,25 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
         return;
       }
       // WAMProduct interface deprecated fields
-      const wamDeprecations = deprecationRules.filter(rule =>
-        rule.deprecationReason.includes('Use the billing property') ||
-        rule.deprecationReason.includes('Use calculated fields')
+      const wamDeprecations = deprecationRules.filter(
+        (rule) =>
+          rule.deprecationReason.includes('Use the billing property') ||
+          rule.deprecationReason.includes('Use calculated fields'),
       );
 
       expect(wamDeprecations.length).toBeGreaterThan(0);
 
       // Check specific fields
-      const accountIdDep = deprecationRules.find(rule =>
-        rule.fieldName === 'accountId' &&
-        rule.deprecationReason.includes('Use the billing property')
+      const accountIdDep = deprecationRules.find(
+        (rule) =>
+          rule.fieldName === 'accountId' &&
+          rule.deprecationReason.includes('Use the billing property'),
       );
       expect(accountIdDep).toBeDefined();
 
-      const dataDep = deprecationRules.find(rule =>
-        rule.fieldName === 'data' &&
-        rule.deprecationReason.includes('Use calculated fields')
+      const dataDep = deprecationRules.find(
+        (rule) =>
+          rule.fieldName === 'data' && rule.deprecationReason.includes('Use calculated fields'),
       );
       expect(dataDep).toBeDefined();
     });
@@ -174,10 +180,10 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
       const vague = analyzer.getVagueDeprecations();
 
       expect(transformable.length).toBeGreaterThan(0);
-      expect(transformable.every(rule => !rule.isVague && rule.replacement)).toBe(true);
+      expect(transformable.every((rule) => !rule.isVague && rule.replacement)).toBe(true);
 
       // Vague deprecations might or might not exist
-      expect(vague.every(rule => rule.isVague)).toBe(true);
+      expect(vague.every((rule) => rule.isVague)).toBe(true);
     });
 
     it('should handle complex replacement patterns', async () => {
@@ -186,16 +192,14 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
         return;
       }
       // Find deprecations with path-based replacements
-      const pathReplacements = deprecationRules.filter(rule =>
-        rule.replacement && rule.replacement.includes('.')
+      const pathReplacements = deprecationRules.filter(
+        (rule) => rule.replacement && rule.replacement.includes('.'),
       );
 
       expect(pathReplacements.length).toBeGreaterThan(0);
 
       // Example: logoUrl -> profile.logoUrl
-      const logoReplacement = pathReplacements.find(rule =>
-        rule.fieldName === 'logoUrl'
-      );
+      const logoReplacement = pathReplacements.find((rule) => rule.fieldName === 'logoUrl');
       expect(logoReplacement?.replacement).toBe('profile.logoUrl');
     });
 
@@ -220,9 +224,10 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
         return;
       }
       // The schema has interfaces like User, WAMProduct that have deprecations
-      const interfaceDeprecations = deprecationRules.filter(rule =>
-        ['CurrentUser', 'Purchaser', 'Customer'].includes(rule.objectType) ||
-        rule.objectType.includes('Product')
+      const interfaceDeprecations = deprecationRules.filter(
+        (rule) =>
+          ['CurrentUser', 'Purchaser', 'Customer'].includes(rule.objectType) ||
+          rule.objectType.includes('Product'),
       );
 
       expect(interfaceDeprecations.length).toBeGreaterThan(0);
@@ -234,12 +239,12 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
         return;
       }
       // Some deprecations have type-specific reasons
-      const billingDeprecations = deprecationRules.filter(rule =>
-        rule.deprecationReason.includes('billing property')
+      const billingDeprecations = deprecationRules.filter((rule) =>
+        rule.deprecationReason.includes('billing property'),
       );
 
       expect(billingDeprecations.length).toBeGreaterThan(0);
-      billingDeprecations.forEach(dep => {
+      billingDeprecations.forEach((dep) => {
         // Check if replacement exists and contains billing
         if (dep.replacement) {
           expect(dep.replacement).toBe('billing');
@@ -253,12 +258,10 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
         return;
       }
       // Check that we find deprecations in nested types
-      const allObjectTypes = [...new Set(deprecationRules.map(r => r.objectType))];
+      const allObjectTypes = [...new Set(deprecationRules.map((r) => r.objectType))];
 
       // Should have found deprecations in various types
-      expect(allObjectTypes).toEqual(
-        expect.arrayContaining(['CustomerQuery', 'Venture', 'User'])
-      );
+      expect(allObjectTypes).toEqual(expect.arrayContaining(['CustomerQuery', 'Venture', 'User']));
 
       // Check that we found many types
       expect(allObjectTypes.length).toBeGreaterThan(10);
@@ -283,7 +286,7 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
       expect(rules.length).toBeGreaterThan(10);
     });
 
-        it('should handle large number of deprecation rules', async () => {
+    it('should handle large number of deprecation rules', async () => {
       if (!analyzer || !deprecationRules) {
         console.warn('Skipping test: analyzer or deprecationRules not loaded');
         return;
@@ -302,43 +305,43 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
   });
 
   describe('Edge cases in production schema', () => {
-        it('should handle various deprecation message formats', async () => {
+    it('should handle various deprecation message formats', async () => {
       if (!deprecationRules) {
         console.warn('Skipping test: deprecationRules not loaded');
         return;
       }
       // Check different deprecation reason patterns
-      const reasonPatterns = deprecationRules.map(r => r.deprecationReason);
+      const reasonPatterns = deprecationRules.map((r) => r.deprecationReason);
 
       // Should handle "Use X" pattern
-      const usePattern = reasonPatterns.filter(r => r.startsWith('Use '));
+      const usePattern = reasonPatterns.filter((r) => r.startsWith('Use '));
       expect(usePattern.length).toBeGreaterThan(0);
 
       // Should handle "switch to using X" pattern
-      const switchPattern = reasonPatterns.filter(r => r.includes('switch to using'));
+      const switchPattern = reasonPatterns.filter((r) => r.includes('switch to using'));
 
       // Should handle field reference patterns
-      const fieldRefPattern = reasonPatterns.filter(r => r.includes('.'));
+      const fieldRefPattern = reasonPatterns.filter((r) => r.includes('.'));
       expect(fieldRefPattern.length).toBeGreaterThan(0);
     });
 
-        it('should correctly parse replacement suggestions', async () => {
+    it('should correctly parse replacement suggestions', async () => {
       if (!deprecationRules) {
         console.warn('Skipping test: deprecationRules not loaded');
         return;
       }
       // Check that replacements are correctly extracted
-      const withReplacements = deprecationRules.filter(r => r.replacement);
+      const withReplacements = deprecationRules.filter((r) => r.replacement);
 
-      withReplacements.forEach(rule => {
+      withReplacements.forEach((rule) => {
         expect(rule.replacement).toBeTruthy();
         expect(rule.isVague).toBe(false);
         expect(rule.action).toBe('replace');
       });
 
       // Vague ones should not have replacements
-      const vagueRules = deprecationRules.filter(r => r.isVague);
-      vagueRules.forEach(rule => {
+      const vagueRules = deprecationRules.filter((r) => r.isVague);
+      vagueRules.forEach((rule) => {
         expect(rule.replacement).toBeUndefined();
         expect(rule.action).toBe('comment-out');
       });
@@ -362,9 +365,9 @@ describe('SchemaDeprecationAnalyzer - Production Schema', () => {
       const testRules = testAnalyzer.analyzeSchema(testSchema);
 
       expect(testRules.length).toBeGreaterThanOrEqual(3);
-      expect(testRules.some(r => r.fieldName === 'oldField')).toBe(true);
-      expect(testRules.some(r => r.fieldName === 'inline')).toBe(true);
-      expect(testRules.some(r => r.fieldName === 'deprecated')).toBe(true);
+      expect(testRules.some((r) => r.fieldName === 'oldField')).toBe(true);
+      expect(testRules.some((r) => r.fieldName === 'inline')).toBe(true);
+      expect(testRules.some((r) => r.fieldName === 'deprecated')).toBe(true);
     });
   });
 });

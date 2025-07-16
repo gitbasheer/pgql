@@ -6,14 +6,14 @@ export type Endpoint = 'productGraph' | 'offerGraph';
 // Pipeline stages
 export const PIPELINE_STAGES = [
   'Extraction',
-  'Classification', 
+  'Classification',
   'Validation',
   'Testing',
   'Transformation',
-  'PR Generation'
+  'PR Generation',
 ] as const;
 
-export type PipelineStage = typeof PIPELINE_STAGES[number];
+export type PipelineStage = (typeof PIPELINE_STAGES)[number];
 export type PipelineStatus = 'pending' | 'in_progress' | 'completed' | 'error';
 
 // Core query interface used throughout the system
@@ -22,21 +22,21 @@ export interface ExtractedQuery {
   queryName: string;
   content: string;
   fullExpandedQuery?: string;
-  
+
   // Location
   filePath: string;
   lineNumber: number;
-  
+
   // GraphQL metadata
   operation?: 'query' | 'mutation' | 'subscription';
   variables?: Record<string, string>;
   fragments?: string[];
   hasVariables?: boolean;
-  
+
   // Classification
   endpoint?: Endpoint;
   isNested?: boolean;
-  
+
   // Additional context
   source?: string;
 }
@@ -114,21 +114,21 @@ export interface PipelineStats {
 // Socket.io event types
 export interface SocketEvents {
   // Connection events
-  'connect': void;
-  'disconnect': void;
-  
+  connect: void;
+  disconnect: void;
+
   // Pipeline events
   'pipeline:started': { pipelineId: string; config: PipelineConfig };
   'pipeline:stage': { pipelineId: string; stage: PipelineStage; status: PipelineStatus };
   'pipeline:log': LogDetail;
   'pipeline:error': { pipelineId: string; error: string; stage?: PipelineStage };
   'pipeline:completed': { pipelineId: string; stats: PipelineStats };
-  
+
   // Query events
   'query:extracted': { pipelineId: string; queryName: string; endpoint: Endpoint };
   'query:validated': { pipelineId: string; queryName: string; valid: boolean };
   'query:transformed': { pipelineId: string; queryName: string; changes: number };
-  
+
   // Real API test events
   'realapi:test:started': { pipelineId: string; queryName: string };
   'realapi:test:completed': { pipelineId: string; queryName: string; success: boolean };

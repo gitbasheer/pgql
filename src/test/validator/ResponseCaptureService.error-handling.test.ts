@@ -7,16 +7,14 @@ import { ResolvedQuery } from '../../core/extraction/types/query.types.js';
 import { createMockPRetry } from '../utils/mockRetry.js';
 // Mock modules
 vi.mock('p-limit', () => ({
-  default: () => (fn: Function) => fn()
-}))
+  default: () => (fn: Function) => fn(),
+}));
 vi.mock('../../core/validator/VariableGenerator', () => ({
   VariableGeneratorImpl: vi.fn().mockImplementation(() => ({
-    generateForQuery: vi.fn().mockResolvedValue([{}])
-  }))
+    generateForQuery: vi.fn().mockResolvedValue([{}]),
+  })),
 
-// Mock modules
-
-
+  // Mock modules
 }));
 
 // Mock all dependencies at the module level
@@ -28,9 +26,9 @@ const createMockAxiosInstance = () => ({
   post: vi.fn(),
   interceptors: {
     response: {
-      use: vi.fn()
-    }
-  }
+      use: vi.fn(),
+    },
+  },
 });
 
 describe('ResponseCaptureService - Error Handling', () => {
@@ -42,8 +40,8 @@ describe('ResponseCaptureService - Error Handling', () => {
 
   const mockEndpoint: EndpointConfig = {
     url: 'https://api.example.com/graphql',
-    headers: { 'Authorization': 'Bearer test-token' },
-    timeout: 30000
+    headers: { Authorization: 'Bearer test-token' },
+    timeout: 30000,
   };
 
   const mockQuery: ResolvedQuery = {
@@ -56,20 +54,20 @@ describe('ResponseCaptureService - Error Handling', () => {
     ast: null,
     resolvedContent: 'query GetUser { user { id name } }',
     resolvedFragments: [],
-    allDependencies: []
+    allDependencies: [],
   };
 
   const mockResponse = {
     data: {
       data: {
-        user: { id: '123', name: 'Test User' }
-      }
+        user: { id: '123', name: 'Test User' },
+      },
     },
     status: 200,
-    headers: { 'content-type': 'application/json' }
+    headers: { 'content-type': 'application/json' },
   };
 
-    beforeEach(async () => {
+  beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
 
@@ -124,7 +122,7 @@ describe('ResponseCaptureService - Error Handling', () => {
               attemptNumber: attempt,
               message: (error as Error).message,
               retriesLeft: maxRetries - attempt,
-              name: 'FailedAttemptError'
+              name: 'FailedAttemptError',
             });
           }
           if (attempt === maxRetries) {
@@ -154,10 +152,10 @@ describe('ResponseCaptureService - Error Handling', () => {
       response: {
         status: 400,
         data: { errors: [{ message: 'Bad request' }] },
-        headers: {}
+        headers: {},
       },
       isAxiosError: true,
-      code: 'ERR_BAD_REQUEST'
+      code: 'ERR_BAD_REQUEST',
     };
 
     // Create completely fresh mock instance
@@ -181,13 +179,15 @@ describe('ResponseCaptureService - Error Handling', () => {
     const capturedResponse = result.responses.get('query-1');
     expect(capturedResponse).toBeDefined();
     expect(capturedResponse?.response).toEqual({
-      errors: [{
-        message: 'Request failed',
-        extensions: {
-          code: 'ERR_BAD_REQUEST',
-          response: { errors: [{ message: 'Bad request' }] }
-        }
-      }]
+      errors: [
+        {
+          message: 'Request failed',
+          extensions: {
+            code: 'ERR_BAD_REQUEST',
+            response: { errors: [{ message: 'Bad request' }] },
+          },
+        },
+      ],
     });
     expect(capturedResponse?.metadata.statusCode).toBe(400);
   });
@@ -227,7 +227,7 @@ describe('ResponseCaptureService - Error Handling', () => {
       message: 'timeout of 30000ms exceeded',
       code: 'ECONNABORTED',
       response: undefined,
-      isAxiosError: true
+      isAxiosError: true,
     };
 
     // Create completely fresh mock instance
@@ -254,7 +254,7 @@ describe('ResponseCaptureService - Error Handling', () => {
 
   it('should handle missing client for endpoint', async () => {
     const unknownEndpoint: EndpointConfig = {
-      url: 'https://unknown.example.com/graphql'
+      url: 'https://unknown.example.com/graphql',
     };
 
     service = new ResponseCaptureService([mockEndpoint]);
@@ -264,15 +264,15 @@ describe('ResponseCaptureService - Error Handling', () => {
     expect(result.metadata.errorCount).toBe(1);
   });
 
-    it('should respect retry policy configuration', async () => {
+  it('should respect retry policy configuration', async () => {
     const endpointWithRetry: EndpointConfig = {
       ...mockEndpoint,
       retryPolicy: {
         maxRetries: 5,
         initialDelay: 500,
         maxDelay: 5000,
-        backoffMultiplier: 1.5
-      }
+        backoffMultiplier: 1.5,
+      },
     };
 
     let retryCount = 0;

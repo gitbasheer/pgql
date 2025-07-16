@@ -27,7 +27,7 @@ type CustomerQuery {
         deprecationReason: 'Use ventureNode',
         replacement: 'ventureNode',
         isVague: false,
-        action: 'replace'
+        action: 'replace',
       });
     });
 
@@ -49,7 +49,7 @@ type Venture {
         deprecationReason: 'Use profile.logoUrl instead',
         replacement: 'profile.logoUrl',
         isVague: false,
-        action: 'replace'
+        action: 'replace',
       });
     });
 
@@ -68,13 +68,13 @@ type WAMProduct {
         fieldName: 'accountId',
         isVague: true,
         action: 'comment-out',
-        replacement: undefined
+        replacement: undefined,
       });
       expect(rules[1]).toMatchObject({
         fieldName: 'data',
         isVague: true,
         action: 'comment-out',
-        replacement: undefined
+        replacement: undefined,
       });
     });
 
@@ -92,7 +92,7 @@ type Profile {
         fieldName: 'isInfinityStone',
         replacement: 'aiOnboarded',
         isVague: false,
-        action: 'replace'
+        action: 'replace',
       });
     });
 
@@ -113,10 +113,10 @@ type CurrentUser implements User {
       // Should find deprecations in both interface and implementation
       expect(rules.length).toBeGreaterThanOrEqual(1);
 
-      const interfaceRule = rules.find(r => r.objectType === 'User');
+      const interfaceRule = rules.find((r) => r.objectType === 'User');
       expect(interfaceRule).toBeDefined();
 
-      const implRule = rules.find(r => r.objectType === 'CurrentUser');
+      const implRule = rules.find((r) => r.objectType === 'CurrentUser');
       expect(implRule).toBeDefined();
     });
 
@@ -134,8 +134,8 @@ type Mutation {
       const rules = analyzer.analyzeSchema(schema);
 
       // Should have rules for both Query.user and Mutation.user
-      const queryRule = rules.find(r => r.objectType === 'Query' && r.fieldName === 'user');
-      const mutationRule = rules.find(r => r.objectType === 'Mutation' && r.fieldName === 'user');
+      const queryRule = rules.find((r) => r.objectType === 'Query' && r.fieldName === 'user');
+      const mutationRule = rules.find((r) => r.objectType === 'Mutation' && r.fieldName === 'user');
 
       expect(queryRule).toBeDefined();
       expect(mutationRule).toBeDefined();
@@ -186,24 +186,24 @@ type Test {
       const testCases = [
         {
           schema: 'field: String @deprecated(reason: "Use newField")',
-          expected: { replacement: 'newField', isVague: false }
+          expected: { replacement: 'newField', isVague: false },
         },
         {
           schema: 'field: String @deprecated(reason: "Use `newField` instead")',
-          expected: { replacement: 'newField', isVague: false }
+          expected: { replacement: 'newField', isVague: false },
         },
         {
           schema: 'field: String @deprecated(reason: "switch to using newField")',
-          expected: { replacement: 'newField', isVague: false }
+          expected: { replacement: 'newField', isVague: false },
         },
         {
           schema: 'field: String @deprecated(reason: "Use profile.name instead")',
-          expected: { replacement: 'profile.name', isVague: false }
+          expected: { replacement: 'profile.name', isVague: false },
         },
         {
           schema: 'field: String @deprecated(reason: "This will be removed")',
-          expected: { replacement: undefined, isVague: true }
-        }
+          expected: { replacement: undefined, isVague: true },
+        },
       ];
 
       testCases.forEach(({ schema, expected }) => {

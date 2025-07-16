@@ -17,20 +17,20 @@ export default defineConfig({
         'test/**',
         '**/*.d.ts',
         '**/*.config.ts',
-        '**/mocks/**'
+        '**/mocks/**',
       ],
       thresholds: {
         branches: 95,
         functions: 95,
         lines: 95,
-        statements: 95
-      }
+        statements: 95,
+      },
     },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@test': path.resolve(__dirname, './test')
-    }
-  }
+      '@test': path.resolve(__dirname, './test'),
+    },
+  },
 });

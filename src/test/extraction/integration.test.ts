@@ -19,7 +19,7 @@ vi.mock('node:fs/promises', async () => {
       isFile: () => true,
       isDirectory: () => false,
       size: 1000,
-      mtime: new Date()
+      mtime: new Date(),
     }),
     unlink: vi.fn().mockResolvedValue(undefined),
     copyFile: vi.fn().mockResolvedValue(undefined),
@@ -55,7 +55,7 @@ async function ensureDirectory(dirPath: string): Promise<void> {
   await fs.mkdir(dirPath, { recursive: true });
 
   // Add delay to ensure directory is fully created
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   // Verify directory exists
   await fs.access(dirPath, fsConstants.R_OK | fsConstants.W_OK);
@@ -71,7 +71,9 @@ describe('Source AST Mapping Integration', () => {
       try {
         // Create test files with verification
         const testFile1 = path.join(testDir, 'queries.ts');
-        await writeAndVerifyFile(testFile1, `
+        await writeAndVerifyFile(
+          testFile1,
+          `
 import { gql } from '@apollo/client';
 
 export const GET_USER = gql\`
@@ -93,9 +95,12 @@ export const GET_POSTS = gql\`
     }
   }
 \`;
-        `.trim());
+        `.trim(),
+        );
         const testFile2 = path.join(testDir, 'dynamic-queries.ts');
-        await writeAndVerifyFile(testFile2, `
+        await writeAndVerifyFile(
+          testFile2,
+          `
 import { gql } from '@apollo/client';
 
 const queryNames = {
@@ -113,24 +118,23 @@ export const DYNAMIC_QUERY = gql\`
     }
   }
 \`;
-        `.trim());
+        `.trim(),
+        );
 
         // Verify files exist
         const files = await fs.readdir(testDir);
         expect(files.length).toBe(2);
 
         // Use AST strategy directly for simpler testing
-        const {
-          ASTStrategy
-        } = await import('../../core/extraction/strategies/ASTStrategy.js');
-        const {
-          ExtractionContext
-        } = await import('../../core/extraction/engine/ExtractionContext.js');
+        const { ASTStrategy } = await import('../../core/extraction/strategies/ASTStrategy.js');
+        const { ExtractionContext } = await import(
+          '../../core/extraction/engine/ExtractionContext.js'
+        );
         const context = new ExtractionContext({
           directory: testDir,
           preserveSourceAST: true,
           detectVariants: true,
-          analyzeContext: true
+          analyzeContext: true,
         });
         const strategy = new ASTStrategy(context);
         const allQueries: any[] = [];
@@ -149,24 +153,29 @@ export const DYNAMIC_QUERY = gql\`
         expect(allQueries.length).toBeGreaterThanOrEqual(3);
 
         // Check static queries
-        const getUserQuery = allQueries.find(q => q.name === 'GetUser');
+        const getUserQuery = allQueries.find((q) => q.name === 'GetUser');
         expect(getUserQuery).toBeDefined();
         expect(getUserQuery?.sourceAST).toBeDefined();
         expect(getUserQuery?.sourceAST?.node.type).toBe('TaggedTemplateExpression');
         expect(getUserQuery?.sourceAST?.templateLiteral).toBeDefined();
-        const getPostsQuery = allQueries.find(q => q.name === 'GetPosts');
+        const getPostsQuery = allQueries.find((q) => q.name === 'GetPosts');
         expect(getPostsQuery).toBeDefined();
         expect(getPostsQuery?.sourceAST).toBeDefined();
 
         // Check dynamic query (should have interpolations)
-        const dynamicQuery = allQueries.find(q => q.sourceAST?.templateLiteral?.expressions && (q.sourceAST.templateLiteral.expressions && q.sourceAST.templateLiteral.expressions.length) > 0);
+        const dynamicQuery = allQueries.find(
+          (q) =>
+            q.sourceAST?.templateLiteral?.expressions &&
+            (q.sourceAST.templateLiteral.expressions &&
+              q.sourceAST.templateLiteral.expressions.length) > 0,
+        );
         expect(dynamicQuery).toBeDefined();
         expect(dynamicQuery?.sourceAST?.templateLiteral?.expressions.length).toBeGreaterThan(0);
       } finally {
         // Cleanup
         await fs.rm(testDir, {
           recursive: true,
-          force: true
+          force: true,
         });
       }
     });
@@ -177,7 +186,9 @@ export const DYNAMIC_QUERY = gql\`
       try {
         // Create a test file with various GraphQL patterns
         const testFile = path.join(testDir, 'mixed.ts');
-        await writeAndVerifyFile(testFile, `
+        await writeAndVerifyFile(
+          testFile,
+          `
 import { gql } from 'graphql-tag';
 import { graphql } from 'react-relay';
 
@@ -213,7 +224,8 @@ function createQuery() {
     }
   \`;
 }
-        `.trim());
+        `.trim(),
+        );
         const options: ExtractionOptions = {
           directory: testDir,
           patterns: ['**/*.{js,ts,tsx}'],
@@ -222,11 +234,11 @@ function createQuery() {
           // Will try both pluck and AST
           preserveSourceAST: true,
           reporters: [],
-          ignore: ['**/node_modules/**'] // Override default ignore to not exclude test files
+          ignore: ['**/node_modules/**'], // Override default ignore to not exclude test files
         };
 
         // Add extra delay to ensure filesystem is ready
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
         const extractor = new UnifiedExtractor(options);
         const result = await extractor.extract();
 
@@ -241,14 +253,14 @@ function createQuery() {
         expect(result.queries.length).toBeGreaterThanOrEqual(4);
 
         // Verify source AST is preserved for all
-        result.queries.forEach(query => {
+        result.queries.forEach((query) => {
           expect(query.sourceAST).toBeDefined();
           expect(query.sourceAST?.start).toBeGreaterThanOrEqual(0);
           expect(query.sourceAST?.end).toBeGreaterThan(query.sourceAST?.start || 0);
         });
 
         // Check specific patterns
-        const nestedQuery = result.queries.find(q => q.name === 'NestedQuery');
+        const nestedQuery = result.queries.find((q) => q.name === 'NestedQuery');
         expect(nestedQuery).toBeDefined();
         // Function name tracking might not work with all strategies
         if (nestedQuery?.context?.functionName) {
@@ -257,7 +269,7 @@ function createQuery() {
       } finally {
         await fs.rm(testDir, {
           recursive: true,
-          force: true
+          force: true,
         });
       }
     });
@@ -267,7 +279,9 @@ function createQuery() {
 
       try {
         const testFile = path.join(testDir, 'simple.ts');
-        await writeAndVerifyFile(testFile, `
+        await writeAndVerifyFile(
+          testFile,
+          `
 import { gql } from '@apollo/client';
 
 const QUERY = gql\`
@@ -275,18 +289,19 @@ const QUERY = gql\`
     data
   }
 \`;
-        `.trim());
+        `.trim(),
+        );
         const options: ExtractionOptions = {
           directory: testDir,
           patterns: ['**/*.{js,ts}'],
           preserveSourceAST: false,
           // Explicitly disabled
           reporters: [],
-          ignore: ['**/node_modules/**'] // Override default ignore
+          ignore: ['**/node_modules/**'], // Override default ignore
         };
 
         // Add extra delay to ensure filesystem is ready
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
         const extractor = new UnifiedExtractor(options);
         const result = await extractor.extract();
         expect(result.queries).toHaveLength(1);
@@ -294,7 +309,7 @@ const QUERY = gql\`
       } finally {
         await fs.rm(testDir, {
           recursive: true,
-          force: true
+          force: true,
         });
       }
     });
@@ -306,7 +321,9 @@ const QUERY = gql\`
 
       try {
         const testFile = path.join(testDir, 'invalid.ts');
-        await writeAndVerifyFile(testFile, `
+        await writeAndVerifyFile(
+          testFile,
+          `
 import { gql } from '@apollo/client';
 
 // Missing closing brace
@@ -321,7 +338,8 @@ const VALID = gql\`
     field
   }
 \`;
-        `.trim());
+        `.trim(),
+        );
         const options: ExtractionOptions = {
           directory: testDir,
           patterns: ['**/*.ts'],
@@ -329,17 +347,17 @@ const VALID = gql\`
           // Try both
           preserveSourceAST: true,
           reporters: [],
-          ignore: ['**/node_modules/**'] // Override default ignore
+          ignore: ['**/node_modules/**'], // Override default ignore
         };
 
         // Add extra delay to ensure filesystem is ready
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
         const extractor = new UnifiedExtractor(options);
         const result = await extractor.extract();
 
         // Should extract the valid query (at least)
         expect(result.queries.length).toBeGreaterThanOrEqual(1);
-        const validQuery = result.queries.find(q => q.name === 'ValidQuery');
+        const validQuery = result.queries.find((q) => q.name === 'ValidQuery');
         expect(validQuery).toBeDefined();
         expect(validQuery?.sourceAST).toBeDefined();
 
@@ -348,7 +366,7 @@ const VALID = gql\`
       } finally {
         await fs.rm(testDir, {
           recursive: true,
-          force: true
+          force: true,
         });
       }
     });
@@ -358,7 +376,9 @@ const VALID = gql\`
 
       try {
         const testFile = path.join(testDir, 'complex.ts');
-        await writeAndVerifyFile(testFile, `
+        await writeAndVerifyFile(
+          testFile,
+          `
 import { gql } from '@apollo/client';
 
 const fragments = {
@@ -405,7 +425,8 @@ export const useUserQueries = () => {
 
   return { userQuery, postsQuery };
 };
-        `.trim());
+        `.trim(),
+        );
         const options: ExtractionOptions = {
           directory: testDir,
           patterns: ['**/*.{js,ts}'],
@@ -416,18 +437,21 @@ export const useUserQueries = () => {
           analyzeContext: true,
           resolveFragments: true,
           reporters: [],
-          ignore: ['**/node_modules/**'] // Override default ignore
+          ignore: ['**/node_modules/**'], // Override default ignore
         };
 
         // Add extra delay to ensure filesystem is ready
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
         const extractor = new UnifiedExtractor(options);
         const result = await extractor.extract();
 
         // Debug output if needed
         if ((result.queries && result.queries.length) < 3) {
           console.log('Expected 3+ queries but got:', result.queries.length);
-          console.log('Query names:', result.queries.map(q => q.name));
+          console.log(
+            'Query names:',
+            result.queries.map((q) => q.name),
+          );
           console.log('Stats:', result.stats);
         }
 
@@ -435,17 +459,21 @@ export const useUserQueries = () => {
         expect(result.queries.length).toBeGreaterThanOrEqual(3);
 
         // Check fragment
-        const fragment = result.queries.find(q => q.type === 'fragment');
+        const fragment = result.queries.find((q) => q.type === 'fragment');
         expect(fragment).toBeDefined();
         expect(fragment?.name).toBe('UserFields');
         expect(fragment?.sourceAST).toBeDefined();
 
         // Check queries with interpolations
-        const queriesWithInterpolations = result.queries.filter(q => q.metadata?.hasInterpolations);
+        const queriesWithInterpolations = result.queries.filter(
+          (q) => q.metadata?.hasInterpolations,
+        );
         expect(queriesWithInterpolations.length).toBeGreaterThanOrEqual(2);
 
         // Check context (function name tracking might not work with all strategies)
-        const queriesInFunction = result.queries.filter(q => q.context?.functionName === 'useUserQueries');
+        const queriesInFunction = result.queries.filter(
+          (q) => q.context?.functionName === 'useUserQueries',
+        );
         if ((queriesInFunction && queriesInFunction.length) === 0) {
           // At least check we got the queries
           expect(queriesWithInterpolations.length).toBeGreaterThanOrEqual(2);
@@ -455,7 +483,7 @@ export const useUserQueries = () => {
       } finally {
         await fs.rm(testDir, {
           recursive: true,
-          force: true
+          force: true,
         });
       }
     });

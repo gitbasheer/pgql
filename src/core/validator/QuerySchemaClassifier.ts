@@ -12,31 +12,42 @@ export class QuerySchemaClassifier {
   // Schema indicators based on root fields and types
   private static readonly SCHEMA_INDICATORS = {
     customer: {
-      rootFields: ['user', 'projectNode', 'venture', 'ventureNode', 'website', 'aamcUserPreferences'],
+      rootFields: [
+        'user',
+        'projectNode',
+        'venture',
+        'ventureNode',
+        'website',
+        'aamcUserPreferences',
+      ],
       types: ['CustomerQuery', 'CustomerMutation', 'ProjectNode', 'VentureNode', 'WAMProduct'],
-      patterns: ['venture', 'project', 'website']
+      patterns: ['venture', 'project', 'website'],
     },
     billing: {
       rootFields: ['me', 'transitions', 'modifyBasketWithOptions'],
       types: ['ModifyBasketWithOptionsInput', 'BillingQuery', 'BillingMutation'],
-      patterns: ['bill', 'basket', 'offer', 'transition', 'subscription']
+      patterns: ['bill', 'basket', 'offer', 'transition', 'subscription'],
     },
     venture: {
       rootFields: ['ventures', 'ventureByDomainName'],
       types: ['Venture', 'VentureProfile'],
-      patterns: ['infinityStone', 'aap', 'domain']
-    }
+      patterns: ['infinityStone', 'aap', 'domain'],
+    },
   };
 
   /**
    * Classify a query based on its content to determine which schema it belongs to
    */
-  static classifyQuery(queryId: string, queryName: string, queryContent: string): SchemaClassification {
+  static classifyQuery(
+    queryId: string,
+    queryName: string,
+    queryContent: string,
+  ): SchemaClassification {
     const indicators: string[] = [];
     const scores = {
       customer: 0,
       billing: 0,
-      venture: 0
+      venture: 0,
     };
 
     // Normalize query content
@@ -89,7 +100,7 @@ export class QuerySchemaClassifier {
       queryName,
       detectedSchema,
       confidence,
-      indicators
+      indicators,
     };
   }
 
@@ -100,19 +111,21 @@ export class QuerySchemaClassifier {
     // Look for field at root level (not nested)
     const rootFieldPattern = new RegExp(`^\\s*${field}\\s*[\\({]`, 'm');
     const afterBracePattern = new RegExp(`{\\s*${field}\\s*[\\({]`, 'm');
-    
+
     return rootFieldPattern.test(queryContent) || afterBracePattern.test(queryContent);
   }
 
   /**
    * Classify all queries and group by schema
    */
-  static classifyQueries(queries: Array<{id: string, name: string, content: string}>): Map<string, SchemaClassification[]> {
+  static classifyQueries(
+    queries: Array<{ id: string; name: string; content: string }>,
+  ): Map<string, SchemaClassification[]> {
     const schemaGroups = new Map<string, SchemaClassification[]>();
-    
+
     for (const query of queries) {
       const classification = this.classifyQuery(query.id, query.name, query.content);
-      
+
       const group = schemaGroups.get(classification.detectedSchema) || [];
       group.push(classification);
       schemaGroups.set(classification.detectedSchema, group);
@@ -134,7 +147,7 @@ export class QuerySchemaClassifier {
     const endpoints = {
       customer: 'https://pg.api.godaddy.com/v1/gql/customer',
       billing: 'https://pg.api.godaddy.com/v1/gql/billing', // Hypothetical
-      venture: 'https://pg.api.godaddy.com/v1/gql/venture'   // Hypothetical
+      venture: 'https://pg.api.godaddy.com/v1/gql/venture', // Hypothetical
     };
 
     return endpoints[schema as keyof typeof endpoints] || endpoints.customer;

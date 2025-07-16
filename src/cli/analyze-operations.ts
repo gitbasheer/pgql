@@ -33,13 +33,15 @@ function analyzeOperations() {
     // Load extracted queries
     const extractedQueriesPath = resolve(__dirname, '../../extracted-queries.json');
     const extractedData: ExtractedQueriesFile = JSON.parse(
-      readFileSync(extractedQueriesPath, 'utf-8')
+      readFileSync(extractedQueriesPath, 'utf-8'),
     );
 
-    logger.info(`Analyzing ${extractedData.totalQueries} operations from ${extractedData.directory}`);
+    logger.info(
+      `Analyzing ${extractedData.totalQueries} operations from ${extractedData.directory}`,
+    );
 
     // Prepare data for analyzer
-    const operationsForAnalysis = extractedData.queries.map(query => {
+    const operationsForAnalysis = extractedData.queries.map((query) => {
       let ast;
       try {
         ast = parse(query.content);
@@ -53,7 +55,7 @@ function analyzeOperations() {
         content: query.content,
         ast,
         name: query.name,
-        type: query.type
+        type: query.type,
       };
     });
 
@@ -73,7 +75,9 @@ function analyzeOperations() {
     console.log('─'.repeat(40));
     console.log(`Total Operations:      ${report.totalOperations}`);
     console.log(`Unique Operations:     ${report.uniqueOperations}`);
-    console.log(`Duplicate Rate:        ${((report.totalOperations - report.uniqueOperations) / report.totalOperations * 100).toFixed(1)}%`);
+    console.log(
+      `Duplicate Rate:        ${(((report.totalOperations - report.uniqueOperations) / report.totalOperations) * 100).toFixed(1)}%`,
+    );
     console.log(`Unnamed Operations:    ${report.unnamedOperations}`);
     console.log('');
 
@@ -89,14 +93,16 @@ function analyzeOperations() {
     if (report.duplicateOperations.length > 0) {
       console.log('🔄 Duplicate Operations');
       console.log('─'.repeat(40));
-      console.log(`Found ${report.duplicateOperations.length} operations with multiple variants:\n`);
-      
+      console.log(
+        `Found ${report.duplicateOperations.length} operations with multiple variants:\n`,
+      );
+
       report.duplicateOperations
         .sort((a, b) => b.variantCount - a.variantCount)
-        .forEach(dup => {
+        .forEach((dup) => {
           console.log(`  • ${dup.name} (${dup.variantCount} variants)`);
           console.log(`    Files:`);
-          dup.files.forEach(file => {
+          dup.files.forEach((file) => {
             const shortPath = file.replace(/^.*\/data\/sample_data\//, 'data/sample_data/');
             console.log(`      - ${shortPath}`);
           });
@@ -109,13 +115,15 @@ function analyzeOperations() {
       console.log('🧩 Fragment Usage');
       console.log('─'.repeat(40));
       console.log(`Found ${report.fragmentUsage.length} fragments in use:\n`);
-      
-      report.fragmentUsage.slice(0, 10).forEach(fragment => {
+
+      report.fragmentUsage.slice(0, 10).forEach((fragment) => {
         console.log(`  • ${fragment.fragment} (used in ${fragment.usageCount} operations)`);
         if (fragment.operations.length <= 3) {
           console.log(`    Operations: ${fragment.operations.join(', ')}`);
         } else {
-          console.log(`    Operations: ${fragment.operations.slice(0, 3).join(', ')} + ${fragment.operations.length - 3} more`);
+          console.log(
+            `    Operations: ${fragment.operations.slice(0, 3).join(', ')} + ${fragment.operations.length - 3} more`,
+          );
         }
         console.log('');
       });
@@ -129,15 +137,20 @@ function analyzeOperations() {
     if (suggestedNames.size > 0) {
       console.log('💡 Suggested Names for Unnamed Operations');
       console.log('─'.repeat(40));
-      
+
       for (const [currentName, suggestedName] of suggestedNames) {
         const group = operationGroups.get(currentName);
         if (group) {
           console.log(`\n  • ${currentName} → ${suggestedName}`);
           console.log(`    Type: ${group.type}`);
-          console.log(`    Main selections: ${group.commonSelections.filter(s => !s.startsWith('...')).slice(0, 5).join(', ')}`);
+          console.log(
+            `    Main selections: ${group.commonSelections
+              .filter((s) => !s.startsWith('...'))
+              .slice(0, 5)
+              .join(', ')}`,
+          );
           console.log(`    Files:`);
-          [...new Set(group.variants.map(v => v.filePath))].forEach(file => {
+          [...new Set(group.variants.map((v) => v.filePath))].forEach((file) => {
             const shortPath = file.replace(/^.*\/data\/sample_data\//, 'data/sample_data/');
             console.log(`      - ${shortPath}`);
           });
@@ -157,15 +170,23 @@ function analyzeOperations() {
         console.log(`  ${name} (${group.type})`);
         console.log(`  └─ Variants: ${group.variants.length}`);
         console.log(`  └─ Common variables: ${group.commonVariables.join(', ') || 'none'}`);
-        console.log(`  └─ Common selections: ${group.commonSelections.slice(0, 5).join(', ')}${group.commonSelections.length > 5 ? ' ...' : ''}`);
-        console.log(`  └─ Differing selections: ${group.differingSelections.slice(0, 3).join(', ')}${group.differingSelections.length > 3 ? ' ...' : ''}`);
+        console.log(
+          `  └─ Common selections: ${group.commonSelections.slice(0, 5).join(', ')}${group.commonSelections.length > 5 ? ' ...' : ''}`,
+        );
+        console.log(
+          `  └─ Differing selections: ${group.differingSelections.slice(0, 3).join(', ')}${group.differingSelections.length > 3 ? ' ...' : ''}`,
+        );
         console.log('');
         detailCount++;
       }
     }
 
-    if (detailCount < Array.from(operationGroups.values()).filter(g => g.variants.length > 1).length) {
-      console.log(`  ... and ${Array.from(operationGroups.values()).filter(g => g.variants.length > 1).length - detailCount} more groups with variants\n`);
+    if (
+      detailCount < Array.from(operationGroups.values()).filter((g) => g.variants.length > 1).length
+    ) {
+      console.log(
+        `  ... and ${Array.from(operationGroups.values()).filter((g) => g.variants.length > 1).length - detailCount} more groups with variants\n`,
+      );
     }
 
     // Recommendations
@@ -175,15 +196,16 @@ function analyzeOperations() {
     console.log('2. Consider naming all unnamed operations for better maintainability');
     console.log('3. Examine operations with many variants for potential standardization');
     console.log('4. Review fragment usage to ensure consistent patterns');
-    
+
     if (report.duplicateOperations.length > 5) {
-      console.log(`5. High duplication detected (${report.duplicateOperations.length} duplicates) - consider creating a shared queries module`);
+      console.log(
+        `5. High duplication detected (${report.duplicateOperations.length} duplicates) - consider creating a shared queries module`,
+      );
     }
 
     console.log('\n' + '='.repeat(80) + '\n');
 
     logger.info('Operation analysis completed successfully');
-
   } catch (error) {
     logger.error('Failed to analyze operations:', error);
     process.exit(1);

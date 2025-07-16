@@ -16,16 +16,16 @@ export class HTMLReporter {
     // SECURITY FIX: Validate output path to prevent traversal
     const outputDir = this.context.options.outputDir || '.';
     const outputPath = validateWritePath(outputDir, 'extraction-report.html');
-    
+
     if (!outputPath) {
       throw new Error(`Invalid output path for HTML report: ${outputDir}`);
     }
-    
+
     const html = this.generateHTML(result);
-    
+
     await fs.mkdir(path.dirname(outputPath), { recursive: true });
     await fs.writeFile(outputPath, html);
-    
+
     logger.info(`HTML report written to ${outputPath}`);
   }
 
@@ -35,9 +35,9 @@ export class HTMLReporter {
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
-      "'": '&#39;'
+      "'": '&#39;',
     };
-    return str.replace(/[&<>"']/g, char => htmlEscapes[char]);
+    return str.replace(/[&<>"']/g, (char) => htmlEscapes[char]);
   }
 
   private generateHTML(result: ExtractionResult): string {
@@ -166,7 +166,9 @@ export class HTMLReporter {
         
         <h2>Extracted Queries</h2>
         <div class="query-list">
-            ${result.queries.map(q => `
+            ${result.queries
+              .map(
+                (q) => `
                 <div class="query-item">
                     <div class="query-name">
                         ${this.escapeHtml(q.name || 'Unnamed Query')}
@@ -177,47 +179,69 @@ export class HTMLReporter {
                         Type: ${this.escapeHtml(q.type)} | File: ${this.escapeHtml(q.filePath)} | Line: ${q.location.line}
                     </div>
                 </div>
-            `).join('')}
+            `,
+              )
+              .join('')}
         </div>
         
-        ${result.variants.length > 0 ? `
+        ${
+          result.variants.length > 0
+            ? `
             <h2>Query Variants</h2>
             <div class="query-list">
-                ${result.variants.map(v => `
+                ${result.variants
+                  .map(
+                    (v) => `
                     <div class="query-item">
                         <div class="query-name">${v.queryName} - Variant</div>
                         <div class="query-meta">
                             Conditions: ${v.conditions.description || JSON.stringify(v.conditions.switches)}
                         </div>
                     </div>
-                `).join('')}
+                `,
+                  )
+                  .join('')}
             </div>
-        ` : ''}
+        `
+            : ''
+        }
         
-        ${result.errors.length > 0 ? `
+        ${
+          result.errors.length > 0
+            ? `
             <h2>Errors</h2>
             <div class="error-list">
-                ${result.errors.map(e => `
+                ${result.errors
+                  .map(
+                    (e) => `
                     <div class="error-item">
                         ${e.file}:${e.line || '?'} - ${e.message}
                     </div>
-                `).join('')}
+                `,
+                  )
+                  .join('')}
             </div>
-        ` : ''}
+        `
+            : ''
+        }
         
         <h2>Extraction Details</h2>
-        <pre>${JSON.stringify({
+        <pre>${JSON.stringify(
+          {
             directory: this.context.options.directory,
             patterns: this.context.options.patterns,
             strategy: result.stats.strategy,
-            duration: `${result.stats.duration}ms`
-        }, null, 2)}</pre>
+            duration: `${result.stats.duration}ms`,
+          },
+          null,
+          2,
+        )}</pre>
     </div>
 </body>
 </html>`;
   }
 
   private hasVariants(queryId: string, result: ExtractionResult): boolean {
-    return result.variants.some(v => v.originalQueryId === queryId);
+    return result.variants.some((v) => v.originalQueryId === queryId);
   }
 }

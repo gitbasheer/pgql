@@ -17,8 +17,8 @@ describe('ResponseCaptureService - Constructor', () => {
 
   const mockEndpoint: EndpointConfig = {
     url: 'https://api.example.com/graphql',
-    headers: { 'Authorization': 'Bearer test-token' },
-    timeout: 30000
+    headers: { Authorization: 'Bearer test-token' },
+    timeout: 30000,
   };
 
   beforeEach(async () => {
@@ -30,9 +30,9 @@ describe('ResponseCaptureService - Constructor', () => {
       post: vi.fn<any, any>(),
       interceptors: {
         response: {
-          use: vi.fn()
-        }
-      } as any
+          use: vi.fn(),
+        },
+      } as any,
     };
 
     // Setup axios mocks
@@ -61,8 +61,8 @@ describe('ResponseCaptureService - Constructor', () => {
       timeout: mockEndpoint.timeout,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer test-token'
-      }
+        Authorization: 'Bearer test-token',
+      },
     });
   });
 
@@ -70,10 +70,7 @@ describe('ResponseCaptureService - Constructor', () => {
     // Clear previous calls from other tests
     (mockedAxios.create as any).mockClear();
 
-    const endpoints = [
-      mockEndpoint,
-      { ...mockEndpoint, url: 'https://api2.example.com/graphql' }
-    ];
+    const endpoints = [mockEndpoint, { ...mockEndpoint, url: 'https://api2.example.com/graphql' }];
 
     service = new ResponseCaptureService(endpoints);
 
@@ -82,7 +79,7 @@ describe('ResponseCaptureService - Constructor', () => {
 
   it('should configure concurrency limit', async () => {
     service = new ResponseCaptureService([mockEndpoint], {
-      maxConcurrency: 5
+      maxConcurrency: 5,
     });
 
     // Concurrency limit is tested through captureBaseline behavior
@@ -92,13 +89,13 @@ describe('ResponseCaptureService - Constructor', () => {
   it('should configure timeout from options', async () => {
     const customTimeout = 60000;
     service = new ResponseCaptureService([{ ...mockEndpoint, timeout: undefined }], {
-      timeout: customTimeout
+      timeout: customTimeout,
     });
 
     expect(mockedAxios.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        timeout: customTimeout
-      })
+        timeout: customTimeout,
+      }),
     );
   });
 
@@ -106,15 +103,14 @@ describe('ResponseCaptureService - Constructor', () => {
     const endpointTimeout = 10000;
     const optionsTimeout = 60000;
 
-    service = new ResponseCaptureService(
-      [{ ...mockEndpoint, timeout: endpointTimeout }],
-      { timeout: optionsTimeout }
-    );
+    service = new ResponseCaptureService([{ ...mockEndpoint, timeout: endpointTimeout }], {
+      timeout: optionsTimeout,
+    });
 
     expect(mockedAxios.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        timeout: endpointTimeout
-      })
+        timeout: endpointTimeout,
+      }),
     );
   });
 });

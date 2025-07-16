@@ -24,8 +24,8 @@ describe('ResponseCaptureService', () => {
     timeout: 30000,
     authentication: {
       type: 'bearer',
-      token: 'test-token'
-    }
+      token: 'test-token',
+    },
   };
 
   const mockQuery: ResolvedQuery = {
@@ -38,17 +38,17 @@ describe('ResponseCaptureService', () => {
     ast: null,
     resolvedContent: 'query GetUser { user { id name } }',
     resolvedFragments: [],
-    allDependencies: []
+    allDependencies: [],
   };
 
   const mockResponse = {
     data: {
       data: {
-        user: { id: '123', name: 'Test User' }
-      }
+        user: { id: '123', name: 'Test User' },
+      },
     },
     status: 200,
-    headers: { 'content-type': 'application/json' }
+    headers: { 'content-type': 'application/json' },
   };
 
   beforeEach(() => {
@@ -59,9 +59,9 @@ describe('ResponseCaptureService', () => {
       post: vi.fn().mockResolvedValue(mockResponse),
       interceptors: {
         response: {
-          use: vi.fn()
-        }
-      }
+          use: vi.fn(),
+        },
+      },
     };
     vi.mocked(axios.create).mockReturnValue(mockAxiosInstance as any);
     vi.mocked(axios.isAxiosError).mockReturnValue(false);
@@ -88,8 +88,8 @@ describe('ResponseCaptureService', () => {
         headers: {
           'Content-Type': 'application/json',
           'x-app-key': 'vnext-dashboard',
-          'Authorization': 'Bearer test-token'
-        }
+          Authorization: 'Bearer test-token',
+        },
       });
     });
 
@@ -99,7 +99,7 @@ describe('ResponseCaptureService', () => {
 
       const endpoints = [
         mockEndpoint,
-        { ...mockEndpoint, url: 'https://api2.example.com/graphql' }
+        { ...mockEndpoint, url: 'https://api2.example.com/graphql' },
       ];
 
       service = new ResponseCaptureService(endpoints);
@@ -112,7 +112,7 @@ describe('ResponseCaptureService', () => {
 
     it('should configure concurrency limit', async () => {
       service = new ResponseCaptureService([mockEndpoint], {
-        maxConcurrency: 5
+        maxConcurrency: 5,
       });
 
       // Concurrency limit is tested through captureBaseline behavior
@@ -124,7 +124,7 @@ describe('ResponseCaptureService', () => {
     it('should configure bearer token authentication', async () => {
       const bearerEndpoint: EndpointConfig = {
         url: 'https://api.example.com/graphql',
-        authentication: { type: 'bearer', token: 'my-token' }
+        authentication: { type: 'bearer', token: 'my-token' },
       };
 
       service = new ResponseCaptureService([bearerEndpoint]);
@@ -135,9 +135,9 @@ describe('ResponseCaptureService', () => {
       expect(mockedAxios.create).toHaveBeenCalledWith(
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer my-token'
-          })
-        })
+            Authorization: 'Bearer my-token',
+          }),
+        }),
       );
     });
 
@@ -147,8 +147,8 @@ describe('ResponseCaptureService', () => {
         authentication: {
           type: 'api-key',
           token: 'api-key-123',
-          header: 'X-Custom-Key'
-        }
+          header: 'X-Custom-Key',
+        },
       };
 
       service = new ResponseCaptureService([apiKeyEndpoint]);
@@ -159,9 +159,9 @@ describe('ResponseCaptureService', () => {
       expect(mockedAxios.create).toHaveBeenCalledWith(
         expect.objectContaining({
           headers: expect.objectContaining({
-            'X-Custom-Key': 'api-key-123'
-          })
-        })
+            'X-Custom-Key': 'api-key-123',
+          }),
+        }),
       );
     });
 
@@ -173,10 +173,10 @@ describe('ResponseCaptureService', () => {
           cookies: {
             cookies: {
               session: 'abc123',
-              auth: 'xyz789'
-            }
-          }
-        }
+              auth: 'xyz789',
+            },
+          },
+        },
       };
 
       service = new ResponseCaptureService([cookieEndpoint]);
@@ -187,16 +187,16 @@ describe('ResponseCaptureService', () => {
       expect(mockedAxios.create).toHaveBeenCalledWith(
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Cookie': 'session=abc123; auth=xyz789'
+            Cookie: 'session=abc123; auth=xyz789',
           }),
-          withCredentials: true
-        })
+          withCredentials: true,
+        }),
       );
     });
 
     it('should handle no authentication', async () => {
       const noAuthEndpoint: EndpointConfig = {
-        url: 'https://api.example.com/graphql'
+        url: 'https://api.example.com/graphql',
       };
 
       service = new ResponseCaptureService([noAuthEndpoint]);
@@ -208,16 +208,16 @@ describe('ResponseCaptureService', () => {
         expect.objectContaining({
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
-            'x-app-key': 'vnext-dashboard'
-          })
-        })
+            'x-app-key': 'vnext-dashboard',
+          }),
+        }),
       );
     });
   });
 
   describe('captureBaseline', () => {
     beforeEach(async () => {
-    vi.resetModules();
+      vi.resetModules();
       // Reset all mocks before each test
       vi.clearAllMocks();
 
@@ -245,11 +245,11 @@ describe('ResponseCaptureService', () => {
       expect(capturedResponse?.version).toBe('baseline');
     });
 
-        it('should handle multiple queries in parallel', async () => {
+    it('should handle multiple queries in parallel', async () => {
       const queries = [
         mockQuery,
         { ...mockQuery, id: 'query-2', name: 'GetUser2' },
-        { ...mockQuery, id: 'query-3', name: 'GetUser3' }
+        { ...mockQuery, id: 'query-3', name: 'GetUser3' },
       ];
 
       const result = await service.captureBaseline(queries);
@@ -284,13 +284,13 @@ describe('ResponseCaptureService', () => {
     it('should use custom endpoint when provided', async () => {
       const customEndpoint: EndpointConfig = {
         url: 'https://custom.api.com/graphql',
-        headers: { 'X-Custom': 'header' }
+        headers: { 'X-Custom': 'header' },
       };
 
       // Create new axios instance for custom endpoint
       const customAxiosInstance = {
         post: vi.fn().mockResolvedValue(mockResponse),
-        interceptors: { response: { use: vi.fn() } }
+        interceptors: { response: { use: vi.fn() } },
       };
 
       (mockedAxios.create as Mock).mockReturnValueOnce(customAxiosInstance as any);
@@ -304,7 +304,7 @@ describe('ResponseCaptureService', () => {
 
   describe('captureTransformed', () => {
     beforeEach(async () => {
-    vi.resetModules();
+      vi.resetModules();
       service = new ResponseCaptureService([mockEndpoint]);
     });
 
@@ -329,7 +329,7 @@ describe('ResponseCaptureService', () => {
 
   describe('error handling', () => {
     beforeEach(async () => {
-    vi.resetModules();
+      vi.resetModules();
       // Reset all mocks before each test
       vi.clearAllMocks();
 
@@ -344,7 +344,7 @@ describe('ResponseCaptureService', () => {
     it('should retry on failure', async () => {
       // Clear any previous mock state
       mockRetry.setFailTimes(0);
-      
+
       let callCount = 0;
       (mockAxiosInstance.post as Mock).mockImplementation(() => {
         callCount++;
@@ -353,12 +353,12 @@ describe('ResponseCaptureService', () => {
         }
         return Promise.resolve(mockResponse);
       });
-      
+
       // Mock pRetry to handle retries properly
       vi.mocked(pRetry).mockImplementation(async (fn: any, options?: any) => {
-        const maxRetries = (options?.retries ?? 3);
+        const maxRetries = options?.retries ?? 3;
         let lastError;
-        
+
         for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
           try {
             return await fn(attempt);
@@ -371,14 +371,14 @@ describe('ResponseCaptureService', () => {
                 message: error instanceof Error ? error.message : String(error),
                 retriesLeft: maxRetries - attempt + 1,
                 name: 'RetryError',
-                stack: ''
+                stack: '',
               });
             }
           }
         }
         throw lastError;
       });
-      
+
       await service.captureBaseline([mockQuery]);
       expect(callCount).toBe(3);
     });
@@ -388,10 +388,10 @@ describe('ResponseCaptureService', () => {
         message: 'Request failed',
         response: {
           status: 400,
-          data: { errors: [{ message: 'Bad request' }] }
+          data: { errors: [{ message: 'Bad request' }] },
         },
         isAxiosError: true,
-        code: undefined
+        code: undefined,
       };
 
       (mockAxiosInstance.post as Mock).mockRejectedValue(axiosError);
@@ -404,13 +404,15 @@ describe('ResponseCaptureService', () => {
 
       const capturedResponse = result.responses.get('query-1');
       expect(capturedResponse?.response).toEqual({
-        errors: [{
-          message: 'Request failed',
-          extensions: {
-            code: undefined,
-            response: { errors: [{ message: 'Bad request' }] }
-          }
-        }]
+        errors: [
+          {
+            message: 'Request failed',
+            extensions: {
+              code: undefined,
+              response: { errors: [{ message: 'Bad request' }] },
+            },
+          },
+        ],
       });
       expect(capturedResponse?.metadata.statusCode).toBe(400);
     });
@@ -433,22 +435,20 @@ describe('ResponseCaptureService', () => {
 
   describe('variable generation', () => {
     beforeEach(async () => {
-    vi.resetModules();
+      vi.resetModules();
       service = new ResponseCaptureService([mockEndpoint], {
-        variableGeneration: 'auto'
+        variableGeneration: 'auto',
       });
     });
 
     it('should use manual variables when available', async () => {
       const queryWithVars: ResolvedQuery = {
         ...mockQuery,
-        variables: [
-          { name: 'userId', type: 'ID!', defaultValue: '123', isRequired: true }
-        ]
+        variables: [{ name: 'userId', type: 'ID!', defaultValue: '123', isRequired: true }],
       };
 
       service = new ResponseCaptureService([mockEndpoint], {
-        variableGeneration: 'manual'
+        variableGeneration: 'manual',
       });
 
       await service.captureBaseline([queryWithVars]);
@@ -456,7 +456,7 @@ describe('ResponseCaptureService', () => {
       expect(mockAxiosInstance.post).toHaveBeenCalledWith('', {
         query: queryWithVars.resolvedContent,
         operationName: queryWithVars.name,
-        variables: { userId: '123' }
+        variables: { userId: '123' },
       });
     });
 
@@ -466,14 +466,14 @@ describe('ResponseCaptureService', () => {
       expect(mockAxiosInstance.post).toHaveBeenCalledWith('', {
         query: mockQuery.resolvedContent,
         operationName: mockQuery.name,
-        variables: {}
+        variables: {},
       });
     });
   });
 
   describe('special query types', () => {
     beforeEach(async () => {
-    vi.resetModules();
+      vi.resetModules();
       service = new ResponseCaptureService([mockEndpoint]);
     });
 
@@ -481,7 +481,7 @@ describe('ResponseCaptureService', () => {
       const subscriptionQuery: ResolvedQuery = {
         ...mockQuery,
         type: 'subscription',
-        content: 'subscription OnUpdate { update { id } }'
+        content: 'subscription OnUpdate { update { id } }',
       };
 
       // Trigger client initialization first
@@ -494,25 +494,19 @@ describe('ResponseCaptureService', () => {
     });
 
     it('should capture batched queries', async () => {
-      const queries = [
-        mockQuery,
-        { ...mockQuery, id: 'query-2', name: 'GetUser2' }
-      ];
+      const queries = [mockQuery, { ...mockQuery, id: 'query-2', name: 'GetUser2' }];
 
       const batchResponse = {
-        data: [
-          { data: { user: { id: '1' } } },
-          { data: { user: { id: '2' } } }
-        ],
+        data: [{ data: { user: { id: '1' } } }, { data: { user: { id: '2' } } }],
         status: 200,
-        headers: {}
+        headers: {},
       };
 
       (mockAxiosInstance.post as Mock).mockResolvedValue(batchResponse);
 
       // Trigger client initialization first
       await service.captureBaseline([mockQuery]);
-      
+
       // Clear the mock calls from initialization
       (mockAxiosInstance.post as Mock).mockClear();
       (mockAxiosInstance.post as Mock).mockResolvedValue(batchResponse);
@@ -525,13 +519,13 @@ describe('ResponseCaptureService', () => {
         {
           query: queries[0].resolvedContent,
           operationName: queries[0].name,
-          variables: {}
+          variables: {},
         },
         {
           query: queries[1].resolvedContent,
           operationName: queries[1].name,
-          variables: {}
-        }
+          variables: {},
+        },
       ]);
     });
   });
@@ -575,7 +569,7 @@ describe('ResponseCaptureService', () => {
                 message: error instanceof Error ? error.message : String(error),
                 retriesLeft: maxRetries - attemptCount,
                 name: 'RetryError',
-                stack: ''
+                stack: '',
               });
             }
           }
@@ -592,9 +586,9 @@ describe('ResponseCaptureService', () => {
         post: vi.fn().mockResolvedValue(mockResponse),
         interceptors: {
           response: {
-            use: vi.fn()
-          }
-        }
+            use: vi.fn(),
+          },
+        },
       };
 
       vi.mocked(axios.create).mockReturnValue(customAxiosInstance as any);
@@ -610,20 +604,20 @@ describe('ResponseCaptureService', () => {
           data: { errors: [{ message: 'GraphQL error' }] },
           status: 400,
           headers: {},
-          statusText: 'Bad Request'
+          statusText: 'Bad Request',
         },
         request: {},
         config: {},
         isAxiosError: true,
         message: 'Request failed',
-        code: undefined
+        code: undefined,
       };
 
       // Clear previous mock
       (mockAxiosInstance.post as Mock).mockReset();
       (mockAxiosInstance.post as Mock).mockRejectedValue(axiosError);
       vi.mocked(axios.isAxiosError).mockReturnValue(true);
-      
+
       // Mock pRetry to pass through the error
       vi.mocked(pRetry).mockImplementation(async (fn: any, options?: any) => {
         try {
@@ -640,25 +634,27 @@ describe('ResponseCaptureService', () => {
       const capturedResponse = result.responses.get('query-1');
       expect(capturedResponse).toBeDefined();
       expect(capturedResponse?.response).toEqual({
-        errors: [{
-          message: 'Request failed',
-          extensions: {
-            code: undefined,
-            response: { errors: [{ message: 'GraphQL error' }] }
-          }
-        }]
+        errors: [
+          {
+            message: 'Request failed',
+            extensions: {
+              code: undefined,
+              response: { errors: [{ message: 'GraphQL error' }] },
+            },
+          },
+        ],
       });
       expect(capturedResponse?.metadata.statusCode).toBe(400);
     });
 
     it('should capture non-axios errors with default response', async () => {
       const regularError = new Error('Connection timeout');
-      
+
       // Clear previous mock and set up for non-axios error
       (mockAxiosInstance.post as Mock).mockReset();
       (mockAxiosInstance.post as Mock).mockRejectedValue(regularError);
       vi.mocked(axios.isAxiosError).mockReturnValue(false);
-      
+
       // Mock pRetry to pass through the error
       vi.mocked(pRetry).mockImplementation(async (fn: any, options?: any) => {
         try {

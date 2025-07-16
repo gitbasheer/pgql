@@ -64,7 +64,9 @@ describe('Polling Implementation Tests', () => {
     const user = userEvent.setup();
     renderDashboard();
 
-    const submitButton = screen.getByRole('button', { name: /start pipeline/i });
+    const submitButton = screen.getByRole('button', {
+      name: /start pipeline/i,
+    });
     expect(submitButton).toBeDisabled();
 
     // Fill only one field
@@ -72,7 +74,10 @@ describe('Polling Implementation Tests', () => {
     expect(submitButton).toBeDisabled();
 
     // Fill required fields
-    await user.type(screen.getByLabelText(/schema endpoint/i), 'https://api.example.com/graphql');
+    await user.type(
+      screen.getByLabelText(/schema endpoint/i),
+      'https://api.example.com/graphql'
+    );
     expect(submitButton).toBeEnabled();
   });
 
@@ -88,7 +93,7 @@ describe('Polling Implementation Tests', () => {
       }
       return Promise.resolve({
         ok: true,
-        json: async () => ([]),
+        json: async () => [],
       });
     });
 
@@ -96,11 +101,16 @@ describe('Polling Implementation Tests', () => {
 
     // Start pipeline
     await user.type(screen.getByLabelText(/repository path/i), '/test/repo');
-    await user.type(screen.getByLabelText(/schema endpoint/i), 'https://api.example.com/graphql');
+    await user.type(
+      screen.getByLabelText(/schema endpoint/i),
+      'https://api.example.com/graphql'
+    );
     await user.click(screen.getByRole('button', { name: /start pipeline/i }));
 
     await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith('GraphQL extraction pipeline started successfully!');
+      expect(toast.success).toHaveBeenCalledWith(
+        'GraphQL extraction pipeline started successfully!'
+      );
     });
 
     // Should show polling status
@@ -122,26 +132,30 @@ describe('Polling Implementation Tests', () => {
       if (url.includes('/api/test-real-api')) {
         return Promise.resolve({
           ok: true,
-          json: async () => ({ 
+          json: async () => ({
             testResults: [
-              { queryName: 'getUser', status: 'passed', baselineMatches: true }
-            ]
+              { queryName: 'getUser', status: 'passed', baselineMatches: true },
+            ],
           }),
         });
       }
       return Promise.resolve({
         ok: true,
-        json: async () => ([]),
+        json: async () => [],
       });
     });
 
     renderDashboard();
 
-    const vnextButton = screen.getByRole('button', { name: /🧪 test vnext sample/i });
+    const vnextButton = screen.getByRole('button', {
+      name: /🧪 test vnext sample/i,
+    });
     await user.click(vnextButton);
 
     await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith('vnext sample data pipeline started successfully!');
+      expect(toast.success).toHaveBeenCalledWith(
+        'vnext sample data pipeline started successfully!'
+      );
     });
   });
 
@@ -157,7 +171,7 @@ describe('Polling Implementation Tests', () => {
 
   it('displays logs correctly', () => {
     renderDashboard();
-    
+
     // Should show waiting for logs initially
     expect(screen.getByText('Waiting for logs...')).toBeInTheDocument();
   });
@@ -180,8 +194,12 @@ describe('Polling Implementation Tests', () => {
             stage: 'extraction',
             status: 'running',
             logs: [
-              { timestamp: new Date().toISOString(), level: 'info', message: 'Test log entry' }
-            ]
+              {
+                timestamp: new Date().toISOString(),
+                level: 'info',
+                message: 'Test log entry',
+              },
+            ],
           }),
         });
       }
@@ -192,7 +210,10 @@ describe('Polling Implementation Tests', () => {
 
     // Start pipeline to get logs
     await user.type(screen.getByLabelText(/repository path/i), '/test/repo');
-    await user.type(screen.getByLabelText(/schema endpoint/i), 'https://api.example.com/graphql');
+    await user.type(
+      screen.getByLabelText(/schema endpoint/i),
+      'https://api.example.com/graphql'
+    );
     await user.click(screen.getByRole('button', { name: /start pipeline/i }));
 
     // Wait for logs to appear
@@ -203,7 +224,7 @@ describe('Polling Implementation Tests', () => {
     // Now the clear button should be visible
     const clearButton = screen.getByRole('button', { name: /clear logs/i });
     await user.click(clearButton);
-    
+
     // Should show waiting for logs after clear
     expect(screen.getByText('Waiting for logs...')).toBeInTheDocument();
   });
@@ -216,11 +237,16 @@ describe('Polling Implementation Tests', () => {
     renderDashboard();
 
     await user.type(screen.getByLabelText(/repository path/i), '/test/repo');
-    await user.type(screen.getByLabelText(/schema endpoint/i), 'https://api.example.com/graphql');
+    await user.type(
+      screen.getByLabelText(/schema endpoint/i),
+      'https://api.example.com/graphql'
+    );
     await user.click(screen.getByRole('button', { name: /start pipeline/i }));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Failed to start extraction: Network error');
+      expect(toast.error).toHaveBeenCalledWith(
+        'Failed to start extraction: Network error'
+      );
     });
   });
 });

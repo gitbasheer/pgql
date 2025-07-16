@@ -11,8 +11,8 @@ export class ContextAnalyzer {
   async analyze(queries: ExtractedQuery[]): Promise<ExtractedQuery[]> {
     // Context is already extracted by ASTStrategy
     // This analyzer can enhance it further if needed
-    
-    return queries.map(query => {
+
+    return queries.map((query) => {
       if (!query.context) {
         query.context = this.createDefaultContext(query);
       } else {
@@ -23,20 +23,24 @@ export class ContextAnalyzer {
   }
 
   private createDefaultContext(query: ExtractedQuery): QueryContext {
-    const fileName = query.filePath.split('/').pop()?.replace(/\.[^.]+$/, '') || 'unknown';
-    
+    const fileName =
+      query.filePath
+        .split('/')
+        .pop()
+        ?.replace(/\.[^.]+$/, '') || 'unknown';
+
     return {
       functionName: undefined,
       componentName: undefined,
       exportName: fileName,
       isExported: false,
-      isDefaultExport: false
+      isDefaultExport: false,
     };
   }
 
   private enhanceContext(context: QueryContext, query: ExtractedQuery): QueryContext {
     // Add any additional context enhancements here
-    
+
     // Example: Infer component name from file path if not present
     if (!context.componentName && query.filePath.includes('components/')) {
       const pathParts = query.filePath.split('/');
@@ -45,7 +49,7 @@ export class ContextAnalyzer {
         context.componentName = pathParts[componentIndex + 1];
       }
     }
-    
+
     return context;
   }
 

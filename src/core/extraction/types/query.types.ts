@@ -29,10 +29,10 @@ export interface ExtractedQuery {
   name?: string;
   originalName?: string;
   type: OperationType;
-  
+
   // Source AST mapping
   sourceAST?: SourceAST;
-  
+
   // Enhanced metadata
   context?: QueryContext;
   fragments?: string[];

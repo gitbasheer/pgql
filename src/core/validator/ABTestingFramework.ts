@@ -7,7 +7,7 @@ import {
   RolloutStrategy,
   RolloutStage,
   AutoRollbackConfig,
-  CapturedResponse
+  CapturedResponse,
 } from './types.js';
 
 export class ABTestingFramework {
@@ -26,7 +26,7 @@ export class ABTestingFramework {
         type: 'memory' | 'redis' | 'database';
         config?: Record<string, any>;
       };
-    } = {}
+    } = {},
   ) {}
 
   async createTest(config: Partial<ABTestConfig>): Promise<ABTestConfig> {
@@ -40,10 +40,10 @@ export class ABTestingFramework {
       excludeQueries: config.excludeQueries,
       rolloutStrategy: config.rolloutStrategy || {
         type: 'gradual',
-        stages: this.getDefaultRolloutStages()
+        stages: this.getDefaultRolloutStages(),
       },
       metrics: this.initializeMetrics(),
-      autoRollback: config.autoRollback || this.getDefaultRollbackConfig()
+      autoRollback: config.autoRollback || this.getDefaultRollbackConfig(),
     };
 
     const runtime = new ABTestRuntime(testConfig);
@@ -96,7 +96,7 @@ export class ABTestingFramework {
       success: boolean;
       latency: number;
       error?: string;
-    }
+    },
   ): void {
     const metrics = this.metricsStore.get(testId);
     if (!metrics) return;
@@ -109,7 +109,7 @@ export class ABTestingFramework {
     } else {
       variantMetrics.errors++;
       if (metric.error) {
-        variantMetrics.errorTypes[metric.error] = 
+        variantMetrics.errorTypes[metric.error] =
           (variantMetrics.errorTypes[metric.error] || 0) + 1;
       }
     }
@@ -162,7 +162,7 @@ export class ABTestingFramework {
 
     const currentStage = runtime.getCurrentStage();
     const stages = config.rolloutStrategy.stages || [];
-    const nextStageIndex = stages.findIndex(s => s === currentStage) + 1;
+    const nextStageIndex = stages.findIndex((s) => s === currentStage) + 1;
 
     if (nextStageIndex >= stages.length) {
       logger.info(`Test ${testId} has completed all rollout stages`);
@@ -222,8 +222,8 @@ export class ABTestingFramework {
       variant: this.createEmptyVariantMetrics(),
       summary: {
         confidence: 0,
-        recommendation: 'Continue testing'
-      }
+        recommendation: 'Continue testing',
+      },
     };
   }
 
@@ -235,7 +235,7 @@ export class ABTestingFramework {
       averageLatency: 0,
       p95Latency: 0,
       p99Latency: 0,
-      errorTypes: {}
+      errorTypes: {},
     };
   }
 
@@ -247,8 +247,8 @@ export class ABTestingFramework {
         criteria: {
           minSuccessRate: 0.99,
           maxErrorRate: 0.01,
-          minSampleSize: 100
-        }
+          minSampleSize: 100,
+        },
       },
       {
         percentage: 5,
@@ -256,8 +256,8 @@ export class ABTestingFramework {
         criteria: {
           minSuccessRate: 0.98,
           maxErrorRate: 0.02,
-          minSampleSize: 500
-        }
+          minSampleSize: 500,
+        },
       },
       {
         percentage: 25,
@@ -265,8 +265,8 @@ export class ABTestingFramework {
         criteria: {
           minSuccessRate: 0.98,
           maxErrorRate: 0.02,
-          minSampleSize: 2500
-        }
+          minSampleSize: 2500,
+        },
       },
       {
         percentage: 50,
@@ -274,8 +274,8 @@ export class ABTestingFramework {
         criteria: {
           minSuccessRate: 0.98,
           maxErrorRate: 0.02,
-          minSampleSize: 5000
-        }
+          minSampleSize: 5000,
+        },
       },
       {
         percentage: 100,
@@ -283,9 +283,9 @@ export class ABTestingFramework {
         criteria: {
           minSuccessRate: 0.98,
           maxErrorRate: 0.02,
-          minSampleSize: 10000
-        }
-      }
+          minSampleSize: 10000,
+        },
+      },
     ];
   }
 
@@ -295,7 +295,7 @@ export class ABTestingFramework {
       errorThreshold: 0.05, // 5% error rate
       latencyThreshold: 2.0, // 2x latency increase
       evaluationWindow: '5m',
-      cooldownPeriod: '30m'
+      cooldownPeriod: '30m',
     };
   }
 
@@ -311,7 +311,7 @@ export class ABTestingFramework {
 
     // Calculate metrics
     metrics.averageLatency = latencies.reduce((a, b) => a + b, 0) / latencies.length;
-    
+
     const sorted = [...latencies].sort((a, b) => a - b);
     metrics.p95Latency = sorted[Math.floor(sorted.length * 0.95)] || 0;
     metrics.p99Latency = sorted[Math.floor(sorted.length * 0.99)] || 0;
@@ -330,11 +330,7 @@ export class ABTestingFramework {
 
     // Simple statistical significance check
     const sampleSize = Math.min(metrics.control.requests, metrics.variant.requests);
-    const confidence = this.calculateConfidence(
-      controlSuccess,
-      variantSuccess,
-      sampleSize
-    );
+    const confidence = this.calculateConfidence(controlSuccess, variantSuccess, sampleSize);
 
     let winner: 'control' | 'variant' | 'tie' | undefined;
     if (confidence > 0.95) {
@@ -355,37 +351,32 @@ export class ABTestingFramework {
     return {
       winner,
       confidence,
-      recommendation
+      recommendation,
     };
   }
 
   private calculateConfidence(
     controlRate: number,
     variantRate: number,
-    sampleSize: number
+    sampleSize: number,
   ): number {
     // Simplified confidence calculation
     // In production, use proper statistical tests (z-test, t-test, etc.)
     if (sampleSize < 30) return 0;
 
     const pooledRate = (controlRate + variantRate) / 2;
-    const standardError = Math.sqrt(
-      pooledRate * (1 - pooledRate) * (2 / sampleSize)
-    );
+    const standardError = Math.sqrt(pooledRate * (1 - pooledRate) * (2 / sampleSize));
 
     const zScore = Math.abs(variantRate - controlRate) / standardError;
-    
+
     // Convert z-score to confidence (simplified)
     if (zScore > 2.58) return 0.99;
     if (zScore > 1.96) return 0.95;
-    if (zScore > 1.64) return 0.90;
+    if (zScore > 1.64) return 0.9;
     return zScore / 2.58;
   }
 
-  private async evaluateGraduationCriteria(
-    testId: string,
-    stage: RolloutStage
-  ): Promise<boolean> {
+  private async evaluateGraduationCriteria(testId: string, stage: RolloutStage): Promise<boolean> {
     const metrics = await this.collectMetrics(testId);
     const variantMetrics = metrics.variant;
 
@@ -471,8 +462,8 @@ class ABTestRuntime {
 
     // Use consistent hashing for assignment
     const hash = this.hashString(queryId);
-    const assignment = (hash % 100) < this.config.splitPercentage ? 'variant' : 'control';
-    
+    const assignment = hash % 100 < this.config.splitPercentage ? 'variant' : 'control';
+
     this.queryAssignments.set(queryId, assignment);
     return assignment;
   }
@@ -507,9 +498,9 @@ class ABTestRuntime {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return Math.abs(hash);
   }
-} 
+}

@@ -11,22 +11,19 @@ vi.mock('ora', () => ({
       start: vi.fn(),
       succeed: vi.fn(),
       fail: vi.fn(),
-      text: ''
+      text: '',
     };
     // Make chainable
     oraInstance.start.mockReturnValue(oraInstance);
     oraInstance.succeed.mockReturnValue(oraInstance);
     oraInstance.fail.mockReturnValue(oraInstance);
     return oraInstance;
-  }
-}))
+  },
+}));
 
 // Mock modules
 
-
 // Mock modules
-
-
 
 // Mock all dependencies
 vi.mock('fs/promises');
@@ -34,26 +31,26 @@ vi.mock('../../core/validator/index');
 vi.mock('../../core/validator/GoDaddyEndpointConfig');
 vi.mock('../../core/validator/SSOService');
 vi.mock('../../utils/logger');
-;
-
 describe('validate-responses CLI', () => {
   let processExitSpy: Mock;
   let consoleLogSpy: Mock;
   let consoleErrorSpy: Mock;
 
   const mockQueries = {
-    queries: [{
-      id: 'test-query-1',
-      content: 'query { test }',
-      name: 'TestQuery',
-      type: 'query',
-      filePath: 'test.ts',
-      location: { line: 1, column: 1, file: 'test.ts' },
-      ast: null,
-      resolvedContent: 'query { test }',
-      resolvedFragments: [],
-      allDependencies: []
-    }]
+    queries: [
+      {
+        id: 'test-query-1',
+        content: 'query { test }',
+        name: 'TestQuery',
+        type: 'query',
+        filePath: 'test.ts',
+        location: { line: 1, column: 1, file: 'test.ts' },
+        ast: null,
+        resolvedContent: 'query { test }',
+        resolvedFragments: [],
+        allDependencies: [],
+      },
+    ],
   };
 
   const mockValidationReport = {
@@ -65,10 +62,10 @@ describe('validate-responses CLI', () => {
       modifiedQueries: 0,
       breakingChanges: 0,
       averageSimilarity: 1.0,
-      safeToMigrate: true
+      safeToMigrate: true,
     },
     comparisons: [],
-    alignments: []
+    alignments: [],
   };
 
   beforeEach(async () => {
@@ -86,17 +83,19 @@ describe('validate-responses CLI', () => {
     // Setup default mocks
     (fs.readFile as Mock).mockResolvedValue(JSON.stringify(mockQueries));
     (ResponseValidationService.prototype.captureBaseline as Mock).mockResolvedValue(undefined);
-    (ResponseValidationService.prototype.validateTransformation as Mock).mockResolvedValue(mockValidationReport);
+    (ResponseValidationService.prototype.validateTransformation as Mock).mockResolvedValue(
+      mockValidationReport,
+    );
     (GoDaddyEndpointConfig.parseCookieString as Mock).mockReturnValue({
       auth_idp: 'test-auth',
       cust_idp: 'test-cust',
       info_cust_idp: 'test-info-cust',
-      info_idp: 'test-info'
+      info_idp: 'test-info',
     });
     (GoDaddyEndpointConfig.validateCookies as Mock).mockReturnValue(true);
     (GoDaddyEndpointConfig.createEndpoint as Mock).mockReturnValue({
       url: 'https://pg.api.godaddy.com/v1/gql/customer',
-      headers: {}
+      headers: {},
     });
   });
 
@@ -109,16 +108,18 @@ describe('validate-responses CLI', () => {
     it('should capture baseline with standard endpoint', async () => {
       // Test that we can create the service directly with the expected config
       const expectedConfig = {
-        endpoints: [{
-          url: 'https://api.example.com/graphql',
-          headers: {
-            Authorization: 'Bearer test-token'
-          }
-        }],
+        endpoints: [
+          {
+            url: 'https://api.example.com/graphql',
+            headers: {
+              Authorization: 'Bearer test-token',
+            },
+          },
+        ],
         capture: { parallel: true, maxConcurrency: 5, timeout: 30000 },
         comparison: { strict: false },
         alignment: { strict: false },
-        storage: { type: 'file' as const, path: './validation-results' }
+        storage: { type: 'file' as const, path: './validation-results' },
       };
 
       // Create service instance to verify constructor behavior
@@ -131,11 +132,11 @@ describe('validate-responses CLI', () => {
             expect.objectContaining({
               url: 'https://api.example.com/graphql',
               headers: expect.objectContaining({
-                Authorization: 'Bearer test-token'
-              })
-            })
-          ])
-        })
+                Authorization: 'Bearer test-token',
+              }),
+            }),
+          ]),
+        }),
       );
     });
 
@@ -144,12 +145,17 @@ describe('validate-responses CLI', () => {
         'node',
         'validate-responses.js',
         'capture-baseline',
-        '--queries', './queries.json',
+        '--queries',
+        './queries.json',
         '--godaddy',
-        '--auth-idp', 'auth-value',
-        '--cust-idp', 'cust-value',
-        '--info-cust-idp', 'info-cust-value',
-        '--info-idp', 'info-value'
+        '--auth-idp',
+        'auth-value',
+        '--cust-idp',
+        'cust-value',
+        '--info-cust-idp',
+        'info-cust-value',
+        '--info-idp',
+        'info-value',
       ];
 
       // Test would execute the command and verify GoDaddy endpoint creation
@@ -157,13 +163,14 @@ describe('validate-responses CLI', () => {
     });
 
     it('should handle cookie string parsing', async () => {
-      const cookieString = 'auth_idp=value1; cust_idp=value2; info_cust_idp=value3; info_idp=value4';
+      const cookieString =
+        'auth_idp=value1; cust_idp=value2; info_cust_idp=value3; info_idp=value4';
 
       (GoDaddyEndpointConfig.parseCookieString as Mock).mockReturnValue({
         auth_idp: 'value1',
         cust_idp: 'value2',
         info_cust_idp: 'value3',
-        info_idp: 'value4'
+        info_idp: 'value4',
       });
 
       const parsed = GoDaddyEndpointConfig.parseCookieString(cookieString);
@@ -172,7 +179,7 @@ describe('validate-responses CLI', () => {
         auth_idp: 'value1',
         cust_idp: 'value2',
         info_cust_idp: 'value3',
-        info_idp: 'value4'
+        info_idp: 'value4',
       });
     });
 
@@ -184,9 +191,9 @@ describe('validate-responses CLI', () => {
             authIdp: 'sso-auth',
             custIdp: 'sso-cust',
             infoCustIdp: 'sso-info-cust',
-            infoIdp: 'sso-info'
-          }
-        })
+            infoIdp: 'sso-info',
+          },
+        }),
       };
 
       (SSOService.getInstance as Mock).mockReturnValue(mockSSOService);
@@ -194,7 +201,7 @@ describe('validate-responses CLI', () => {
       // Would test SSO authentication flow
       const result = await mockSSOService.authenticate({
         provider: 'godaddy',
-        credentials: { username: 'test', password: 'pass' }
+        credentials: { username: 'test', password: 'pass' },
       });
 
       expect(result.success).toBe(true);
@@ -203,7 +210,7 @@ describe('validate-responses CLI', () => {
 
     it('should handle capture errors gracefully', async () => {
       (ResponseValidationService.prototype.captureBaseline as Mock).mockRejectedValue(
-        new Error('Network error')
+        new Error('Network error'),
       );
 
       // Would test error handling
@@ -225,11 +232,13 @@ describe('validate-responses CLI', () => {
           modifiedQueries: 2,
           breakingChanges: 0,
           averageSimilarity: 0.95,
-          safeToMigrate: true
-        }
+          safeToMigrate: true,
+        },
       };
 
-      (ResponseValidationService.prototype.validateTransformation as Mock).mockResolvedValue(mockReport);
+      (ResponseValidationService.prototype.validateTransformation as Mock).mockResolvedValue(
+        mockReport,
+      );
 
       // Would test comparison flow
       const service = new ResponseValidationService({} as any);
@@ -242,19 +251,23 @@ describe('validate-responses CLI', () => {
     it('should generate alignments when requested', async () => {
       const mockReportWithAlignments = {
         ...mockValidationReport,
-        alignments: [{
-          queryId: 'test-query-1',
-          differences: [],
-          code: 'function align(response) { return response; }',
-          tests: []
-        }]
+        alignments: [
+          {
+            queryId: 'test-query-1',
+            differences: [],
+            code: 'function align(response) { return response; }',
+            tests: [],
+          },
+        ],
       };
 
-      (ResponseValidationService.prototype.validateTransformation as Mock).mockResolvedValue(mockReportWithAlignments);
+      (ResponseValidationService.prototype.validateTransformation as Mock).mockResolvedValue(
+        mockReportWithAlignments,
+      );
 
       const service = new ResponseValidationService({} as any);
       const result = await service.validateTransformation([], [], {
-        generateAlignments: true
+        generateAlignments: true,
       });
 
       expect(result.alignments).toHaveLength(1);
@@ -267,15 +280,17 @@ describe('validate-responses CLI', () => {
           id: 'test-123',
           name: 'GraphQL Migration Test',
           splitPercentage: 10,
-          targetQueries: ['test-query-1']
-        }
+          targetQueries: ['test-query-1'],
+        },
       };
 
-      (ResponseValidationService.prototype.validateTransformation as Mock).mockResolvedValue(mockReportWithABTest);
+      (ResponseValidationService.prototype.validateTransformation as Mock).mockResolvedValue(
+        mockReportWithABTest,
+      );
 
       const service = new ResponseValidationService({} as any);
       const result = await service.validateTransformation([], [], {
-        setupABTest: true
+        setupABTest: true,
       });
 
       expect(result.abTestConfig).toBeDefined();
@@ -286,11 +301,13 @@ describe('validate-responses CLI', () => {
   describe('generate-alignments command', () => {
     it('should generate alignment functions from report', async () => {
       const mockReportData = {
-        alignments: [{
-          queryId: 'test-query-1',
-          code: 'function align(response) { return response; }',
-          tests: []
-        }]
+        alignments: [
+          {
+            queryId: 'test-query-1',
+            code: 'function align(response) { return response; }',
+            tests: [],
+          },
+        ],
       };
 
       (fs.readFile as Mock).mockResolvedValue(JSON.stringify(mockReportData));
@@ -320,7 +337,7 @@ describe('validate-responses CLI', () => {
         currentSplit: 25,
         controlRequests: 10000,
         variantRequests: 2500,
-        successRates: { control: 99.5, variant: 99.3 }
+        successRates: { control: 99.5, variant: 99.3 },
       };
 
       console.log(`Current split: ${status.currentSplit}%`);
@@ -331,21 +348,29 @@ describe('validate-responses CLI', () => {
 
   describe('export/import commands', () => {
     it('should export validation data', async () => {
-      (ResponseValidationService.prototype.exportValidationData as Mock).mockResolvedValue(undefined);
+      (ResponseValidationService.prototype.exportValidationData as Mock).mockResolvedValue(
+        undefined,
+      );
 
       const service = new ResponseValidationService({} as any);
       await service.exportValidationData('./export.json');
 
-      expect(ResponseValidationService.prototype.exportValidationData).toHaveBeenCalledWith('./export.json');
+      expect(ResponseValidationService.prototype.exportValidationData).toHaveBeenCalledWith(
+        './export.json',
+      );
     });
 
     it('should import validation data', async () => {
-      (ResponseValidationService.prototype.importValidationData as Mock).mockResolvedValue(undefined);
+      (ResponseValidationService.prototype.importValidationData as Mock).mockResolvedValue(
+        undefined,
+      );
 
       const service = new ResponseValidationService({} as any);
       await service.importValidationData('./import.json');
 
-      expect(ResponseValidationService.prototype.importValidationData).toHaveBeenCalledWith('./import.json');
+      expect(ResponseValidationService.prototype.importValidationData).toHaveBeenCalledWith(
+        './import.json',
+      );
     });
   });
 

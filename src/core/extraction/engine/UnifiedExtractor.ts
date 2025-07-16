@@ -6,7 +6,7 @@ import {
   ExtractionOptions,
   ExtractionResult,
   ExtractedQuery as InternalExtractedQuery,
-  ResolvedQuery
+  ResolvedQuery,
 } from '../types/index.js';
 import { Endpoint, ExtractedQuery } from '../../../types/shared.types.js';
 import { ExtractionContext } from './ExtractionContext.js';
@@ -66,7 +66,9 @@ export class UnifiedExtractor {
       result.stats = this.context.finalizeStats();
 
       logger.info(`Extraction completed in ${Date.now() - startTime}ms`);
-      logger.info(`Extracted ${result.queries.length} queries with ${result.variants.length} variants`);
+      logger.info(
+        `Extracted ${result.queries.length} queries with ${result.variants.length} variants`,
+      );
 
       return result;
     } catch (error) {
@@ -89,7 +91,7 @@ export class UnifiedExtractor {
     const files = await glob(filePatterns, {
       cwd: directory,
       absolute: true,
-      ignore: ignore || ['**/node_modules/**', '**/__generated__/**', '**/*.test.*']
+      ignore: ignore || ['**/node_modules/**', '**/__generated__/**', '**/*.test.*'],
     });
 
     logger.info(`Found ${files.length} files to process`);
@@ -129,9 +131,7 @@ export class UnifiedExtractor {
       const batchSize = maxConcurrency || 4;
       for (let i = 0; i < files.length; i += batchSize) {
         const batch = files.slice(i, i + batchSize);
-        const batchResults = await Promise.all(
-          batch.map(file => this.extractFromFile(file))
-        );
+        const batchResults = await Promise.all(batch.map((file) => this.extractFromFile(file)));
         allQueries.push(...batchResults.flat());
       }
     } else {
@@ -164,10 +164,10 @@ export class UnifiedExtractor {
 
       // Read and pre-process content for template resolution
       let content = await fs.readFile(filePath, 'utf-8');
-      
+
       // CRITICAL: Resolve templates in raw content BEFORE extraction
       content = await this.preResolveTemplateContent(content, filePath);
-      
+
       const queries: InternalExtractedQuery[] = [];
 
       // Determine which strategy to use
@@ -189,12 +189,12 @@ export class UnifiedExtractor {
 
       // Resolve template variables before enhancement
       const resolvedQueries = await this.resolveTemplateVariables(queries, filePath);
-      
+
       // Enhance queries with endpoint classification
-      const enhancedQueries = resolvedQueries.map(query => ({
+      const enhancedQueries = resolvedQueries.map((query) => ({
         ...query,
         endpoint: this.determineEndpoint(filePath, content),
-        sourceFile: filePath
+        sourceFile: filePath,
       }));
 
       // Cache results (both in-memory and persistent)
@@ -206,7 +206,7 @@ export class UnifiedExtractor {
     } catch (error) {
       this.context.addError(
         filePath,
-        `Failed to process file: ${error instanceof Error ? error.message : String(error)}`
+        `Failed to process file: ${error instanceof Error ? error.message : String(error)}`,
       );
       return [];
     }
@@ -220,28 +220,28 @@ export class UnifiedExtractor {
     try {
       // Load queryNames from multiple sources
       const queryNamesData = await this.loadAllQueryNames(filePath);
-      
+
       if (!queryNamesData || Object.keys(queryNamesData).length === 0) {
         return content;
       }
 
       let resolvedContent = content;
-      
+
       // Replace ${queryNames.xxx} patterns
       Object.entries(queryNamesData).forEach(([key, value]) => {
         const pattern = new RegExp(`\\$\\{queryNames\\.${key}\\}`, 'g');
         resolvedContent = resolvedContent.replace(pattern, value as string);
       });
-      
+
       // Replace ${SAMPLE_QUERY_NAMES.xxx} patterns (for test files)
       Object.entries(queryNamesData).forEach(([key, value]) => {
         const samplePattern = new RegExp(`\\$\\{SAMPLE_QUERY_NAMES\\.${key}\\}`, 'g');
         resolvedContent = resolvedContent.replace(samplePattern, value as string);
       });
-      
+
       // Replace generic ${variable} patterns with constants
       resolvedContent = this.resolveGenericTemplatePatterns(resolvedContent, filePath);
-      
+
       return resolvedContent;
     } catch (error) {
       logger.warn(`Failed to pre-resolve template content for ${filePath}:`, error);
@@ -253,43 +253,46 @@ export class UnifiedExtractor {
    * Enhanced template variable resolution for ${queryNames.xxx} patterns
    * Loads from queryNames.js via fs.readFile and resolves all interpolations
    */
-  private async resolveTemplateVariables(queries: InternalExtractedQuery[], filePath: string): Promise<InternalExtractedQuery[]> {
+  private async resolveTemplateVariables(
+    queries: InternalExtractedQuery[],
+    filePath: string,
+  ): Promise<InternalExtractedQuery[]> {
     try {
       // Load queryNames from multiple sources
       const queryNamesData = await this.loadAllQueryNames(filePath);
-      
+
       if (!queryNamesData || Object.keys(queryNamesData).length === 0) {
         return queries;
       }
 
-      return queries.map(query => {
+      return queries.map((query) => {
         let resolvedContent = query.content;
-        
+
         // Replace ${queryNames.xxx} patterns
         Object.entries(queryNamesData).forEach(([key, value]) => {
           const pattern = new RegExp(`\\$\\{queryNames\\.${key}\\}`, 'g');
           resolvedContent = resolvedContent.replace(pattern, value as string);
         });
-        
+
         // Replace ${SAMPLE_QUERY_NAMES.xxx} patterns (for test files)
         Object.entries(queryNamesData).forEach(([key, value]) => {
           const samplePattern = new RegExp(`\\$\\{SAMPLE_QUERY_NAMES\\.${key}\\}`, 'g');
           resolvedContent = resolvedContent.replace(samplePattern, value as string);
         });
-        
+
         // Replace generic ${variable} patterns with constants
         resolvedContent = this.resolveGenericTemplatePatterns(resolvedContent, filePath);
-        
+
         // Only update if changes were made
         if (resolvedContent !== query.content) {
           return {
             ...query,
             content: resolvedContent,
             source: resolvedContent,
-            fullExpandedQuery: resolvedContent
+            fullExpandedQuery: resolvedContent,
           };
         }
-        
+
         return query;
       });
     } catch (error) {
@@ -305,19 +308,19 @@ export class UnifiedExtractor {
     try {
       const directory = path.dirname(filePath);
       let queryNamesData: Record<string, string> = {};
-      
+
       // 1. Load from queryNames.js using fs.readFile
       const queryNamesFromFile = await this.loadQueryNamesFromFile(directory);
       if (queryNamesFromFile) {
         queryNamesData = { ...queryNamesData, ...queryNamesFromFile };
       }
-      
+
       // 2. Load from SAMPLE_QUERY_NAMES in same file (for test files)
       const sampleQueryNames = await this.extractSampleQueryNames(filePath);
       if (sampleQueryNames) {
         queryNamesData = { ...queryNamesData, ...sampleQueryNames };
       }
-      
+
       return Object.keys(queryNamesData).length > 0 ? queryNamesData : null;
     } catch (error) {
       logger.debug(`Could not load all queryNames for ${filePath}:`, error);
@@ -332,38 +335,40 @@ export class UnifiedExtractor {
     const possiblePaths = [
       path.join(directory, 'queryNames.js'),
       path.join(path.dirname(directory), 'queryNames.js'),
-      path.join(directory, '..', 'queryNames.js')
+      path.join(directory, '..', 'queryNames.js'),
     ];
-    
+
     for (const queryNamesPath of possiblePaths) {
       try {
         await fs.access(queryNamesPath);
         const content = await fs.readFile(queryNamesPath, 'utf-8');
-        
+
         // Parse JavaScript content to extract queryNames object
-        const queryNamesMatch = content.match(/(?:export\s+const\s+queryNames|const\s+queryNames)\s*=\s*\{([^}]+)\}/s);
+        const queryNamesMatch = content.match(
+          /(?:export\s+const\s+queryNames|const\s+queryNames)\s*=\s*\{([^}]+)\}/s,
+        );
         if (queryNamesMatch) {
           const objContent = queryNamesMatch[1];
           const queryNames: Record<string, string> = {};
-          
+
           // Extract key-value pairs with regex
           const pairs = objContent.match(/(\w+):\s*['"`]([^'"`]+)['"`]/g);
           if (pairs) {
-            pairs.forEach(pair => {
+            pairs.forEach((pair) => {
               const [, key, value] = pair.match(/(\w+):\s*['"`]([^'"`]+)['"`]/) || [];
               if (key && value) {
                 queryNames[key] = value;
               }
             });
           }
-          
+
           return Object.keys(queryNames).length > 0 ? queryNames : null;
         }
       } catch {
         // Continue to next path
       }
     }
-    
+
     return null;
   }
 
@@ -373,27 +378,29 @@ export class UnifiedExtractor {
   private async extractSampleQueryNames(filePath: string): Promise<Record<string, string> | null> {
     try {
       const content = await fs.readFile(filePath, 'utf-8');
-      
+
       // Look for SAMPLE_QUERY_NAMES constant
-      const sampleQueryNamesMatch = content.match(/export\s+const\s+SAMPLE_QUERY_NAMES\s*=\s*\{([^}]+)\}/s);
+      const sampleQueryNamesMatch = content.match(
+        /export\s+const\s+SAMPLE_QUERY_NAMES\s*=\s*\{([^}]+)\}/s,
+      );
       if (sampleQueryNamesMatch) {
         const objContent = sampleQueryNamesMatch[1];
         const queryNames: Record<string, string> = {};
-        
+
         // Extract key-value pairs
         const pairs = objContent.match(/(\w+):\s*['"`]([^'"`]+)['"`]/g);
         if (pairs) {
-          pairs.forEach(pair => {
+          pairs.forEach((pair) => {
             const [, key, value] = pair.match(/(\w+):\s*['"`]([^'"`]+)['"`]/) || [];
             if (key && value) {
               queryNames[key] = value;
             }
           });
         }
-        
+
         return Object.keys(queryNames).length > 0 ? queryNames : null;
       }
-      
+
       return null;
     } catch {
       return null;
@@ -405,7 +412,7 @@ export class UnifiedExtractor {
    */
   private resolveGenericTemplatePatterns(content: string, filePath: string): string {
     let resolved = content;
-    
+
     // Common pattern replacements
     const patterns = {
       '${includeEmail}': 'email',
@@ -413,13 +420,16 @@ export class UnifiedExtractor {
       '${fragment}': '',
       '${queryArgs}': '',
       '${ventureQuery}': 'venture',
-      '${ventureArgs}': '$ventureId: UUID!'
+      '${ventureArgs}': '$ventureId: UUID!',
     };
-    
+
     Object.entries(patterns).forEach(([pattern, replacement]) => {
-      resolved = resolved.replace(new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), replacement);
+      resolved = resolved.replace(
+        new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+        replacement,
+      );
     });
-    
+
     return resolved;
   }
 
@@ -427,7 +437,7 @@ export class UnifiedExtractor {
     try {
       const directory = path.dirname(filePath);
       const queryNamesPath = path.join(directory, 'queryNames.js');
-      
+
       // Check if queryNames.js exists in the same directory
       try {
         await fs.access(queryNamesPath);
@@ -437,7 +447,7 @@ export class UnifiedExtractor {
         // Try parent directory
         const parentDir = path.dirname(directory);
         const parentQueryNamesPath = path.join(parentDir, 'queryNames.js');
-        
+
         try {
           await fs.access(parentQueryNamesPath);
           const queryNamesModule = await import(parentQueryNamesPath);
@@ -455,7 +465,7 @@ export class UnifiedExtractor {
   private async extractWithStrategy(
     strategyName: string,
     filePath: string,
-    content: string
+    content: string,
   ): Promise<InternalExtractedQuery[]> {
     const strategy = this.strategies.get(strategyName);
     if (!strategy) {
@@ -475,7 +485,10 @@ export class UnifiedExtractor {
     }
   }
 
-  private mergeResults(pluckResults: InternalExtractedQuery[], astResults: InternalExtractedQuery[]): InternalExtractedQuery[] {
+  private mergeResults(
+    pluckResults: InternalExtractedQuery[],
+    astResults: InternalExtractedQuery[],
+  ): InternalExtractedQuery[] {
     // If AST extraction succeeded and found queries, prefer it
     if (astResults.length > 0) {
       return astResults;
@@ -490,66 +503,67 @@ export class UnifiedExtractor {
     if (filePath.includes('offer-graph')) {
       return 'offerGraph';
     }
-    
+
     // Check content patterns for Offer Graph
-    if (content.includes('useOfferGraphMutation') || 
-        content.includes('getClientSideOGClient') ||
-        content.includes('offerGraphClient') ||
-        content.includes('transitions') ||
-        content.includes('modifyBasket') ||
-        content.includes('FindUnifiedBillDetails')) {
+    if (
+      content.includes('useOfferGraphMutation') ||
+      content.includes('getClientSideOGClient') ||
+      content.includes('offerGraphClient') ||
+      content.includes('transitions') ||
+      content.includes('modifyBasket') ||
+      content.includes('FindUnifiedBillDetails')
+    ) {
       return 'offerGraph';
     }
-    
+
     // Default to Product Graph
     return 'productGraph';
   }
 
   async extractFromRepo(): Promise<ExtractedQuery[]> {
     // EVENT_PLACEHOLDER: Publish to Event Bus instead of direct socket
-    // e.g., await eventBusClient.publish({ 
-    //   source: 'pgql.pipeline', 
-    //   detailType: 'progress', 
-    //   detail: { stage: 'extraction', message: 'Starting repository extraction' } 
+    // e.g., await eventBusClient.publish({
+    //   source: 'pgql.pipeline',
+    //   detailType: 'progress',
+    //   detail: { stage: 'extraction', message: 'Starting repository extraction' }
     // });
-    
+
     const result = await this.extract();
-    
+
     // EVENT_PLACEHOLDER: Publish extraction progress
-    // e.g., await eventBusClient.publish({ 
-    //   source: 'pgql.pipeline', 
-    //   detailType: 'progress', 
-    //   detail: { stage: 'extraction', message: `Found ${result.queries.length} queries` } 
+    // e.g., await eventBusClient.publish({
+    //   source: 'pgql.pipeline',
+    //   detailType: 'progress',
+    //   detail: { stage: 'extraction', message: `Found ${result.queries.length} queries` }
     // });
-    
+
     return this.standardizeQueries(result.queries);
   }
 
-
   private standardizeQueries(queries: ResolvedQuery[]): ExtractedQuery[] {
-    return queries.map(q => {
+    return queries.map((q) => {
       const standardized: ExtractedQuery = {
         // Identity
         queryName: this.generateUniqueName(q),
         content: q.content,
         fullExpandedQuery: q.resolvedContent || q.content,
-        
+
         // Location
         filePath: q.filePath || 'unknown.js',
         lineNumber: q.location?.line || 1,
-        
+
         // GraphQL metadata
         operation: this.extractOperationType(q),
         variables: this.extractVariables(q),
         fragments: q.fragments || [],
         hasVariables: Object.keys(this.extractVariables(q)).length > 0,
-        
+
         // Classification
         endpoint: (q as any).endpoint || 'productGraph',
         isNested: (q.metadata?.isNested as boolean) || false,
-        
+
         // Additional context
-        source: (q.metadata?.source as string) || 'ast'
+        source: (q.metadata?.source as string) || 'ast',
       };
       return standardized;
     });
@@ -560,32 +574,34 @@ export class UnifiedExtractor {
     if (query.name) {
       return query.name;
     }
-    
+
     // Generate hash-based name as fallback
     const hash = createHash('sha256')
       .update(query.resolvedContent || query.content)
       .digest('hex')
       .slice(0, 10);
-    
+
     return `Query_${hash}`;
   }
 
   private extractVariables(query: ResolvedQuery): Record<string, string> {
     const variables: Record<string, string> = {};
-    
+
     // Extract from AST if available
     if (query.ast && query.variables) {
-      query.variables.forEach(v => {
+      query.variables.forEach((v) => {
         variables[v.name] = v.type;
       });
     }
-    
+
     return variables;
   }
 
-  private extractOperationType(query: ResolvedQuery): 'query' | 'mutation' | 'subscription' | undefined {
+  private extractOperationType(
+    query: ResolvedQuery,
+  ): 'query' | 'mutation' | 'subscription' | undefined {
     const content = query.resolvedContent || query.content;
-    
+
     // Check for operation type in the query
     if (content.match(/^\s*mutation\s+/m)) {
       return 'mutation';
@@ -594,7 +610,7 @@ export class UnifiedExtractor {
     } else if (content.match(/^\s*query\s+/m) || content.match(/^\s*{\s*/m)) {
       return 'query';
     }
-    
+
     return undefined;
   }
 }

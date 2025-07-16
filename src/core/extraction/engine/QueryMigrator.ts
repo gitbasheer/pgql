@@ -1,6 +1,10 @@
 // @ts-nocheck
 import { logger } from '../../../utils/logger.js';
-import { PatternExtractedQuery, MigrationManifest, QueryPatternRegistry } from '../types/pattern.types.js';
+import {
+  PatternExtractedQuery,
+  MigrationManifest,
+  QueryPatternRegistry,
+} from '../types/pattern.types.js';
 import { QueryPatternService } from './QueryPatternRegistry.js';
 
 export interface MigrationResult {
@@ -37,7 +41,7 @@ export class QueryMigrator {
       updateQueryNamesObject: true,
       trackVersionProgression: true,
       respectFeatureFlags: true,
-      ...strategy
+      ...strategy,
     };
   }
 
@@ -72,9 +76,9 @@ export class QueryMigrator {
           currentVersion: namePattern.version,
           targetVersion: namePattern.version,
           action: 'No migration needed',
-          changes: []
+          changes: [],
         },
-        requiresManualReview: false
+        requiresManualReview: false,
       };
     }
 
@@ -87,7 +91,9 @@ export class QueryMigrator {
         type: 'queryNames',
         from: namePattern.template,
         to: recommendations.targetPattern,
-        reason: recommendations.reason || `${namePattern.version} is deprecated, use ${this.extractVersionFromPattern(recommendations.targetPattern)}`
+        reason:
+          recommendations.reason ||
+          `${namePattern.version} is deprecated, use ${this.extractVersionFromPattern(recommendations.targetPattern)}`,
       });
     }
 
@@ -97,7 +103,7 @@ export class QueryMigrator {
         type: 'fragment',
         from: recommendations.fragmentChanges.from,
         to: recommendations.fragmentChanges.to,
-        reason: 'Fragment upgrade for feature compatibility'
+        reason: 'Fragment upgrade for feature compatibility',
       });
     }
 
@@ -108,16 +114,16 @@ export class QueryMigrator {
         migrationNotes: {
           preservedTemplate: namePattern.template,
           targetVersion: this.extractVersionFromPattern(recommendations.targetPattern),
-          originalVersion: namePattern.version
-        }
+          originalVersion: namePattern.version,
+        },
       },
       migrationNotes: {
         currentVersion: namePattern.version,
         targetVersion: this.extractVersionFromPattern(recommendations.targetPattern),
         action: 'Update queryNames object',
-        changes
+        changes,
       },
-      requiresManualReview: this.requiresManualReview(query, changes)
+      requiresManualReview: this.requiresManualReview(query, changes),
     };
   }
 
@@ -137,12 +143,9 @@ export class QueryMigrator {
           type: replacement.type as 'fragment' | 'directive',
           from: replacement.from,
           to: replacement.to,
-          reason: `Global ${replacement.type} replacement`
+          reason: `Global ${replacement.type} replacement`,
         });
-        updatedContent = updatedContent.replace(
-          new RegExp(replacement.from, 'g'),
-          replacement.to
-        );
+        updatedContent = updatedContent.replace(new RegExp(replacement.from, 'g'), replacement.to);
       }
     }
 
@@ -154,9 +157,9 @@ export class QueryMigrator {
         currentVersion: 'static',
         targetVersion: 'static',
         action: requiresUpdate ? 'Update query string' : 'No migration needed',
-        changes
+        changes,
       },
-      requiresManualReview: requiresUpdate
+      requiresManualReview: requiresUpdate,
     };
   }
 
@@ -178,9 +181,9 @@ export class QueryMigrator {
             currentVersion: 'unknown',
             targetVersion: 'unknown',
             action: 'No migration needed',
-            changes: []
+            changes: [],
           },
-          requiresManualReview: true
+          requiresManualReview: true,
         });
       }
     }
@@ -214,8 +217,8 @@ export class QueryMigrator {
       changes: {
         queryNames: 0,
         fragments: 0,
-        directives: 0
-      }
+        directives: 0,
+      },
     };
 
     for (const result of results) {
@@ -236,10 +239,13 @@ export class QueryMigrator {
       }
 
       // Track version progression for pattern-based migrations
-      if (migrationNotes.action === 'Update queryNames object' && 
-          migrationNotes.currentVersion !== migrationNotes.targetVersion) {
+      if (
+        migrationNotes.action === 'Update queryNames object' &&
+        migrationNotes.currentVersion !== migrationNotes.targetVersion
+      ) {
         const progression = `${migrationNotes.currentVersion} → ${migrationNotes.targetVersion}`;
-        summary.versionProgression[progression] = (summary.versionProgression[progression] || 0) + 1;
+        summary.versionProgression[progression] =
+          (summary.versionProgression[progression] || 0) + 1;
       }
 
       // Count changes by type
@@ -291,25 +297,25 @@ export class QueryMigrator {
       if (result.query.namePattern?.isDeprecated) {
         const pattern = result.query.namePattern;
         const propertyName = this.getPropertyName(pattern.patternKey, pattern.version);
-        
+
         if (propertyName !== 'unknown' && currentQueryNames[propertyName]) {
           // Find the target property name
           const targetVersion = pattern.migrationPath || 'V3';
           const targetProperty = this.getPropertyName(pattern.patternKey, targetVersion);
-          
+
           if (targetProperty !== 'unknown' && currentQueryNames[targetProperty]) {
             changes.push({
               property: propertyName,
               from: currentQueryNames[propertyName],
               to: currentQueryNames[targetProperty],
-              reason: `${pattern.version} is deprecated, use ${targetVersion}`
+              reason: `${pattern.version} is deprecated, use ${targetVersion}`,
             });
             // Update the property to point to the new version
             updatedQueryNames[propertyName] = currentQueryNames[targetProperty];
           }
         }
       }
-      
+
       // Also apply explicit migration changes
       for (const change of result.migrationNotes.changes) {
         if (change.type === 'queryNames') {
@@ -322,13 +328,13 @@ export class QueryMigrator {
 
             if (currentQueryNames[fromProperty] && currentQueryNames[toProperty]) {
               // Only add if not already added above
-              const existingChange = changes.find(c => c.property === fromProperty);
+              const existingChange = changes.find((c) => c.property === fromProperty);
               if (!existingChange) {
                 changes.push({
                   property: fromProperty,
                   from: currentQueryNames[fromProperty],
                   to: currentQueryNames[toProperty],
-                  reason: change.reason
+                  reason: change.reason,
                 });
                 // Update the target property to be used instead
                 updatedQueryNames[fromProperty] = currentQueryNames[toProperty];
@@ -342,7 +348,7 @@ export class QueryMigrator {
     return {
       currentQueryNames,
       updatedQueryNames,
-      changes
+      changes,
     };
   }
 
@@ -356,7 +362,7 @@ export class QueryMigrator {
     let property: string;
     const fullMatch = pattern.match(/\${queryNames\.(\w+)}/);
     const simpleMatch = pattern.match(/queryNames\.(\w+)/);
-    
+
     if (fullMatch) {
       property = fullMatch[1];
     } else if (simpleMatch) {
@@ -376,12 +382,12 @@ export class QueryMigrator {
   private getPropertyName(patternKey: string, version: string): string {
     // This should match the mapping in QueryPatternService
     const mapping: Record<string, Record<string, string>> = {
-      'getVentureById': {
-        'V1': 'byIdV1',
-        'V2': 'byIdV2',
-        'V3': 'byIdV3',
-        'V3Airo': 'byIdV3Airo'
-      }
+      getVentureById: {
+        V1: 'byIdV1',
+        V2: 'byIdV2',
+        V3: 'byIdV3',
+        V3Airo: 'byIdV3Airo',
+      },
     };
 
     return mapping[patternKey]?.[version] || 'unknown';
@@ -390,15 +396,18 @@ export class QueryMigrator {
   /**
    * Determine if a migration requires manual review
    */
-  private requiresManualReview(query: PatternExtractedQuery, changes: MigrationResult['migrationNotes']['changes']): boolean {
+  private requiresManualReview(
+    query: PatternExtractedQuery,
+    changes: MigrationResult['migrationNotes']['changes'],
+  ): boolean {
     // Require manual review if:
     // 1. There are multiple version jumps (e.g., V1 -> V3)
     // 2. Fragment changes are involved
     // 3. Complex feature flag conditions are present
 
-    const hasFragmentChanges = changes.some(c => c.type === 'fragment');
-    const hasComplexMigration = query.namePattern?.version === 'V1' &&
-                               changes.some(c => c.to.includes('V3'));
+    const hasFragmentChanges = changes.some((c) => c.type === 'fragment');
+    const hasComplexMigration =
+      query.namePattern?.version === 'V1' && changes.some((c) => c.to.includes('V3'));
 
     return hasFragmentChanges || hasComplexMigration;
   }

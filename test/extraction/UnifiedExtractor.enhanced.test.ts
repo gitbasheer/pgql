@@ -22,15 +22,15 @@ describe('UnifiedExtractor vnext-dashboard enhancements', () => {
           }
         }\`;
     `;
-    
+
     vi.mocked(glob).mockResolvedValue(['src/features/offer-graph/queries/offer.js']);
     vi.mocked(fs.readFile).mockResolvedValue(mockFileContent);
-    
-    const extractor = new UnifiedExtractor({ 
+
+    const extractor = new UnifiedExtractor({
       directory: 'mock-repo',
-      strategies: ['pluck']
+      strategies: ['pluck'],
     });
-    
+
     const queries = await extractor.extractFromFile('src/features/offer-graph/queries/offer.js');
     expect(queries[0]).toHaveProperty('endpoint', 'offerGraph');
   });
@@ -46,15 +46,15 @@ describe('UnifiedExtractor vnext-dashboard enhancements', () => {
           }
         }\`;
     `;
-    
+
     vi.mocked(glob).mockResolvedValue(['src/features/offers/mutations.js']);
     vi.mocked(fs.readFile).mockResolvedValue(mockFileContent);
-    
-    const extractor = new UnifiedExtractor({ 
+
+    const extractor = new UnifiedExtractor({
       directory: 'mock-repo',
-      strategies: ['pluck']
+      strategies: ['pluck'],
     });
-    
+
     const queries = await extractor.extractFromFile('src/features/offers/mutations.js');
     expect(queries[0]).toHaveProperty('endpoint', 'offerGraph');
   });
@@ -69,15 +69,15 @@ describe('UnifiedExtractor vnext-dashboard enhancements', () => {
           }
         }\`;
     `;
-    
+
     vi.mocked(glob).mockResolvedValue(['src/features/ventures/queries.js']);
     vi.mocked(fs.readFile).mockResolvedValue(mockFileContent);
-    
-    const extractor = new UnifiedExtractor({ 
+
+    const extractor = new UnifiedExtractor({
       directory: 'mock-repo',
-      strategies: ['pluck']
+      strategies: ['pluck'],
     });
-    
+
     const queries = await extractor.extractFromFile('src/features/ventures/queries.js');
     expect(queries[0]).toHaveProperty('endpoint', 'productGraph');
   });
@@ -94,18 +94,18 @@ describe('UnifiedExtractor vnext-dashboard enhancements', () => {
           ventures { id }
         }\`;
     `;
-    
+
     vi.mocked(glob).mockResolvedValue(['src/queries.js']);
     vi.mocked(fs.readFile).mockResolvedValue(mockFileContent);
-    
-    const extractor = new UnifiedExtractor({ 
+
+    const extractor = new UnifiedExtractor({
       directory: 'mock-repo',
-      strategies: ['pluck']
+      strategies: ['pluck'],
     });
-    
+
     const result = await extractor.extract();
     const standardized = await extractor.extractFromRepo();
-    
+
     expect(standardized[0].name).toBe('GetVenture');
     // Second query might have a different naming pattern
     expect(standardized[1].name).toBeTruthy();
@@ -123,17 +123,17 @@ describe('UnifiedExtractor vnext-dashboard enhancements', () => {
           }
         }\`;
     `;
-    
+
     vi.mocked(glob).mockResolvedValue(['src/queries.js']);
     vi.mocked(fs.readFile).mockResolvedValue(mockFileContent);
-    
-    const extractor = new UnifiedExtractor({ 
+
+    const extractor = new UnifiedExtractor({
       directory: 'mock-repo',
-      strategies: ['ast'] // AST strategy extracts variables
+      strategies: ['ast'], // AST strategy extracts variables
     });
-    
+
     const standardized = await extractor.extractFromRepo();
-    
+
     // Variables extraction depends on AST parsing
     expect(standardized[0].variables).toBeDefined();
   });

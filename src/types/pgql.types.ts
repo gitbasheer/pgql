@@ -1,27 +1,27 @@
 // Import shared types for use in this file
-import type { 
-  ExtractedQuery as SharedExtractedQuery, 
-  TestingAccount as SharedTestingAccount 
+import type {
+  ExtractedQuery as SharedExtractedQuery,
+  TestingAccount as SharedTestingAccount,
 } from './shared.types';
 
 // Re-export shared types
-export type { 
-  Endpoint, 
-  ExtractedQuery, 
-  TestParams, 
+export type {
+  Endpoint,
+  ExtractedQuery,
+  TestParams,
   TransformationResult,
   TestingAccount,
   TransformationChange,
   ValidationResult,
-  RealApiTestResult
+  RealApiTestResult,
 } from './shared.types';
 
 // Backend-specific extension of TestParams with auth
 export interface BackendTestParams {
   query: SharedExtractedQuery;
   testingAccount: SharedTestingAccount;
-  auth: { 
-    cookies: string; 
+  auth: {
+    cookies: string;
     appKey: string;
   };
 }

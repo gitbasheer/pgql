@@ -19,7 +19,7 @@ import type {
   ValidationResult,
   RealApiTestResult,
   CohortResponse,
-  SocketEvents
+  SocketEvents,
 } from '../../../src/types/shared.types';
 
 // Re-export shared types
@@ -43,7 +43,7 @@ export type {
   ValidationResult,
   RealApiTestResult,
   CohortResponse,
-  SocketEvents
+  SocketEvents,
 };
 
 // Frontend-specific types

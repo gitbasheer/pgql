@@ -26,6 +26,7 @@ npx ts-node scripts/migrate-response-validation-config.ts "**/*validation*.{yaml
 ```
 
 The script will:
+
 - Create backups of original files (`.pre-migration.bak`)
 - Convert recognizable patterns to predefined comparator types
 - Flag complex functions that require manual migration
@@ -35,10 +36,11 @@ The script will:
 For functions that cannot be automatically migrated, replace them with appropriate comparator types:
 
 #### Before (Embedded JS):
+
 ```yaml
 validation:
   customComparators:
-    "data.*.createdAt": |
+    'data.*.createdAt': |
       function(baseline, transformed) {
         const date1 = new Date(baseline);
         const date2 = new Date(transformed);
@@ -47,89 +49,98 @@ validation:
 ```
 
 #### After (Comparator Type):
+
 ```yaml
 comparison:
   customComparators:
-    "data.*.createdAt":
-      type: "date-tolerance"
+    'data.*.createdAt':
+      type: 'date-tolerance'
       options:
-        tolerance: 60000  # milliseconds
+        tolerance: 60000 # milliseconds
 ```
 
 ## Available Comparator Types
 
 ### 1. `date-tolerance`
+
 Compares dates/timestamps with configurable tolerance.
 
 ```yaml
-"data.*.timestamp":
-  type: "date-tolerance"
+'data.*.timestamp':
+  type: 'date-tolerance'
   options:
-    tolerance: 60000  # Default: 60000ms (1 minute)
+    tolerance: 60000 # Default: 60000ms (1 minute)
 ```
 
 ### 2. `case-insensitive`
+
 Compares strings ignoring case differences.
 
 ```yaml
-"data.*.status":
-  type: "case-insensitive"
+'data.*.status':
+  type: 'case-insensitive'
 ```
 
 ### 3. `numeric-tolerance`
+
 Compares numbers with absolute or relative tolerance.
 
 ```yaml
 # Absolute tolerance
-"data.*.price":
-  type: "numeric-tolerance"
+'data.*.price':
+  type: 'numeric-tolerance'
   options:
-    tolerance: 0.01    # Absolute difference
-    relative: false    # Default: false
+    tolerance: 0.01 # Absolute difference
+    relative: false # Default: false
 
 # Relative tolerance (percentage)
-"data.*.percentage":
-  type: "numeric-tolerance"
+'data.*.percentage':
+  type: 'numeric-tolerance'
   options:
-    tolerance: 0.05    # 5% relative tolerance
+    tolerance: 0.05 # 5% relative tolerance
     relative: true
 ```
 
 ### 4. `array-unordered`
+
 Compares arrays ignoring element order.
 
 ```yaml
-"data.tags":
-  type: "array-unordered"
+'data.tags':
+  type: 'array-unordered'
 ```
 
 ### 5. `ignore-whitespace`
+
 Compares strings ignoring whitespace differences.
 
 ```yaml
-"data.*.description":
-  type: "ignore-whitespace"
+'data.*.description':
+  type: 'ignore-whitespace'
 ```
 
 ### 6. `type-coercion`
+
 Allows common type conversions (string ↔ number, string ↔ boolean).
 
 ```yaml
-"data.*.id":
-  type: "type-coercion"
+'data.*.id':
+  type: 'type-coercion'
 ```
 
 ### 7. `deep-partial`
+
 Checks if one object is a subset of another.
 
 ```yaml
-"data.partialResponse":
-  type: "deep-partial"
+'data.partialResponse':
+  type: 'deep-partial'
 ```
 
 ## Common Migration Patterns
 
 ### Date/Time Comparisons
+
 ```yaml
 # Before
 "data.timestamp": |
@@ -145,6 +156,7 @@ Checks if one object is a subset of another.
 ```
 
 ### Case-Insensitive String Comparison
+
 ```yaml
 # Before
 "data.name": |
@@ -158,6 +170,7 @@ Checks if one object is a subset of another.
 ```
 
 ### Type Conversion
+
 ```yaml
 # Before
 "data.id": |
@@ -171,17 +184,18 @@ Checks if one object is a subset of another.
 ```
 
 ### Always True (Field Ignore)
+
 ```yaml
 # Before
-"data.debug": |
+'data.debug': |
   function() { return true; }
 
 # After - Use ignorePatterns instead
 validation:
   ignorePatterns:
-    - path: "data.debug"
-      reason: "Debug field varies by environment"
-      type: "all"
+    - path: 'data.debug'
+      reason: 'Debug field varies by environment'
+      type: 'all'
 ```
 
 ## Custom Comparators
@@ -189,6 +203,7 @@ validation:
 If none of the predefined types meet your needs, you can:
 
 1. **Register a custom comparator in code**:
+
 ```typescript
 import { ComparatorRegistry } from '@core/validator/comparators';
 
@@ -201,11 +216,12 @@ ComparatorRegistry.registerComparator('my-custom-type', (options) => {
 ```
 
 2. **Reference it in YAML**:
+
 ```yaml
-"data.specialField":
-  type: "my-custom-type"
+'data.specialField':
+  type: 'my-custom-type'
   options:
-    customParam: "value"
+    customParam: 'value'
 ```
 
 ## Testing Your Migration
@@ -226,13 +242,17 @@ npx pg-validate compare \
 ## Troubleshooting
 
 ### Error: "Embedded JavaScript functions are no longer supported"
+
 This warning appears when the system detects string-based function definitions. Update to use a predefined comparator type.
 
 ### Error: "Unknown comparator type"
+
 Ensure you're using one of the available comparator types listed above, or register a custom type before use.
 
 ### Complex Logic That Doesn't Fit Predefined Types
+
 Consider:
+
 1. Breaking down the logic into multiple comparators
 2. Using `ignorePatterns` for fields that should be skipped
 3. Implementing a custom comparator in code
@@ -240,6 +260,7 @@ Consider:
 ## Support
 
 For complex migration scenarios or questions, please:
+
 1. Check the [examples directory](../examples) for more patterns
 2. Review the [test cases](../src/test/validator/comparators.test.ts)
 3. Open an issue with your specific use case

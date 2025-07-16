@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { GraphQLSchema, buildSchema } from 'graphql';
 import { OptimizedSchemaTransformer } from '../core/transformer/OptimizedSchemaTransformer.js';
-import { SchemaDeprecationAnalyzer, DeprecationRule } from '../core/analyzer/SchemaDeprecationAnalyzer.js';
+import {
+  SchemaDeprecationAnalyzer,
+  DeprecationRule,
+} from '../core/analyzer/SchemaDeprecationAnalyzer.js';
 
 interface TestContext {
   schema: GraphQLSchema;
@@ -64,9 +67,9 @@ describe('GraphQL Migration Tool', () => {
     const schema = buildSchema(schemaSDL);
     const analyzer = new SchemaDeprecationAnalyzer();
     const deprecationRules = analyzer.analyzeSchema(schemaSDL);
-    
+
     // Create a patched version that's aware of our test schema structure
-    const modifiedRules = deprecationRules.map(rule => {
+    const modifiedRules = deprecationRules.map((rule) => {
       // For the edges field, we need to understand its parent context
       if (rule.fieldName === 'edges' && rule.objectType === 'VentureConnection') {
         // The transformer will see this under the 'ventures' field which it maps to 'Venture'
@@ -75,7 +78,7 @@ describe('GraphQL Migration Tool', () => {
       }
       return rule;
     });
-    
+
     // Add duplicate rules for type mappings
     const additionalRules: DeprecationRule[] = [];
     for (const rule of deprecationRules) {
@@ -83,13 +86,13 @@ describe('GraphQL Migration Tool', () => {
         // The transformer maps 'ventures' field to 'Venture' type
         additionalRules.push({
           ...rule,
-          objectType: 'Venture'
+          objectType: 'Venture',
         });
       }
     }
-    
+
     const allRules = [...modifiedRules, ...additionalRules];
-    
+
     // Patch the OptimizedSchemaTransformer to handle our test schema types
     class TestOptimizedSchemaTransformer extends OptimizedSchemaTransformer {
       constructor(rules: DeprecationRule[], options: any) {
@@ -102,12 +105,12 @@ describe('GraphQL Migration Tool', () => {
         }
       }
     }
-    
+
     const transformer = new TestOptimizedSchemaTransformer(allRules, {
       commentOutVague: true,
       addDeprecationComments: true,
       preserveOriginalAsComment: false,
-      enableCache: false
+      enableCache: false,
     });
 
     ctx = { schema, transformer, analyzer, deprecationRules };
@@ -115,17 +118,19 @@ describe('GraphQL Migration Tool', () => {
 
   it('should detect deprecated fields', () => {
     const deprecatedFields = ctx.deprecationRules;
-    
+
     expect(deprecatedFields.length).toBeGreaterThan(0);
-    
-    const queryDeprecations = deprecatedFields.filter(r => r.objectType === 'Query');
-    const userDeprecations = deprecatedFields.filter(r => r.objectType === 'User');
-    const ventureConnectionDeprecations = deprecatedFields.filter(r => r.objectType === 'VentureConnection');
-    
+
+    const queryDeprecations = deprecatedFields.filter((r) => r.objectType === 'Query');
+    const userDeprecations = deprecatedFields.filter((r) => r.objectType === 'User');
+    const ventureConnectionDeprecations = deprecatedFields.filter(
+      (r) => r.objectType === 'VentureConnection',
+    );
+
     expect(queryDeprecations.length).toBe(1);
     expect(userDeprecations.length).toBe(2);
     expect(ventureConnectionDeprecations.length).toBe(1);
-    
+
     const allVenturesRule = queryDeprecations[0];
     expect(allVenturesRule.fieldName).toBe('allVentures');
     expect(allVenturesRule.replacement).toBe('ventures');
@@ -133,16 +138,16 @@ describe('GraphQL Migration Tool', () => {
 
   it('should generate migration rules from deprecations', () => {
     const rules = ctx.deprecationRules;
-    
+
     expect(rules.length).toBeGreaterThan(0);
-    
-    const allVenturesRule = rules.find(r => 
-      r.fieldName === 'allVentures' && r.replacement === 'ventures'
+
+    const allVenturesRule = rules.find(
+      (r) => r.fieldName === 'allVentures' && r.replacement === 'ventures',
     );
     expect(allVenturesRule).toBeDefined();
-    
-    const fullNameRule = rules.find(r => 
-      r.fieldName === 'fullName' && r.replacement === 'displayName'
+
+    const fullNameRule = rules.find(
+      (r) => r.fieldName === 'fullName' && r.replacement === 'displayName',
     );
     expect(fullNameRule).toBeDefined();
   });
@@ -164,14 +169,12 @@ describe('GraphQL Migration Tool', () => {
     // Check transformation result
     expect(result.transformed).not.toBe(result.original);
     expect(result.changes).toHaveLength(2); // fullName and isActive
-    
-    const fullNameChange = result.changes.find(c => 
-      c.field === 'fullName'
-    );
+
+    const fullNameChange = result.changes.find((c) => c.field === 'fullName');
     expect(fullNameChange).toBeDefined();
     expect(fullNameChange!.type).toBe('field-rename');
     expect(fullNameChange!.replacement).toBe('displayName');
-    
+
     // Check transformed query contains replacements
     expect(result.transformed).toContain('displayName');
     expect(result.transformed).not.toContain('fullName');
@@ -201,13 +204,13 @@ describe('GraphQL Migration Tool', () => {
     // Should transform allVentures to ventures
     expect(result.transformed).toContain('ventures');
     expect(result.transformed).not.toContain('allVentures');
-    
+
     // Check changes were recorded
     expect(result.changes.length).toBe(1); // Only allVentures transformation
-    const venturesChange = result.changes.find(c => c.field === 'allVentures');
+    const venturesChange = result.changes.find((c) => c.field === 'allVentures');
     expect(venturesChange).toBeDefined();
     expect(venturesChange!.replacement).toBe('ventures');
-    
+
     // Note: The edges to nodes transformation doesn't happen automatically
     // because the transformer doesn't know the return type of 'ventures'
     // This would require schema-aware type resolution
@@ -229,7 +232,9 @@ describe('GraphQL Migration Tool', () => {
     // Should not change non-deprecated fields
     expect(result.changes).toHaveLength(0);
     // Normalize whitespace for comparison since print formats differently
-    expect(result.transformed.replace(/\s+/g, ' ').trim()).toBe(result.original.replace(/\s+/g, ' ').trim());
+    expect(result.transformed.replace(/\s+/g, ' ').trim()).toBe(
+      result.original.replace(/\s+/g, ' ').trim(),
+    );
   });
 
   it('should handle nested deprecated fields', async () => {
@@ -254,10 +259,14 @@ describe('GraphQL Migration Tool', () => {
     expect(result.transformed).not.toContain('fullName');
     expect(result.transformed).toContain('status');
     expect(result.transformed).not.toContain('isActive');
-    
+
     // Check that changes were recorded for nested fields
     expect(result.changes.length).toBe(2); // fullName and isActive
-    expect(result.changes.some(c => c.field === 'fullName' && c.replacement === 'displayName')).toBe(true);
-    expect(result.changes.some(c => c.field === 'isActive' && c.replacement === 'status')).toBe(true);
+    expect(
+      result.changes.some((c) => c.field === 'fullName' && c.replacement === 'displayName'),
+    ).toBe(true);
+    expect(result.changes.some((c) => c.field === 'isActive' && c.replacement === 'status')).toBe(
+      true,
+    );
   });
 });

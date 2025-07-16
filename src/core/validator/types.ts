@@ -321,4 +321,3 @@ export interface ResponseValidationConfig {
     includeDiffs?: boolean;
   };
 }
-

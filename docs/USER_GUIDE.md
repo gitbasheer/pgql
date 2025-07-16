@@ -9,6 +9,7 @@ This guide walks you through every step of using the GraphQL Migration Dashboard
 ## Prerequisites & Setup
 
 ### 1. Environment Setup
+
 First, ensure you have the required environment variables configured:
 
 ```bash
@@ -29,11 +30,14 @@ REACT_APP_TEST_ACCOUNT_ID=test-account-123
 ### 2. Start the Services
 
 **Terminal 1 - Start the Mock API Server:**
+
 ```bash
 cd ui
 node server.mjs
 ```
+
 You should see:
+
 ```
 ✅ Mock API server running on http://localhost:3001
 📊 Endpoints available:
@@ -43,11 +47,14 @@ You should see:
 ```
 
 **Terminal 2 - Start the UI Development Server:**
+
 ```bash
 cd ui
 npm run dev
 ```
+
 You should see:
+
 ```
 VITE v7.0.4  ready in 138 ms
 ➜  Local:   http://localhost:5176/
@@ -58,6 +65,7 @@ VITE v7.0.4  ready in 138 ms
 ## Complete Pipeline Walkthrough
 
 ### Step 1: Access the Dashboard
+
 1. Open your browser and navigate to `http://localhost:5176`
 2. You should see the **GraphQL Migration Dashboard** with:
    - **Status Indicator**: Shows "Ready" (green)
@@ -68,6 +76,7 @@ VITE v7.0.4  ready in 138 ms
 ### Step 2: Configure the Pipeline
 
 #### Option A: **Real API Testing** (Recommended for Production)
+
 Fill out the form with your **real production endpoints**:
 
 ```
@@ -79,6 +88,7 @@ Test Account ID: your-actual-account-id
 
 **🔑 Authentication Setup for Real APIs:**
 Make sure your `.env` file contains real credentials:
+
 ```bash
 REACT_APP_APOLLO_PG_ENDPOINT=https://your-production-api.com/graphql
 REACT_APP_TEST_API_URL=https://your-production-api.com/graphql
@@ -89,6 +99,7 @@ REACT_APP_INFO_IDP=your_real_info_token
 ```
 
 #### Option B: Demo with vnext Sample Data
+
 1. Click the **"🧪 Test vnext Sample"** button
 2. This automatically loads the sample data:
    - **Repository Path**: `data/sample_data/vnext-dashboard`
@@ -97,6 +108,7 @@ REACT_APP_INFO_IDP=your_real_info_token
    - **Account ID**: `test-vnext-123`
 
 ### Step 3: Start the Pipeline
+
 1. Click **"Start Pipeline"** (or the vnext sample button)
 2. **Immediately observe:**
    - Status indicator changes to **"Polling Status (extraction)"**
@@ -106,6 +118,7 @@ REACT_APP_INFO_IDP=your_real_info_token
 ### Step 4: Monitor Real-time Progress
 
 #### Watch the Pipeline Progress Component
+
 The visual pipeline shows 6 stages with real-time updates:
 
 1. **🔍 Extraction** (3 seconds)
@@ -133,6 +146,7 @@ The visual pipeline shows 6 stages with real-time updates:
    - Git diff generation
 
 #### Monitor the Live Log Stream
+
 Watch the logs panel for detailed progress:
 
 ```
@@ -160,14 +174,16 @@ Watch the logs panel for detailed progress:
 Once extraction completes (after ~3 seconds), scroll down to the **"Query Results"** section:
 
 #### Query Table View
+
 You'll see a table with all extracted queries:
 
-| Query Name | File | Type | Status | Actions |
-|------------|------|------|--------|---------|
-| getUser | /src/queries/user.ts:42 | query | simple | View Diff |
-| listPosts | /src/queries/posts.ts:15 | query | fragments | View Diff |
+| Query Name | File                     | Type  | Status    | Actions   |
+| ---------- | ------------------------ | ----- | --------- | --------- |
+| getUser    | /src/queries/user.ts:42  | query | simple    | View Diff |
+| listPosts  | /src/queries/posts.ts:15 | query | fragments | View Diff |
 
 #### Status Badges Explained:
+
 - **🟢 simple**: Basic query with no complex features
 - **🔵 fragments**: Uses GraphQL fragments
 - **🟡 variables**: Has query variables
@@ -178,6 +194,7 @@ You'll see a table with all extracted queries:
 Click **"View Diff"** on any query to open the analysis modal:
 
 #### Tab 1: Transformation View
+
 **Side-by-side diff** showing original vs transformed query:
 
 ```graphql
@@ -191,10 +208,12 @@ query getUser($id: ID!) {          query getUser($id: ID!) {
 ```
 
 **Warnings section** (if any):
+
 - Field "name" renamed to "fullName"
 - Field "email" renamed to "emailAddress"
 
 **Response Mapping Code**:
+
 ```javascript
 // Response mapping for getUser
 export function mapGetUserResponse(oldResponse: any): any {
@@ -208,11 +227,13 @@ export function mapGetUserResponse(oldResponse: any): any {
 ```
 
 #### Tab 2: Baseline Comparison
+
 Shows **before/after API response** comparisons:
 
 **✅ Matches baseline** or **⚠️ Differences found**
 
 If differences exist, you'll see a side-by-side JSON diff:
+
 ```json
 // Baseline Response              // Current Response
 {                                 {
@@ -224,21 +245,26 @@ If differences exist, you'll see a side-by-side JSON diff:
 ```
 
 #### Tab 3: GraphQL Validation
+
 **Real-time query validation** using Apollo Client:
 
 **✅ Query is Valid** or **❌ Validation Failed**
 
 For valid queries:
+
 - Schema response preview
 - Execution confirmation
 
 For invalid queries:
+
 - Error type and message
 - Line/column error locations
 - GraphQL syntax errors
 
 #### Hivemind A/B Testing Integration
+
 Each query shows **cohort information**:
+
 - **A/B Cohort**: cohort-abc-123
 - **Experiment**: new-queries-rollout
 - **Variant**: treatment_v2
@@ -250,12 +276,14 @@ Each query shows **cohort information**:
 Scroll to the **"Real API Testing"** section:
 
 #### Test Summary Stats:
+
 - **Total Queries**: 2
 - **Tested**: 2
 - **Passed**: 2 ✅
 - **Failed**: 0
 
 #### Individual Test Results:
+
 ```
 ✅ getUser - Response matches baseline (150ms)
 ✅ listPosts - Response validated (200ms)
@@ -273,6 +301,7 @@ Scroll to the **"Real API Testing"** section:
    - Measures **actual response times**
 
 2. **Real API Validation Results:**
+
    ```
    ✅ getUserProfile - Real API response (247ms)
    ✅ listArticles - Authentication validated (189ms)
@@ -295,6 +324,7 @@ Scroll to the **"Real API Testing"** section:
 You can also test APIs directly using the enhanced server endpoints:
 
 **Test specific queries against your real API:**
+
 ```bash
 curl -X POST http://localhost:3001/api/test-real-api \
   -H "Content-Type: application/json" \
@@ -315,6 +345,7 @@ curl -X POST http://localhost:3001/api/test-real-api \
 ```
 
 **Validate your GraphQL endpoint:**
+
 ```bash
 curl -X POST http://localhost:3001/api/validate-endpoint \
   -H "Content-Type: application/json" \
@@ -327,6 +358,7 @@ curl -X POST http://localhost:3001/api/validate-endpoint \
 ```
 
 **Get sample queries for testing:**
+
 ```bash
 curl http://localhost:3001/api/sample-queries
 ```
@@ -353,17 +385,17 @@ index abc123..def456 100644
 --- a/src/queries/user.ts
 +++ b/src/queries/user.ts
 @@ -40,7 +40,7 @@ export const GET_USER = gql`
--  query getUser($id: ID!) { 
--    user(id: $id) { 
--      name 
--      email 
--    } 
+-  query getUser($id: ID!) {
+-    user(id: $id) {
+-      name
+-      email
+-    }
 -  }
-+  query getUser($id: ID!) { 
-+    userV2(userId: $id) { 
-+      fullName 
-+      emailAddress 
-+    } 
++  query getUser($id: ID!) {
++    userV2(userId: $id) {
++      fullName
++      emailAddress
++    }
 +  }
 `;
 ```
@@ -376,6 +408,7 @@ index abc123..def456 100644
 ### Step 9: GitHub Integration (Optional)
 
 #### Clone Repository from GitHub:
+
 1. Click the **GitHub icon** next to Repository Path
 2. Enter GitHub URL: `https://github.com/yourorg/your-repo`
 3. Modal shows cloning progress
@@ -392,6 +425,7 @@ If you have access to production GraphQL endpoints, follow these steps for compr
 #### **1. Environment Setup for Real APIs**
 
 Create a `.env.production` file with your real credentials:
+
 ```bash
 # Production GraphQL Endpoints
 REACT_APP_APOLLO_PG_ENDPOINT=https://api.godaddy.com/graphql
@@ -410,6 +444,7 @@ REACT_APP_TEST_ACCOUNT_ID=your_real_account_id
 #### **2. Test Against Real Production APIs**
 
 **Step 1: Start with Real Endpoint Validation**
+
 ```bash
 # Test if your production endpoint is accessible
 curl -X POST http://localhost:3001/api/validate-endpoint \
@@ -424,6 +459,7 @@ curl -X POST http://localhost:3001/api/validate-endpoint \
 ```
 
 **Expected Response:**
+
 ```json
 {
   "valid": true,
@@ -437,6 +473,7 @@ curl -X POST http://localhost:3001/api/validate-endpoint \
 ```
 
 **Step 2: Test Real Queries**
+
 ```bash
 # Test actual GraphQL queries against production
 curl -X POST http://localhost:3001/api/test-real-api \
@@ -464,6 +501,7 @@ curl -X POST http://localhost:3001/api/test-real-api \
 ```
 
 **Step 3: Full Pipeline with Real Data**
+
 1. **Configure UI with real endpoints**:
    - Repository Path: Your actual GraphQL codebase
    - Schema Endpoint: `https://api.godaddy.com/graphql`
@@ -479,6 +517,7 @@ curl -X POST http://localhost:3001/api/test-real-api \
 #### **3. Real API Testing Scenarios**
 
 **Scenario 1: Authentication Validation**
+
 ```bash
 # Test different auth methods
 curl -X POST http://localhost:3001/api/test-real-api \
@@ -495,6 +534,7 @@ curl -X POST http://localhost:3001/api/test-real-api \
 ```
 
 **Scenario 2: Error Handling**
+
 ```bash
 # Test with invalid credentials
 curl -X POST http://localhost:3001/api/test-real-api \
@@ -509,6 +549,7 @@ curl -X POST http://localhost:3001/api/test-real-api \
 ```
 
 **Expected Error Response:**
+
 ```json
 {
   "testId": "test-123",
@@ -524,6 +565,7 @@ curl -X POST http://localhost:3001/api/test-real-api \
 ```
 
 **Scenario 3: Schema Evolution Testing**
+
 ```bash
 # Test queries against new/old schema versions
 curl -X POST http://localhost:3001/api/test-real-api \
@@ -537,7 +579,7 @@ curl -X POST http://localhost:3001/api/test-real-api \
         "variables": {}
       },
       {
-        "name": "newUserQuery", 
+        "name": "newUserQuery",
         "query": "query getUser { userV2 { fullName emailAddress } }",
         "variables": {}
       }
@@ -560,13 +602,14 @@ Before running against production APIs, ensure:
 #### **5. Real API Integration Examples**
 
 **Example 1: GoDaddy API Integration**
+
 ```javascript
 // Real API configuration
 const realAPIConfig = {
   endpoint: 'https://api.godaddy.com/graphql',
   authHeaders: {
-    'Authorization': 'Bearer YOUR_GODADDY_TOKEN',
-    'X-Customer-ID': 'your-customer-id'
+    Authorization: 'Bearer YOUR_GODADDY_TOKEN',
+    'X-Customer-ID': 'your-customer-id',
   },
   queries: [
     {
@@ -581,19 +624,20 @@ const realAPIConfig = {
           }
         }
       }`,
-      variables: { customerId: 'your-customer-id' }
-    }
-  ]
+      variables: { customerId: 'your-customer-id' },
+    },
+  ],
 };
 ```
 
 **Example 2: Shopify API Integration**
+
 ```javascript
 // Real Shopify API configuration
 const shopifyConfig = {
   endpoint: 'https://your-shop.myshopify.com/admin/api/2023-10/graphql.json',
   authHeaders: {
-    'X-Shopify-Access-Token': 'YOUR_SHOPIFY_TOKEN'
+    'X-Shopify-Access-Token': 'YOUR_SHOPIFY_TOKEN',
   },
   queries: [
     {
@@ -609,17 +653,18 @@ const shopifyConfig = {
           }
         }
       }`,
-      variables: { first: 10 }
-    }
-  ]
+      variables: { first: 10 },
+    },
+  ],
 };
 ```
 
 #### **6. Monitoring Real API Performance**
 
 The dashboard will show real performance metrics:
+
 - **Response Times**: Actual API response times
-- **Success Rates**: Real success/failure percentages  
+- **Success Rates**: Real success/failure percentages
 - **Error Patterns**: Common authentication or GraphQL errors
 - **Rate Limiting**: API throttling detection
 - **Schema Changes**: Detection of field additions/removals
@@ -629,37 +674,46 @@ The dashboard will show real performance metrics:
 ### Error Handling & Recovery
 
 #### Network Issues:
+
 - **Automatic retry**: Polling continues through network failures
 - **User notifications**: Toast messages for connection issues
 - **Graceful degradation**: UI remains functional
 
 #### Invalid Repository Paths:
+
 ```
 ❌ Error: Invalid repository path: Path does not exist or is not accessible
 ```
+
 **Solution**: Verify path exists and is accessible
 
 #### Authentication Failures:
+
 ```
 ⚠️ Warning: Authentication failed for real API testing
 ```
+
 **Solution**: Check environment variables for auth tokens
 
 #### Schema Validation Errors:
+
 ```
 ❌ Query validation failed: Field 'user' doesn't exist on type 'Query'
 ```
+
 **Solution**: Update schema endpoint or fix query syntax
 
 ### Performance Monitoring
 
 #### Polling Performance:
+
 - **Interval**: 1000ms (1 second)
 - **Payload size**: ~500-1500 bytes per request
 - **Memory usage**: Stable with proper cleanup
 - **CPU impact**: <1% overhead
 
 #### Pipeline Performance:
+
 - **Total time**: ~16.5 seconds for full pipeline
 - **Extraction**: ~3 seconds
 - **Testing**: ~4 seconds (longest stage)
@@ -668,6 +722,7 @@ The dashboard will show real performance metrics:
 ### Data Flow Verification
 
 #### Verify Each Stage:
+
 1. **Extraction**: Check query count in results table
 2. **Classification**: Verify status badges are correct
 3. **Validation**: Ensure no schema errors
@@ -682,32 +737,40 @@ The dashboard will show real performance metrics:
 ### Common Issues & Solutions
 
 #### 1. "No queries found"
+
 **Symptoms**: Empty results table
 **Solutions**:
+
 - Verify repository contains GraphQL queries
 - Check for `gql` or `graphql` tags in code
 - Try different repository path
 - Ensure files are readable
 
 #### 2. "Polling failed"
+
 **Symptoms**: Status stuck on one stage
 **Solutions**:
+
 - Check mock server is running on port 3001
 - Verify network connectivity
 - Restart mock server
 - Check browser console for errors
 
 #### 3. "Transformation failed"
+
 **Symptoms**: No diff shown in modal
 **Solutions**:
+
 - Verify schema endpoint is valid
 - Check GraphQL schema compatibility
 - Review query syntax
 - Check transformation logs
 
 #### 4. "PR generation failed"
+
 **Symptoms**: No git diff preview
 **Solutions**:
+
 - Ensure queries were transformed successfully
 - Check file write permissions
 - Verify git repository status
@@ -716,20 +779,26 @@ The dashboard will show real performance metrics:
 ### Debug Information
 
 #### Browser Console:
+
 Press F12 and check:
+
 - Network tab for API calls
 - Console tab for error messages
 - Application tab for localStorage
 
 #### Log Analysis:
+
 Watch for these key log patterns:
+
 - `Starting extraction from repository...`
 - `Found X queries in Y files`
 - `Transformation completed for X queries`
 - `Pull request ready for review`
 
 #### API Testing:
+
 Manually test API endpoints:
+
 ```bash
 # Test extraction endpoint
 curl -X POST http://localhost:3001/api/extract \
@@ -747,29 +816,34 @@ curl http://localhost:3001/api/status
 After completing this guide, you should have:
 
 ### ✅ Extraction Results:
+
 - **2 GraphQL queries** extracted from vnext sample
 - **Query metadata**: names, files, line numbers, types
 - **Status classification**: simple, fragments, variables, complex
 
 ### ✅ Transformation Results:
+
 - **Side-by-side diffs** showing original vs transformed queries
 - **Field mappings**: old field names → new field names
 - **Response mapping code** for backward compatibility
 - **Deprecation warnings** for outdated fields
 
 ### ✅ Testing Results:
+
 - **API validation**: All queries tested against live endpoints
 - **Baseline comparisons**: Response structure verification
 - **Authentication validation**: Secure header construction
 - **Performance metrics**: Response times and success rates
 
 ### ✅ Integration Results:
+
 - **Apollo GraphQL**: Query syntax validation
 - **Hivemind cohorts**: A/B testing integration
 - **GitHub integration**: Repository cloning and PR generation
 - **Real-time updates**: Polling-based status monitoring
 
 ### ✅ Production Readiness:
+
 - **Error handling**: Comprehensive error recovery
 - **Performance**: Optimized polling and caching
 - **Security**: Credential masking and secure headers

@@ -12,7 +12,11 @@ import { SchemaDeprecationAnalyzer } from '../core/analyzer/SchemaDeprecationAna
 import { SchemaAwareTransformer } from '../core/transformer/SchemaAwareTransformer.js';
 import { OptimizedSchemaTransformer } from '../core/transformer/OptimizedSchemaTransformer.js';
 import { SchemaValidator } from '../core/validator/SchemaValidator.js';
-import { ASTCodeApplicator, TransformationMapping, SourceMapping } from '../core/applicator/index.js';
+import {
+  ASTCodeApplicator,
+  TransformationMapping,
+  SourceMapping,
+} from '../core/applicator/index.js';
 import { createTwoFilesPatch } from 'diff';
 import { logger } from '../utils/logger.js';
 import { formatGraphQL } from '../utils/formatter.js';
@@ -50,7 +54,7 @@ program
         resolveFragments: options.fragments !== false,
         normalizeNames: true,
         preserveSourceAST: true, // Enable AST preservation for minimal changes
-        reporters: [] // We'll handle output in the CLI
+        reporters: [], // We'll handle output in the CLI
       };
 
       logger.debug('Final extractionOptions:', extractionOptions);
@@ -75,9 +79,9 @@ program
             location: q.location,
             content: formattedContent,
             originalName: q.originalName || undefined,
-            sourceAST: q.sourceAST || undefined // Preserve source AST for apply command
+            sourceAST: q.sourceAST || undefined, // Preserve source AST for apply command
           };
-        })
+        }),
       );
 
       // Save to file
@@ -85,17 +89,20 @@ program
         timestamp: new Date().toISOString(),
         directory,
         totalQueries: formattedQueries.length,
-        queries: formattedQueries
+        queries: formattedQueries,
       };
 
       await fs.writeFile(options.output, JSON.stringify(output, null, 2));
       console.log(chalk.green(`✓ Saved to ${options.output}`));
 
       // Summary
-      const byType = result.queries.reduce((acc: Record<string, number>, q) => {
-        acc[q.type] = (acc[q.type] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const byType = result.queries.reduce(
+        (acc: Record<string, number>, q) => {
+          acc[q.type] = (acc[q.type] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
       console.log('\nSummary:');
       Object.entries(byType).forEach(([type, count]) => {
@@ -108,7 +115,6 @@ program
           console.log(chalk.yellow(`\n  Dynamic variants: ${variants.length}`));
         }
       }
-
     } catch (error) {
       spinner.fail('Extraction failed');
       logger.error('Error:', error);
@@ -152,7 +158,7 @@ program
         transformer = new OptimizedSchemaTransformer(deprecationRules, {
           commentOutVague: options.commentVague,
           addDeprecationComments: true,
-          preserveOriginalAsComment: false
+          preserveOriginalAsComment: false,
         });
       } else {
         // Use manual rules
@@ -161,7 +167,7 @@ program
         // Add common rules
         rules.push(
           QueryTransformer.commonRules.allVenturesToVentures,
-          QueryTransformer.commonRules.edgesToNodes
+          QueryTransformer.commonRules.edgesToNodes,
         );
 
         transformer = new QueryTransformer(rules);
@@ -185,7 +191,7 @@ program
           for (const item of report.summary) {
             if (!item.valid) {
               console.log(`  - ${item.id}: ${item.errorCount} errors`);
-              item.errors?.forEach(err => {
+              item.errors?.forEach((err) => {
                 console.log(`    ${chalk.red('✗')} ${err.message}`);
               });
             }
@@ -229,8 +235,8 @@ program
                   result.original,
                   result.transformed,
                   'Original',
-                  'Transformed'
-                )
+                  'Transformed',
+                ),
               });
             }
           } else {
@@ -246,8 +252,8 @@ program
                   result.original,
                   result.transformed,
                   'Original',
-                  'Transformed'
-                )
+                  'Transformed',
+                ),
               });
             }
           }
@@ -261,7 +267,7 @@ program
       if (options.dryRun) {
         console.log(chalk.yellow('\nDry run mode - showing changes:\n'));
 
-        results.forEach(r => {
+        results.forEach((r) => {
           console.log(chalk.blue(`\n${r.file} - ${r.name || 'unnamed'}`));
           console.log(r.diff);
         });
@@ -282,9 +288,10 @@ program
           await fs.writeFile(diffFile, result.diff);
         }
 
-        console.log(chalk.green(`\n✓ Saved ${results.length} transformations to ${options.output}`));
+        console.log(
+          chalk.green(`\n✓ Saved ${results.length} transformations to ${options.output}`),
+        );
       }
-
     } catch (error) {
       spinner.fail('Transformation failed');
       logger.error('Error:', error);
@@ -296,7 +303,11 @@ program
 program
   .command('apply')
   .description('Apply transformations to source files')
-  .option('-i, --input <file>', 'Transformed queries file', './transformed/transformed-queries.json')
+  .option(
+    '-i, --input <file>',
+    'Transformed queries file',
+    './transformed/transformed-queries.json',
+  )
   .option('--backup', 'Create backups of modified files')
   .option('--dry-run', 'Preview changes without writing files')
   .action(async (options: any) => {
@@ -311,13 +322,15 @@ program
         preserveFormatting: true,
         preserveComments: true,
         validateChanges: true,
-        dryRun: options.dryRun
+        dryRun: options.dryRun,
       });
 
       // Group transformations by file
       for (const result of results) {
         if (!result.sourceAST) {
-          logger.error(`Query ${result.id} missing source AST. Re-extracting with source preservation enabled.`);
+          logger.error(
+            `Query ${result.id} missing source AST. Re-extracting with source preservation enabled.`,
+          );
 
           // Re-extract this specific file with source AST preservation using UnifiedExtractor
           try {
@@ -326,21 +339,27 @@ program
               directory: path.dirname(result.file),
               patterns: [path.basename(result.file)],
               preserveSourceAST: true,
-              resolveFragments: true
+              resolveFragments: true,
             });
 
             const reExtractionResult = await reExtractor.extract();
-            const reExtractedQuery = reExtractionResult.queries.find(q => q.content === result.content);
+            const reExtractedQuery = reExtractionResult.queries.find(
+              (q) => q.content === result.content,
+            );
 
             if (reExtractedQuery?.sourceAST) {
               result.sourceAST = reExtractedQuery.sourceAST;
               logger.info(`Successfully re-extracted source AST for query ${result.id}`);
             } else {
-              logger.error(`Failed to re-extract source AST for query ${result.id} in ${result.file}. Skipping unsafe transformation.`);
+              logger.error(
+                `Failed to re-extract source AST for query ${result.id} in ${result.file}. Skipping unsafe transformation.`,
+              );
               continue;
             }
           } catch (error) {
-            logger.error(`Error re-extracting query ${result.id}: ${error}. Skipping transformation.`);
+            logger.error(
+              `Error re-extracting query ${result.id}: ${error}. Skipping transformation.`,
+            );
             continue;
           }
         }
@@ -349,7 +368,7 @@ program
           astNode: result.sourceAST,
           filePath: result.file,
           originalContent: result.content,
-          templateLiteralInfo: undefined // Will be populated if needed
+          templateLiteralInfo: undefined, // Will be populated if needed
         };
 
         const transformationMapping: TransformationMapping = {
@@ -360,9 +379,9 @@ program
             transformed: result.transformed,
             ast: null as any, // AST will be parsed if needed
             changes: result.changes || [],
-            rules: []
+            rules: [],
           },
-          preserveInterpolations: true
+          preserveInterpolations: true,
         };
 
         if (!fileChanges.has(result.file)) {
@@ -393,7 +412,7 @@ program
 
           if (options.dryRun) {
             console.log(chalk.blue(`\nChanges for ${filePath}:`));
-            result.changes.forEach(change => {
+            result.changes.forEach((change) => {
               console.log(`  ${change.reason}`);
               console.log(chalk.red(`-   ${change.originalText}`));
               console.log(chalk.green(`+   ${change.newText}`));
@@ -405,7 +424,9 @@ program
         }
       }
 
-      spinner.succeed(`Updated ${successCount} files${errorCount > 0 ? `, ${errorCount} failed` : ''}`);
+      spinner.succeed(
+        `Updated ${successCount} files${errorCount > 0 ? `, ${errorCount} failed` : ''}`,
+      );
 
       if (options.backup && !options.dryRun) {
         console.log(chalk.yellow('✓ Backups created with .backup extension'));
@@ -418,7 +439,6 @@ program
       if (errorCount > 0) {
         process.exit(1);
       }
-
     } catch (error) {
       spinner.fail('Failed to apply transformations');
       logger.error('Error:', error);
@@ -442,7 +462,7 @@ program
       const queries = options.transformed
         ? inputData.map((item: any) => ({
             id: item.id,
-            content: item.transformed || item.content
+            content: item.transformed || item.content,
           }))
         : inputData.queries || inputData;
 
@@ -465,7 +485,7 @@ program
         for (const item of report.summary) {
           if (!item.valid) {
             console.log(`\n  ${chalk.bold(item.id)}:`);
-            item.errors?.forEach(err => {
+            item.errors?.forEach((err) => {
               console.log(`    ${chalk.red('✗')} ${err.message}`);
 
               // Show suggestion if available
@@ -476,12 +496,17 @@ program
               // Show diff if available
               if (err.diff) {
                 console.log(chalk.dim('\n      Suggested fix:'));
-                console.log(err.diff.split('\n').map(line => '      ' + line).join('\n'));
+                console.log(
+                  err.diff
+                    .split('\n')
+                    .map((line) => '      ' + line)
+                    .join('\n'),
+                );
               }
 
               // Show location if available
               if (err.locations) {
-                err.locations.forEach(loc => {
+                err.locations.forEach((loc) => {
                   console.log(`      ${chalk.dim('at')} line ${loc.line}, column ${loc.column}`);
                 });
               }
@@ -496,7 +521,7 @@ program
         for (const [id, result] of results) {
           if (result.warnings.length > 0) {
             console.log(`\n  ${id}:`);
-            result.warnings.forEach(warn => {
+            result.warnings.forEach((warn) => {
               console.log(`    ${chalk.yellow('⚠')} ${warn.message}`);
               if (warn.suggestion) {
                 console.log(`      ${chalk.dim('Suggestion:')} ${warn.suggestion}`);
@@ -515,7 +540,6 @@ program
       if (report.invalid > 0 || (options.strict && report.warnings > 0)) {
         process.exit(1);
       }
-
     } catch (error) {
       spinner.fail('Validation failed');
       logger.error('Error:', error);

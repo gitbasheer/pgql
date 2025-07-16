@@ -40,7 +40,7 @@ describe('QueryNamesConverter', () => {
       const registry = await converter.convertQueryNamesToPatterns({
         input: inputFile,
         output: outputFile,
-        format: 'json'
+        format: 'json',
       });
 
       expect(registry.patterns).toHaveLength(3);
@@ -48,7 +48,7 @@ describe('QueryNamesConverter', () => {
         pattern: '${queryNames.getUserById}',
         template: 'query ${queryNames.getUserById}',
         name: 'GetUserByIdQuery',
-        version: 'V1'
+        version: 'V1',
       });
 
       expect(registry.metadata.totalPatterns).toBe(3);
@@ -70,14 +70,14 @@ describe('QueryNamesConverter', () => {
       const registry = await converter.convertQueryNamesToPatterns({
         input: inputFile,
         output: outputFile,
-        format: 'json'
+        format: 'json',
       });
 
       const patterns = registry.patterns;
-      expect(patterns.find(p => p.name === 'GetUserV1Query')?.version).toBe('V1');
-      expect(patterns.find(p => p.name === 'GetUserV2Query')?.version).toBe('V2');
-      expect(patterns.find(p => p.name === 'GetUserV3Query')?.version).toBe('V3');
-      expect(patterns.find(p => p.name === 'GetUserLatestQuery')?.version).toBe('V3');
+      expect(patterns.find((p) => p.name === 'GetUserV1Query')?.version).toBe('V1');
+      expect(patterns.find((p) => p.name === 'GetUserV2Query')?.version).toBe('V2');
+      expect(patterns.find((p) => p.name === 'GetUserV3Query')?.version).toBe('V3');
+      expect(patterns.find((p) => p.name === 'GetUserLatestQuery')?.version).toBe('V3');
     });
 
     it('should suggest replacements for deprecated patterns', async () => {
@@ -93,11 +93,11 @@ describe('QueryNamesConverter', () => {
       const registry = await converter.convertQueryNamesToPatterns({
         input: inputFile,
         output: outputFile,
-        format: 'json'
+        format: 'json',
       });
 
-      const byIdPattern = registry.patterns.find(p => p.name === 'GetUserByIdQuery');
-      const getUserPattern = registry.patterns.find(p => p.name === 'GetUserQuery');
+      const byIdPattern = registry.patterns.find((p) => p.name === 'GetUserByIdQuery');
+      const getUserPattern = registry.patterns.find((p) => p.name === 'GetUserQuery');
 
       expect(byIdPattern?.replacement).toBe('GetUserByIdV2Query');
       expect(getUserPattern?.replacement).toBe('GetUserV2Query');
@@ -116,7 +116,7 @@ describe('QueryNamesConverter', () => {
       const registry = await converter.convertQueryNamesToPatterns({
         input: inputFile,
         output: outputFile,
-        format: 'json'
+        format: 'json',
       });
 
       expect(registry.patterns).toHaveLength(2);
@@ -138,7 +138,7 @@ describe('QueryNamesConverter', () => {
       const registry = await converter.convertQueryNamesToPatterns({
         input: inputFile,
         output: outputFile,
-        format: 'json'
+        format: 'json',
       });
 
       expect(registry.patterns).toHaveLength(2);
@@ -158,7 +158,7 @@ describe('QueryNamesConverter', () => {
       await converter.convertQueryNamesToPatterns({
         input: inputFile,
         output: tsOutputFile,
-        format: 'typescript'
+        format: 'typescript',
       });
 
       const tsContent = await fs.readFile(tsOutputFile, 'utf-8');
@@ -180,7 +180,7 @@ describe('QueryNamesConverter', () => {
         input: inputFile,
         output: outputFile,
         format: 'json',
-        dryRun: true
+        dryRun: true,
       });
 
       expect(registry.patterns).toHaveLength(1);
@@ -202,12 +202,12 @@ describe('QueryNamesConverter', () => {
       const registry = await converter.convertQueryNamesToPatterns({
         input: inputFile,
         output: outputFile,
-        format: 'json'
+        format: 'json',
       });
 
       expect(registry.patterns).toHaveLength(2);
-      expect(registry.patterns.find(p => p.name === 'GetUserByIdQuery')).toBeDefined();
-      expect(registry.patterns.find(p => p.name === 'GetVentureByDomainQuery')).toBeDefined();
+      expect(registry.patterns.find((p) => p.name === 'GetUserByIdQuery')).toBeDefined();
+      expect(registry.patterns.find((p) => p.name === 'GetVentureByDomainQuery')).toBeDefined();
     });
 
     it('should handle malformed input gracefully', async () => {
@@ -219,11 +219,13 @@ describe('QueryNamesConverter', () => {
 
       await fs.writeFile(inputFile, malformedContent, 'utf-8');
 
-      await expect(converter.convertQueryNamesToPatterns({
-        input: inputFile,
-        output: outputFile,
-        format: 'json'
-      })).rejects.toThrow();
+      await expect(
+        converter.convertQueryNamesToPatterns({
+          input: inputFile,
+          output: outputFile,
+          format: 'json',
+        }),
+      ).rejects.toThrow();
     });
 
     it('should preserve metadata correctly', async () => {
@@ -238,7 +240,7 @@ describe('QueryNamesConverter', () => {
       const registry = await converter.convertQueryNamesToPatterns({
         input: inputFile,
         output: outputFile,
-        format: 'json'
+        format: 'json',
       });
 
       const pattern = registry.patterns[0];
@@ -252,7 +254,7 @@ describe('QueryNamesConverter', () => {
       const patterns = [
         'export const queryNames = { key: "value" };',
         'export default { key: "value" };',
-        'const queryNames = { key: "value" }; export { queryNames };'
+        'const queryNames = { key: "value" }; export { queryNames };',
       ];
 
       for (const pattern of patterns) {
@@ -262,7 +264,7 @@ describe('QueryNamesConverter', () => {
           input: inputFile,
           output: outputFile,
           format: 'json',
-          dryRun: true
+          dryRun: true,
         });
 
         expect(registry.patterns).toHaveLength(1);
@@ -282,7 +284,7 @@ describe('QueryNamesConverter', () => {
       const registry = await converter.convertQueryNamesToPatterns({
         input: inputFile,
         output: outputFile,
-        format: 'json'
+        format: 'json',
       });
 
       expect(registry.patterns).toHaveLength(0);
@@ -301,7 +303,7 @@ describe('QueryNamesConverter', () => {
       const registry = await converter.convertQueryNamesToPatterns({
         input: inputFile,
         output: outputFile,
-        format: 'json'
+        format: 'json',
       });
 
       expect(registry.patterns).toHaveLength(0);
@@ -321,13 +323,13 @@ describe('QueryNamesConverter', () => {
       const registry = await converter.convertQueryNamesToPatterns({
         input: inputFile,
         output: outputFile,
-        format: 'json'
+        format: 'json',
       });
 
       expect(registry.patterns).toHaveLength(3);
-      expect(registry.patterns.find(p => p.name === 'NumericKeyQuery')).toBeDefined();
-      expect(registry.patterns.find(p => p.name === 'SpecialKeyQuery')).toBeDefined();
-      expect(registry.patterns.find(p => p.name === 'SpacedKeyQuery')).toBeDefined();
+      expect(registry.patterns.find((p) => p.name === 'NumericKeyQuery')).toBeDefined();
+      expect(registry.patterns.find((p) => p.name === 'SpecialKeyQuery')).toBeDefined();
+      expect(registry.patterns.find((p) => p.name === 'SpacedKeyQuery')).toBeDefined();
     });
   });
 });

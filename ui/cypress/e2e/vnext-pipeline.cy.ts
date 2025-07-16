@@ -4,14 +4,14 @@ describe('vnext Mock Pipeline E2E Test', () => {
   beforeEach(() => {
     // Visit the dashboard
     cy.visit('http://localhost:5173');
-    
+
     // Mock API responses
     cy.intercept('POST', '/api/extract', {
       statusCode: 200,
       body: {
         pipelineId: 'vnext-e2e-test-123',
-        extractionId: 'vnext-e2e-test-123'
-      }
+        extractionId: 'vnext-e2e-test-123',
+      },
     }).as('startPipeline');
 
     cy.intercept('GET', '/api/status', {
@@ -23,15 +23,15 @@ describe('vnext Mock Pipeline E2E Test', () => {
           {
             timestamp: new Date().toISOString(),
             level: 'info',
-            message: 'Starting GraphQL extraction from vnext-dashboard...'
+            message: 'Starting GraphQL extraction from vnext-dashboard...',
           },
           {
             timestamp: new Date().toISOString(),
             level: 'success',
-            message: 'Found 12 GraphQL queries'
-          }
-        ]
-      }
+            message: 'Found 12 GraphQL queries',
+          },
+        ],
+      },
     }).as('pollStatus');
 
     cy.intercept('GET', '/api/pipeline/vnext-e2e-test-123/queries', {
@@ -44,31 +44,39 @@ describe('vnext Mock Pipeline E2E Test', () => {
             filePath: 'src/queries/ventures.graphql',
             lineNumber: 1,
             isNested: false,
-            operation: 'query'
+            operation: 'query',
           },
           transformation: {
-            transformedQuery: 'query GetVentures { venturesV2 { id displayName status } }',
+            transformedQuery:
+              'query GetVentures { venturesV2 { id displayName status } }',
             warnings: ['Field name changed to displayName'],
-            mappingCode: 'const mapVentures = (data) => ({ ...data, name: data.displayName });'
-          }
+            mappingCode:
+              'const mapVentures = (data) => ({ ...data, name: data.displayName });',
+          },
         },
         {
           query: {
             queryName: 'GetUserProfile',
-            content: 'query GetUserProfile($id: ID!) { user(id: $id) { name email } }',
+            content:
+              'query GetUserProfile($id: ID!) { user(id: $id) { name email } }',
             filePath: 'src/queries/user.graphql',
             lineNumber: 5,
             isNested: false,
             hasVariables: true,
-            operation: 'query'
+            operation: 'query',
           },
           transformation: {
-            transformedQuery: 'query GetUserProfile($id: ID!) { userV2(userId: $id) { fullName emailAddress } }',
-            warnings: ['Parameter name changed from id to userId', 'Field names updated'],
-            mappingCode: 'const mapUser = (data) => ({ name: data.fullName, email: data.emailAddress });'
-          }
-        }
-      ]
+            transformedQuery:
+              'query GetUserProfile($id: ID!) { userV2(userId: $id) { fullName emailAddress } }',
+            warnings: [
+              'Parameter name changed from id to userId',
+              'Field names updated',
+            ],
+            mappingCode:
+              'const mapUser = (data) => ({ name: data.fullName, email: data.emailAddress });',
+          },
+        },
+      ],
     }).as('getQueries');
 
     cy.intercept('POST', '/api/test-real-api', {
@@ -76,9 +84,13 @@ describe('vnext Mock Pipeline E2E Test', () => {
       body: {
         testResults: [
           { queryName: 'GetVentures', status: 'passed', baselineMatches: true },
-          { queryName: 'GetUserProfile', status: 'passed', baselineMatches: true }
-        ]
-      }
+          {
+            queryName: 'GetUserProfile',
+            status: 'passed',
+            baselineMatches: true,
+          },
+        ],
+      },
     }).as('testRealApi');
 
     cy.intercept('POST', '/api/pipeline/vnext-e2e-test-123/generate-pr', {
@@ -93,8 +105,8 @@ describe('vnext Mock Pipeline E2E Test', () => {
 @@ -1,1 +1,1 @@
 -query GetVentures { ventures { id name status } }
 +query GetVentures { venturesV2 { id displayName status } }`,
-        files: ['src/queries/ventures.graphql', 'src/queries/user.graphql']
-      }
+        files: ['src/queries/ventures.graphql', 'src/queries/user.graphql'],
+      },
     }).as('generatePR');
   });
 
@@ -112,13 +124,15 @@ describe('vnext Mock Pipeline E2E Test', () => {
 
     // Verify logs are displayed
     cy.wait('@pollStatus');
-    cy.contains('Starting GraphQL extraction from vnext-dashboard').should('be.visible');
+    cy.contains('Starting GraphQL extraction from vnext-dashboard').should(
+      'be.visible'
+    );
     cy.contains('Found 12 GraphQL queries').should('be.visible');
 
     // Verify query results section
     cy.wait('@getQueries');
     cy.contains('Query Results').should('be.visible');
-    
+
     // Open diff viewer for first query
     cy.contains('GetVentures').should('be.visible');
     cy.get('button').contains('View Diff').first().click();
@@ -127,7 +141,7 @@ describe('vnext Mock Pipeline E2E Test', () => {
     cy.get('.diff-modal').should('be.visible');
     cy.contains('Query Analysis').should('be.visible');
     cy.contains('A/B Cohort:').should('be.visible');
-    
+
     // Close modal
     cy.get('.close-btn').click();
     cy.get('.diff-modal').should('not.exist');
@@ -137,7 +151,7 @@ describe('vnext Mock Pipeline E2E Test', () => {
     cy.get('button').contains('Generate Pull Request').click();
 
     cy.wait('@generatePR');
-    
+
     // Verify PR link appears
     cy.contains('View on GitHub →').should('be.visible');
     cy.get('a[href="https://github.com/test/vnext/pull/789"]').should('exist');
@@ -151,7 +165,9 @@ describe('vnext Mock Pipeline E2E Test', () => {
   it('handles polling updates correctly', () => {
     // Start with form filling
     cy.get('input[id="repo-path"]').type('data/sample_data/vnext-dashboard');
-    cy.get('input[id="schema-endpoint"]').type('https://api.example.com/graphql');
+    cy.get('input[id="schema-endpoint"]').type(
+      'https://api.example.com/graphql'
+    );
     cy.get('button').contains('Start Pipeline').click();
 
     cy.wait('@startPipeline');
@@ -170,16 +186,16 @@ describe('vnext Mock Pipeline E2E Test', () => {
           {
             timestamp: new Date().toISOString(),
             level: 'info',
-            message: 'Validating queries against schema...'
-          }
-        ]
-      }
+            message: 'Validating queries against schema...',
+          },
+        ],
+      },
     }).as('pollStatusValidation');
 
     // Wait for next poll (1 second interval)
     cy.wait(1100);
     cy.wait('@pollStatusValidation');
-    
+
     cy.contains('Polling Status (validation)').should('be.visible');
     cy.contains('Validating queries against schema').should('be.visible');
   });
@@ -194,9 +210,9 @@ describe('vnext Mock Pipeline E2E Test', () => {
             REACT_APP_AUTH_IDP: 'test-auth-token',
             REACT_APP_CUST_IDP: 'test-cust-token',
             REACT_APP_INFO_CUST_IDP: 'test-info-cust',
-            REACT_APP_INFO_IDP: 'test-info'
-          }
-        }
+            REACT_APP_INFO_IDP: 'test-info',
+          },
+        },
       };
     });
 
@@ -207,14 +223,14 @@ describe('vnext Mock Pipeline E2E Test', () => {
       expect(req.headers).to.have.property('cookie');
       expect(req.headers.cookie).to.include('auth_idp=');
       expect(req.headers.cookie).to.include('cust_idp=');
-      
+
       req.reply({
         statusCode: 200,
         body: {
           stage: 'running',
           status: 'running',
-          logs: []
-        }
+          logs: [],
+        },
       });
     }).as('pollWithAuth');
 
@@ -228,8 +244,8 @@ describe('vnext Mock Pipeline E2E Test', () => {
     cy.intercept('POST', '/api/extract', {
       statusCode: 500,
       body: {
-        message: 'Failed to start extraction: Invalid repository path'
-      }
+        message: 'Failed to start extraction: Invalid repository path',
+      },
     }).as('startPipelineError');
 
     cy.get('button').contains('🧪 Test vnext Sample').click();
@@ -255,7 +271,7 @@ describe('vnext Mock Pipeline E2E Test', () => {
 
     // Run through complete flow
     cy.get('button').contains('🧪 Test vnext Sample').click();
-    
+
     cy.wait('@startPipeline');
     cy.wait('@testRealApi');
     cy.wait('@pollStatus');

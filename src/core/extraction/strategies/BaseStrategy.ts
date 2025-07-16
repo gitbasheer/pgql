@@ -15,7 +15,11 @@ export abstract class BaseStrategy {
   abstract extract(filePath: string, content: string): Promise<ExtractedQuery[]>;
 
   protected generateQueryId(filePath: string, index: number, name?: string): string {
-    const baseName = filePath.split('/').pop()?.replace(/\.[^.]+$/, '') || 'unknown';
+    const baseName =
+      filePath
+        .split('/')
+        .pop()
+        ?.replace(/\.[^.]+$/, '') || 'unknown';
     return `${baseName}-${index}-${name || 'unnamed'}`;
   }
 }

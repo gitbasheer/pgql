@@ -5,83 +5,48 @@ import * as fs from 'fs/promises';
 import { parse } from 'graphql';
 // Mock modules
 vi.mock('graphql', () => ({
-  parse: vi.fn().mockReturnValue({ kind: 'Document' })
-}))
+  parse: vi.fn().mockReturnValue({ kind: 'Document' }),
+}));
 vi.mock('../../core/extraction/engine/UnifiedExtractor', () => ({
-  UnifiedExtractor: vi.fn().mockImplementation(() => ({}))
-}))
+  UnifiedExtractor: vi.fn().mockImplementation(() => ({})),
+}));
 vi.mock('../../core/validator/SchemaValidator', () => ({
-  SchemaValidator: vi.fn()
-}))
+  SchemaValidator: vi.fn(),
+}));
 vi.mock('../../core/analyzer/SchemaDeprecationAnalyzer', () => ({
-  SchemaDeprecationAnalyzer: vi.fn()
-}))
+  SchemaDeprecationAnalyzer: vi.fn(),
+}));
 vi.mock('../../core/analyzer/ConfidenceScorer', () => ({
-  ConfidenceScorer: vi.fn()
-}))
+  ConfidenceScorer: vi.fn(),
+}));
 vi.mock('../../core/safety/ProgressiveMigration', () => ({
-  ProgressiveMigration: vi.fn()
-}))
+  ProgressiveMigration: vi.fn(),
+}));
 vi.mock('../../core/safety/HealthCheck', () => ({
-  HealthCheckSystem: vi.fn()
-}))
+  HealthCheckSystem: vi.fn(),
+}));
 vi.mock('../../core/safety/Rollback', () => ({
-  RollbackSystem: vi.fn()
-}))
+  RollbackSystem: vi.fn(),
+}));
 vi.mock('../../core/applicator/ASTCodeApplicator', () => ({
-  ASTCodeApplicator: vi.fn()
-}))
+  ASTCodeApplicator: vi.fn(),
+}));
 vi.mock('../../core/extraction/utils/SourceMapper', () => ({
-  SourceMapper: vi.fn()
-}))
+  SourceMapper: vi.fn(),
+}));
 vi.mock('../../core/transformer/QueryTransformer', () => ({
-  QueryTransformer: vi.fn()
-}))
+  QueryTransformer: vi.fn(),
+}));
 
 // Mock modules
 
-
-
-
-
-
-
-
-
-
-
-
 // Mock modules
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Mock all dependencies before any imports that might use them
 vi.mock('fs/promises');
-;
 vi.mock('../../utils/logger');
 
 // Mock all core modules before UnifiedMigrationPipeline is imported
-;
-;
-;
-;
-;
-;
-;
-;
-;
-;
-
 describe('UnifiedMigrationPipeline - Reporting', () => {
   let pipeline: any;
   let mockConfig: MigrationConfig;
@@ -103,24 +68,24 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
     mockConfig = {
       source: {
         include: ['./src'],
-        exclude: []
+        exclude: [],
       },
       confidence: {
         automatic: 90,
         semiAutomatic: 70,
-        manual: 0
+        manual: 0,
       },
       rollout: {
         initial: 1,
         increment: 10,
         interval: '1h',
-        maxErrors: 5
+        maxErrors: 5,
       },
       safety: {
         requireApproval: false,
         autoRollback: true,
-        healthCheckInterval: 60
-      }
+        healthCheckInterval: 60,
+      },
     };
 
     mockOptions = {
@@ -128,7 +93,7 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
       dryRun: false,
       interactive: false,
       enableSafety: true,
-      rolloutPercentage: 1
+      rolloutPercentage: 1,
     };
 
     // Mock file system
@@ -147,24 +112,24 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
             filePath: 'test.ts',
             sourceAST: { node: {}, start: 0, end: 10 },
             location: { line: 1, column: 1 },
-            fragments: []
-          }
+            fragments: [],
+          },
         ],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
-      })
+        stats: {},
+      }),
     };
 
     mockValidator = {
       loadSchema: vi.fn().mockResolvedValue({ schema: 'mock' }),
-      validateOperation: vi.fn().mockResolvedValue([])
+      validateOperation: vi.fn().mockResolvedValue([]),
     };
 
     mockDeprecationAnalyzer = {
-      analyzeOperation: vi.fn().mockResolvedValue([])
+      analyzeOperation: vi.fn().mockResolvedValue([]),
     };
 
     mockConfidenceScorer = {
@@ -173,32 +138,32 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
         category: 'automatic',
         factors: {},
         risks: [],
-        requiresReview: false
-      })
+        requiresReview: false,
+      }),
     };
 
     mockProgressiveMigration = {
       createFeatureFlag: vi.fn(),
-      startRollout: vi.fn().mockResolvedValue(undefined)
+      startRollout: vi.fn().mockResolvedValue(undefined),
     };
 
     mockHealthCheck = {};
 
     mockRollbackSystem = {
-      createRollbackPlan: vi.fn().mockResolvedValue({})
+      createRollbackPlan: vi.fn().mockResolvedValue({}),
     };
 
     mockApplicator = {
       applyTransformation: vi.fn().mockResolvedValue({
         code: 'modified code',
         linesAdded: 5,
-        linesRemoved: 3
-      })
+        linesRemoved: 3,
+      }),
     };
 
     mockSourceMapper = {
       register: vi.fn(),
-      getMapping: vi.fn().mockReturnValue({ node: {}, start: 0, end: 10 })
+      getMapping: vi.fn().mockReturnValue({ node: {}, start: 0, end: 10 }),
     };
 
     // Set up mocked implementations
@@ -241,22 +206,25 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
     // Create a proper mock for QueryTransformer
     const transformerImport = await import('../../core/transformer/QueryTransformer.js');
     const { QueryTransformer } = transformerImport;
-    (QueryTransformer as any).mockImplementation(() => ({
-      transform: vi.fn().mockReturnValue({
-        original: 'query TestQuery { test }',
-        transformed: 'query TestQuery { newTest }',
-        ast: { kind: 'Document' },
-        changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
-        rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }]
-      })
-    } as any));
+    (QueryTransformer as any).mockImplementation(
+      () =>
+        ({
+          transform: vi.fn().mockReturnValue({
+            original: 'query TestQuery { test }',
+            transformed: 'query TestQuery { newTest }',
+            ast: { kind: 'Document' },
+            changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
+            rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
+          }),
+        }) as any,
+    );
 
     pipeline = new UnifiedMigrationPipeline(mockConfig, mockOptions);
   });
 
   describe('generatePRDescription()', () => {
     beforeEach(async () => {
-    vi.resetModules();
+      vi.resetModules();
       await pipeline.extract();
       await pipeline.transform();
     });
@@ -280,14 +248,12 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
 
     it('should handle operations without names', async () => {
       mockExtractor.extract.mockResolvedValue({
-        queries: [
-          { id: 'q1', content: 'query { test }', filePath: 'test.ts' }
-        ],
+        queries: [{ id: 'q1', content: 'query { test }', filePath: 'test.ts' }],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
+        stats: {},
       });
 
       await pipeline.extract();
@@ -305,7 +271,7 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
         score: 85,
         category: 'automatic',
         risks: ['High complexity', 'Low test coverage'],
-        requiresReview: false
+        requiresReview: false,
       });
 
       await pipeline.extract();
@@ -318,7 +284,7 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
         successfulTransformations: 1,
         filesModified: 1,
         averageConfidence: 85,
-        risks: ['High complexity', 'Low test coverage']
+        risks: ['High complexity', 'Low test coverage'],
       });
     });
 
@@ -330,7 +296,7 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
         successfulTransformations: 0,
         filesModified: 0,
         averageConfidence: 0,
-        risks: []
+        risks: [],
       });
     });
 
@@ -338,20 +304,20 @@ describe('UnifiedMigrationPipeline - Reporting', () => {
       mockExtractor.extract.mockResolvedValue({
         queries: [
           { id: 'q1', content: 'query Q1 { test }', filePath: 'f1.ts' },
-          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.ts' }
+          { id: 'q2', content: 'query Q2 { test }', filePath: 'f2.ts' },
         ],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
+        stats: {},
       });
 
       mockConfidenceScorer.scoreTransformation.mockReturnValue({
         score: 85,
         category: 'automatic',
         risks: ['Same risk', 'Same risk'],
-        requiresReview: false
+        requiresReview: false,
       });
 
       await pipeline.extract();

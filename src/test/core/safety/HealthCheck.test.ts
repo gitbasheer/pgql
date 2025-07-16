@@ -8,8 +8,8 @@ vi.mock('../../../utils/logger', () => ({
   logger: {
     error: vi.fn(),
     info: vi.fn(),
-    warn: vi.fn()
-  }
+    warn: vi.fn(),
+  },
 }));
 
 describe('HealthCheckSystem', () => {
@@ -29,7 +29,7 @@ describe('HealthCheckSystem', () => {
       column: 5,
       variables: [],
       fragments: [],
-      directives: []
+      directives: [],
     };
     vi.clearAllMocks();
   });
@@ -37,7 +37,7 @@ describe('HealthCheckSystem', () => {
   describe('performHealthCheck', () => {
     it('should return healthy status with insufficient data warning', async () => {
       const status = await healthCheck.performHealthCheck(mockOperation);
-      
+
       expect(status.status).toBe('healthy');
       expect(status.issues).toHaveLength(1);
       expect(status.issues[0].severity).toBe('low');
@@ -55,12 +55,12 @@ describe('HealthCheckSystem', () => {
       }
 
       const status = await healthCheck.performHealthCheck(mockOperation);
-      
+
       expect(status.status).toBe('unhealthy');
       expect(status.errorRate).toBeCloseTo(0.1);
-      expect(status.issues.some(i => 
-        i.severity === 'critical' && i.message.includes('Error rate')
-      )).toBe(true);
+      expect(
+        status.issues.some((i) => i.severity === 'critical' && i.message.includes('Error rate')),
+      ).toBe(true);
     });
 
     it('should detect high latency and return degraded status', async () => {
@@ -70,11 +70,11 @@ describe('HealthCheckSystem', () => {
       }
 
       const status = await healthCheck.performHealthCheck(mockOperation);
-      
+
       expect(status.status).toBe('degraded');
-      expect(status.issues.some(i => 
-        i.severity === 'high' && i.message.includes('P99 latency')
-      )).toBe(true);
+      expect(
+        status.issues.some((i) => i.severity === 'high' && i.message.includes('P99 latency')),
+      ).toBe(true);
     });
 
     it('should include recent error information', async () => {
@@ -85,10 +85,12 @@ describe('HealthCheckSystem', () => {
       healthCheck.recordError(mockOperation.id, new Error('Recent failure'), 150);
 
       const status = await healthCheck.performHealthCheck(mockOperation);
-      
-      expect(status.issues.some(i => 
-        i.severity === 'medium' && i.message.includes('Recent error: Recent failure')
-      )).toBe(true);
+
+      expect(
+        status.issues.some(
+          (i) => i.severity === 'medium' && i.message.includes('Recent error: Recent failure'),
+        ),
+      ).toBe(true);
     });
 
     it('should calculate accurate latency percentiles', async () => {
@@ -101,7 +103,7 @@ describe('HealthCheckSystem', () => {
       }
 
       const status = await healthCheck.performHealthCheck(mockOperation);
-      
+
       expect(status.latency.p50).toBe(300); // Median
       expect(status.latency.p95).toBe(475); // 95th percentile
       expect(status.latency.p99).toBe(495); // 99th percentile
@@ -111,9 +113,9 @@ describe('HealthCheckSystem', () => {
   describe('recordSuccess', () => {
     it('should track success metrics', () => {
       healthCheck.recordSuccess(mockOperation.id, 150);
-      
+
       const health = healthCheck.getOperationHealth(mockOperation.id);
-      
+
       expect(health).not.toBeNull();
       expect(health?.successRate).toBe(1);
       expect(health?.errorRate).toBe(0);
@@ -125,9 +127,9 @@ describe('HealthCheckSystem', () => {
       for (let i = 0; i < 1100; i++) {
         healthCheck.recordSuccess(mockOperation.id, i);
       }
-      
+
       const health = healthCheck.getOperationHealth(mockOperation.id);
-      
+
       expect(health).not.toBeNull();
       // Average should be from last 1000 samples (100-1099)
       expect(health?.avgLatency).toBeCloseTo(599.5);
@@ -138,24 +140,21 @@ describe('HealthCheckSystem', () => {
     it('should track error metrics', () => {
       const error = new Error('Test error');
       healthCheck.recordError(mockOperation.id, error, 200);
-      
+
       const health = healthCheck.getOperationHealth(mockOperation.id);
-      
+
       expect(health).not.toBeNull();
       expect(health?.successRate).toBe(0);
       expect(health?.errorRate).toBe(1);
       expect(health?.avgLatency).toBe(200);
-      expect(logger.error).toHaveBeenCalledWith(
-        `Operation ${mockOperation.id} error:`,
-        error
-      );
+      expect(logger.error).toHaveBeenCalledWith(`Operation ${mockOperation.id} error:`, error);
     });
 
     it('should track errors without latency', () => {
       healthCheck.recordError(mockOperation.id, new Error('Test error'));
-      
+
       const health = healthCheck.getOperationHealth(mockOperation.id);
-      
+
       expect(health).not.toBeNull();
       expect(health?.errorRate).toBe(1);
       expect(health?.avgLatency).toBe(0);
@@ -176,9 +175,9 @@ describe('HealthCheckSystem', () => {
       for (let i = 0; i < 3; i++) {
         healthCheck.recordError(mockOperation.id, new Error('Test'));
       }
-      
+
       const health = healthCheck.getOperationHealth(mockOperation.id);
-      
+
       expect(health).not.toBeNull();
       expect(health?.successRate).toBe(0.7);
       expect(health?.errorRate).toBe(0.3);
@@ -189,14 +188,12 @@ describe('HealthCheckSystem', () => {
     it('should clear all metrics for an operation', () => {
       healthCheck.recordSuccess(mockOperation.id, 100);
       healthCheck.recordError(mockOperation.id, new Error('Test'));
-      
+
       healthCheck.resetMetrics(mockOperation.id);
-      
+
       const health = healthCheck.getOperationHealth(mockOperation.id);
       expect(health).toBeNull();
-      expect(logger.info).toHaveBeenCalledWith(
-        `Reset metrics for operation: ${mockOperation.id}`
-      );
+      expect(logger.info).toHaveBeenCalledWith(`Reset metrics for operation: ${mockOperation.id}`);
     });
   });
 
@@ -206,17 +203,17 @@ describe('HealthCheckSystem', () => {
       for (let i = 0; i < 100; i++) {
         healthCheck.recordError(mockOperation.id, new Error('Test'));
       }
-      
+
       const status = await healthCheck.performHealthCheck(mockOperation);
-      
+
       expect(status.latency).toEqual({ p50: 0, p95: 0, p99: 0 });
     });
 
     it('should handle operations with only one sample', async () => {
       healthCheck.recordSuccess(mockOperation.id, 150);
-      
+
       const status = await healthCheck.performHealthCheck(mockOperation);
-      
+
       expect(status.latency).toEqual({ p50: 150, p95: 150, p99: 150 });
     });
 
@@ -229,32 +226,32 @@ describe('HealthCheckSystem', () => {
           healthCheck.recordSuccess(mockOperation.id, 2500); // High latency
         }
       }
-      
+
       const status = await healthCheck.performHealthCheck(mockOperation);
-      
+
       // Should be unhealthy due to critical error rate, not just degraded from latency
       expect(status.status).toBe('unhealthy');
-      expect(status.issues.some(i => i.severity === 'critical')).toBe(true);
-      expect(status.issues.some(i => i.severity === 'high')).toBe(true);
+      expect(status.issues.some((i) => i.severity === 'critical')).toBe(true);
+      expect(status.issues.some((i) => i.severity === 'high')).toBe(true);
     });
   });
 
   describe('concurrent operations', () => {
     it('should handle multiple operations independently', async () => {
       const operation2 = { ...mockOperation, id: 'test-op-2', name: 'TestOperation2' };
-      
+
       // Record different metrics for each operation
       for (let i = 0; i < 100; i++) {
         healthCheck.recordSuccess(mockOperation.id, 100);
         healthCheck.recordError(operation2.id, new Error('Test'));
       }
-      
+
       const status1 = await healthCheck.performHealthCheck(mockOperation);
       const status2 = await healthCheck.performHealthCheck(operation2);
-      
+
       expect(status1.status).toBe('healthy');
       expect(status1.errorRate).toBe(0);
-      
+
       expect(status2.status).toBe('unhealthy');
       expect(status2.errorRate).toBe(1);
     });

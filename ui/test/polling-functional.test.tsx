@@ -22,7 +22,7 @@ describe('Polling Functionality Tests', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     queryClient = new QueryClient({
       defaultOptions: {
         queries: { retry: false },
@@ -66,7 +66,7 @@ describe('Polling Functionality Tests', () => {
   it('starts polling when pipeline becomes active', async () => {
     const user = userEvent.setup();
     let statusCallCount = 0;
-    
+
     (global.fetch as any).mockImplementation((url: string) => {
       if (url.includes('/api/extract')) {
         return Promise.resolve({
@@ -81,7 +81,7 @@ describe('Polling Functionality Tests', () => {
           json: async () => ({
             stage: 'extraction',
             status: 'running',
-            logs: []
+            logs: [],
           }),
         });
       }
@@ -92,8 +92,13 @@ describe('Polling Functionality Tests', () => {
 
     // Start pipeline
     await user.type(screen.getByLabelText(/repository path/i), '/test/repo');
-    await user.type(screen.getByLabelText(/schema endpoint/i), 'https://api.example.com/graphql');
-    await user.click(screen.getAllByRole('button', { name: /start pipeline/i })[0]);
+    await user.type(
+      screen.getByLabelText(/schema endpoint/i),
+      'https://api.example.com/graphql'
+    );
+    await user.click(
+      screen.getAllByRole('button', { name: /start pipeline/i })[0]
+    );
 
     // Wait for initial status call
     await waitFor(() => {
@@ -104,10 +109,9 @@ describe('Polling Functionality Tests', () => {
     expect(screen.getByText(/Polling Status/)).toBeInTheDocument();
   });
 
-
   it('verifies polling status updates are working', async () => {
     const user = userEvent.setup();
-    
+
     (global.fetch as any).mockImplementation((url: string) => {
       if (url.includes('/api/extract')) {
         return Promise.resolve({
@@ -121,7 +125,13 @@ describe('Polling Functionality Tests', () => {
           json: async () => ({
             stage: 'extraction',
             status: 'running',
-            logs: [{ timestamp: new Date().toISOString(), level: 'info', message: 'Pipeline running' }]
+            logs: [
+              {
+                timestamp: new Date().toISOString(),
+                level: 'info',
+                message: 'Pipeline running',
+              },
+            ],
           }),
         });
       }
@@ -132,13 +142,17 @@ describe('Polling Functionality Tests', () => {
 
     // Start pipeline
     await user.type(screen.getByLabelText(/repository path/i), '/test/repo');
-    await user.type(screen.getByLabelText(/schema endpoint/i), 'https://api.example.com/graphql');
-    await user.click(screen.getAllByRole('button', { name: /start pipeline/i })[0]);
+    await user.type(
+      screen.getByLabelText(/schema endpoint/i),
+      'https://api.example.com/graphql'
+    );
+    await user.click(
+      screen.getAllByRole('button', { name: /start pipeline/i })[0]
+    );
 
     // Verify polling indicator appears
     await waitFor(() => {
       expect(screen.getByText(/Polling Status/)).toBeInTheDocument();
     });
   });
-
 });

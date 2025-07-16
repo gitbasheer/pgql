@@ -65,19 +65,19 @@ describe('SchemaValidator - Deprecation Field Checking', () => {
     expect(result.warnings).toHaveLength(2);
 
     // Check for email deprecation warning
-    const emailWarning = result.warnings.find(w => w.field === 'User.email');
+    const emailWarning = result.warnings.find((w) => w.field === 'User.email');
     expect(emailWarning).toBeDefined();
     expect(emailWarning?.message).toContain('deprecated');
     expect(emailWarning?.message).toContain('Use contactEmail');
-    expect(emailWarning?.suggestion).toContain('Use \'contactEmail\' instead');
+    expect(emailWarning?.suggestion).toContain("Use 'contactEmail' instead");
     expect(emailWarning?.type).toBe('deprecation');
 
     // Check for oldUsers deprecation warning
-    const oldUsersWarning = result.warnings.find(w => w.field === 'Query.oldUsers');
+    const oldUsersWarning = result.warnings.find((w) => w.field === 'Query.oldUsers');
     expect(oldUsersWarning).toBeDefined();
     expect(oldUsersWarning?.message).toContain('deprecated');
     expect(oldUsersWarning?.message).toContain('Use users instead');
-    expect(oldUsersWarning?.suggestion).toContain('Use \'users\' instead');
+    expect(oldUsersWarning?.suggestion).toContain("Use 'users' instead");
   });
 
   it('should handle multiple deprecated fields in nested queries', async () => {
@@ -105,7 +105,7 @@ describe('SchemaValidator - Deprecation Field Checking', () => {
     expect(result.warnings.length).toBeGreaterThanOrEqual(4);
 
     // Verify all deprecated fields are detected
-    const warningFields = result.warnings.map(w => w.field);
+    const warningFields = result.warnings.map((w) => w.field);
     expect(warningFields).toContain('User.email');
     expect(warningFields).toContain('User.isActive');
     expect(warningFields).toContain('Venture.oldDomain');
@@ -123,7 +123,7 @@ describe('SchemaValidator - Deprecation Field Checking', () => {
 
     const result = await validator.validateQuery(query);
 
-    const isActiveWarning = result.warnings.find(w => w.field === 'User.isActive');
+    const isActiveWarning = result.warnings.find((w) => w.field === 'User.isActive');
     expect(isActiveWarning).toBeDefined();
     expect(isActiveWarning?.suggestion).toBe('Check the schema documentation for alternatives');
   });
@@ -174,7 +174,7 @@ describe('SchemaValidator - Deprecation Field Checking', () => {
     expect(result.warnings.length).toBeGreaterThanOrEqual(2);
 
     // Deprecated fields in fragments should be detected
-    const warningFields = result.warnings.map(w => w.field);
+    const warningFields = result.warnings.map((w) => w.field);
     expect(warningFields).toContain('User.email');
     expect(warningFields).toContain('User.isActive');
   });
@@ -197,7 +197,7 @@ describe('SchemaValidator - Deprecation Field Checking', () => {
     expect(result.valid).toBe(true);
 
     // Email deprecation should be detected even in inline fragments
-    const emailWarning = result.warnings.find(w => w.field === 'User.email');
+    const emailWarning = result.warnings.find((w) => w.field === 'User.email');
     expect(emailWarning).toBeDefined();
   });
 });

@@ -15,47 +15,47 @@ describe('Enhanced Sample Data Pipeline', () => {
       directory: './test/fixtures/sample_data',
       strategies: ['pluck'], // Avoid AST traverse issues
       resolveFragments: true,
-      patterns: ['**/*.ts']
+      patterns: ['**/*.ts'],
     });
-    
+
     validator = new ResponseValidationService({
       endpoints: {
         productGraph: process.env.APOLLO_PG_ENDPOINT || 'https://pg.api.test.com/v1/gql/customer',
-        offerGraph: process.env.APOLLO_OG_ENDPOINT || 'https://og.api.test.com/v1/gql'
+        offerGraph: process.env.APOLLO_OG_ENDPOINT || 'https://og.api.test.com/v1/gql',
       },
       testingAccount: {
         ventures: [{ id: 'test-venture-123' }],
-        projects: [{ domain: 'test.com' }]
+        projects: [{ domain: 'test.com' }],
       },
       capture: {
         maxConcurrency: 5,
         timeout: 30000,
-        variableGeneration: 'auto'
+        variableGeneration: 'auto',
       },
       comparison: {
         strict: false,
         ignorePaths: [],
-        customComparators: {}
+        customComparators: {},
       },
       alignment: {
         strict: false,
         preserveNulls: true,
-        preserveOrder: false
+        preserveOrder: false,
       },
       storage: {
         type: 'file',
-        path: './test-results'
-      }
+        path: './test-results',
+      },
     });
-    
+
     transformer = new OptimizedSchemaTransformer(
       [], // Empty deprecation rules array for testing
       {
         commentOutVague: true,
         addDeprecationComments: true,
         preserveOriginalAsComment: false,
-        enableCache: true
-      }
+        enableCache: true,
+      },
     );
   });
 
@@ -64,11 +64,11 @@ describe('Enhanced Sample Data Pipeline', () => {
       // Extract from sampleQueries.ts which contains template patterns
       const sampleQueriesPath = './test/fixtures/sample_data/sampleQueries.ts';
       const queries = await extractor.extractFromFile(sampleQueriesPath);
-      
+
       expect(queries.length).toBeGreaterThan(0);
-      
+
       // Check that all templates are resolved: expect(resolved).not.toContain('${')
-      queries.forEach(query => {
+      queries.forEach((query) => {
         expect(query.fullExpandedQuery).not.toContain('${');
         expect(query.content).not.toContain('${');
       });
@@ -77,22 +77,25 @@ describe('Enhanced Sample Data Pipeline', () => {
     it('should extract SAMPLE_QUERY_NAMES patterns correctly', async () => {
       const sampleQueriesPath = './test/fixtures/sample_data/sampleQueries.ts';
       const queries = await extractor.extractFromFile(sampleQueriesPath);
-      
+
       // Should find queries that were originally using ${SAMPLE_QUERY_NAMES.xxx}
-      const resolvedQueries = queries.filter(q => 
-        q.name?.includes('getVentureHomeData') || 
-        q.fullExpandedQuery?.includes('getVentureHomeData')
+      const resolvedQueries = queries.filter(
+        (q) =>
+          q.name?.includes('getVentureHomeData') ||
+          q.fullExpandedQuery?.includes('getVentureHomeData'),
       );
-      
+
       expect(resolvedQueries.length).toBeGreaterThan(0);
     });
 
     it('should handle vnext-dashboard patterns in loadQueryNamesFromFile', async () => {
       // Test the file-based loading as specifically requested
-      const queries = await extractor.extractFromFile('./test/fixtures/sample_data/sampleQueries.ts');
-      
+      const queries = await extractor.extractFromFile(
+        './test/fixtures/sample_data/sampleQueries.ts',
+      );
+
       // Verify that template interpolation was resolved
-      queries.forEach(query => {
+      queries.forEach((query) => {
         if (query.content?.includes('query')) {
           // Query names should be resolved, not contain template patterns
           expect(query.name).not.toContain('${');
@@ -110,13 +113,13 @@ describe('Enhanced Sample Data Pipeline', () => {
         variables: { userId: 'UUID!' },
         endpoint: 'productGraph' as const,
         sourceFile: 'test.ts',
-        fullExpandedQuery: 'query GetUser { user { id name } }'
+        fullExpandedQuery: 'query GetUser { user { id name } }',
       };
 
       const result = await transformer.generatePR([mockQuery], {
         repositoryPath: '/tmp/test-repo',
         branchName: 'feature/migration-test',
-        targetSchema: 'v2'
+        targetSchema: 'v2',
       });
 
       // Check for Hivemind integration as requested
@@ -125,19 +128,21 @@ describe('Enhanced Sample Data Pipeline', () => {
     });
 
     it('should generate mapping utils with backward compatibility', async () => {
-      const mockQueries = [{
-        query: 'query GetVenture { venture { id name } }',
-        name: 'GetVenture',
-        variables: { ventureId: 'UUID!' },
-        endpoint: 'productGraph' as const,
-        sourceFile: 'venture.ts',
-        fullExpandedQuery: 'query GetVenture { venture { id name } }'
-      }];
+      const mockQueries = [
+        {
+          query: 'query GetVenture { venture { id name } }',
+          name: 'GetVenture',
+          variables: { ventureId: 'UUID!' },
+          endpoint: 'productGraph' as const,
+          sourceFile: 'venture.ts',
+          fullExpandedQuery: 'query GetVenture { venture { id name } }',
+        },
+      ];
 
       const result = await transformer.generatePR(mockQueries, {
         repositoryPath: '/tmp/test-repo',
         branchName: 'feature/venture-migration',
-        targetSchema: 'v2'
+        targetSchema: 'v2',
       });
 
       expect(result.success).toBe(true);
@@ -161,24 +166,26 @@ describe('Enhanced Sample Data Pipeline', () => {
         variables: {},
         endpoint: 'productGraph' as const,
         sourceFile: 'test.ts',
-        fullExpandedQuery: 'query GetUser { user { id name } }'
+        fullExpandedQuery: 'query GetUser { user { id name } }',
       };
 
       // Test variable building with environment data
       const builtVars = await validator.buildVariables(mockQuery.fullExpandedQuery);
       expect(builtVars).toBeDefined();
-      
+
       // Verify cookie construction format as requested
-      const expectedCookieFormat = 'auth_idp=test-auth-token;info_idp=test-info-token;cust_idp=test-cust-token;visitor_idp=test-visitor-token';
+      const expectedCookieFormat =
+        'auth_idp=test-auth-token;info_idp=test-info-token;cust_idp=test-cust-token;visitor_idp=test-visitor-token';
       // This would be tested in the actual Apollo client setup which constructs headers
     });
 
     it('should sanitize logs to prevent data leaks', async () => {
-      const logMessage = 'Cookie: auth_idp=real-token-123;info_idp=sensitive-data;cust_idp=customer-secret';
-      
+      const logMessage =
+        'Cookie: auth_idp=real-token-123;info_idp=sensitive-data;cust_idp=customer-secret';
+
       // Test the sanitization pattern as requested
       const sanitized = logMessage.replace(/(auth|info|cust)_idp=[^;]+/g, '$1_idp=[Removed]');
-      
+
       expect(sanitized).toBe('Cookie: auth_idp=[Removed];info_idp=[Removed];cust_idp=[Removed]');
       expect(sanitized).not.toContain('real-token-123');
       expect(sanitized).not.toContain('sensitive-data');
@@ -194,10 +201,10 @@ describe('Enhanced Sample Data Pipeline', () => {
         '${SAMPLE_QUERY_NAMES.allV1}',
         '${includeEmail}',
         '${additionalFields}',
-        '${ventureQuery}'
+        '${ventureQuery}',
       ];
 
-      testCases.forEach(pattern => {
+      testCases.forEach((pattern) => {
         // Each pattern should have a resolution strategy
         expect(pattern).toContain('${');
       });
@@ -207,14 +214,14 @@ describe('Enhanced Sample Data Pipeline', () => {
       // Test with invalid file paths
       const invalidQueries = await extractor.extractFromFile('./non-existent-file.ts');
       expect(invalidQueries).toEqual([]);
-      
+
       // Test with malformed templates
       const result = await transformer.generatePR([], {
         repositoryPath: '/invalid/path',
         branchName: 'test',
-        targetSchema: 'v2'
+        targetSchema: 'v2',
       });
-      
+
       // Should handle gracefully without throwing
       expect(result).toBeDefined();
     });

@@ -2,12 +2,12 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { UnifiedExtractor } from '../../src/core/extraction/engine/UnifiedExtractor';
-import { 
+import {
   SAMPLE_GET_ALL_VENTURES_QUERY,
   SAMPLE_SINGLE_VENTURE_QUERY,
   SAMPLE_VENTURE_STATES_QUERY,
   SAMPLE_OFFERS_QUERY,
-  SAMPLE_VARIABLES
+  SAMPLE_VARIABLES,
 } from '../fixtures/sample_data';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -23,16 +23,17 @@ describe('Sample Data Integration Tests', () => {
       directory: '/Users/balkhalil/gd/demo/z/backup/pg-migration-620/data/sample_data',
       patterns: ['**/*.{js,jsx,ts,tsx}'],
       strategies: ['pluck'], // Use only pluck strategy to avoid AST issues
-      enableVariantGeneration: true
+      enableVariantGeneration: true,
     });
   });
 
   describe('Query Extraction from Sample Data', () => {
     it.skip('should extract and classify product graph queries from real sample files', async () => {
-      const sampleFile = '/Users/balkhalil/gd/demo/z/backup/pg-migration-620/data/sample_data/shared-graph-queries-v1.js';
-      
+      const sampleFile =
+        '/Users/balkhalil/gd/demo/z/backup/pg-migration-620/data/sample_data/shared-graph-queries-v1.js';
+
       const extractedQueries = await extractor.extractFromFile(sampleFile);
-      
+
       // Debug info
       console.log('Extracted queries:', extractedQueries.length);
       if (extractedQueries.length === 0) {
@@ -40,52 +41,54 @@ describe('Sample Data Integration Tests', () => {
       }
 
       expect(extractedQueries.length).toBeGreaterThan(0);
-      
+
       // All should be classified as productGraph (default for venture queries)
-      extractedQueries.forEach(query => {
+      extractedQueries.forEach((query) => {
         expect(query.endpoint).toBe('productGraph');
         expect(query.sourceFile).toBe(sampleFile);
       });
 
       // Check that we have queries with expected content
-      const hasVenturesQuery = extractedQueries.some(q => 
-        q.content.includes('ventures') || q.content.includes('user')
+      const hasVenturesQuery = extractedQueries.some(
+        (q) => q.content.includes('ventures') || q.content.includes('user'),
       );
       expect(hasVenturesQuery).toBe(true);
     });
 
     it.skip('should extract and classify offer graph queries from real sample files', async () => {
-      const sampleFile = '/Users/balkhalil/gd/demo/z/backup/pg-migration-620/data/sample_data/offer-graph-queries.js';
-      
+      const sampleFile =
+        '/Users/balkhalil/gd/demo/z/backup/pg-migration-620/data/sample_data/offer-graph-queries.js';
+
       const extractedQueries = await extractor.extractFromFile(sampleFile);
 
       expect(extractedQueries.length).toBeGreaterThan(0);
-      
+
       // Should be classified as offerGraph based on content
-      extractedQueries.forEach(query => {
+      extractedQueries.forEach((query) => {
         expect(query.endpoint).toBe('offerGraph');
         expect(query.sourceFile).toBe(sampleFile);
       });
 
       // Check that we have queries with expected offer graph content
-      const hasOfferQuery = extractedQueries.some(q => 
-        q.content.includes('transitions') || q.content.includes('FindUnifiedBillDetails')
+      const hasOfferQuery = extractedQueries.some(
+        (q) => q.content.includes('transitions') || q.content.includes('FindUnifiedBillDetails'),
       );
       expect(hasOfferQuery).toBe(true);
     });
 
     it('should handle fragments from sample files', async () => {
-      const sampleFile = '/Users/balkhalil/gd/demo/z/backup/pg-migration-620/data/sample_data/fragments.js';
-      
+      const sampleFile =
+        '/Users/balkhalil/gd/demo/z/backup/pg-migration-620/data/sample_data/fragments.js';
+
       const extractedQueries = await extractor.extractFromFile(sampleFile);
 
       // Fragments file might not have complete queries, just fragments
       // This tests that the extractor handles fragment files gracefully
       expect(Array.isArray(extractedQueries)).toBe(true);
-      
+
       // Even if no queries are found, it should not error
       if (extractedQueries.length > 0) {
-        extractedQueries.forEach(query => {
+        extractedQueries.forEach((query) => {
           expect(query.sourceFile).toBe(sampleFile);
         });
       }
@@ -135,16 +138,17 @@ describe('Sample Data Integration Tests', () => {
       const testCases = [
         {
           content: 'query { ventures { id } }',
-          expected: 'productGraph'
+          expected: 'productGraph',
         },
         {
           content: 'query { transitions { offers } }',
-          expected: 'offerGraph'
+          expected: 'offerGraph',
         },
         {
-          content: 'mutation ModifyBasketWithOptions($data: ModifyBasketWithOptionsInput!) { modifyBasketWithOptions(data: $data) }',
-          expected: 'offerGraph'
-        }
+          content:
+            'mutation ModifyBasketWithOptions($data: ModifyBasketWithOptionsInput!) { modifyBasketWithOptions(data: $data) }',
+          expected: 'offerGraph',
+        },
       ];
 
       testCases.forEach(({ content, expected }) => {
@@ -153,7 +157,7 @@ describe('Sample Data Integration Tests', () => {
         if (content.includes('transitions') || content.includes('modifyBasket')) {
           endpoint = 'offerGraph';
         }
-        
+
         expect(endpoint).toBe(expected);
       });
     });
@@ -162,7 +166,7 @@ describe('Sample Data Integration Tests', () => {
   describe('Edge Cases and Error Handling', () => {
     it('should handle non-existent files gracefully', async () => {
       const nonExistentFile = join(__dirname, 'non-existent-file.js');
-      
+
       try {
         const extractedQueries = await extractor.extractFromFile(nonExistentFile);
         expect(extractedQueries).toEqual([]);
@@ -175,19 +179,19 @@ describe('Sample Data Integration Tests', () => {
     it('should handle multiple sample files without errors', async () => {
       const sampleFiles = [
         'shared-graph-queries-v1.js',
-        'shared-graph-queries-v2.js', 
+        'shared-graph-queries-v2.js',
         'shared-graph-queries-v3.js',
-        'queryNames.js'
+        'queryNames.js',
       ];
 
       for (const fileName of sampleFiles) {
         const sampleFile = `/Users/balkhalil/gd/demo/z/backup/pg-migration-620/data/sample_data/${fileName}`;
         const extractedQueries = await extractor.extractFromFile(sampleFile);
-        
+
         expect(Array.isArray(extractedQueries)).toBe(true);
         // Each file should either extract queries or return empty array gracefully
         if (extractedQueries.length > 0) {
-          extractedQueries.forEach(query => {
+          extractedQueries.forEach((query) => {
             expect(query.sourceFile).toBe(sampleFile);
           });
         }

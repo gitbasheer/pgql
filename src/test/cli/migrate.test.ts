@@ -45,21 +45,21 @@ describe('migrate CLI command', () => {
   describe('Dependencies', () => {
     it('should be able to import UnifiedMigrationPipeline', async () => {
       const imported = await import('../../core/pipeline/UnifiedMigrationPipeline.js');
-    const { UnifiedMigrationPipeline } = imported;
+      const { UnifiedMigrationPipeline } = imported;
       expect(UnifiedMigrationPipeline).toBeDefined();
       expect(typeof UnifiedMigrationPipeline).toBe('function');
     });
 
     it('should be able to import ConfigLoader', async () => {
       const imported = await import('../../utils/ConfigLoader.js');
-    const { ConfigLoader } = imported;
+      const { ConfigLoader } = imported;
       expect(ConfigLoader).toBeDefined();
       expect(typeof ConfigLoader.load).toBe('function');
     });
 
     it('should be able to import logger', async () => {
       const imported = await import('../../utils/logger.js');
-    const { logger } = imported;
+      const { logger } = imported;
       expect(logger).toBeDefined();
       expect(typeof logger.info).toBe('function');
       expect(typeof logger.error).toBe('function');
@@ -67,7 +67,7 @@ describe('migrate CLI command', () => {
 
     it('should be able to import GitHubService', async () => {
       const imported = await import('../../core/integration/GitHubService.js');
-    const { GitHubService } = imported;
+      const { GitHubService } = imported;
       expect(GitHubService).toBeDefined();
       expect(typeof GitHubService).toBe('function');
     });
@@ -132,7 +132,7 @@ describe('migrate CLI command', () => {
       const mockResult = {
         operations: [{ id: '1', name: 'TestQuery' }],
         files: ['test.ts'],
-        summary: { queries: 1, mutations: 0, subscriptions: 0 }
+        summary: { queries: 1, mutations: 0, subscriptions: 0 },
       };
 
       expect(Array.isArray(mockResult.operations)).toBe(true);
@@ -144,7 +144,7 @@ describe('migrate CLI command', () => {
       const mockResult = {
         hasErrors: false,
         errors: [],
-        warnings: []
+        warnings: [],
       };
 
       expect(mockResult).toHaveProperty('hasErrors');
@@ -158,7 +158,7 @@ describe('migrate CLI command', () => {
         automatic: 1,
         semiAutomatic: 0,
         manual: 0,
-        skipped: 0
+        skipped: 0,
       };
 
       expect(Array.isArray(mockResult.transformed)).toBe(true);
@@ -175,7 +175,7 @@ describe('migrate CLI command', () => {
 
     it('should handle error logging', async () => {
       const imported = await import('../../utils/logger.js');
-    const { logger } = imported;
+      const { logger } = imported;
       expect(typeof logger.error).toBe('function');
     });
   });
@@ -225,7 +225,7 @@ describe('migrate CLI command', () => {
         successfulTransformations: 4,
         filesModified: 3,
         averageConfidence: 85.5,
-        risks: ['High query complexity']
+        risks: ['High query complexity'],
       };
 
       expect(mockSummary).toHaveProperty('totalOperations');

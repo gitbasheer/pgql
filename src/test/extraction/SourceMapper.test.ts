@@ -15,23 +15,23 @@ describe('SourceMapper', () => {
 
   describe('register and retrieval', () => {
     it('should register and retrieve source AST by query ID', () => {
-      const code = 'const x = 42;'; 
+      const code = 'const x = 42;';
       // NOTE: what does the code represent? is it a query or just a piece of code?
       // NOTE: what does the sourceMapper do with the code? does it parse it to an AST?
       // NOTE: what does the sourceMapper do with the AST? does it register it with a query ID?
       // NOTE: what does the sourceMapper do with the query ID? does it allow retrieval of the AST by the query ID?
       const ast = babel.parse(code);
       const node = ast.program.body[0];
-      
+
       const sourceAST: SourceAST = {
         node,
         start: 0,
         end: 13,
-        parent: ast.program
+        parent: ast.program,
       };
 
       sourceMapper.register('query-1', sourceAST);
-      
+
       const retrieved = sourceMapper.getSourceAST('query-1');
       expect(retrieved).toBeDefined();
       expect(retrieved).toEqual(sourceAST);
@@ -42,16 +42,16 @@ describe('SourceMapper', () => {
       const code = 'const x = 42;';
       const ast = babel.parse(code);
       const node = ast.program.body[0];
-      
+
       const sourceAST: SourceAST = {
         node,
         start: 0,
         end: 13,
-        parent: ast.program
+        parent: ast.program,
       };
 
       sourceMapper.register('query-1', sourceAST);
-      
+
       const retrievedId = sourceMapper.getQueryId(node);
       expect(retrievedId).toBe('query-1');
     });
@@ -65,7 +65,7 @@ describe('SourceMapper', () => {
       const code = 'const x = 42;';
       const ast = babel.parse(code);
       const node = ast.program.body[0];
-      
+
       const result = sourceMapper.getQueryId(node);
       expect(result).toBeUndefined();
     });
@@ -78,22 +78,25 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const taggedTemplate = statement.expression;
-      if (taggedTemplate.type !== 'TaggedTemplateExpression') throw new Error('Expected TaggedTemplateExpression');
-      
+      if (taggedTemplate.type !== 'TaggedTemplateExpression')
+        throw new Error('Expected TaggedTemplateExpression');
+
       expect(SourceMapper.isGraphQLTag(taggedTemplate.tag)).toBe(true);
     });
 
     it('should detect all GraphQL tag variations', () => {
       const variations = ['gql', 'graphql', 'GraphQL'];
-      
-      variations.forEach(tag => {
+
+      variations.forEach((tag) => {
         const code = `${tag}\`query { test }\``;
         const ast = babel.parse(code);
         const statement = ast.program.body[0];
-        if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
+        if (statement.type !== 'ExpressionStatement')
+          throw new Error('Expected ExpressionStatement');
         const taggedTemplate = statement.expression;
-        if (taggedTemplate.type !== 'TaggedTemplateExpression') throw new Error('Expected TaggedTemplateExpression');
-        
+        if (taggedTemplate.type !== 'TaggedTemplateExpression')
+          throw new Error('Expected TaggedTemplateExpression');
+
         expect(SourceMapper.isGraphQLTag(taggedTemplate.tag)).toBe(true);
       });
     });
@@ -104,8 +107,9 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const taggedTemplate = statement.expression;
-      if (taggedTemplate.type !== 'TaggedTemplateExpression') throw new Error('Expected TaggedTemplateExpression');
-      
+      if (taggedTemplate.type !== 'TaggedTemplateExpression')
+        throw new Error('Expected TaggedTemplateExpression');
+
       expect(SourceMapper.isGraphQLTag(taggedTemplate.tag)).toBe(true);
     });
 
@@ -115,8 +119,9 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const taggedTemplate = statement.expression;
-      if (taggedTemplate.type !== 'TaggedTemplateExpression') throw new Error('Expected TaggedTemplateExpression');
-      
+      if (taggedTemplate.type !== 'TaggedTemplateExpression')
+        throw new Error('Expected TaggedTemplateExpression');
+
       expect(SourceMapper.isGraphQLTag(taggedTemplate.tag)).toBe(false);
     });
   });
@@ -128,7 +133,7 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const callExpression = statement.expression;
-      
+
       expect(SourceMapper.isGraphQLCall(callExpression)).toBe(true);
     });
 
@@ -138,7 +143,7 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const callExpression = statement.expression;
-      
+
       expect(SourceMapper.isGraphQLCall(callExpression)).toBe(false);
     });
 
@@ -148,7 +153,7 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const callExpression = statement.expression;
-      
+
       expect(SourceMapper.isGraphQLCall(callExpression)).toBe(false);
     });
   });
@@ -160,7 +165,7 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const taggedTemplate = statement.expression;
-      
+
       const result = SourceMapper.extractTemplateLiteral(taggedTemplate);
       expect(result).toBeDefined();
       expect(result?.quasis).toHaveLength(1);
@@ -173,7 +178,7 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const taggedTemplate = statement.expression;
-      
+
       const result = SourceMapper.extractTemplateLiteral(taggedTemplate);
       expect(result).toBeDefined();
       expect(result?.quasis).toHaveLength(2);
@@ -186,7 +191,7 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const callExpression = statement.expression;
-      
+
       const result = SourceMapper.extractTemplateLiteral(callExpression);
       expect(result).toBeDefined();
       expect(result?.quasis).toHaveLength(1);
@@ -197,7 +202,7 @@ describe('SourceMapper', () => {
       const code = 'const x = 42';
       const ast = babel.parse(code);
       const node = ast.program.body[0];
-      
+
       const result = SourceMapper.extractTemplateLiteral(node);
       expect(result).toBeNull();
     });
@@ -210,7 +215,7 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const taggedTemplate = statement.expression;
-      
+
       const sourceAST: SourceAST = {
         node: taggedTemplate,
         start: 0,
@@ -218,12 +223,12 @@ describe('SourceMapper', () => {
         parent: ast.program,
         templateLiteral: {
           quasis: (taggedTemplate as any).quasi.quasis,
-          expressions: (taggedTemplate as any).quasi.expressions
-        }
+          expressions: (taggedTemplate as any).quasi.expressions,
+        },
       };
 
       sourceMapper.register('query-1', sourceAST);
-      
+
       const interpolations = sourceMapper.getInterpolations('query-1');
       expect(interpolations).toHaveLength(2);
     });
@@ -238,12 +243,12 @@ describe('SourceMapper', () => {
           }
         }
       \``;
-      
+
       const ast = babel.parse(code);
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const taggedTemplate = statement.expression;
-      
+
       const sourceAST: SourceAST = {
         node: taggedTemplate,
         start: 0,
@@ -251,15 +256,15 @@ describe('SourceMapper', () => {
         parent: ast.program,
         templateLiteral: {
           quasis: (taggedTemplate as any).quasi.quasis,
-          expressions: (taggedTemplate as any).quasi.expressions
-        }
+          expressions: (taggedTemplate as any).quasi.expressions,
+        },
       };
 
       sourceMapper.register('query-1', sourceAST);
-      
+
       const interpolations = sourceMapper.getInterpolations('query-1');
       expect(interpolations).toHaveLength(5);
-      
+
       // Check specific interpolation types
       expect(interpolations[0].type).toBe('queryName'); // queryNames.myQuery
       expect(interpolations[1].type).toBe('identifier'); // userId
@@ -274,7 +279,7 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const taggedTemplate = statement.expression;
-      
+
       const sourceAST: SourceAST = {
         node: taggedTemplate,
         start: 0,
@@ -282,12 +287,12 @@ describe('SourceMapper', () => {
         parent: ast.program,
         templateLiteral: {
           quasis: (taggedTemplate as any).quasi.quasis,
-          expressions: (taggedTemplate as any).quasi.expressions
-        }
+          expressions: (taggedTemplate as any).quasi.expressions,
+        },
       };
 
       sourceMapper.register('query-1', sourceAST);
-      
+
       const interpolations = sourceMapper.getInterpolations('query-1');
       expect(interpolations[0].beforeText).toBe('query ');
       expect(interpolations[0].afterText).toBe(' { test }');
@@ -299,8 +304,9 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const taggedTemplate = statement.expression;
-      if (taggedTemplate.type !== 'TaggedTemplateExpression') throw new Error('Expected TaggedTemplateExpression');
-      
+      if (taggedTemplate.type !== 'TaggedTemplateExpression')
+        throw new Error('Expected TaggedTemplateExpression');
+
       const sourceAST: SourceAST = {
         node: taggedTemplate,
         start: 0,
@@ -309,13 +315,13 @@ describe('SourceMapper', () => {
         // Use the actual template literal from the AST which has no expressions
         templateLiteral: {
           quasis: taggedTemplate.quasi.quasis,
-          expressions: taggedTemplate.quasi.expressions as babelTypes.Expression[]
-        }
+          expressions: taggedTemplate.quasi.expressions as babelTypes.Expression[],
+        },
       };
 
       // Use a unique query ID to avoid conflicts with other tests
       sourceMapper.register('query-no-interpolations', sourceAST);
-      
+
       const interpolations = sourceMapper.getInterpolations('query-no-interpolations');
       expect(interpolations).toHaveLength(0);
     });
@@ -327,24 +333,27 @@ describe('SourceMapper', () => {
       const code1 = 'gql`query { test }`';
       const ast1 = babel.parse(code1);
       const statement1 = ast1.program.body[0];
-      if (statement1.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
+      if (statement1.type !== 'ExpressionStatement')
+        throw new Error('Expected ExpressionStatement');
       const node1 = statement1.expression;
-      
+
       sourceMapper.register('query-1', {
         node: node1,
         start: 0,
         end: 19,
-        parent: ast1.program
+        parent: ast1.program,
       });
 
       // Register a query with interpolations
       const code2 = 'gql`query ${queryNames.test} { ${field} }`';
       const ast2 = babel.parse(code2);
       const statement2 = ast2.program.body[0];
-      if (statement2.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
+      if (statement2.type !== 'ExpressionStatement')
+        throw new Error('Expected ExpressionStatement');
       const node2 = statement2.expression;
-      if (node2.type !== 'TaggedTemplateExpression') throw new Error('Expected TaggedTemplateExpression');
-      
+      if (node2.type !== 'TaggedTemplateExpression')
+        throw new Error('Expected TaggedTemplateExpression');
+
       sourceMapper.register('query-2', {
         node: node2,
         start: 0,
@@ -352,8 +361,8 @@ describe('SourceMapper', () => {
         parent: ast2.program,
         templateLiteral: {
           quasis: node2.quasi.quasis,
-          expressions: node2.quasi.expressions as babelTypes.Expression[]
-        }
+          expressions: node2.quasi.expressions as babelTypes.Expression[],
+        },
       });
 
       const stats = sourceMapper.getStats();
@@ -374,7 +383,7 @@ describe('SourceMapper', () => {
         identifier: 0,
         functionCall: 0,
         conditional: 0,
-        other: 0
+        other: 0,
       });
     });
   });
@@ -386,24 +395,24 @@ describe('SourceMapper', () => {
       const statement = ast.program.body[0];
       if (statement.type !== 'ExpressionStatement') throw new Error('Expected ExpressionStatement');
       const node = statement.expression;
-      
+
       const sourceAST: SourceAST = {
         node,
         start: 0,
         end: 19,
-        parent: ast.program
+        parent: ast.program,
       };
 
       sourceMapper.register('query-1', sourceAST);
       expect(sourceMapper.getSourceAST('query-1')).toBeDefined();
-      
+
       sourceMapper.clear();
-      
+
       expect(sourceMapper.getSourceAST('query-1')).toBeUndefined();
       expect(sourceMapper.getQueryId(node)).toBeUndefined();
-      
+
       const stats = sourceMapper.getStats();
       expect(stats.totalQueries).toBe(0);
     });
   });
-}); 
+});

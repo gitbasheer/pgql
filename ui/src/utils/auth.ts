@@ -11,7 +11,7 @@ export function constructAuthCookies(): string {
   const custIdp = import.meta.env.REACT_APP_CUST_IDP || '';
   const infoCustIdp = import.meta.env.REACT_APP_INFO_CUST_IDP || '';
   const infoIdp = import.meta.env.REACT_APP_INFO_IDP || '';
-  
+
   return `auth_idp=${authIdp}; cust_idp=${custIdp}; info_cust_idp=${infoCustIdp}; info_idp=${infoIdp}`;
 }
 
@@ -21,7 +21,7 @@ export function constructAuthCookies(): string {
 export function getAuthHeaders(): Record<string, string> {
   return {
     'x-app-key': 'vnext-dashboard',
-    'Cookie': constructAuthCookies(),
+    Cookie: constructAuthCookies(),
   };
 }
 
@@ -39,11 +39,11 @@ export function getBearerToken(): string | null {
 export function getFullAuthHeaders(): Record<string, string> {
   const headers = getAuthHeaders();
   const bearerToken = getBearerToken();
-  
+
   if (bearerToken) {
     headers['Authorization'] = bearerToken;
   }
-  
+
   return headers;
 }
 
@@ -52,12 +52,12 @@ export function getFullAuthHeaders(): Record<string, string> {
  */
 export function maskAuthData(value: string): string {
   if (!value) return '';
-  
+
   // For tokens/keys, show first 4 chars and mask the rest
   if (value.length > 8) {
     return value.substring(0, 4) + '*'.repeat(value.length - 4);
   }
-  
+
   // For short values, mask completely
   return '*'.repeat(value.length);
 }

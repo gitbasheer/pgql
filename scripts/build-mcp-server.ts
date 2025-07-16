@@ -27,11 +27,10 @@ try {
   const testProcess = execSync('node dist/mcp/server.js --version || true', {
     cwd: projectRoot,
     encoding: 'utf-8',
-    stdio: 'pipe'
+    stdio: 'pipe',
   });
 
   console.log(chalk.green('✅ MCP server is ready for testing'));
-
 } catch (error) {
   console.error(chalk.red('❌ Build failed:'), error);
   process.exit(1);

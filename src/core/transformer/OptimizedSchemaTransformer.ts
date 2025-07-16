@@ -1,6 +1,10 @@
 import { DocumentNode, visit, print, parse, FieldNode, Kind } from 'graphql';
 import { DeprecationRule } from '../analyzer/SchemaDeprecationAnalyzer.js';
-import { ExtractedQuery, TransformationResult, TransformationChange } from '../../types/shared.types.js';
+import {
+  ExtractedQuery,
+  TransformationResult,
+  TransformationChange,
+} from '../../types/shared.types.js';
 import { logger } from '../../utils/logger.js';
 import { transformCache } from '../cache/CacheManager.js';
 import { createHash } from 'crypto';
@@ -30,33 +34,48 @@ export class OptimizedSchemaTransformer {
   private deprecationMap: Map<string, DeprecationRule>;
   private warnings: string[];
   private cacheEnabled: boolean;
-  
-  transformWithOptions(query: string, options: { deprecations: Array<{ field: string; replacement: string }> }): string {
+
+  transformWithOptions(
+    query: string,
+    options: { deprecations: Array<{ field: string; replacement: string }> },
+  ): string {
     let transformedQuery = query;
-    
-    options.deprecations.forEach(dep => {
+
+    options.deprecations.forEach((dep) => {
       const regex = new RegExp(`\\b${dep.field}\\b`, 'g');
       transformedQuery = transformedQuery.replace(regex, dep.replacement);
     });
-    
+
     // Handle nested field transformations
-    transformedQuery = transformedQuery.replace(/venture\s*{\s*profile\.logoUrl/g, 'venture { profile { logoUrl');
-    transformedQuery = transformedQuery.replace(/venture\s*{\s*profile\.description/g, 'venture { profile { description');
-    transformedQuery = transformedQuery.replace(/owner\s*{\s*contact\.email/g, 'owner { contact { email');
-    
+    transformedQuery = transformedQuery.replace(
+      /venture\s*{\s*profile\.logoUrl/g,
+      'venture { profile { logoUrl',
+    );
+    transformedQuery = transformedQuery.replace(
+      /venture\s*{\s*profile\.description/g,
+      'venture { profile { description',
+    );
+    transformedQuery = transformedQuery.replace(
+      /owner\s*{\s*contact\.email/g,
+      'owner { contact { email',
+    );
+
     // Clean up multiple fields in profile
-    transformedQuery = transformedQuery.replace(/profile\s*{\s*logoUrl\s*}\s*profile\s*{\s*description/g, 'profile { logoUrl description');
-    
+    transformedQuery = transformedQuery.replace(
+      /profile\s*{\s*logoUrl\s*}\s*profile\s*{\s*description/g,
+      'profile { logoUrl description',
+    );
+
     return transformedQuery;
   }
 
   generateMappingUtil(oldResponse: any, newResponse: any, queryName: string): string {
     // Analyze structure differences
     const differences = this.findDifferences(oldResponse, newResponse);
-    
+
     // Generate mapping function
-    let mapperBody = this.generateMapperBody(differences, 'oldData');
-    
+    const mapperBody = this.generateMapperBody(differences, 'oldData');
+
     return `export function map${queryName}Response(oldData: any): any {
   // Auto-generated mapping function for backward compatibility
   // A/B testing via Hivemind feature flags
@@ -70,28 +89,36 @@ export class OptimizedSchemaTransformer {
 // LLM_PLACEHOLDER: Use Ollama to generate more natural mapping based on JSON diffs`;
   }
 
-  private findDifferences(oldObj: any, newObj: any, path: string = ''): Array<{path: string; oldValue: any; newValue: any}> {
-    const diffs: Array<{path: string; oldValue: any; newValue: any}> = [];
-    
+  private findDifferences(
+    oldObj: any,
+    newObj: any,
+    path: string = '',
+  ): Array<{ path: string; oldValue: any; newValue: any }> {
+    const diffs: Array<{ path: string; oldValue: any; newValue: any }> = [];
+
     // Recursive diff detection
     const processObject = (old: any, new_: any, currentPath: string) => {
       const oldKeys = Object.keys(old || {});
       const newKeys = Object.keys(new_ || {});
       const allKeys = new Set([...oldKeys, ...newKeys]);
-      
+
       for (const key of allKeys) {
         const fullPath = currentPath ? `${currentPath}.${key}` : key;
         const oldValue = old?.[key];
         const newValue = new_?.[key];
-        
+
         if (oldValue === undefined && newValue !== undefined) {
           // Field added
           diffs.push({ path: fullPath, oldValue: undefined, newValue });
         } else if (oldValue !== undefined && newValue === undefined) {
           // Field removed
           diffs.push({ path: fullPath, oldValue, newValue: undefined });
-        } else if (typeof oldValue === 'object' && typeof newValue === 'object' && 
-                   oldValue !== null && newValue !== null) {
+        } else if (
+          typeof oldValue === 'object' &&
+          typeof newValue === 'object' &&
+          oldValue !== null &&
+          newValue !== null
+        ) {
           // Recursively check nested objects
           processObject(oldValue, newValue, fullPath);
         } else if (oldValue !== newValue) {
@@ -100,19 +127,22 @@ export class OptimizedSchemaTransformer {
         }
       }
     };
-    
+
     processObject(oldObj, newObj, path);
     return diffs;
   }
 
-  private generateMapperBody(_differences: Array<{path: string; oldValue: any; newValue: any}>, varName: string): string {
+  private generateMapperBody(
+    _differences: Array<{ path: string; oldValue: any; newValue: any }>,
+    varName: string,
+  ): string {
     // Generate mapping logic based on differences
     let body = `return {\n    ...${varName},\n`;
-    
+
     // Add field mappings
     body += `    // Field mappings for backward compatibility\n`;
     body += `  }`;
-    
+
     return body;
   }
 
@@ -131,24 +161,31 @@ export class OptimizedSchemaTransformer {
 }`;
   }
 
-  generatePRContent(changes: Array<{ file: string; oldContent: string; newContent: string; utilGenerated: boolean }>): string {
+  generatePRContent(
+    changes: Array<{
+      file: string;
+      oldContent: string;
+      newContent: string;
+      utilGenerated: boolean;
+    }>,
+  ): string {
     let content = '## GraphQL Schema Migration\n\n';
     content += '### Files Changed\n\n';
-    
-    changes.forEach(change => {
+
+    changes.forEach((change) => {
       content += `#### ${change.file}\n\n`;
       content += '```diff\n';
       content += `- ${change.oldContent}\n`;
       content += `+ ${change.newContent}\n`;
       content += '```\n\n';
     });
-    
-    const utilsGenerated = changes.filter(c => c.utilGenerated).length;
+
+    const utilsGenerated = changes.filter((c) => c.utilGenerated).length;
     if (utilsGenerated > 0) {
       content += `### Response Mapping Utilities Generated\n\n`;
       content += `${utilsGenerated} utility functions generated for backward compatibility.\n`;
     }
-    
+
     return content;
   }
 
@@ -158,8 +195,8 @@ export class OptimizedSchemaTransformer {
       commentOutVague: true,
       addDeprecationComments: true,
       preserveOriginalAsComment: false,
-      enableCache: true
-    }
+      enableCache: true,
+    },
   ) {
     this.deprecationMap = new Map();
     this.warnings = [];
@@ -179,7 +216,10 @@ export class OptimizedSchemaTransformer {
       if (rule.objectType === 'User' && !this.deprecationMap.has(`CurrentUser.${rule.fieldName}`)) {
         this.deprecationMap.set(`CurrentUser.${rule.fieldName}`, rule);
       }
-      if (rule.objectType === 'Venture' && !this.deprecationMap.has(`VentureNode.${rule.fieldName}`)) {
+      if (
+        rule.objectType === 'Venture' &&
+        !this.deprecationMap.has(`VentureNode.${rule.fieldName}`)
+      ) {
         this.deprecationMap.set(`VentureNode.${rule.fieldName}`, rule);
       }
     }
@@ -198,12 +238,12 @@ export class OptimizedSchemaTransformer {
     // Check cache first if enabled
     if (this.cacheEnabled) {
       try {
-        const cached = await transformCache.get('transform', cacheKey) as TransformResult;
+        const cached = (await transformCache.get('transform', cacheKey)) as TransformResult;
         if (cached) {
           logger.debug('Transform cache hit');
           return {
             ...cached,
-            cached: true
+            cached: true,
           };
         }
       } catch (error) {
@@ -221,7 +261,7 @@ export class OptimizedSchemaTransformer {
           original: result.original,
           transformed: result.transformed,
           changes: result.changes,
-          warnings: result.warnings
+          warnings: result.warnings,
         };
         await transformCache.set('transform', cacheKey, cacheResult);
         logger.debug('Transform result cached');
@@ -232,25 +272,22 @@ export class OptimizedSchemaTransformer {
 
     return {
       ...result,
-      cached: false
+      cached: false,
     };
   }
 
   private generateCacheKey(query: string): string {
-    const rulesHash = createHash('md5')
-      .update(JSON.stringify(this.deprecationRules))
-      .digest('hex');
-    const queryHash = createHash('md5')
-      .update(query)
-      .digest('hex');
-    const optionsHash = createHash('md5')
-      .update(JSON.stringify(this.options))
-      .digest('hex');
+    const rulesHash = createHash('md5').update(JSON.stringify(this.deprecationRules)).digest('hex');
+    const queryHash = createHash('md5').update(query).digest('hex');
+    const optionsHash = createHash('md5').update(JSON.stringify(this.options)).digest('hex');
 
     return `transform:${queryHash}:${rulesHash}:${optionsHash}`;
   }
 
-  private performTransformation(originalString: string, query: string | DocumentNode): TransformResult {
+  private performTransformation(
+    originalString: string,
+    query: string | DocumentNode,
+  ): TransformResult {
     const changes: Change[] = [];
 
     try {
@@ -305,7 +342,7 @@ export class OptimizedSchemaTransformer {
                   oldValue: fieldName,
                   newValue: undefined,
                   reason: rule.deprecationReason,
-                  path: currentPath
+                  path: currentPath,
                 });
 
                 // Remove field from selection
@@ -321,7 +358,7 @@ export class OptimizedSchemaTransformer {
                     oldValue: fieldName,
                     newValue: rule.replacement,
                     reason: rule.deprecationReason,
-                    path: currentPath
+                    path: currentPath,
                   });
 
                   return createNestedSelection(rule.replacement, node);
@@ -333,15 +370,15 @@ export class OptimizedSchemaTransformer {
                     oldValue: fieldName,
                     newValue: rule.replacement,
                     reason: rule.deprecationReason,
-                    path: currentPath
+                    path: currentPath,
                   });
 
                   return {
                     ...node,
                     name: {
                       kind: Kind.NAME,
-                      value: rule.replacement
-                    }
+                      value: rule.replacement,
+                    },
                   };
                 }
               }
@@ -355,8 +392,8 @@ export class OptimizedSchemaTransformer {
             if (pathStack.length > 0) {
               pathStack.pop();
             }
-          }
-        }
+          },
+        },
       });
 
       const transformed = print(transformedAst);
@@ -370,16 +407,18 @@ export class OptimizedSchemaTransformer {
         original: originalString,
         transformed: finalTransformed,
         changes,
-        warnings: this.warnings
+        warnings: this.warnings,
       };
     } catch (error) {
       // Handle parse errors gracefully
-      this.warnings.push(`Failed to transform: ${error instanceof Error ? error.message : String(error)}`);
+      this.warnings.push(
+        `Failed to transform: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return {
         original: originalString,
         transformed: originalString,
         changes: [],
-        warnings: this.warnings
+        warnings: this.warnings,
       };
     }
   }
@@ -406,14 +445,18 @@ export class OptimizedSchemaTransformer {
   } {
     return {
       totalRules: this.deprecationRules.length,
-      replaceableRules: this.deprecationRules.filter(r => !r.isVague).length,
-      vagueRules: this.deprecationRules.filter(r => r.isVague).length
+      replaceableRules: this.deprecationRules.filter((r) => !r.isVague).length,
+      vagueRules: this.deprecationRules.filter((r) => r.isVague).length,
     };
   }
 }
 
 // Helper functions
-function inferParentType(pathStack: string[], ancestors: readonly any[], astPath?: readonly (string | number)[]): string {
+function inferParentType(
+  pathStack: string[],
+  ancestors: readonly any[],
+  astPath?: readonly (string | number)[],
+): string {
   // First, check for specific nested contexts that override fragment types
   const currentPath = pathStack.join('.');
 
@@ -457,11 +500,17 @@ function inferParentType(pathStack: string[], ancestors: readonly any[], astPath
       const pathNode = astPath[i];
       if (pathNode && typeof pathNode === 'object') {
         // Fragment definition
-        if ((pathNode as any).kind === 'FragmentDefinition' && (pathNode as any).typeCondition?.name?.value) {
+        if (
+          (pathNode as any).kind === 'FragmentDefinition' &&
+          (pathNode as any).typeCondition?.name?.value
+        ) {
           return (pathNode as any).typeCondition.name.value;
         }
         // Inline fragment
-        if ((pathNode as any).kind === 'InlineFragment' && (pathNode as any).typeCondition?.name?.value) {
+        if (
+          (pathNode as any).kind === 'InlineFragment' &&
+          (pathNode as any).typeCondition?.name?.value
+        ) {
           return (pathNode as any).typeCondition.name.value;
         }
       }
@@ -480,76 +529,76 @@ function inferParentType(pathStack: string[], ancestors: readonly any[], astPath
   // Enhanced field to type mappings based on the actual production schema
   const fieldTypeMap: Record<string, string> = {
     // User-related fields
-    'user': 'User',
-    'users': 'User',
-    'me': 'CurrentUser',
-    'currentUser': 'CurrentUser',
+    user: 'User',
+    users: 'User',
+    me: 'CurrentUser',
+    currentUser: 'CurrentUser',
 
     // Venture-related fields
-    'venture': 'Venture',
-    'ventures': 'Venture',
-    'ventureNode': 'VentureNode',
-    'latestVenture': 'Venture',
+    venture: 'Venture',
+    ventures: 'Venture',
+    ventureNode: 'VentureNode',
+    latestVenture: 'Venture',
 
     // Project-related fields
-    'project': 'Project',
-    'projects': 'Project',
-    'projectNode': 'ProjectNode',
-    'unassociatedProjects': 'Project',
+    project: 'Project',
+    projects: 'Project',
+    projectNode: 'ProjectNode',
+    unassociatedProjects: 'Project',
 
     // Profile-related fields
-    'profile': 'Profile',
-    'userProfile': 'Profile',
-    'ventureProfile': 'VentureProfile',
+    profile: 'Profile',
+    userProfile: 'Profile',
+    ventureProfile: 'VentureProfile',
 
     // Content-related fields
-    'website': 'WAMProduct',
-    'product': 'WAMProduct',
-    'post': 'Post',
-    'posts': 'Post',
-    'comment': 'Comment',
-    'comments': 'Comment',
+    website: 'WAMProduct',
+    product: 'WAMProduct',
+    post: 'Post',
+    posts: 'Post',
+    comment: 'Comment',
+    comments: 'Comment',
 
     // Settings and features
-    'settings': 'Settings',
-    'features': 'Features',
-    'social_links': 'SocialLink',
-    'socialLinks': 'SocialLink',
-    'socialProfiles': 'SocialLink',
+    settings: 'Settings',
+    features: 'Features',
+    social_links: 'SocialLink',
+    socialLinks: 'SocialLink',
+    socialProfiles: 'SocialLink',
 
     // Common relationship fields
-    'author': 'User',
-    'postAuthor': 'User',
-    'owner': 'User',
-    'projectOwner': 'User',
-    'collaboratorUser': 'User',
-    'purchaser': 'User',
-    'members': 'ProjectMember',
-    'collaborators': 'ProjectMember',
-    'projectCollaborators': 'ProjectMember',
+    author: 'User',
+    postAuthor: 'User',
+    owner: 'User',
+    projectOwner: 'User',
+    collaboratorUser: 'User',
+    purchaser: 'User',
+    members: 'ProjectMember',
+    collaborators: 'ProjectMember',
+    projectCollaborators: 'ProjectMember',
 
     // Search and connections
-    'search': 'SearchResult',
-    'node': 'SearchResult', // For connection patterns
-    'edges': 'SearchResult', // For connection edges
+    search: 'SearchResult',
+    node: 'SearchResult', // For connection patterns
+    edges: 'SearchResult', // For connection edges
 
     // Contact and address
-    'contact': 'UserContact',
-    'address': 'UserAddress',
+    contact: 'UserContact',
+    address: 'UserAddress',
 
     // Billing and subscriptions
-    'billing': 'Billing',
-    'subscription': 'EcommSubscription',
-    'subscriptions': 'EcommSubscription',
-    'entitlements': 'Entitlement',
+    billing: 'Billing',
+    subscription: 'EcommSubscription',
+    subscriptions: 'EcommSubscription',
+    entitlements: 'Entitlement',
 
     // Other common types
-    'inferred': 'ProfileInferredData',
-    'metadata': 'ProfileMetadata',
-    'brands': 'Brand',
-    'locations': 'ProfileLocation',
-    'hours': 'ProfileHours',
-    'localization': 'ProfileLocalization'
+    inferred: 'ProfileInferredData',
+    metadata: 'ProfileMetadata',
+    brands: 'Brand',
+    locations: 'ProfileLocation',
+    hours: 'ProfileHours',
+    localization: 'ProfileLocalization',
   };
 
   const mappedType = fieldTypeMap[parentFieldName];
@@ -583,7 +632,10 @@ function inferParentType(pathStack: string[], ancestors: readonly any[], astPath
   }
 
   // Enhanced parent field check - look for social context
-  if (parentFieldName && (parentFieldName.includes('social') || parentFieldName === 'social_links')) {
+  if (
+    parentFieldName &&
+    (parentFieldName.includes('social') || parentFieldName === 'social_links')
+  ) {
     return 'SocialLink';
   }
 
@@ -628,82 +680,89 @@ function createNestedSelection(path: string, originalNode: FieldNode): FieldNode
     name: { kind: Kind.NAME, value: parentField },
     selectionSet: {
       kind: Kind.SELECTION_SET,
-      selections: [{
-        kind: Kind.FIELD,
-        name: { kind: Kind.NAME, value: childField },
-        // Preserve any selections from the original field
-        selectionSet: originalNode.selectionSet,
-        // Preserve directives and arguments
-        directives: originalNode.directives,
-        arguments: originalNode.arguments
-      }]
-    }
+      selections: [
+        {
+          kind: Kind.FIELD,
+          name: { kind: Kind.NAME, value: childField },
+          // Preserve any selections from the original field
+          selectionSet: originalNode.selectionSet,
+          // Preserve directives and arguments
+          directives: originalNode.directives,
+          arguments: originalNode.arguments,
+        },
+      ],
+    },
   };
 }
 
 // Enhanced methods for Phase 2
 export class EnhancedOptimizedSchemaTransformer extends OptimizedSchemaTransformer {
-  async transformQuery(query: ExtractedQuery, _deprecations: DeprecationRule[]): Promise<TransformationResult> {
+  async transformQuery(
+    query: ExtractedQuery,
+    _deprecations: DeprecationRule[],
+  ): Promise<TransformationResult> {
     const result = await this.transform(query.fullExpandedQuery || query.content);
-    
+
     const transformationResult: TransformationResult = {
       transformedQuery: result.transformed,
       originalQuery: query.content,
       warnings: result.warnings,
       mappingCode: this.generateMappingUtil({}, {}, query.queryName),
-      changes: result.changes.map(c => ({
+      changes: result.changes.map((c) => ({
         type: 'field' as const,
         field: c.field,
         oldValue: c.field,
         newValue: c.newValue,
-        reason: c.reason
+        reason: c.reason,
       })),
-      abFlag: `new-queries-${query.queryName.toLowerCase()}`
+      abFlag: `new-queries-${query.queryName.toLowerCase()}`,
     };
-    
+
     return transformationResult;
   }
 
   async generatePR(
-    queries: ExtractedQuery[], 
-    transformations: TransformationResult[], 
-    repoPath: string
+    queries: ExtractedQuery[],
+    transformations: TransformationResult[],
+    repoPath: string,
   ): Promise<void> {
     const git = simpleGit(repoPath);
-    
+
     try {
       // Create new branch
       await git.checkout('main');
       await git.checkoutLocalBranch('pgql-migrations-' + Date.now());
-      
+
       // Write transformed queries and utils
       for (let i = 0; i < queries.length; i++) {
         const query = queries[i];
         const transformation = transformations[i];
-        
+
         // Update query file
         const queryPath = query.filePath;
         await this.updateFileWithTransformation(
-          queryPath, 
-          query.content, 
-          transformation.transformedQuery
+          queryPath,
+          query.content,
+          transformation.transformedQuery,
         );
-        
+
         // Generate utility file
         const utilPath = queryPath.replace('.js', '.utils.js');
         await this.writeUtilFile(utilPath, transformation.mappingCode);
       }
-      
+
       // Stage changes
       await git.add('.');
-      
+
       // Create commit
-      await git.commit('feat: Automated GraphQL schema migration\n\n' + 
-        '- Updated queries for new schema\n' +
-        '- Added backward compatibility utils\n' +
-        '- Integrated Hivemind A/B flags\n\n' +
-        'Generated by pg-migration-620');
-      
+      await git.commit(
+        'feat: Automated GraphQL schema migration\n\n' +
+          '- Updated queries for new schema\n' +
+          '- Added backward compatibility utils\n' +
+          '- Integrated Hivemind A/B flags\n\n' +
+          'Generated by pg-migration-620',
+      );
+
       logger.info('PR branch created successfully');
     } catch (error) {
       logger.error('Failed to create PR:', error);
@@ -712,22 +771,22 @@ export class EnhancedOptimizedSchemaTransformer extends OptimizedSchemaTransform
   }
 
   private async updateFileWithTransformation(
-    filePath: string, 
-    oldQuery: string, 
-    newQuery: string
+    filePath: string,
+    oldQuery: string,
+    newQuery: string,
   ): Promise<string> {
     try {
       const fs = await import('fs/promises');
-      
+
       // Read the current file content
       const content = await fs.readFile(filePath, 'utf-8');
-      
+
       // Simple string replacement - in production, use AST for accuracy
       const updatedContent = content.replace(oldQuery, newQuery);
-      
+
       // Write back to file
       await fs.writeFile(filePath, updatedContent, 'utf-8');
-      
+
       logger.info(`Updated query in file: ${filePath}`);
       return updatedContent;
     } catch (error) {
@@ -740,11 +799,11 @@ export class EnhancedOptimizedSchemaTransformer extends OptimizedSchemaTransform
     try {
       const fs = await import('fs/promises');
       const path = await import('path');
-      
+
       // Ensure directory exists
       const dir = path.dirname(filePath);
       await fs.mkdir(dir, { recursive: true });
-      
+
       // Write utility file with header
       const fullContent = `// Auto-generated by pg-migration-620
 // Do not edit manually - regenerate using migration tool
@@ -754,7 +813,7 @@ ${utilContent}
 
 export default ${utilContent.match(/function\s+(\w+)/)?.[1] || 'mapResponse'};
 `;
-      
+
       await fs.writeFile(filePath, fullContent, 'utf-8');
       logger.info(`Generated utility file: ${filePath}`);
     } catch (error) {

@@ -2,7 +2,13 @@ import * as babel from '@babel/parser';
 import * as traverseModule from '@babel/traverse';
 const traverse = (traverseModule as any).default || traverseModule;
 import { BaseStrategy } from './BaseStrategy.js';
-import { ExtractedQuery, QueryContext, ImportInfo, OperationType, SourceAST } from '../types/index.js';
+import {
+  ExtractedQuery,
+  QueryContext,
+  ImportInfo,
+  OperationType,
+  SourceAST,
+} from '../types/index.js';
 import { ExtractionContext } from '../engine/ExtractionContext.js';
 import { safeParseGraphQL } from '../../../utils/graphqlValidator.js';
 import { SourceMapper } from '../utils/SourceMapper.js';
@@ -29,7 +35,7 @@ export class ASTStrategy extends BaseStrategy {
     try {
       const ast = babel.parse(content, {
         sourceType: 'module',
-        plugins: ['jsx', 'typescript', 'decorators-legacy', 'classProperties']
+        plugins: ['jsx', 'typescript', 'decorators-legacy', 'classProperties'],
       });
 
       const imports = this.extractImports(ast);
@@ -77,7 +83,7 @@ export class ASTStrategy extends BaseStrategy {
               extracted.push(query);
             }
           }
-        }
+        },
       });
 
       // Use pattern-aware processing instead of old name resolution
@@ -91,7 +97,7 @@ export class ASTStrategy extends BaseStrategy {
     } catch (error) {
       this.context.addError(
         filePath,
-        `AST parsing failed: ${error instanceof Error ? error.message : String(error)}`
+        `AST parsing failed: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
 
@@ -110,7 +116,7 @@ export class ASTStrategy extends BaseStrategy {
         node,
         start: node.start ?? 0,
         end: node.end ?? 0,
-        parent
+        parent,
       };
 
       // Extract template literal if present
@@ -123,7 +129,7 @@ export class ASTStrategy extends BaseStrategy {
     } catch (error) {
       this.context.addError(
         'unknown',
-        `Failed to create source AST: ${error instanceof Error ? error.message : String(error)}`
+        `Failed to create source AST: ${error instanceof Error ? error.message : String(error)}`,
       );
       return null;
     }
@@ -147,13 +153,19 @@ export class ASTStrategy extends BaseStrategy {
   }
 
   private isGraphQLCall(node: any): boolean {
-    return node.callee.type === 'Identifier' &&
-           ['gql', 'graphql', 'GraphQL'].includes(node.callee.name) &&
-           node.arguments.length > 0 &&
-           node.arguments[0].type === 'TemplateLiteral';
+    return (
+      node.callee.type === 'Identifier' &&
+      ['gql', 'graphql', 'GraphQL'].includes(node.callee.name) &&
+      node.arguments.length > 0 &&
+      node.arguments[0].type === 'TemplateLiteral'
+    );
   }
 
-  private extractQueryFromTemplate(path: any, filePath: string, index: number): ExtractedQuery | null {
+  private extractQueryFromTemplate(
+    path: any,
+    filePath: string,
+    index: number,
+  ): ExtractedQuery | null {
     const quasi = path.node.quasi;
 
     // Safety check for quasi structure
@@ -162,7 +174,7 @@ export class ASTStrategy extends BaseStrategy {
         filePath,
         'Invalid template literal structure',
         path.node.loc?.start.line,
-        path.node.loc?.start.column
+        path.node.loc?.start.column,
       );
       return null;
     }
@@ -183,14 +195,14 @@ export class ASTStrategy extends BaseStrategy {
         location: {
           line: path.node.loc?.start.line || 1,
           column: path.node.loc?.start.column || 1,
-          file: filePath
+          file: filePath,
         },
         name,
         type,
         metadata: {
           hasInterpolations: true,
-          needsResolution: true
-        }
+          needsResolution: true,
+        },
       };
     }
 
@@ -200,7 +212,7 @@ export class ASTStrategy extends BaseStrategy {
         filePath,
         `Invalid GraphQL in template: ${validation.error?.message}`,
         path.node.loc?.start.line,
-        path.node.loc?.start.column
+        path.node.loc?.start.column,
       );
       return null;
     }
@@ -216,10 +228,10 @@ export class ASTStrategy extends BaseStrategy {
       location: {
         line: path.node.loc?.start.line || 1,
         column: path.node.loc?.start.column || 1,
-        file: filePath
+        file: filePath,
       },
       name,
-      type
+      type,
     };
   }
 
@@ -232,7 +244,7 @@ export class ASTStrategy extends BaseStrategy {
         filePath,
         'Invalid template literal structure in call',
         path.node.loc?.start.line,
-        path.node.loc?.start.column
+        path.node.loc?.start.column,
       );
       return null;
     }
@@ -253,14 +265,14 @@ export class ASTStrategy extends BaseStrategy {
         location: {
           line: path.node.loc?.start.line || 1,
           column: path.node.loc?.start.column || 1,
-          file: filePath
+          file: filePath,
         },
         name,
         type,
         metadata: {
           hasInterpolations: true,
-          needsResolution: true
-        }
+          needsResolution: true,
+        },
       };
     }
 
@@ -270,7 +282,7 @@ export class ASTStrategy extends BaseStrategy {
         filePath,
         `Invalid GraphQL in call: ${validation.error?.message}`,
         path.node.loc?.start.line,
-        path.node.loc?.start.column
+        path.node.loc?.start.column,
       );
       return null;
     }
@@ -286,10 +298,10 @@ export class ASTStrategy extends BaseStrategy {
       location: {
         line: path.node.loc?.start.line || 1,
         column: path.node.loc?.start.column || 1,
-        file: filePath
+        file: filePath,
       },
       name,
-      type
+      type,
     };
   }
 
@@ -305,7 +317,12 @@ export class ASTStrategy extends BaseStrategy {
       content += element.value.raw;
 
       // Check if expressions exist and has elements before accessing length
-      if (quasi.expressions && Array.isArray(quasi.expressions) && quasi.expressions.length > 0 && index < quasi.expressions.length) {
+      if (
+        quasi.expressions &&
+        Array.isArray(quasi.expressions) &&
+        quasi.expressions.length > 0 &&
+        index < quasi.expressions.length
+      ) {
         // For now, just add a placeholder
         // The variant analyzer will handle these properly
         content += '${...}';
@@ -321,16 +338,18 @@ export class ASTStrategy extends BaseStrategy {
     (traverse as any)(ast, {
       ImportDeclaration: (path: any) => {
         const source = path.node.source.value;
-        const imported = path.node.specifiers.map((spec: any) => {
-          if (spec.type === 'ImportDefaultSpecifier') {
-            return 'default';
-          } else if (spec.type === 'ImportSpecifier') {
-            return spec.imported.name;
-          } else if (spec.type === 'ImportNamespaceSpecifier') {
-            return '*';
-          }
-          return '';
-        }).filter(Boolean);
+        const imported = path.node.specifiers
+          .map((spec: any) => {
+            if (spec.type === 'ImportDefaultSpecifier') {
+              return 'default';
+            } else if (spec.type === 'ImportSpecifier') {
+              return spec.imported.name;
+            } else if (spec.type === 'ImportNamespaceSpecifier') {
+              return '*';
+            }
+            return '';
+          })
+          .filter(Boolean);
 
         if (imported.length > 0) {
           imports.push({ source, imported, type: 'es6' });
@@ -338,11 +357,14 @@ export class ASTStrategy extends BaseStrategy {
       },
 
       CallExpression: (path: any) => {
-        if (path.node.callee.name === 'require' && path.node.arguments[0]?.type === 'StringLiteral') {
+        if (
+          path.node.callee.name === 'require' &&
+          path.node.arguments[0]?.type === 'StringLiteral'
+        ) {
           const source = path.node.arguments[0].value;
           imports.push({ source, imported: ['*'], type: 'commonjs' });
         }
-      }
+      },
     });
 
     return imports;
@@ -352,7 +374,7 @@ export class ASTStrategy extends BaseStrategy {
     const context: QueryContext = {};
 
     // Find containing function
-    let functionPath = path.getFunctionParent();
+    const functionPath = path.getFunctionParent();
     if (functionPath) {
       if (functionPath.node.id) {
         context.functionName = functionPath.node.id.name;
@@ -368,7 +390,7 @@ export class ASTStrategy extends BaseStrategy {
     }
 
     // Find containing class/component
-    let classPath = path.findParent((p: any) => p.isClassDeclaration() || p.isClassExpression());
+    const classPath = path.findParent((p: any) => p.isClassDeclaration() || p.isClassExpression());
     if (classPath && classPath.node.id) {
       context.componentName = classPath.node.id.name;
     }
@@ -389,7 +411,9 @@ export class ASTStrategy extends BaseStrategy {
    */
   private resolveQueryNames(ast: any, queries: ExtractedQuery[]): Map<number, string> {
     // @ts-ignore
-    console.warn('resolveQueryNames is deprecated. Use QueryNamingService for pattern-based query processing.');
+    console.warn(
+      'resolveQueryNames is deprecated. Use QueryNamingService for pattern-based query processing.',
+    );
     return new Map(); // Return empty map for backward compatibility
   }
 
@@ -422,7 +446,8 @@ export class ASTStrategy extends BaseStrategy {
 
     if (trimmed.includes('query') || trimmed.match(/query\s+[\w$]/)) return 'query';
     if (trimmed.includes('mutation') || trimmed.match(/mutation\s+[\w$]/)) return 'mutation';
-    if (trimmed.includes('subscription') || trimmed.match(/subscription\s+[\w$]/)) return 'subscription';
+    if (trimmed.includes('subscription') || trimmed.match(/subscription\s+[\w$]/))
+      return 'subscription';
     if (trimmed.includes('fragment') || trimmed.match(/fragment\s+[\w$]/)) return 'fragment';
 
     return null;
@@ -435,7 +460,7 @@ export class ASTStrategy extends BaseStrategy {
       /query\s+([\w]+)\s*[({$]/,
       /mutation\s+([\w]+)\s*[({$]/,
       /subscription\s+([\w]+)\s*[({$]/,
-      /fragment\s+([\w]+)\s+on/
+      /fragment\s+([\w]+)\s+on/,
     ];
 
     for (const pattern of patterns) {

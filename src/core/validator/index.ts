@@ -22,4 +22,4 @@ export { VariableGeneratorImpl } from './VariableGenerator.js';
 export { GoDaddyEndpointConfig } from './GoDaddyEndpointConfig.js';
 export { SSOService } from './SSOService.js';
 export type { GoDaddySSO, GoDaddyEndpointOptions } from './GoDaddyEndpointConfig.js';
-export type { SSOResult } from './SSOService.js'; 
+export type { SSOResult } from './SSOService.js';

@@ -7,7 +7,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
     it('should preserve source AST when enabled', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
       const context = new ExtractionContext(options);
       const strategy = new PluckStrategy(context);
@@ -40,7 +40,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
       const options: ExtractionOptions = {
         directory: '.',
         // NOTE:when do we exactly decide to disable source AST preservation?
-        preserveSourceAST: false
+        preserveSourceAST: false,
       };
       const context = new ExtractionContext(options);
       const strategy = new PluckStrategy(context);
@@ -58,7 +58,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
     it('should handle templates with interpolations', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
       const context = new ExtractionContext(options);
       context.queryNames['getItems'] = 'GetItemsList';
@@ -93,10 +93,11 @@ describe('PluckStrategy with Source AST Preservation', () => {
     });
   });
   describe('multiple GraphQL modules support', () => {
-    it('should extract from @apollo/client imports', async () => { // NOTE: why do extrat from @apollo/client?
+    it('should extract from @apollo/client imports', async () => {
+      // NOTE: why do extrat from @apollo/client?
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
       const context = new ExtractionContext(options);
       const strategy = new PluckStrategy(context);
@@ -119,7 +120,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
       // NOTE: do we have any examples of react-relay queries in gdcorp?
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
       const context = new ExtractionContext(options);
       const strategy = new PluckStrategy(context);
@@ -143,7 +144,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
     it('should manually extract templates with complex interpolations', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
       const context = new ExtractionContext(options);
       const strategy = new PluckStrategy(context);
@@ -168,7 +169,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
     it('should correctly map multiple queries to their ASTs', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
       const context = new ExtractionContext(options);
       const strategy = new PluckStrategy(context);
@@ -184,7 +185,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
 
       // Each query should have unique source AST
       const astNodes = new Set();
-      queries.forEach(query => {
+      queries.forEach((query) => {
         expect(query.sourceAST).toBeDefined();
         const ast = sourceMapper.getSourceAST(query.id);
         expect(ast).toBe(query.sourceAST);
@@ -200,7 +201,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
     it('should handle files without GraphQL', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
       const context = new ExtractionContext(options);
       const strategy = new PluckStrategy(context);
@@ -217,7 +218,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
     it('should handle malformed GraphQL gracefully', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
       const context = new ExtractionContext(options);
       const strategy = new PluckStrategy(context);
@@ -241,7 +242,7 @@ describe('PluckStrategy with Source AST Preservation', () => {
     it('should track statistics correctly', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
       const context = new ExtractionContext(options);
       context.queryNames['query1'] = 'Query1';

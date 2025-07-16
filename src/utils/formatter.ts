@@ -14,7 +14,7 @@ export async function formatGraphQL(query: string): Promise<string> {
       singleQuote: false,
       bracketSpacing: true,
     });
-    
+
     return formatted;
   } catch (error) {
     logger.warn('Failed to format GraphQL query with prettier:', error);
@@ -27,5 +27,5 @@ export async function formatGraphQL(query: string): Promise<string> {
  * Format multiple GraphQL queries
  */
 export async function formatGraphQLQueries(queries: string[]): Promise<string[]> {
-  return Promise.all(queries.map(query => formatGraphQL(query)));
+  return Promise.all(queries.map((query) => formatGraphQL(query)));
 }

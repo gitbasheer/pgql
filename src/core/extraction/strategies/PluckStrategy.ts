@@ -9,7 +9,6 @@ import { ExtractionContext } from '../engine/ExtractionContext.js';
 import { safeParseGraphQL } from '../../../utils/graphqlValidator.js';
 import { SourceMapper } from '../utils/SourceMapper.js';
 
-
 export class PluckStrategy extends BaseStrategy {
   private sourceMapper: SourceMapper;
 
@@ -28,7 +27,7 @@ export class PluckStrategy extends BaseStrategy {
 
   async extract(filePath: string, content: string): Promise<ExtractedQuery[]> {
     const extracted: ExtractedQuery[] = [];
-    
+
     // FIRST: Extract templates with interpolations manually BEFORE graphql-tag-pluck
     // This prevents graphql-tag-pluck from resolving them to empty strings
     const manuallyExtracted = this.extractTemplatesWithInterpolations(filePath, content);
@@ -38,7 +37,7 @@ export class PluckStrategy extends BaseStrategy {
       // Create a modified content where we've replaced templates with interpolations
       // with placeholder queries to prevent graphql-tag-pluck from processing them
       const modifiedContent = this.replaceInterpolatedTemplates(content);
-      
+
       const sources = gqlPluckFromCodeStringSync(filePath, modifiedContent, {
         globalGqlIdentifierName: ['gql', 'graphql', 'GraphQL'],
         gqlMagicComment: 'graphql',
@@ -49,8 +48,8 @@ export class PluckStrategy extends BaseStrategy {
           { name: '@apollo/client/core', identifier: 'gql' },
           { name: 'apollo-boost', identifier: 'gql' },
           { name: 'react-relay', identifier: 'graphql' },
-          { name: 'relay-runtime', identifier: 'graphql' }
-        ]
+          { name: 'relay-runtime', identifier: 'graphql' },
+        ],
       });
 
       if (sources && sources.length > 0) {
@@ -66,15 +65,15 @@ export class PluckStrategy extends BaseStrategy {
           if (!source.body || source.body.trim() === '') {
             continue;
           }
-          
+
           // Check if template has interpolations (shouldn't happen now, but just in case)
           const hasInterpolations = source.body.includes('${');
-          
+
           if (hasInterpolations) {
             // For templates with interpolations, extract without full parsing
             const type = this.detectOperationTypeFromString(source.body) || 'query';
             const name = this.extractOperationNameFromString(source.body);
-            
+
             const query: ExtractedQuery = {
               id: this.generateQueryId(filePath, i, name),
               filePath,
@@ -83,14 +82,14 @@ export class PluckStrategy extends BaseStrategy {
               location: {
                 line: source.locationOffset?.line || 1,
                 column: source.locationOffset?.column || 1,
-                file: filePath
+                file: filePath,
               },
               name,
               type,
               metadata: {
                 hasInterpolations: true,
-                needsResolution: true
-              }
+                needsResolution: true,
+              },
             };
 
             // Try to find and attach source AST
@@ -105,11 +104,11 @@ export class PluckStrategy extends BaseStrategy {
             extracted.push(query);
           } else {
             const validation = safeParseGraphQL(source.body);
-            
+
             if (validation.isValid && validation.ast) {
               const type = this.detectOperationType(validation.ast);
               const name = this.extractOperationName(validation.ast);
-              
+
               const query: ExtractedQuery = {
                 id: this.generateQueryId(filePath, i, name),
                 filePath,
@@ -118,10 +117,10 @@ export class PluckStrategy extends BaseStrategy {
                 location: {
                   line: source.locationOffset?.line || 1,
                   column: source.locationOffset?.column || 1,
-                  file: filePath
+                  file: filePath,
                 },
                 name,
-                type
+                type,
               };
 
               // Try to find and attach source AST
@@ -141,7 +140,7 @@ export class PluckStrategy extends BaseStrategy {
                 filePath,
                 `Failed to parse GraphQL: ${validation.error.message}`,
                 source.locationOffset?.line || 1,
-                source.locationOffset?.column || 1
+                source.locationOffset?.column || 1,
               );
             }
           }
@@ -168,11 +167,11 @@ export class PluckStrategy extends BaseStrategy {
    */
   private extractSourceASTs(filePath: string, content: string): Map<string, SourceAST> {
     const astMap = new Map<string, SourceAST>();
-    
+
     try {
       const ast = babel.parse(content, {
         sourceType: 'module',
-        plugins: ['jsx', 'typescript', 'decorators-legacy', 'classProperties']
+        plugins: ['jsx', 'typescript', 'decorators-legacy', 'classProperties'],
       });
 
       let index = 0;
@@ -183,55 +182,59 @@ export class PluckStrategy extends BaseStrategy {
               node: path.node,
               start: path.node.start ?? 0,
               end: path.node.end ?? 0,
-              parent: path.parent
+              parent: path.parent,
             };
-            
+
             const templateLiteral = SourceMapper.extractTemplateLiteral(path.node);
             if (templateLiteral) {
               sourceAST.templateLiteral = templateLiteral;
             }
-            
+
             astMap.set(`${index}`, sourceAST);
             index++;
           }
         },
-        
+
         CallExpression: (path: any) => {
           if (SourceMapper.isGraphQLCall(path.node)) {
             const sourceAST: SourceAST = {
               node: path.node,
               start: path.node.start ?? 0,
               end: path.node.end ?? 0,
-              parent: path.parent
+              parent: path.parent,
             };
-            
+
             const templateLiteral = SourceMapper.extractTemplateLiteral(path.node);
             if (templateLiteral) {
               sourceAST.templateLiteral = templateLiteral;
             }
-            
+
             astMap.set(`${index}`, sourceAST);
             index++;
           }
-        }
+        },
       });
     } catch (error) {
       // Failed to parse with Babel, continue without source AST
     }
-    
+
     return astMap;
   }
 
   /**
    * Find matching AST for a given GraphQL content
    */
-  private findMatchingAST(astMap: Map<string, SourceAST>, content: string, index: number): SourceAST | undefined {
+  private findMatchingAST(
+    astMap: Map<string, SourceAST>,
+    content: string,
+    index: number,
+  ): SourceAST | undefined {
     // First try by index
     const byIndex = astMap.get(`${index}`);
     if (byIndex) {
       return byIndex;
     }
-    
+
     // If that fails, try to match by content similarity
     // This is a fallback and might not always be accurate
     return undefined;
@@ -246,36 +249,37 @@ export class PluckStrategy extends BaseStrategy {
 
   private detectOperationType(ast: DocumentNode): OperationType {
     const definition = ast.definitions[0];
-    
+
     if (definition.kind === 'OperationDefinition') {
       return definition.operation;
     }
-    
+
     if (definition.kind === 'FragmentDefinition') {
       return 'fragment';
     }
-    
+
     return 'query';
   }
 
   private extractOperationName(ast: DocumentNode): string | undefined {
     const definition = ast.definitions[0];
-    
+
     if (definition.kind === 'OperationDefinition' || definition.kind === 'FragmentDefinition') {
       return definition.name?.value;
     }
-    
+
     return undefined;
   }
 
   private detectOperationTypeFromString(content: string): OperationType | null {
     const trimmed = content.trim();
-    
+
     if (trimmed.includes('query') || trimmed.match(/query\s+[\w$]/)) return 'query';
     if (trimmed.includes('mutation') || trimmed.match(/mutation\s+[\w$]/)) return 'mutation';
-    if (trimmed.includes('subscription') || trimmed.match(/subscription\s+[\w$]/)) return 'subscription';
+    if (trimmed.includes('subscription') || trimmed.match(/subscription\s+[\w$]/))
+      return 'subscription';
     if (trimmed.includes('fragment') || trimmed.match(/fragment\s+[\w$]/)) return 'fragment';
-    
+
     return null;
   }
 
@@ -286,16 +290,16 @@ export class PluckStrategy extends BaseStrategy {
       /query\s+([\w]+)\s*[({$]/,
       /mutation\s+([\w]+)\s*[({$]/,
       /subscription\s+([\w]+)\s*[({$]/,
-      /fragment\s+([\w]+)\s+on/
+      /fragment\s+([\w]+)\s+on/,
     ];
-    
+
     for (const pattern of patterns) {
       const match = content.match(pattern);
       if (match && match[1]) {
         return match[1];
       }
     }
-    
+
     return undefined;
   }
 
@@ -304,7 +308,7 @@ export class PluckStrategy extends BaseStrategy {
    */
   private extractTemplatesWithInterpolations(filePath: string, content: string): ExtractedQuery[] {
     const extracted: ExtractedQuery[] = [];
-    
+
     // Look for various GraphQL tag patterns that might contain interpolations
     const patterns = [
       // Standard gql templates with interpolations
@@ -316,17 +320,17 @@ export class PluckStrategy extends BaseStrategy {
       // Dynamic query name patterns
       /gql\s*`\s*query\s+\$\{[^}]+\}[^`]*`/gs,
       // Conditional patterns
-      /\$\{[^}]*\?\s*['"`][^'"`]+['"`]\s*:\s*['"`][^'"`]+['"`]\s*\}/g
+      /\$\{[^}]*\?\s*['"`][^'"`]+['"`]\s*:\s*['"`][^'"`]+['"`]\s*\}/g,
     ];
-    
+
     let queryIndex = 0;
-    
+
     for (const pattern of patterns) {
       let match;
       while ((match = pattern.exec(content)) !== null) {
         let queryContent = '';
-        let matchIndex = match.index;
-        
+        const matchIndex = match.index;
+
         // Handle different pattern types
         if (pattern.source.includes('queries')) {
           // For computed property patterns
@@ -336,16 +340,16 @@ export class PluckStrategy extends BaseStrategy {
           // For regular patterns
           queryContent = match[1] || match[0];
         }
-        
+
         // Calculate line number by counting newlines before the match
         const beforeMatch = content.substring(0, matchIndex);
         const lineNumber = (beforeMatch.match(/\n/g) || []).length + 1;
-        
+
         // Check if this template has interpolations or is a dynamic construction
         if (queryContent.includes('${') || match[0].includes('queries[')) {
           const type = this.detectOperationTypeFromString(queryContent) || 'query';
           const name = this.extractOperationNameFromString(queryContent);
-          
+
           extracted.push({
             id: this.generateQueryId(filePath, queryIndex, name),
             filePath,
@@ -354,38 +358,38 @@ export class PluckStrategy extends BaseStrategy {
             location: {
               line: lineNumber,
               column: 1,
-              file: filePath
+              file: filePath,
             },
             name,
             type,
             metadata: {
               hasInterpolations: true,
               needsResolution: true,
-              isDynamic: true
-            }
+              isDynamic: true,
+            },
           });
-          
+
           queryIndex++;
         }
       }
     }
-    
+
     // Also look for object literals with GraphQL queries
     const objectPattern = /const\s+queries\s*=\s*\{[\s\S]*?\}/gm;
     const objectMatches = content.match(objectPattern);
-    
+
     if (objectMatches) {
       for (const objectMatch of objectMatches) {
         // Extract individual queries from the object
         const queryPattern = /(\w+)\s*:\s*gql\s*`([^`]+)`/g;
         let queryMatch;
-        
+
         while ((queryMatch = queryPattern.exec(objectMatch)) !== null) {
           const [, queryName, queryContent] = queryMatch;
-          
+
           if (queryContent.includes('${')) {
             const type = this.detectOperationTypeFromString(queryContent) || 'query';
-            
+
             extracted.push({
               id: this.generateQueryId(filePath, queryIndex, queryName),
               filePath,
@@ -394,23 +398,23 @@ export class PluckStrategy extends BaseStrategy {
               location: {
                 line: 1, // Would need proper line calculation
                 column: 1,
-                file: filePath
+                file: filePath,
               },
               name: queryName,
               type,
               metadata: {
                 hasInterpolations: true,
                 needsResolution: true,
-                fromObject: true
-              }
+                fromObject: true,
+              },
             });
-            
+
             queryIndex++;
           }
         }
       }
     }
-    
+
     return extracted;
   }
 
@@ -421,11 +425,11 @@ export class PluckStrategy extends BaseStrategy {
     try {
       // Load query names and fragments from context
       const queryNames = this.context.queryNames || {};
-      
+
       // This is a simplified approach - we need to analyze each template function context
       // For now, let's skip pre-resolution and let the template resolver handle it
       // after extraction. The key is to extract templates with interpolations first.
-      
+
       return content;
     } catch (error) {
       // If resolution fails, return original content
@@ -441,18 +445,18 @@ export class PluckStrategy extends BaseStrategy {
     const patterns = [
       /gql\s*`([^`]+\$\{[^}]+\}[^`]*)+`/g,
       /graphql\s*`([^`]+\$\{[^}]+\}[^`]*)+`/g,
-      /GraphQL\s*`([^`]+\$\{[^}]+\}[^`]*)+`/g
+      /GraphQL\s*`([^`]+\$\{[^}]+\}[^`]*)+`/g,
     ];
-    
+
     let modifiedContent = content;
-    
+
     for (const pattern of patterns) {
       modifiedContent = modifiedContent.replace(pattern, (match) => {
         // Replace with a placeholder that graphql-tag-pluck will ignore
         return `/* EXTRACTED_TEMPLATE_WITH_INTERPOLATION */`;
       });
     }
-    
+
     return modifiedContent;
   }
 }

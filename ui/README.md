@@ -13,12 +13,14 @@ Real-time monitoring dashboard for the GraphQL migration pipeline.
 ## 🚀 Quick Start
 
 ### Option 1: One-Click Setup (Recommended)
+
 ```bash
 cd ui/
 ./start-ui-full.sh
 ```
 
 ### Option 2: Manual Setup
+
 ```bash
 cd ui/
 
@@ -38,23 +40,27 @@ pnpm dev
 ## 📋 Available Scripts
 
 ### Development
+
 - `pnpm dev` - Start development server (port 5173)
 - `pnpm dev:host` - Start development server with network access
 - `pnpm start` - Start backend server only (port 3001)
 - `pnpm start:full` - Start both servers with one command
 
 ### Build & Deploy
+
 - `pnpm build` - Build for production
 - `pnpm preview` - Preview production build
 - `pnpm typecheck` - Run TypeScript type checking
 
 ### Testing & Quality
+
 - `pnpm test` - Run tests in watch mode
 - `pnpm test:coverage` - Run tests with coverage report
 - `pnpm lint` - Run ESLint
 - `pnpm format` - Format code with Prettier
 
 ### Utilities
+
 - `pnpm clean` - Clean node_modules and dist directories
 
 ## 🔧 Troubleshooting
@@ -87,6 +93,7 @@ ui/
 ## Integration
 
 The UI integrates with the backend API through:
+
 - REST endpoints at `/api/*`
 - WebSocket connections for real-time updates
 - GraphQL endpoint at `/api/graphql`

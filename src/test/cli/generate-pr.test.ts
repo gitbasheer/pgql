@@ -65,7 +65,7 @@ describe('generate-pr CLI', () => {
     it('should be able to import GitHubService', async () => {
       // Test that dependencies can be imported
       const imported = await import('../../core/integration/GitHubService.js');
-    const { GitHubService } = imported;
+      const { GitHubService } = imported;
       expect(GitHubService).toBeDefined();
       expect(typeof GitHubService).toBe('function');
     });
@@ -83,7 +83,7 @@ describe('generate-pr CLI', () => {
   describe('Logging', () => {
     it('should be able to import logger', async () => {
       const imported = await import('../../utils/logger.js');
-    const { logger } = imported;
+      const { logger } = imported;
       expect(logger).toBeDefined();
       expect(typeof logger.info).toBe('function');
       expect(typeof logger.error).toBe('function');

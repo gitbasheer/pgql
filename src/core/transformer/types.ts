@@ -31,4 +31,4 @@ export interface TransformContext {
   transformedQueries: Map<string, TransformResult>;
   errors: Error[];
   warnings: string[];
-} 
+}

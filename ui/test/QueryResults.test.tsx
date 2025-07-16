@@ -13,7 +13,7 @@ vi.mock('react-toastify', () => ({
 
 // Mock react-modal
 vi.mock('react-modal', () => {
-  const Modal = ({ isOpen, children, onRequestClose }: any) => 
+  const Modal = ({ isOpen, children, onRequestClose }: any) =>
     isOpen ? (
       <div role="dialog" onClick={onRequestClose}>
         <div onClick={(e) => e.stopPropagation()}>{children}</div>
@@ -31,7 +31,7 @@ describe('QueryResults', () => {
     global.fetch = vi.fn();
     queryClient = new QueryClient({
       defaultOptions: {
-        queries: { 
+        queries: {
           retry: false,
           refetchInterval: false, // Disable polling for tests
         },
@@ -44,7 +44,7 @@ describe('QueryResults', () => {
       uri: '/api/graphql',
       cache: new InMemoryCache(),
     });
-    
+
     return render(
       <QueryClientProvider client={queryClient}>
         <ApolloProvider client={apolloClient}>
@@ -55,12 +55,12 @@ describe('QueryResults', () => {
   };
 
   it('should show loading state initially', () => {
-    (global.fetch as any).mockImplementation(() => 
-      new Promise(() => {}) // Never resolves
+    (global.fetch as any).mockImplementation(
+      () => new Promise(() => {}) // Never resolves
     );
 
     renderComponent();
-    
+
     expect(screen.getByText('Loading queries...')).toBeInTheDocument();
   });
 
@@ -120,7 +120,11 @@ describe('QueryResults', () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText('No queries found yet. They will appear as the extraction progresses.')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'No queries found yet. They will appear as the extraction progresses.'
+        )
+      ).toBeInTheDocument();
     });
   });
 
@@ -133,23 +137,29 @@ describe('QueryResults', () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText('Error loading queries:', { exact: false })).toBeInTheDocument();
-      expect(screen.getByText('Failed to fetch queries', { exact: false })).toBeInTheDocument();
+      expect(
+        screen.getByText('Error loading queries:', { exact: false })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Failed to fetch queries', { exact: false })
+      ).toBeInTheDocument();
     });
   });
 
   it('should refetch queries periodically when active', async () => {
-    const mockQueries = [{
-      query: {
-        queryName: 'TestQuery',
-        content: 'query TestQuery { test }',
-        filePath: '/test.ts',
-        lineNumber: 1,
-        operation: 'query',
-        isNested: false,
-        hasVariables: false,
+    const mockQueries = [
+      {
+        query: {
+          queryName: 'TestQuery',
+          content: 'query TestQuery { test }',
+          filePath: '/test.ts',
+          lineNumber: 1,
+          operation: 'query',
+          isNested: false,
+          hasVariables: false,
+        },
       },
-    }];
+    ];
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
@@ -160,7 +170,7 @@ describe('QueryResults', () => {
       uri: '/api/graphql',
       cache: new InMemoryCache(),
     });
-    
+
     render(
       <QueryClientProvider client={queryClient}>
         <ApolloProvider client={apolloClient}>
@@ -175,8 +185,10 @@ describe('QueryResults', () => {
 
     // Verify API was called
     expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith('/api/pipeline/test-pipeline/queries');
-    
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/pipeline/test-pipeline/queries'
+    );
+
     // Component has a 5 second refetch interval, so we just verify the initial call
     // Testing actual refetch would require mocking timers or waiting 5+ seconds
   });
@@ -186,7 +198,7 @@ describe('QueryResults', () => {
       uri: '/api/graphql',
       cache: new InMemoryCache(),
     });
-    
+
     render(
       <QueryClientProvider client={queryClient}>
         <ApolloProvider client={apolloClient}>
@@ -196,6 +208,8 @@ describe('QueryResults', () => {
     );
 
     expect(screen.queryByText('Loading queries...')).not.toBeInTheDocument();
-    expect(screen.getByText('Query results will appear here after pipeline starts')).toBeInTheDocument();
+    expect(
+      screen.getByText('Query results will appear here after pipeline starts')
+    ).toBeInTheDocument();
   });
 });

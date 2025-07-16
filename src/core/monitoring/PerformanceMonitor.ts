@@ -1,7 +1,13 @@
 import { performance } from 'perf_hooks';
 import { EventEmitter } from 'events';
 import { logger } from '../../utils/logger.js';
-import { CacheManager, astCache, validationCache, transformCache, type CacheStats } from '../cache/CacheManager.js';
+import {
+  CacheManager,
+  astCache,
+  validationCache,
+  transformCache,
+  type CacheStats,
+} from '../cache/CacheManager.js';
 import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -62,22 +68,22 @@ export class PerformanceMonitor extends EventEmitter {
     // Default thresholds for common operations
     this.thresholds.set('extraction', {
       duration: { warn: 1000, error: 5000 },
-      memory: { warn: 100 * 1024 * 1024, error: 500 * 1024 * 1024 }
+      memory: { warn: 100 * 1024 * 1024, error: 500 * 1024 * 1024 },
     });
 
     this.thresholds.set('transformation', {
       duration: { warn: 500, error: 2000 },
-      memory: { warn: 50 * 1024 * 1024, error: 200 * 1024 * 1024 }
+      memory: { warn: 50 * 1024 * 1024, error: 200 * 1024 * 1024 },
     });
 
     this.thresholds.set('validation', {
       duration: { warn: 100, error: 500 },
-      memory: { warn: 20 * 1024 * 1024, error: 100 * 1024 * 1024 }
+      memory: { warn: 20 * 1024 * 1024, error: 100 * 1024 * 1024 },
     });
 
     this.thresholds.set('application', {
       duration: { warn: 200, error: 1000 },
-      memory: { warn: 30 * 1024 * 1024, error: 150 * 1024 * 1024 }
+      memory: { warn: 30 * 1024 * 1024, error: 150 * 1024 * 1024 },
     });
   }
 
@@ -92,7 +98,7 @@ export class PerformanceMonitor extends EventEmitter {
    */
   startOperation(name: string, metadata?: Record<string, any>): string {
     const operationId = `${name}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     const metrics: OperationMetrics = {
       name,
       startTime: performance.now(),
@@ -172,7 +178,7 @@ export class PerformanceMonitor extends EventEmitter {
   private checkThresholds(metrics: OperationMetrics) {
     const threshold = this.findThreshold(metrics.name);
     if (!threshold) return;
-    
+
     // Check thresholds only if the respective metric exists
 
     // Check duration threshold
@@ -342,7 +348,7 @@ export class PerformanceMonitor extends EventEmitter {
 
     // Add slow operations
     const slowOps = this.history
-      .filter(op => op.duration && op.duration > 1000)
+      .filter((op) => op.duration && op.duration > 1000)
       .sort((a, b) => (b.duration || 0) - (a.duration || 0))
       .slice(0, 10);
 
@@ -360,10 +366,14 @@ export class PerformanceMonitor extends EventEmitter {
 
   private getTrendEmoji(trend: string): string {
     switch (trend) {
-      case 'improving': return '📈';
-      case 'degrading': return '📉';
-      case 'stable': return '➡️';
-      default: return '';
+      case 'improving':
+        return '📈';
+      case 'degrading':
+        return '📉';
+      case 'stable':
+        return '➡️';
+      default:
+        return '';
     }
   }
 
@@ -378,8 +388,8 @@ export class PerformanceMonitor extends EventEmitter {
       trends: Array.from(this.calculateTrends().entries()),
       cacheStats: this.getCacheStats(),
       slowOperations: this.history
-        .filter(op => op.duration && op.duration > 1000)
-        .map(op => ({
+        .filter((op) => op.duration && op.duration > 1000)
+        .map((op) => ({
           name: op.name,
           duration: op.duration,
           memory: op.memory.delta,
@@ -388,7 +398,7 @@ export class PerformanceMonitor extends EventEmitter {
 
     const outputPath = join(this.reportDir, `performance-${Date.now()}.json`);
     writeFileSync(outputPath, JSON.stringify(data, null, 2));
-    
+
     // Also save as latest for easy access
     const latestPath = join(this.reportDir, 'performance-latest.json');
     writeFileSync(latestPath, JSON.stringify(data, null, 2));
@@ -414,14 +424,14 @@ export class PerformanceMonitor extends EventEmitter {
         // Check for performance regression
         if (current.average > baselineTrend.average * 1.1) {
           regressions.push(
-            `${operation}: ${baselineTrend.average.toFixed(2)}ms → ${current.average.toFixed(2)}ms (+${((current.average / baselineTrend.average - 1) * 100).toFixed(1)}%)`
+            `${operation}: ${baselineTrend.average.toFixed(2)}ms → ${current.average.toFixed(2)}ms (+${((current.average / baselineTrend.average - 1) * 100).toFixed(1)}%)`,
           );
         }
 
         // Check for improvements
         if (current.average < baselineTrend.average * 0.9) {
           improvements.push(
-            `${operation}: ${baselineTrend.average.toFixed(2)}ms → ${current.average.toFixed(2)}ms (-${((1 - current.average / baselineTrend.average) * 100).toFixed(1)}%)`
+            `${operation}: ${baselineTrend.average.toFixed(2)}ms → ${current.average.toFixed(2)}ms (-${((1 - current.average / baselineTrend.average) * 100).toFixed(1)}%)`,
           );
         }
       }
@@ -438,16 +448,16 @@ export class PerformanceMonitor extends EventEmitter {
    */
   getDashboardData() {
     const recentOps = this.history.slice(-50);
-    const runningOps = Array.from(this.operations.values()).filter(op => op.status === 'running');
+    const runningOps = Array.from(this.operations.values()).filter((op) => op.status === 'running');
 
     return {
       operations: {
         total: this.history.length,
         running: runningOps.length,
-        completed: this.history.filter(op => op.status === 'completed').length,
-        failed: this.history.filter(op => op.status === 'failed').length,
+        completed: this.history.filter((op) => op.status === 'completed').length,
+        failed: this.history.filter((op) => op.status === 'failed').length,
       },
-      recent: recentOps.map(op => ({
+      recent: recentOps.map((op) => ({
         name: op.name,
         duration: op.duration,
         memory: op.memory.delta,
@@ -467,9 +477,9 @@ export const performanceMonitor = new PerformanceMonitor();
 performanceMonitor.on('threshold:exceeded', ({ type, level, metrics, threshold }) => {
   const value = type === 'duration' ? metrics.duration : metrics.memory?.delta;
   if (value === undefined) return;
-  
+
   const message = `Performance threshold exceeded: ${metrics.name} ${type} (${value.toFixed(2)} > ${threshold})`;
-  
+
   if (level === 'error') {
     logger.error(message);
   } else {
@@ -494,7 +504,7 @@ export function monitor(operationName?: string) {
 
       try {
         const result = originalMethod.apply(this, args);
-        
+
         // Handle both sync and async results
         if (result && typeof result.then === 'function') {
           return result
@@ -518,4 +528,4 @@ export function monitor(operationName?: string) {
 
     return descriptor;
   };
-} 
+}

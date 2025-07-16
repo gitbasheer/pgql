@@ -7,20 +7,23 @@ The vnext sample testing system automatically extracts and tests all GraphQL que
 ## Features
 
 ### 🔍 Automatic Query Extraction
+
 - **36 queries extracted** from 7 sample data files
 - **Query name resolution** using queryNames.js mapping
-- **Fragment dependency detection** 
+- **Fragment dependency detection**
 - **Variable pattern analysis**
 - **Endpoint classification** (productGraph vs offerGraph)
 
 ### 📊 Schema Integration
+
 - **Product Graph Schema** (`schema.graphql`) - Main dashboard queries
 - **Offer Graph Schema** (`billing-schema.graphql`) - Billing and commerce queries
 - **Automatic endpoint detection** based on query content
 
 ### 🎯 Test Scenarios
+
 1. **Dashboard Queries** - Core venture/user queries (Product Graph)
-2. **Billing Queries** - Commerce/subscription queries (Offer Graph)  
+2. **Billing Queries** - Commerce/subscription queries (Offer Graph)
 3. **Fragment Resolution** - Complex queries with fragments
 4. **Variable Pattern** - Queries with different variable types
 
@@ -31,6 +34,7 @@ The vnext sample testing system automatically extracts and tests all GraphQL que
 Tests all queries from `data/sample_data/` directory.
 
 **Request:**
+
 ```json
 {
   "scenario": "Dashboard Queries (Product Graph)",
@@ -43,6 +47,7 @@ Tests all queries from `data/sample_data/` directory.
 ```
 
 **Response:**
+
 ```json
 {
   "testId": "vnext-test-1752559123456",
@@ -100,6 +105,7 @@ data/
 ## Extracted Queries
 
 ### Product Graph Queries (34 queries)
+
 - **Dashboard Queries**: Venture home data, user data, client-side data
 - **Venture Queries**: By ID, by domain, with/without profile data
 - **User Queries**: Account info, preferences, venture lists
@@ -107,24 +113,28 @@ data/
 - **Website Queries**: Website data, domain info, quicklinks
 
 ### Offer Graph Queries (2 queries)
+
 - **FindUnifiedBillDetails**: Subscription and billing details
 - **ModifyBasketWithOptions**: Basket modification mutations
 
 ## Query Patterns Detected
 
 ### Variable Patterns
+
 - `$ventureId: UUID!` - Primary venture identifier
 - `$domainName: String!` - Domain name lookup
 - `$subscriptionId: String` - Billing subscription ID
 - `$enableOptimizationFlow: Boolean` - Feature flags
 
 ### Fragment Dependencies
+
 - `ventureFragment` - Full venture data with profile
 - `userFragmentProjectCounts` - Project counts by group
 - `websitesFragment` - Website product data
 - `profileInfinityStoneFragment` - AI-enhanced profile data
 
 ### Conditional Logic
+
 - **Infinity Stone Experiments**: AI-enhanced data based on flags
 - **Version Selection**: V1, V2, V3 query variants
 - **Profile Data**: With/without profile based on options
@@ -133,9 +143,11 @@ data/
 ## Test Scenarios
 
 ### 1. Dashboard Queries (Product Graph)
+
 Tests core dashboard functionality with venture and user queries.
 
 **Sample Queries:**
+
 - `getVentureHomeDataAllDashboard`
 - `getVentureHomeDataByVentureIdDashboard`
 - `getUserDataDashboardV3`
@@ -143,24 +155,30 @@ Tests core dashboard functionality with venture and user queries.
 - `getVentureSkeleton`
 
 ### 2. Billing Queries (Offer Graph)
+
 Tests billing and commerce functionality.
 
 **Sample Queries:**
+
 - `FindUnifiedBillDetails`
 - `ModifyBasketWithOptions`
 
 ### 3. Fragment Resolution Test
+
 Tests queries with complex fragment dependencies.
 
 **Features:**
+
 - Fragment interpolation validation
 - Nested fragment resolution
 - Fragment-based conditional logic
 
-### 4. Variable Pattern Test  
+### 4. Variable Pattern Test
+
 Tests queries with different variable types and patterns.
 
 **Features:**
+
 - Required vs optional variables
 - Complex variable types
 - Variable validation
@@ -168,12 +186,14 @@ Tests queries with different variable types and patterns.
 ## Usage
 
 ### Start the Server
+
 ```bash
 cd ui/
 ./start-ui-full.sh
 ```
 
 ### Test via API
+
 ```bash
 curl -X POST http://localhost:3001/api/test-vnext-sample \
   -H "Content-Type: application/json" \
@@ -181,6 +201,7 @@ curl -X POST http://localhost:3001/api/test-vnext-sample \
 ```
 
 ### Test via UI
+
 1. Open http://localhost:5173
 2. Click "Test Vnext Sample" button
 3. View real-time logs and results

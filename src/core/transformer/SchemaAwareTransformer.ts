@@ -14,8 +14,8 @@ export class SchemaAwareTransformer {
     private options: TransformOptions = {
       commentOutVague: true,
       addDeprecationComments: true,
-      preserveOriginalAsComment: false
-    }
+      preserveOriginalAsComment: false,
+    },
   ) {}
 
   private createNestedField(parts: string[], originalNode: FieldNode): FieldNode {
@@ -28,28 +28,30 @@ export class SchemaAwareTransformer {
         name: { kind: Kind.NAME, value: parent },
         selectionSet: {
           kind: Kind.SELECTION_SET,
-          selections: [{
-            kind: Kind.FIELD,
-            name: { kind: Kind.NAME, value: child }
-          }]
-        }
+          selections: [
+            {
+              kind: Kind.FIELD,
+              name: { kind: Kind.NAME, value: child },
+            },
+          ],
+        },
       };
     }
-    
+
     // For now, just return the last part as field name
     return {
       ...originalNode,
       name: {
         ...originalNode.name,
-        value: parts[parts.length - 1]
-      }
+        value: parts[parts.length - 1],
+      },
     };
   }
 
   transform(query: string | DocumentNode): { transformed: string; changes: Change[] } {
     const ast = typeof query === 'string' ? parse(query) : query;
     const changes: Change[] = [];
-    
+
     // Build lookup maps for efficient rule matching
     const rulesByField = new Map<string, DeprecationRule[]>();
     for (const rule of this.deprecationRules) {
@@ -61,9 +63,9 @@ export class SchemaAwareTransformer {
     }
 
     // Track parent type for context
-    let currentType = 'Query'; // Default to Query
-    let parentTypes: string[] = ['Query'];
-    
+    const currentType = 'Query'; // Default to Query
+    const parentTypes: string[] = ['Query'];
+
     // Store reference to this for use in visitor
     const self = this;
 
@@ -72,15 +74,17 @@ export class SchemaAwareTransformer {
         enter(node, key, parent, path) {
           const fieldName = node.name.value;
           const rules = rulesByField.get(fieldName) || [];
-          
+
           // Find matching rule based on parent type
-          const matchingRule = rules.find(r => {
+          const matchingRule = rules.find((r) => {
             // Try to match with current context
-            return parentTypes.includes(r.objectType) || 
-                   r.objectType === 'CustomerQuery' || 
-                   r.objectType === 'CurrentUser' ||
-                   r.objectType === 'Venture' ||
-                   r.objectType === 'Project';
+            return (
+              parentTypes.includes(r.objectType) ||
+              r.objectType === 'CustomerQuery' ||
+              r.objectType === 'CurrentUser' ||
+              r.objectType === 'Venture' ||
+              r.objectType === 'Project'
+            );
           });
 
           if (matchingRule) {
@@ -90,9 +94,9 @@ export class SchemaAwareTransformer {
                 type: 'comment-out',
                 field: fieldName,
                 reason: matchingRule.deprecationReason,
-                line: node.loc?.startToken.line || 0
+                line: node.loc?.startToken.line || 0,
               });
-              
+
               // Return null to remove the field from AST
               return null;
             } else if (!matchingRule.isVague && matchingRule.replacement) {
@@ -104,9 +108,9 @@ export class SchemaAwareTransformer {
                   field: fieldName,
                   replacement: matchingRule.replacement,
                   reason: matchingRule.deprecationReason,
-                  line: node.loc?.startToken.line || 0
+                  line: node.loc?.startToken.line || 0,
                 });
-                
+
                 // Create nested structure
                 const parts = matchingRule.replacement.split('.');
                 return self.createNestedField(parts, node);
@@ -117,20 +121,20 @@ export class SchemaAwareTransformer {
                   field: fieldName,
                   replacement: matchingRule.replacement,
                   reason: matchingRule.deprecationReason,
-                  line: node.loc?.startToken.line || 0
+                  line: node.loc?.startToken.line || 0,
                 });
-                
+
                 return {
                   ...node,
                   name: {
                     ...node.name,
-                    value: matchingRule.replacement
-                  }
+                    value: matchingRule.replacement,
+                  },
                 };
               }
             }
           }
-          
+
           // Update type context based on field selections
           if (node.selectionSet) {
             // Simple type inference based on common patterns
@@ -148,13 +152,13 @@ export class SchemaAwareTransformer {
           if (node.selectionSet) {
             parentTypes.pop();
           }
-        }
-      }
+        },
+      },
     });
 
     // Convert AST back to string
     let transformedQuery = print(transformedAst);
-    
+
     // Add comments for vague deprecations if requested
     if (this.options.commentOutVague) {
       transformedQuery = this.addVagueDeprecationComments(transformedQuery, changes);
@@ -179,17 +183,19 @@ export class SchemaAwareTransformer {
     // Add comments for commented out fields
     const lines = query.split('\n');
     const processedLines: string[] = [];
-    
+
     for (let i = 0; i < lines.length; i++) {
       const lineChanges = changesByLine.get(i + 1) || [];
-      
+
       for (const change of lineChanges) {
         if (change.type === 'comment-out') {
           processedLines.push(`    # DEPRECATED: ${change.field} - ${change.reason}`);
-          processedLines.push(`    # TODO: This field has been commented out due to vague deprecation reason`);
+          processedLines.push(
+            `    # TODO: This field has been commented out due to vague deprecation reason`,
+          );
         }
       }
-      
+
       processedLines.push(lines[i]);
     }
 

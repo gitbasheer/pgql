@@ -21,12 +21,14 @@ export class NameNormalizer {
       return queries;
     }
 
-    return queries.map(query => {
+    return queries.map((query) => {
       const patternQuery = query as PatternExtractedQuery;
 
       // Skip normalization for queries with dynamic patterns
       if (patternQuery.namePattern) {
-        logger.debug(`Skipping normalization for pattern query: ${patternQuery.namePattern.template}`);
+        logger.debug(
+          `Skipping normalization for pattern query: ${patternQuery.namePattern.template}`,
+        );
         return query;
       }
 
@@ -47,7 +49,7 @@ export class NameNormalizer {
           query.resolvedContent = this.updateNameInContent(
             query.resolvedContent,
             query.originalName,
-            normalizedName
+            normalizedName,
           );
         }
       }
@@ -68,10 +70,15 @@ export class NameNormalizer {
 
     // Apply the convention
     if (convention === 'pascalCase') {
-      return words.map(word => this.capitalize(word)).join('');
+      return words.map((word) => this.capitalize(word)).join('');
     } else {
-      return words[0].toLowerCase() +
-             words.slice(1).map(word => this.capitalize(word)).join('');
+      return (
+        words[0].toLowerCase() +
+        words
+          .slice(1)
+          .map((word) => this.capitalize(word))
+          .join('')
+      );
     }
   }
 
@@ -83,7 +90,7 @@ export class NameNormalizer {
     // Update operation name in the GraphQL content
     const operationPattern = new RegExp(
       `(query|mutation|subscription)\\s+${this.escapeRegExp(oldName)}\\s*\\(`,
-      'g'
+      'g',
     );
 
     return content.replace(operationPattern, `$1 ${newName}(`);

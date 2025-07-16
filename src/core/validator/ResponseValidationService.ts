@@ -8,7 +8,7 @@ import {
   ValidationReport,
   ComparisonResult,
   AlignmentFunction,
-  ABTestConfig
+  ABTestConfig,
 } from './types.js';
 import { ResponseCaptureService } from './ResponseCaptureService.js';
 import { ResponseComparator, IgnorePattern, ExpectedDifference } from './ResponseComparator.js';
@@ -32,20 +32,17 @@ export class ResponseValidationService {
   private reportGenerator: ValidationReportGenerator;
 
   constructor(private config: ResponseValidationConfig) {
-    this.captureService = new ResponseCaptureService(
-      config.endpoints,
-      {
-        maxConcurrency: config.capture.maxConcurrency,
-        timeout: config.capture.timeout,
-        variableGeneration: config.capture.variableGeneration
-      }
-    );
+    this.captureService = new ResponseCaptureService(config.endpoints, {
+      maxConcurrency: config.capture.maxConcurrency,
+      timeout: config.capture.timeout,
+      variableGeneration: config.capture.variableGeneration,
+    });
 
     // Initialize comparator with ignore patterns and expected differences
     const comparatorOptions: any = {
       strict: config.comparison.strict,
       ignorePaths: config.comparison.ignorePaths,
-      customComparators: config.comparison.customComparators
+      customComparators: config.comparison.customComparators,
     };
 
     // Add ignore patterns if provided
@@ -64,7 +61,7 @@ export class ResponseValidationService {
 
     this.abTestingFramework = new ABTestingFramework({
       defaultSplit: config.abTesting?.defaultSplit,
-      monitoring: config.abTesting?.monitoring
+      monitoring: config.abTesting?.monitoring,
     });
 
     this.storage = new ResponseStorage(config.storage);
@@ -72,7 +69,7 @@ export class ResponseValidationService {
     this.reportGenerator = new ValidationReportGenerator({
       outputDir: config.reporting?.outputDir || './validation-reports',
       formats: config.reporting?.formats || ['html', 'markdown', 'json'],
-      includeDiffs: config.reporting?.includeDiffs
+      includeDiffs: config.reporting?.includeDiffs,
     });
   }
 
@@ -89,34 +86,40 @@ export class ResponseValidationService {
       capture: config.capture || {
         parallel: true,
         maxConcurrency: 10,
-        timeout: 30000
+        timeout: 30000,
       },
       comparison: {
         strict: config.comparison?.strict || config.validation?.strict || false,
         ignorePaths: config.comparison?.ignorePaths || config.validation?.ignorePaths,
-        customComparators: this.parseCustomComparators(config.comparison?.customComparators || config.validation?.customComparators)
+        customComparators: this.parseCustomComparators(
+          config.comparison?.customComparators || config.validation?.customComparators,
+        ),
       },
       validation: {
-        ignorePatterns: config.validation?.ignorePatterns?.map((p: any) => ({
-          path: p.path.startsWith('/') && p.path.endsWith('/')
-            ? new RegExp(p.path.slice(1, -1))
-            : p.path,
-          reason: p.reason,
-          type: p.type
-        } as IgnorePattern)),
-        expectedDifferences: config.validation?.expectedDifferences as ExpectedDifference[]
+        ignorePatterns: config.validation?.ignorePatterns?.map(
+          (p: any) =>
+            ({
+              path:
+                p.path.startsWith('/') && p.path.endsWith('/')
+                  ? new RegExp(p.path.slice(1, -1))
+                  : p.path,
+              reason: p.reason,
+              type: p.type,
+            }) as IgnorePattern,
+        ),
+        expectedDifferences: config.validation?.expectedDifferences as ExpectedDifference[],
       },
       alignment: config.alignment || {
         strict: false,
         preserveNulls: true,
-        preserveOrder: false
+        preserveOrder: false,
       },
       storage: config.storage || {
         type: 'file',
-        path: './validation-storage'
+        path: './validation-storage',
       },
       abTesting: config.abTesting,
-      reporting: config.reporting
+      reporting: config.reporting,
     };
 
     return new ResponseValidationService(validationConfig);
@@ -133,7 +136,9 @@ export class ResponseValidationService {
     for (const [path, value] of Object.entries(yamlComparators)) {
       if (typeof value === 'string') {
         // Legacy format: warn and skip
-        logger.warn(`Embedded JavaScript functions are no longer supported for path '${path}'. Please use a predefined comparator type instead.`);
+        logger.warn(
+          `Embedded JavaScript functions are no longer supported for path '${path}'. Please use a predefined comparator type instead.`,
+        );
         continue;
       } else if (typeof value === 'object' && value !== null) {
         // New format: { type: 'date-tolerance', options: { tolerance: 60000 } }
@@ -157,7 +162,7 @@ export class ResponseValidationService {
       generateAlignments?: boolean;
       setupABTest?: boolean;
       saveReport?: boolean;
-    } = {}
+    } = {},
   ): Promise<ValidationReport> {
     logger.info(`Starting validation for ${baselineQueries.length} queries`);
 
@@ -165,7 +170,7 @@ export class ResponseValidationService {
     logger.info('Capturing baseline responses...');
     const baselineResponses = await this.captureService.captureBaseline(
       baselineQueries,
-      options.endpoint
+      options.endpoint,
     );
 
     // Store baseline responses
@@ -177,7 +182,7 @@ export class ResponseValidationService {
     logger.info('Capturing transformed responses...');
     const transformedResponses = await this.captureService.captureTransformed(
       transformedQueries,
-      options.endpoint
+      options.endpoint,
     );
 
     // Store transformed responses
@@ -200,7 +205,9 @@ export class ResponseValidationService {
       } else {
         // Track missing responses properly
         missingResponses.push(queryId);
-        logger.error(`Missing responses for query ${queryId} - baseline: ${!!baseline}, transformed: ${!!transformed}`);
+        logger.error(
+          `Missing responses for query ${queryId} - baseline: ${!!baseline}, transformed: ${!!transformed}`,
+        );
 
         // Add a comparison result indicating failure
         comparisons.push({
@@ -208,28 +215,34 @@ export class ResponseValidationService {
           operationName: baseline?.operationName || 'Unknown',
           identical: false,
           similarity: 0,
-          differences: [{
-            path: 'response',
-            type: 'missing-field',
-            baseline: baseline ? 'present' : 'missing',
-            transformed: transformed ? 'present' : 'missing',
-            severity: 'critical',
-            description: baseline ? 'Transformed response is missing' : 'Baseline response is missing',
-            fixable: false
-          }],
-          breakingChanges: [{
-            type: 'response-missing',
-            path: 'response',
-            description: `Query ${queryId} response is missing`,
-            impact: 'critical',
-            migrationStrategy: 'Ensure query can be executed successfully'
-          }],
+          differences: [
+            {
+              path: 'response',
+              type: 'missing-field',
+              baseline: baseline ? 'present' : 'missing',
+              transformed: transformed ? 'present' : 'missing',
+              severity: 'critical',
+              description: baseline
+                ? 'Transformed response is missing'
+                : 'Baseline response is missing',
+              fixable: false,
+            },
+          ],
+          breakingChanges: [
+            {
+              type: 'response-missing',
+              path: 'response',
+              description: `Query ${queryId} response is missing`,
+              impact: 'critical',
+              migrationStrategy: 'Ensure query can be executed successfully',
+            },
+          ],
           performanceImpact: {
             latencyChange: 0,
             sizeChange: 0,
-            recommendation: 'Cannot compare performance - response missing'
+            recommendation: 'Cannot compare performance - response missing',
           },
-          recommendation: 'unsafe'
+          recommendation: 'unsafe',
         });
       }
     }
@@ -252,7 +265,7 @@ export class ResponseValidationService {
     const report = await this.reportGenerator.generateFullReport(
       comparisons,
       alignments,
-      abTestConfig
+      abTestConfig,
     );
 
     // Add missing responses to report summary
@@ -274,10 +287,7 @@ export class ResponseValidationService {
   /**
    * Capture only baseline responses
    */
-  async captureBaseline(
-    queries: ResolvedQuery[],
-    endpoint?: EndpointConfig
-  ): Promise<void> {
+  async captureBaseline(queries: ResolvedQuery[], endpoint?: EndpointConfig): Promise<void> {
     const responses = await this.captureService.captureBaseline(queries, endpoint);
 
     for (const [queryId, response] of responses.responses) {
@@ -306,10 +316,12 @@ export class ResponseValidationService {
         missingResponses.push({
           queryId,
           baseline: !!baseline,
-          transformed: !!transformed
+          transformed: !!transformed,
         });
 
-        logger.error(`Missing responses for query ${queryId} - baseline: ${!!baseline}, transformed: ${!!transformed}`);
+        logger.error(
+          `Missing responses for query ${queryId} - baseline: ${!!baseline}, transformed: ${!!transformed}`,
+        );
 
         // Add a failed comparison for missing responses
         comparisons.push({
@@ -317,35 +329,42 @@ export class ResponseValidationService {
           operationName: baseline?.operationName || transformed?.operationName || 'Unknown',
           identical: false,
           similarity: 0,
-          differences: [{
-            path: 'response',
-            type: 'missing-field',
-            baseline: baseline ? 'present' : 'missing',
-            transformed: transformed ? 'present' : 'missing',
-            severity: 'critical',
-            description: `Response missing: baseline=${!!baseline}, transformed=${!!transformed}`,
-            fixable: false
-          }],
-          breakingChanges: [{
-            type: 'response-missing',
-            path: 'response',
-            description: `Cannot compare - ${!baseline ? 'baseline' : 'transformed'} response is missing`,
-            impact: 'critical',
-            migrationStrategy: 'Capture missing response before comparison'
-          }],
+          differences: [
+            {
+              path: 'response',
+              type: 'missing-field',
+              baseline: baseline ? 'present' : 'missing',
+              transformed: transformed ? 'present' : 'missing',
+              severity: 'critical',
+              description: `Response missing: baseline=${!!baseline}, transformed=${!!transformed}`,
+              fixable: false,
+            },
+          ],
+          breakingChanges: [
+            {
+              type: 'response-missing',
+              path: 'response',
+              description: `Cannot compare - ${!baseline ? 'baseline' : 'transformed'} response is missing`,
+              impact: 'critical',
+              migrationStrategy: 'Capture missing response before comparison',
+            },
+          ],
           performanceImpact: {
             latencyChange: 0,
             sizeChange: 0,
-            recommendation: 'Cannot measure performance - response missing'
+            recommendation: 'Cannot measure performance - response missing',
           },
-          recommendation: 'unsafe'
+          recommendation: 'unsafe',
         });
       }
     }
 
     // Log summary of missing responses
     if (missingResponses.length > 0) {
-      logger.error(`Found ${missingResponses.length} queries with missing responses:`, missingResponses);
+      logger.error(
+        `Found ${missingResponses.length} queries with missing responses:`,
+        missingResponses,
+      );
     }
 
     return comparisons;
@@ -359,12 +378,12 @@ export class ResponseValidationService {
 
     for (const comparison of comparisons) {
       if (!comparison.identical && comparison.differences.length > 0) {
-        const fixableDifferences = comparison.differences.filter(d => d.fixable);
+        const fixableDifferences = comparison.differences.filter((d) => d.fixable);
 
         if (fixableDifferences.length > 0) {
           const alignment = this.alignmentGenerator.generateAlignmentFunction(
             comparison.queryId,
-            fixableDifferences
+            fixableDifferences,
           );
           alignments.push(alignment);
 
@@ -383,8 +402,9 @@ export class ResponseValidationService {
    */
   async setupABTest(comparisons: ComparisonResult[]): Promise<ABTestConfig> {
     // Determine initial split based on risk
-    const breakingChanges = comparisons.flatMap(c => c.breakingChanges).length;
-    const avgSimilarity = comparisons.reduce((sum, c) => sum + c.similarity, 0) / comparisons.length;
+    const breakingChanges = comparisons.flatMap((c) => c.breakingChanges).length;
+    const avgSimilarity =
+      comparisons.reduce((sum, c) => sum + c.similarity, 0) / comparisons.length;
 
     let initialSplit = 10; // Default 10%
     if (breakingChanges === 0 && avgSimilarity > 0.98) {
@@ -396,11 +416,11 @@ export class ResponseValidationService {
     const config = await this.abTestingFramework.createTest({
       name: `GraphQL Migration Test - ${new Date().toISOString()}`,
       splitPercentage: initialSplit,
-      targetQueries: comparisons.map(c => c.queryId),
+      targetQueries: comparisons.map((c) => c.queryId),
       rolloutStrategy: {
         type: 'gradual',
-        stages: this.getCustomRolloutStages(breakingChanges, avgSimilarity)
-      }
+        stages: this.getCustomRolloutStages(breakingChanges, avgSimilarity),
+      },
     });
 
     // Register rollback handler
@@ -492,19 +512,55 @@ export class ResponseValidationService {
     if (breakingChanges > 0) {
       // Very conservative rollout for breaking changes
       return [
-        { percentage: 0.1, duration: '30m', criteria: { minSuccessRate: 0.999, maxErrorRate: 0.001, minSampleSize: 100 } },
-        { percentage: 1, duration: '2h', criteria: { minSuccessRate: 0.99, maxErrorRate: 0.01, minSampleSize: 1000 } },
-        { percentage: 5, duration: '6h', criteria: { minSuccessRate: 0.99, maxErrorRate: 0.01, minSampleSize: 5000 } },
-        { percentage: 10, duration: '24h', criteria: { minSuccessRate: 0.99, maxErrorRate: 0.01, minSampleSize: 10000 } },
-        { percentage: 25, duration: '48h', criteria: { minSuccessRate: 0.99, maxErrorRate: 0.01, minSampleSize: 25000 } }
+        {
+          percentage: 0.1,
+          duration: '30m',
+          criteria: { minSuccessRate: 0.999, maxErrorRate: 0.001, minSampleSize: 100 },
+        },
+        {
+          percentage: 1,
+          duration: '2h',
+          criteria: { minSuccessRate: 0.99, maxErrorRate: 0.01, minSampleSize: 1000 },
+        },
+        {
+          percentage: 5,
+          duration: '6h',
+          criteria: { minSuccessRate: 0.99, maxErrorRate: 0.01, minSampleSize: 5000 },
+        },
+        {
+          percentage: 10,
+          duration: '24h',
+          criteria: { minSuccessRate: 0.99, maxErrorRate: 0.01, minSampleSize: 10000 },
+        },
+        {
+          percentage: 25,
+          duration: '48h',
+          criteria: { minSuccessRate: 0.99, maxErrorRate: 0.01, minSampleSize: 25000 },
+        },
       ];
     } else if (avgSimilarity > 0.98) {
       // Faster rollout for low risk
       return [
-        { percentage: 10, duration: '30m', criteria: { minSuccessRate: 0.98, maxErrorRate: 0.02, minSampleSize: 100 } },
-        { percentage: 25, duration: '1h', criteria: { minSuccessRate: 0.98, maxErrorRate: 0.02, minSampleSize: 500 } },
-        { percentage: 50, duration: '2h', criteria: { minSuccessRate: 0.98, maxErrorRate: 0.02, minSampleSize: 2500 } },
-        { percentage: 100, duration: '4h', criteria: { minSuccessRate: 0.98, maxErrorRate: 0.02, minSampleSize: 5000 } }
+        {
+          percentage: 10,
+          duration: '30m',
+          criteria: { minSuccessRate: 0.98, maxErrorRate: 0.02, minSampleSize: 100 },
+        },
+        {
+          percentage: 25,
+          duration: '1h',
+          criteria: { minSuccessRate: 0.98, maxErrorRate: 0.02, minSampleSize: 500 },
+        },
+        {
+          percentage: 50,
+          duration: '2h',
+          criteria: { minSuccessRate: 0.98, maxErrorRate: 0.02, minSampleSize: 2500 },
+        },
+        {
+          percentage: 100,
+          duration: '4h',
+          criteria: { minSuccessRate: 0.98, maxErrorRate: 0.02, minSampleSize: 5000 },
+        },
       ];
     } else {
       // Standard rollout
@@ -523,18 +579,21 @@ export class ResponseValidationService {
   /**
    * Build dynamic variables from testing account using GoDaddyAPI
    */
-  async buildVariables(queryAst: DocumentNode | string, testingAccount?: any): Promise<Record<string, any>> {
+  async buildVariables(
+    queryAst: DocumentNode | string,
+    testingAccount?: any,
+  ): Promise<Record<string, any>> {
     const ast = typeof queryAst === 'string' ? parse(queryAst) : queryAst;
     const variables: Record<string, any> = {};
-    
+
     // Extract variable definitions from AST
-    const queryDef = ast.definitions.find(d => d.kind === 'OperationDefinition');
+    const queryDef = ast.definitions.find((d) => d.kind === 'OperationDefinition');
     if (!queryDef || queryDef.kind !== 'OperationDefinition') {
       return variables;
     }
-    
+
     const variableDefinitions = queryDef.variableDefinitions || [];
-    
+
     // If no testing account provided, try to fetch real data using GoDaddyAPI
     let realTestingAccount = testingAccount;
     if (!realTestingAccount) {
@@ -547,11 +606,11 @@ export class ResponseValidationService {
         realTestingAccount = { id: 'test-uuid', ventures: [], projects: [] };
       }
     }
-    
+
     for (const varDef of variableDefinitions) {
       const varName = varDef.variable.name.value;
       const varType = this.getTypeString(varDef.type);
-      
+
       // Map common patterns with real data
       if (varName === 'ventureId' && realTestingAccount.ventures?.length > 0) {
         variables[varName] = realTestingAccount.ventures[0].id;
@@ -569,17 +628,17 @@ export class ResponseValidationService {
       } else if (varType.includes('Boolean')) {
         variables[varName] = true;
       }
-      
+
       // LLM_PLACEHOLDER: Use llm-ls to infer var values from code context
     }
-    
+
     // Use spreads for merging query vars (CLAUDE.local.md compliance)
     const baseVariables = { ...variables };
     const environmentOverrides = {
       ...(process.env.DEFAULT_VENTURE_ID && { ventureId: process.env.DEFAULT_VENTURE_ID }),
-      ...(process.env.DEFAULT_USER_ID && { userId: process.env.DEFAULT_USER_ID })
+      ...(process.env.DEFAULT_USER_ID && { userId: process.env.DEFAULT_USER_ID }),
     };
-    
+
     return { ...baseVariables, ...environmentOverrides };
   }
 
@@ -599,55 +658,67 @@ export class ResponseValidationService {
   /**
    * Test query on real API using GraphQLClient
    */
-  async testOnRealApi(params: TestParams & { query: ExtractedQuery; auth: { cookies: string; appKey: string } }): Promise<any> {
+  async testOnRealApi(
+    params: TestParams & { query: ExtractedQuery; auth: { cookies: string; appKey: string } },
+  ): Promise<any> {
     // EVENT_PLACEHOLDER: Publish to Event Bus instead of direct socket
-    // e.g., await eventBusClient.publish({ 
-    //   source: 'pgql.pipeline', 
-    //   detailType: 'progress', 
-    //   detail: { stage: 'testing', message: `Testing query ${params.query.name} on real API` } 
+    // e.g., await eventBusClient.publish({
+    //   source: 'pgql.pipeline',
+    //   detailType: 'progress',
+    //   detail: { stage: 'testing', message: `Testing query ${params.query.name} on real API` }
     // });
-    
+
     const client = new GraphQLClient({
       endpoint: this.getEndpointUrl(params.endpoint || params.query.endpoint || 'productGraph'),
       cookieString: params.auth.cookies,
       appKey: params.auth.appKey,
-      baselineDir: './baselines'
+      baselineDir: './baselines',
     });
-    
-    const vars = await this.buildVariables(params.query.fullExpandedQuery || params.query.content, params.testingAccount);
-    
+
+    const vars = await this.buildVariables(
+      params.query.fullExpandedQuery || params.query.content,
+      params.testingAccount,
+    );
+
     try {
       // Use GraphQLClient's query method with baseline saving
-      const data = await client.query(params.query.fullExpandedQuery || params.query.content, vars, true);
-      
+      const data = await client.query(
+        params.query.fullExpandedQuery || params.query.content,
+        vars,
+        true,
+      );
+
       // Compare with baseline if it exists
       const comparison = await client.compareWithBaseline(
-        params.query.fullExpandedQuery || params.query.content, 
-        vars, 
-        data
+        params.query.fullExpandedQuery || params.query.content,
+        vars,
+        data,
       );
-      
+
       if (comparison && !comparison.matches) {
-        logger.warn(`Baseline comparison failed for ${params.query.queryName}:`, comparison.differences);
+        logger.warn(
+          `Baseline comparison failed for ${params.query.queryName}:`,
+          comparison.differences,
+        );
       }
-      
+
       // EVENT_PLACEHOLDER: Publish test result
-      // e.g., await eventBusClient.publish({ 
-      //   source: 'pgql.pipeline', 
-      //   detailType: 'progress', 
-      //   detail: { stage: 'testing', message: `Test successful for ${params.query.queryName}` } 
+      // e.g., await eventBusClient.publish({
+      //   source: 'pgql.pipeline',
+      //   detailType: 'progress',
+      //   detail: { stage: 'testing', message: `Test successful for ${params.query.queryName}` }
       // });
-      
+
       logger.info(`API test successful for ${params.query.queryName}`);
       return data;
     } catch (error) {
       // EVENT_PLACEHOLDER: Publish test error
-      // e.g., await eventBusClient.publish({ 
-      //   source: 'pgql.pipeline', 
-      //   detailType: 'error', 
-      //   detail: { stage: 'testing', message: `Test failed for ${params.query.queryName}: ${error.message}` } 
+      // e.g., await eventBusClient.publish({
+      //   source: 'pgql.pipeline',
+      //   detailType: 'error',
+      //   detail: { stage: 'testing', message: `Test failed for ${params.query.queryName}: ${error.message}` }
       // });
-      
+
       logger.error('API Test Error:', error);
       throw error;
     }
@@ -659,23 +730,26 @@ export class ResponseValidationService {
     } else if (endpoint === 'offerGraph') {
       return process.env.APOLLO_OG_ENDPOINT || 'https://og.api.godaddy.com/v1/graphql';
     }
-    
+
     return process.env.APOLLO_PG_ENDPOINT || 'https://pg.api.godaddy.com/v1/gql/customer'; // Default
   }
 
   /**
    * Validate query against schema
    */
-  async validateAgainstSchema(query: string, endpoint: string): Promise<{ valid: boolean; errors: string[] }> {
+  async validateAgainstSchema(
+    query: string,
+    endpoint: string,
+  ): Promise<{ valid: boolean; errors: string[] }> {
     try {
       // In production, use graphql-inspector to validate
       // For now, basic validation
       const ast = parse(query);
       return { valid: true, errors: [] };
     } catch (error) {
-      return { 
-        valid: false, 
-        errors: [error instanceof Error ? error.message : 'Invalid query'] 
+      return {
+        valid: false,
+        errors: [error instanceof Error ? error.message : 'Invalid query'],
       };
     }
   }

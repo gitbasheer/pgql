@@ -28,13 +28,17 @@ class SocketService {
         if (reason === 'io server disconnect') {
           toast.error('Server disconnected. Please refresh the page.');
         } else {
-          toast.warning('Disconnected from pipeline server. Attempting to reconnect...');
+          toast.warning(
+            'Disconnected from pipeline server. Attempting to reconnect...'
+          );
         }
       });
 
       this.socket.on('connect_error', (error) => {
         console.error('Socket connection error:', error);
-        toast.error('Failed to connect to pipeline server. Please check server status.');
+        toast.error(
+          'Failed to connect to pipeline server. Please check server status.'
+        );
       });
 
       this.socket.on('reconnect', (attemptNumber) => {
@@ -44,7 +48,9 @@ class SocketService {
 
       this.socket.on('reconnect_error', (error) => {
         console.error('Socket reconnection error:', error);
-        toast.error('Failed to reconnect. Please refresh the page if issues persist.');
+        toast.error(
+          'Failed to reconnect. Please refresh the page if issues persist.'
+        );
       });
 
       this.socket.on('reconnect_failed', () => {

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { SemanticValidator } from '../../core/validator/SemanticValidator.js';
 import { performanceMonitor } from '../../core/monitoring/PerformanceMonitor.js';
-import { validationCache, astCache } from 'from '../../core/cache/CacheManager.js'.js';
+import { validationCache, astCache } from '../../core/cache/CacheManager.js';
 import { logger } from '../../utils/logger.js';
 import { parse, print, buildSchema } from 'graphql';
 
@@ -100,7 +100,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
       directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
       directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
     `;
-    
+
     productionSchema = buildSchema(testSchemaSDL);
     validator = new SemanticValidator(productionSchema);
 
@@ -169,7 +169,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
         originalQuery,
         transformedQuery,
         productionSchema,
-        true // testMode: true to avoid strict schema validation in tests
+        true, // testMode: true to avoid strict schema validation in tests
       );
       performanceMonitor.endOperation(opId);
 
@@ -210,7 +210,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
         originalQuery,
         brokenQuery,
         productionSchema,
-        true // testMode: true
+        true, // testMode: true
       );
       performanceMonitor.endOperation(opId);
 
@@ -283,7 +283,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
         originalQuery,
         transformedQuery,
         productionSchema,
-        true // testMode: true
+        true, // testMode: true
       );
       performanceMonitor.endOperation(opId);
 
@@ -347,7 +347,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
         originalQuery,
         transformedQuery,
         productionSchema,
-        true // testMode: true
+        true, // testMode: true
       );
       performanceMonitor.endOperation(opId);
 
@@ -397,7 +397,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
         originalQuery,
         transformedQuery,
         productionSchema,
-        true // testMode: true
+        true, // testMode: true
       );
       performanceMonitor.endOperation(opId);
 
@@ -417,7 +417,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
         largeQuery,
         transformedQuery,
         productionSchema,
-        true // testMode: true
+        true, // testMode: true
       );
       const metrics1 = performanceMonitor.endOperation(opId1);
 
@@ -427,7 +427,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
         largeQuery,
         transformedQuery,
         productionSchema,
-        true // testMode: true
+        true, // testMode: true
       );
       const metrics2 = performanceMonitor.endOperation(opId2);
 
@@ -444,14 +444,15 @@ describe('SemanticValidator - Production Schema Tests', () => {
 
       const opId = performanceMonitor.startOperation('validate-batch');
       const results = await Promise.all(
-        queries.map(({ original, transformed }) =>
-          validator.validateSemanticEquivalence(original, transformed, productionSchema, true) // testMode: true
-        )
+        queries.map(
+          ({ original, transformed }) =>
+            validator.validateSemanticEquivalence(original, transformed, productionSchema, true), // testMode: true
+        ),
       );
       const metrics = performanceMonitor.endOperation(opId);
 
       // All should be valid
-      expect(results.every(r => r.isEquivalent)).toBe(true);
+      expect(results.every((r) => r.isEquivalent)).toBe(true);
 
       // Should complete reasonably fast
       expect(metrics?.duration).toBeLessThan(1000); // Under 1 second for 20 queries
@@ -476,7 +477,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
           original,
           transformed,
           productionSchema,
-          true // testMode: true
+          true, // testMode: true
         );
         performanceMonitor.endOperation(opId);
 
@@ -522,7 +523,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
         originalMutation,
         transformedMutation,
         productionSchema,
-        true // testMode: true
+        true, // testMode: true
       );
       performanceMonitor.endOperation(opId);
 
@@ -560,7 +561,7 @@ describe('SemanticValidator - Production Schema Tests', () => {
         originalQuery,
         transformedQuery,
         productionSchema,
-        true // testMode: true
+        true, // testMode: true
       );
       performanceMonitor.endOperation(opId);
 

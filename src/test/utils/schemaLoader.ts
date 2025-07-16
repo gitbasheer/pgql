@@ -32,14 +32,14 @@ export class TestSchemaLoader {
       const schema = await loadSchema(path, {
         loaders: [new GraphQLFileLoader()],
       });
-      
+
       this.schemaCache.set(path, schema);
       return schema;
     } catch (error) {
       // Fallback to simple file read
       const schemaString = await readFile(path, 'utf-8');
       const schema = buildSchema(schemaString);
-      
+
       this.schemaCache.set(path, schema);
       return schema;
     }
@@ -70,7 +70,7 @@ export class TestSchemaLoader {
         content: String!
       }
     `;
-    
+
     return buildSchema(schemaString);
   }
 
@@ -133,7 +133,7 @@ export class TestSchemaLoader {
         avatar: String
       }
     `;
-    
+
     return buildSchema(schemaString);
   }
 
@@ -208,7 +208,7 @@ export class TestSchemaLoader {
         cursor: String
       }
     `;
-    
+
     return buildSchema(schemaString);
   }
 
@@ -228,4 +228,4 @@ export class TestSchemaLoader {
       paths: Array.from(this.schemaCache.keys()),
     };
   }
-} 
+}

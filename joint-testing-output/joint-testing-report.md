@@ -7,29 +7,34 @@
 ## Metrics Summary
 
 ### Extraction
+
 - Total Queries: 69
 - Successful: 69
 - Errors: 0
 
 ### Classification
+
 - Product Graph: 67
 - Offer Graph: 2
 
 ### Validation (Apollo Best Practices)
+
 - Valid: 10
 - Invalid: 0
 - Nullability Errors: 0
 
 ### Real API Testing
+
 - Tested: 0
 - Baselines Saved: 0
 
-
 ### Transformation
+
 - Transformed: 0
 - Utils with A/B Flags: 0
 
 ## CLAUDE.local.md Compliance
+
 ✅ Using readonly types for immutability
 ✅ Using spreads for merging query variables
 ✅ Strict type safety throughout

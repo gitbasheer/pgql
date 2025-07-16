@@ -5,40 +5,32 @@ import { logger } from '../../utils/logger.js';
 vi.mock('axios', () => ({
   default: {
     post: vi.fn(),
-    isAxiosError: (error: any) => error.isAxiosError === true
-  }
-}))
+    isAxiosError: (error: any) => error.isAxiosError === true,
+  },
+}));
 vi.mock('../../utils/logger.js', () => ({
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
-    error: vi.fn()
-  }
-}))
+    error: vi.fn(),
+  },
+}));
 
 // Mock modules
 
-
-
 // Mock modules
-
-
 
 import axios from 'axios';
 
 // Mock axios
-;
-
 // Mock the logger
-;
-
 describe('SSOService', () => {
   let ssoService: SSOService;
   const validCookies = {
     authIdp: 'test-auth-idp',
     custIdp: 'test-cust-idp',
     infoCustIdp: 'test-info-cust-idp',
-    infoIdp: 'test-info-idp'
+    infoIdp: 'test-info-idp',
   };
 
   beforeEach(async () => {
@@ -61,7 +53,7 @@ describe('SSOService', () => {
     it('should return error for non-GoDaddy provider', async () => {
       const result = await ssoService.authenticate({
         provider: 'custom' as any,
-        requiredCookies: []
+        requiredCookies: [],
       });
 
       expect(result.success).toBe(false);
@@ -74,7 +66,7 @@ describe('SSOService', () => {
 
       const result = await ssoService.authenticate({
         provider: 'godaddy',
-        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp']
+        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp'],
       });
 
       expect(result.success).toBe(true);
@@ -86,10 +78,10 @@ describe('SSOService', () => {
     it('should return error when no credentials provided', async () => {
       // Ensure no cached cookies
       ssoService.clearCache();
-      
+
       const result = await ssoService.authenticate({
         provider: 'godaddy',
-        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp']
+        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp'],
       });
 
       expect(result.success).toBe(false);
@@ -99,7 +91,7 @@ describe('SSOService', () => {
     it('should authenticate successfully with valid credentials', async () => {
       // Ensure no cached cookies
       ssoService.clearCache();
-      
+
       // Mock successful axios response with cookies
       (axios.post as any).mockResolvedValueOnce({
         data: { success: true },
@@ -108,19 +100,19 @@ describe('SSOService', () => {
             'auth_idp=test-auth-value; Path=/; HttpOnly',
             'cust_idp=test-cust-value; Path=/; HttpOnly',
             'info_cust_idp=test-info-cust-value; Path=/; HttpOnly',
-            'info_idp=test-info-value; Path=/; HttpOnly'
-          ]
+            'info_idp=test-info-value; Path=/; HttpOnly',
+          ],
         },
-        status: 200
+        status: 200,
       });
-      
+
       const result = await ssoService.authenticate({
         provider: 'godaddy',
         credentials: {
           username: 'test@example.com',
-          password: 'testpass'
+          password: 'testpass',
         },
-        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp']
+        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp'],
       });
 
       expect(result.success).toBe(true);
@@ -128,7 +120,7 @@ describe('SSOService', () => {
         auth_idp: 'test-auth-value',
         cust_idp: 'test-cust-value',
         info_cust_idp: 'test-info-cust-value',
-        info_idp: 'test-info-value'
+        info_idp: 'test-info-value',
       });
       expect(logger.info).toHaveBeenCalledWith('SSO authentication successful, cookies cached');
     });
@@ -136,20 +128,20 @@ describe('SSOService', () => {
     it('should handle authentication failure with 401', async () => {
       // Ensure no cached cookies
       ssoService.clearCache();
-      
+
       // Mock 401 error response
       const error = new Error('Request failed with status code 401') as any;
       error.isAxiosError = true;
       error.response = { status: 401 };
       (axios.post as any).mockRejectedValueOnce(error);
-      
+
       const result = await ssoService.authenticate({
         provider: 'godaddy',
         credentials: {
           username: 'wrong@example.com',
-          password: 'wrongpass'
+          password: 'wrongpass',
         },
-        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp']
+        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp'],
       });
 
       expect(result.success).toBe(false);
@@ -164,7 +156,7 @@ describe('SSOService', () => {
 
       expect(ssoService.isReady()).toBe(true);
       expect(ssoService.getCookies()).toEqual(validCookies);
-      
+
       const expiry = (ssoService as any).cookieExpiry;
       expect(expiry.getTime()).toBeGreaterThan(now + 23 * 60 * 60 * 1000);
       expect(expiry.getTime()).toBeLessThan(now + 25 * 60 * 60 * 1000);
@@ -182,7 +174,7 @@ describe('SSOService', () => {
     it('should log cookie expiry time', async () => {
       ssoService.setCookies(validCookies, 24);
       expect(logger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/^Cookies set manually, will expire at/)
+        expect.stringMatching(/^Cookies set manually, will expire at/),
       );
     });
   });
@@ -230,7 +222,7 @@ describe('SSOService', () => {
     it('should authenticate if no expiry set', async () => {
       const config = {
         provider: 'godaddy' as const,
-        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp']
+        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp'],
       };
 
       const result = await ssoService.refreshCookies(config);
@@ -241,23 +233,23 @@ describe('SSOService', () => {
       // Clear singleton and mocks
       (SSOService as any).instance = undefined;
       vi.clearAllMocks();
-      
+
       // Create new instance and set cookies
       const freshService = SSOService.getInstance();
       freshService.setCookies(validCookies, 2); // 2 hours from now
-      
+
       const config = {
         provider: 'godaddy' as const,
-        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp']
+        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp'],
       };
 
       // Clear mocks after setCookies to only capture refreshCookies logs
       vi.clearAllMocks();
-      
+
       const result = await freshService.refreshCookies(config);
       expect(result.success).toBe(true);
       expect(result.cookies).toEqual(validCookies);
-      
+
       // Should not have logged the refresh message
       const infoMock = logger.info as any;
       expect(infoMock).not.toHaveBeenCalledWith('Cookies expiring soon, refreshing...');
@@ -267,7 +259,7 @@ describe('SSOService', () => {
       ssoService.setCookies(validCookies, 0.4); // 24 minutes from now
       const config = {
         provider: 'godaddy' as const,
-        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp']
+        requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp'],
       };
 
       const result = await ssoService.refreshCookies(config);
@@ -278,26 +270,28 @@ describe('SSOService', () => {
 
   describe('parseBrowserCookies', () => {
     it('should parse semicolon-separated cookies', async () => {
-      const cookieString = 'auth_idp=value1; cust_idp=value2; info_cust_idp=value3; info_idp=value4';
+      const cookieString =
+        'auth_idp=value1; cust_idp=value2; info_cust_idp=value3; info_idp=value4';
       const parsed = SSOService.parseBrowserCookies(cookieString);
 
       expect(parsed).toEqual({
         auth_idp: 'value1',
         cust_idp: 'value2',
         info_cust_idp: 'value3',
-        info_idp: 'value4'
+        info_idp: 'value4',
       });
     });
 
     it('should parse newline-separated cookies', async () => {
-      const cookieString = 'auth_idp=value1\ncust_idp=value2\ninfo_cust_idp=value3\ninfo_idp=value4';
+      const cookieString =
+        'auth_idp=value1\ncust_idp=value2\ninfo_cust_idp=value3\ninfo_idp=value4';
       const parsed = SSOService.parseBrowserCookies(cookieString);
 
       expect(parsed).toEqual({
         auth_idp: 'value1',
         cust_idp: 'value2',
         info_cust_idp: 'value3',
-        info_idp: 'value4'
+        info_idp: 'value4',
       });
     });
 
@@ -307,7 +301,7 @@ describe('SSOService', () => {
 
       expect(parsed).toEqual({
         auth_idp: 'value1',
-        cust_idp: 'value2'
+        cust_idp: 'value2',
       });
     });
 
@@ -317,7 +311,7 @@ describe('SSOService', () => {
 
       expect(parsed).toEqual({
         auth_idp: 'value1',
-        cust_idp: 'value2'
+        cust_idp: 'value2',
       });
     });
 
@@ -327,4 +321,4 @@ describe('SSOService', () => {
       expect(SSOService.parseBrowserCookies('=noname')).toEqual({});
     });
   });
-}); 
+});

@@ -5,6 +5,7 @@
 ### 🚨 Pattern Not Detected
 
 **Symptoms:**
+
 - Queries show as "static" when they should be "dynamic patterns"
 - `namePattern` is undefined on extracted queries
 - No migration recommendations generated
@@ -12,12 +13,14 @@
 **Solutions:**
 
 1. **Check Pattern Registry Configuration**
+
    ```bash
    # Run with verbose logging
    npx tsx src/cli/pattern-based-migration.ts analyze --directory ./src --verbose
    ```
 
 2. **Verify queryNames Usage Format**
+
    ```typescript
    // ✅ CORRECT: This will be detected
    const query = gql`query ${queryNames.byIdV1} { ... }`;
@@ -28,12 +31,13 @@
    ```
 
 3. **Check Template Literal Structure**
+
    ```typescript
    // ✅ CORRECT: Direct interpolation
-   gql`query ${queryNames.byIdV1} { venture { id } }`
+   gql`query ${queryNames.byIdV1} { venture { id } }`;
 
    // ❌ INCORRECT: Computed property
-   gql`query ${queryNames[getVersionKey()]} { venture { id } }`
+   gql`query ${queryNames[getVersionKey()]} { venture { id } }`;
    ```
 
 4. **Validate File Patterns**
@@ -46,6 +50,7 @@
    ```
 
 **Debug Commands:**
+
 ```bash
 # Check what patterns are registered
 node -e "
@@ -63,6 +68,7 @@ npx tsx src/cli/pattern-based-migration.ts analyze --directory ./src/specific-fi
 ### 🚨 Migration Recommendations Incorrect
 
 **Symptoms:**
+
 - Wrong target versions suggested
 - Missing fragment change recommendations
 - Deprecation warnings not showing
@@ -70,6 +76,7 @@ npx tsx src/cli/pattern-based-migration.ts analyze --directory ./src/specific-fi
 **Solutions:**
 
 1. **Verify Pattern Registry is Current**
+
    ```typescript
    // Check if your registry matches your actual queryNames
    const registry = await extraction.getPatternRegistry();
@@ -77,17 +84,19 @@ npx tsx src/cli/pattern-based-migration.ts analyze --directory ./src/specific-fi
    ```
 
 2. **Check Version Detection Logic**
+
    ```typescript
    // Ensure property naming follows convention
    const queryNames = {
-     byIdV1: 'getVentureHomeDataByVentureIdDashboard',      // ✅ Detected as V1
-     byIdV2: 'getVentureHomeDataByVentureIdDashboardV2',    // ✅ Detected as V2
-     byIdV3: 'getVentureHomeDataByVentureIdDashboardV3',    // ✅ Detected as V3
-     byIdCustom: 'customQuery'                              // ❌ Version not detected
+     byIdV1: 'getVentureHomeDataByVentureIdDashboard', // ✅ Detected as V1
+     byIdV2: 'getVentureHomeDataByVentureIdDashboardV2', // ✅ Detected as V2
+     byIdV3: 'getVentureHomeDataByVentureIdDashboardV3', // ✅ Detected as V3
+     byIdCustom: 'customQuery', // ❌ Version not detected
    };
    ```
 
 3. **Update Pattern Registry**
+
    ```typescript
    // Add custom patterns to registry
    const patternService = new QueryPatternService();
@@ -101,6 +110,7 @@ npx tsx src/cli/pattern-based-migration.ts analyze --directory ./src/specific-fi
    ```
 
 **Debug Commands:**
+
 ```bash
 # Check migration recommendations for specific query
 npx tsx -e "
@@ -115,6 +125,7 @@ npx tsx -e "
 ### 🚨 Performance Issues
 
 **Symptoms:**
+
 - Slow pattern analysis
 - High memory usage
 - Cache misses
@@ -122,6 +133,7 @@ npx tsx -e "
 **Solutions:**
 
 1. **Enable and Tune Caching**
+
    ```typescript
    import { createQueryServices } from './src/core/extraction';
 
@@ -129,11 +141,12 @@ npx tsx -e "
      options: { directory: './src' },
      enableCaching: true,
      cacheMaxSize: 100 * 1024 * 1024, // 100MB
-     cacheTTL: 3600000 // 1 hour
+     cacheTTL: 3600000, // 1 hour
    });
    ```
 
 2. **Check Cache Performance**
+
    ```typescript
    const stats = await extraction.getCacheStats();
    console.log('Cache stats:', stats);
@@ -145,6 +158,7 @@ npx tsx -e "
    ```
 
 3. **Optimize File Patterns**
+
    ```typescript
    // Be more specific to reduce files processed
    {
@@ -162,11 +176,12 @@ npx tsx -e "
    ```typescript
    const options = {
      directory: './src',
-     enableIncrementalExtraction: true // Only process changed files
+     enableIncrementalExtraction: true, // Only process changed files
    };
    ```
 
 **Monitor Commands:**
+
 ```bash
 # Monitor memory usage
 node --max-old-space-size=4096 your-script.js
@@ -180,6 +195,7 @@ node --prof your-script.js
 ### 🚨 Service Initialization Errors
 
 **Symptoms:**
+
 - "Service not initialized" errors
 - Factory creation failures
 - Undefined service references
@@ -187,6 +203,7 @@ node --prof your-script.js
 **Solutions:**
 
 1. **Use Factory Pattern Correctly**
+
    ```typescript
    // ✅ CORRECT: Use factory
    import { createDefaultQueryServices } from './src/core/extraction';
@@ -198,6 +215,7 @@ node --prof your-script.js
    ```
 
 2. **Ensure Async Initialization**
+
    ```typescript
    // ✅ CORRECT: Await initialization
    const extraction = new PatternAwareExtraction(options);
@@ -222,6 +240,7 @@ node --prof your-script.js
    ```
 
 **Debug Commands:**
+
 ```bash
 # Test service factory
 npx tsx -e "
@@ -237,6 +256,7 @@ npx tsx -e "
 ### 🚨 Type Errors
 
 **Symptoms:**
+
 - TypeScript compilation errors
 - Missing type definitions
 - Import resolution failures
@@ -244,12 +264,13 @@ npx tsx -e "
 **Solutions:**
 
 1. **Check Type Imports**
+
    ```typescript
    // ✅ CORRECT: Import types and runtime
    import {
      PatternAwareExtraction,
      QueryServicesConfig,
-     PatternExtractedQuery
+     PatternExtractedQuery,
    } from './src/core/extraction';
 
    // ❌ INCORRECT: Missing types
@@ -257,6 +278,7 @@ npx tsx -e "
    ```
 
 2. **Verify TypeScript Configuration**
+
    ```json
    // tsconfig.json
    {
@@ -269,6 +291,7 @@ npx tsx -e "
    ```
 
 3. **Check Build Output**
+
    ```bash
    # Ensure dist/ directory is up to date
    npm run build
@@ -278,6 +301,7 @@ npx tsx -e "
    ```
 
 **Debug Commands:**
+
 ```bash
 # Check TypeScript compilation
 npx tsc --noEmit --project ./tsconfig.json
@@ -294,6 +318,7 @@ npx tsx -e "
 ## 📊 Diagnostics Commands
 
 ### Health Check Script
+
 ```typescript
 // health-check.ts
 import { PatternAwareExtraction } from './src/core/extraction';
@@ -305,7 +330,7 @@ async function healthCheck() {
     // Test basic extraction
     const extraction = new PatternAwareExtraction({
       directory: './src',
-      patterns: ['**/*.{ts,tsx}']
+      patterns: ['**/*.{ts,tsx}'],
     });
 
     // Test cache
@@ -320,11 +345,10 @@ async function healthCheck() {
     const result = await extraction.extract();
     console.log('✅ Extraction:', {
       queries: result.extraction.queries.length,
-      migrations: result.migration.summary.needsMigration
+      migrations: result.migration.summary.needsMigration,
     });
 
     console.log('\n🎉 Health check passed!');
-
   } catch (error) {
     console.error('❌ Health check failed:', error);
     process.exit(1);
@@ -335,6 +359,7 @@ healthCheck();
 ```
 
 ### Performance Profiling
+
 ```bash
 # Create performance profile
 node --prof --prof-process npx tsx health-check.ts
@@ -345,6 +370,7 @@ node --inspect npx tsx health-check.ts
 ```
 
 ### Cache Analysis
+
 ```typescript
 // cache-analysis.ts
 import { PatternAwareExtraction } from './src/core/extraction';
@@ -352,7 +378,7 @@ import { PatternAwareExtraction } from './src/core/extraction';
 async function analyzeCachePerformance() {
   const extraction = new PatternAwareExtraction({
     directory: './src',
-    patterns: ['**/*.tsx']
+    patterns: ['**/*.tsx'],
   });
 
   // Run extraction twice to test caching
@@ -383,33 +409,38 @@ async function analyzeCachePerformance() {
 ## 📞 Getting Help
 
 1. **Enable Debug Logging**
+
    ```bash
    DEBUG=pattern-migration* npx tsx your-script.ts
    ```
 
 2. **Check Integration Tests**
+
    ```bash
    npm test src/test/integration/PatternBasedIntegration.test.ts
    ```
 
 3. **Run Demo Mode**
+
    ```bash
    npx tsx src/cli/pattern-based-migration.ts demo
    ```
 
 4. **Create Minimal Reproduction**
+
    ```typescript
    // minimal-repro.ts
    import { PatternAwareExtraction } from './src/core/extraction';
 
    const extraction = new PatternAwareExtraction({
      directory: './test-files', // Small test directory
-     patterns: ['*.tsx']
+     patterns: ['*.tsx'],
    });
 
-   extraction.extract()
-     .then(result => console.log('Success:', result))
-     .catch(error => console.error('Error:', error));
+   extraction
+     .extract()
+     .then((result) => console.log('Success:', result))
+     .catch((error) => console.error('Error:', error));
    ```
 
 Remember: The pattern-based system is designed to **preserve your application logic** while providing **safe migration guidance**. When in doubt, check that your queries maintain their `${queryNames.property}` structure! 🎯

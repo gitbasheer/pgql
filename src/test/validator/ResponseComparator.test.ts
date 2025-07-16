@@ -16,10 +16,10 @@ describe('ResponseComparator', () => {
       headers: {},
       size: 100,
       endpoint: 'https://api.example.com/graphql',
-      environment: 'production'
+      environment: 'production',
     },
     timestamp: new Date(),
-    version: 'baseline'
+    version: 'baseline',
   });
 
   beforeEach(async () => {
@@ -28,7 +28,7 @@ describe('ResponseComparator', () => {
     // Initialize comparator with proper config
     comparator = new ResponseComparator({
       strict: false,
-      ignorePaths: []
+      ignorePaths: [],
     });
   });
 
@@ -48,7 +48,7 @@ describe('ResponseComparator', () => {
     it('should ignore specified paths', () => {
       comparator = new ResponseComparator({
         strict: false,
-        ignorePaths: ['data.user.timestamp', 'data.user.version']
+        ignorePaths: ['data.user.timestamp', 'data.user.version'],
       });
 
       const baseline = createMockResponse({
@@ -56,8 +56,8 @@ describe('ResponseComparator', () => {
           id: '123',
           name: 'John',
           timestamp: '2024-01-01',
-          version: 1
-        }
+          version: 1,
+        },
       });
 
       const transformed = createMockResponse({
@@ -65,8 +65,8 @@ describe('ResponseComparator', () => {
           id: '123',
           name: 'John',
           timestamp: '2024-01-02',
-          version: 2
-        }
+          version: 2,
+        },
       });
 
       const result = comparator.compare(baseline, transformed);
@@ -91,12 +91,14 @@ describe('ResponseComparator', () => {
         type: 'value-change',
         baseline: 'John',
         transformed: 'Jane',
-        severity: 'medium'
+        severity: 'medium',
       });
     });
 
     it('should detect missing fields', () => {
-      const baseline = createMockResponse({ user: { id: '123', name: 'John', email: 'john@example.com' } });
+      const baseline = createMockResponse({
+        user: { id: '123', name: 'John', email: 'john@example.com' },
+      });
       const transformed = createMockResponse({ user: { id: '123', name: 'John' } });
 
       const result = comparator.compare(baseline, transformed);
@@ -108,14 +110,16 @@ describe('ResponseComparator', () => {
         type: 'missing-field',
         baseline: 'john@example.com',
         transformed: undefined,
-        severity: 'critical'
+        severity: 'critical',
       });
       expect(result.breakingChanges).toHaveLength(1);
     });
 
     it('should detect added fields', () => {
       const baseline = createMockResponse({ user: { id: '123', name: 'John' } });
-      const transformed = createMockResponse({ user: { id: '123', name: 'John', email: 'john@example.com' } });
+      const transformed = createMockResponse({
+        user: { id: '123', name: 'John', email: 'john@example.com' },
+      });
 
       const result = comparator.compare(baseline, transformed);
 
@@ -126,7 +130,7 @@ describe('ResponseComparator', () => {
         type: 'extra-field',
         baseline: undefined,
         transformed: 'john@example.com',
-        severity: 'low'
+        severity: 'low',
       });
     });
 
@@ -143,7 +147,7 @@ describe('ResponseComparator', () => {
         type: 'type-mismatch',
         baseline: '123',
         transformed: 123,
-        severity: 'critical'
+        severity: 'critical',
       });
       expect(result.breakingChanges).toHaveLength(1);
     });
@@ -171,8 +175,8 @@ describe('ResponseComparator', () => {
         expect.objectContaining({
           type: 'array-length',
           baseline: 3,
-          transformed: 2
-        })
+          transformed: 2,
+        }),
       );
     });
 
@@ -180,15 +184,15 @@ describe('ResponseComparator', () => {
       const baseline = createMockResponse({
         users: [
           { id: '1', name: 'John' },
-          { id: '2', name: 'Jane' }
-        ]
+          { id: '2', name: 'Jane' },
+        ],
       });
 
       const transformed = createMockResponse({
         users: [
           { id: '1', name: 'John' },
-          { id: '2', name: 'Janet' }
-        ]
+          { id: '2', name: 'Janet' },
+        ],
       });
 
       const result = comparator.compare(baseline, transformed);
@@ -199,8 +203,8 @@ describe('ResponseComparator', () => {
           path: 'data.users[1].name',
           type: 'value-change',
           baseline: 'Jane',
-          transformed: 'Janet'
-        })
+          transformed: 'Janet',
+        }),
       );
     });
   });
@@ -240,7 +244,7 @@ describe('ResponseComparator', () => {
 
       expect(result.performanceImpact).toMatchObject({
         latencyChange: 50,
-        sizeChange: 0
+        sizeChange: 0,
       });
     });
 
@@ -261,12 +265,12 @@ describe('ResponseComparator', () => {
     it('should compare error responses', () => {
       const baseline = createMockResponse(null);
       baseline.response = {
-        errors: [{ message: 'Not found', extensions: { code: 'NOT_FOUND' } }]
+        errors: [{ message: 'Not found', extensions: { code: 'NOT_FOUND' } }],
       };
 
       const transformed = createMockResponse(null);
       transformed.response = {
-        errors: [{ message: 'Not found', extensions: { code: 'NOT_FOUND' } }]
+        errors: [{ message: 'Not found', extensions: { code: 'NOT_FOUND' } }],
       };
 
       const result = comparator.compare(baseline, transformed);
@@ -277,12 +281,12 @@ describe('ResponseComparator', () => {
     it('should detect different error messages', () => {
       const baseline = createMockResponse(null);
       baseline.response = {
-        errors: [{ message: 'Not found' }]
+        errors: [{ message: 'Not found' }],
       };
 
       const transformed = createMockResponse(null);
       transformed.response = {
-        errors: [{ message: 'Forbidden' }]
+        errors: [{ message: 'Forbidden' }],
       };
 
       const result = comparator.compare(baseline, transformed);
@@ -300,8 +304,8 @@ describe('ResponseComparator', () => {
           name: 'John',
           email: 'john@example.com',
           age: 30,
-          active: true
-        }
+          active: true,
+        },
       });
 
       const transformed = createMockResponse({
@@ -310,8 +314,8 @@ describe('ResponseComparator', () => {
           name: 'Jane', // changed
           email: 'john@example.com',
           age: 30,
-          active: false // changed
-        }
+          active: false, // changed
+        },
       });
 
       const result = comparator.compare(baseline, transformed);
@@ -328,9 +332,9 @@ describe('ResponseComparator', () => {
         customComparators: {
           'data.timestamp': {
             type: 'date-tolerance',
-            options: { tolerance: 60000 }  // 1 minute tolerance
-          }
-        }
+            options: { tolerance: 60000 }, // 1 minute tolerance
+          },
+        },
       });
 
       const baseline = createMockResponse({ timestamp: '2024-01-01T00:00:00Z' });
@@ -348,22 +352,22 @@ describe('ResponseComparator', () => {
           'data.name': { type: 'case-insensitive' },
           'data.score': {
             type: 'numeric-tolerance',
-            options: { tolerance: 0.1 }
+            options: { tolerance: 0.1 },
           },
-          'data.tags': { type: 'array-unordered' }
-        }
+          'data.tags': { type: 'array-unordered' },
+        },
       });
 
       const baseline = createMockResponse({
         name: 'JOHN',
         score: 95.0,
-        tags: ['a', 'b', 'c']
+        tags: ['a', 'b', 'c'],
       });
 
       const transformed = createMockResponse({
         name: 'john',
         score: 95.05,
-        tags: ['c', 'a', 'b']
+        tags: ['c', 'a', 'b'],
       });
 
       const result = comparator.compare(baseline, transformed);
@@ -376,8 +380,8 @@ describe('ResponseComparator', () => {
         strict: false,
         customComparators: {
           'data.id': { type: 'type-coercion' },
-          'data.enabled': { type: 'type-coercion' }
-        }
+          'data.enabled': { type: 'type-coercion' },
+        },
       });
 
       const baseline = createMockResponse({ id: '123', enabled: 'true' });
@@ -395,8 +399,8 @@ describe('ResponseComparator', () => {
         user: {
           id: '123',
           name: 'John',
-          required_field: 'value'
-        }
+          required_field: 'value',
+        },
       });
 
       const transformed = createMockResponse({
@@ -404,7 +408,7 @@ describe('ResponseComparator', () => {
           id: 123, // type change
           name: 'John',
           // missing required_field
-        }
+        },
       });
 
       const result = comparator.compare(baseline, transformed);
@@ -413,14 +417,14 @@ describe('ResponseComparator', () => {
       expect(result.breakingChanges).toContainEqual(
         expect.objectContaining({
           path: 'data.user.id',
-          type: 'type-change'
-        })
+          type: 'type-change',
+        }),
       );
       expect(result.breakingChanges).toContainEqual(
         expect.objectContaining({
           path: 'data.user.required_field',
-          type: 'removed-field'
-        })
+          type: 'removed-field',
+        }),
       );
     });
   });

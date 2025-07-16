@@ -5,7 +5,7 @@ import {
   ExtractionResult,
   QueryVariant,
   VariantSwitch,
-  PatternExtractedQuery
+  PatternExtractedQuery,
 } from '../types/index.js';
 import { ExtractionContext } from './ExtractionContext.js';
 
@@ -69,11 +69,11 @@ export class ExtractionPipeline {
     this.reporters = new Map<string, JSONReporter | HTMLReporter | FileReporter>([
       ['json', new JSONReporter(context)],
       ['html', new HTMLReporter(context)],
-      ['files', new FileReporter(context)]
+      ['files', new FileReporter(context)],
     ]);
   }
 
-    async process(queries: ExtractedQuery[]): Promise<ExtractionResult> {
+  async process(queries: ExtractedQuery[]): Promise<ExtractionResult> {
     logger.info('Starting extraction pipeline processing with pattern-aware approach');
 
     let processedQueries = queries;
@@ -87,13 +87,15 @@ export class ExtractionPipeline {
     // Apply pattern-based processing first
     logger.info('Processing queries with pattern awareness...');
     const namingService = this.context.getQueryNamingService();
-    let patternQueries = namingService.processQueries(processedQueries);
+    const patternQueries = namingService.processQueries(processedQueries);
     processedQueries = patternQueries;
 
     // Log pattern analysis results
-    const dynamicPatterns = patternQueries.filter(q => q.namePattern).length;
+    const dynamicPatterns = patternQueries.filter((q) => q.namePattern).length;
     const staticQueries = patternQueries.length - dynamicPatterns;
-    logger.info(`Pattern analysis: ${dynamicPatterns} dynamic patterns, ${staticQueries} static queries`);
+    logger.info(
+      `Pattern analysis: ${dynamicPatterns} dynamic patterns, ${staticQueries} static queries`,
+    );
 
     // First resolve template interpolations to get clean queries
     logger.info('Resolving template interpolations...');
@@ -115,8 +117,8 @@ export class ExtractionPipeline {
       // variantAnalysis is an array of VariantAnalysisResult
 
       // Collect switches from analysis
-      variantAnalysis.forEach(result => {
-        result.switches.forEach(sw => {
+      variantAnalysis.forEach((result) => {
+        result.switches.forEach((sw) => {
           switches.set(sw.variable, sw);
         });
       });
@@ -161,7 +163,7 @@ export class ExtractionPipeline {
       fragments: this.context.fragments,
       switches,
       errors: this.context.errors,
-      stats: this.context.finalizeStats()
+      stats: this.context.finalizeStats(),
     };
 
     if (this.context.options.reporters) {

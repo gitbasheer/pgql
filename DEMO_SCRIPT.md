@@ -12,7 +12,7 @@
 cd /path/to/pg-migration-620
 npm run dev
 
-# Terminal 2 - UI  
+# Terminal 2 - UI
 cd ui
 pnpm dev
 
@@ -23,36 +23,44 @@ tail -f extraction-result.json
 ## Demo Flow
 
 ### 1. Introduction (2 min)
+
 **Z:** "Welcome to the GraphQL Migration Tool demo. Today we'll show the full pipeline from extraction to PR generation, with 95% test coverage."
 
 **Key Points:**
+
 - Built with TypeScript, strict type safety
 - Following CLAUDE.local.md best practices
 - Real-time monitoring via Socket.io
 - Integrated with real GraphQL APIs
 
 ### 2. UI Overview - X Team (3 min)
+
 **X:** "Let me show you the real-time dashboard..."
 
 **Actions:**
+
 1. Open http://localhost:5173
 2. Show connection status (green indicator)
 3. Point out 6-stage pipeline visualization
 4. Highlight vnext testing button
 
 ### 3. Backend Integration - Y Team (3 min)
+
 **Y:** "Our backend handles the heavy lifting..."
 
 **Actions:**
+
 1. Show extraction engine with AST fix
 2. Demonstrate template resolution
 3. Show real API configuration in .env
 4. Point out 95% test coverage
 
 ### 4. Live Demo - Z Team (5 min)
+
 **Z:** "Let's run the full pipeline on real data..."
 
 **Actions:**
+
 1. Click "🧪 Test vnext Sample" button
 2. Watch real-time progress:
    - Extraction: "69 queries extracted"
@@ -73,9 +81,11 @@ tail -f extraction-result.json
    - Highlight mapping utilities
 
 ### 5. Technical Deep Dive (2 min)
+
 **Z:** "Let's look at the key innovations..."
 
 **Code Examples:**
+
 ```typescript
 // Readonly types (CLAUDE.local.md)
 interface PipelineConfig {
@@ -89,7 +99,7 @@ interface PipelineConfig {
 const variables = { ...baseVars, ...queryVars };
 
 // Hivemind A/B testing
-if (hivemind.flag("new-queries-getuserprofile")) {
+if (hivemind.flag('new-queries-getuserprofile')) {
   return transformToNewFormat(oldData);
 }
 ```
@@ -100,6 +110,7 @@ if (hivemind.flag("new-queries-getuserprofile")) {
 
 **Q: How do you handle authentication?**
 A: Individual cookies from .env, never logged:
+
 ```typescript
 const cookieString = `auth_idp=${authIdp}; cust_idp=${custIdp}; ...`;
 ```
@@ -116,6 +127,7 @@ A: 95.2% overall, 100% on critical paths
 ## Troubleshooting
 
 If demo fails:
+
 1. Check .env has auth cookies
 2. Verify both servers running
 3. Use backup extraction-result.json

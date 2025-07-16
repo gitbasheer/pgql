@@ -9,7 +9,7 @@ import {
   Difference,
   DifferenceType,
   BreakingChange,
-  PerformanceImpact
+  PerformanceImpact,
 } from './types.js';
 import { ComparatorConfig, ComparatorRegistry } from './comparators/index.js';
 
@@ -47,10 +47,12 @@ export class ResponseComparator {
     // Convert legacy ignorePaths to ignorePatterns
     this.ignorePatterns = options.ignorePatterns || [];
     if (options.ignorePaths) {
-      this.ignorePatterns.push(...options.ignorePaths.map(path => ({
-        path,
-        type: 'all' as const
-      })));
+      this.ignorePatterns.push(
+        ...options.ignorePaths.map((path) => ({
+          path,
+          type: 'all' as const,
+        })),
+      );
     }
     this.expectedDifferences = options.expectedDifferences || [];
 
@@ -68,10 +70,7 @@ export class ResponseComparator {
     }
   }
 
-  compare(
-    baseline: CapturedResponse,
-    transformed: CapturedResponse
-  ): ComparisonResult {
+  compare(baseline: CapturedResponse, transformed: CapturedResponse): ComparisonResult {
     const differences: Difference[] = [];
     const breakingChanges: BreakingChange[] = [];
 
@@ -79,7 +78,7 @@ export class ResponseComparator {
     const dataDifferences = this.compareData(
       baseline.response.data,
       transformed.response.data,
-      ['data']  // Start with 'data' prefix for consistency
+      ['data'], // Start with 'data' prefix for consistency
     );
 
     // Filter out expected differences
@@ -89,7 +88,7 @@ export class ResponseComparator {
     // Compare errors
     const errorDifferences = this.compareErrors(
       baseline.response.errors,
-      transformed.response.errors
+      transformed.response.errors,
     );
     differences.push(...errorDifferences);
 
@@ -112,7 +111,7 @@ export class ResponseComparator {
       differences,
       breakingChanges,
       similarity,
-      performanceImpact
+      performanceImpact,
     );
 
     return {
@@ -123,7 +122,7 @@ export class ResponseComparator {
       similarity,
       breakingChanges,
       performanceImpact,
-      recommendation
+      recommendation,
     };
   }
 
@@ -142,36 +141,32 @@ export class ResponseComparator {
   calculateSimilarityScore(
     baseline: CapturedResponse,
     transformed: CapturedResponse,
-    differences: Difference[]
+    differences: Difference[],
   ): number {
     if (differences.length === 0) return 1.0;
 
     // Calculate structural similarity
     const structuralScore = this.calculateStructuralSimilarity(
       baseline.response.data,
-      transformed.response.data
+      transformed.response.data,
     );
 
     // Calculate value similarity
     const valueScore = this.calculateValueSimilarity(
       baseline.response.data,
-      transformed.response.data
+      transformed.response.data,
     );
 
     // Weight the scores
     const weightedScore = structuralScore * 0.7 + valueScore * 0.3;
 
     // Apply penalty for breaking changes
-    const breakingChangePenalty = differences.filter(d => d.severity === 'critical').length * 0.1;
+    const breakingChangePenalty = differences.filter((d) => d.severity === 'critical').length * 0.1;
 
     return Math.max(0, weightedScore - breakingChangePenalty);
   }
 
-  private compareData(
-    baseline: any,
-    transformed: any,
-    path: string[]
-  ): Difference[] {
+  private compareData(baseline: any, transformed: any, path: string[]): Difference[] {
     const differences: Difference[] = [];
 
     // Check if should ignore this path
@@ -183,35 +178,45 @@ export class ResponseComparator {
     const customComparator = this.getCustomComparator(path);
     if (customComparator) {
       if (!customComparator(baseline, transformed)) {
-        differences.push(this.createDifference(
-          path,
-          'value-change',
-          baseline,
-          transformed,
-          'Custom comparison failed'
-        ));
+        differences.push(
+          this.createDifference(
+            path,
+            'value-change',
+            baseline,
+            transformed,
+            'Custom comparison failed',
+          ),
+        );
       }
       return differences;
     }
 
     // Handle null/undefined
-    if (baseline === null || baseline === undefined ||
-        transformed === null || transformed === undefined) {
+    if (
+      baseline === null ||
+      baseline === undefined ||
+      transformed === null ||
+      transformed === undefined
+    ) {
       // In non-strict mode, treat null and undefined as equivalent
-      if (!this.options.strict &&
-          ((baseline === null || baseline === undefined) &&
-           (transformed === null || transformed === undefined))) {
+      if (
+        !this.options.strict &&
+        (baseline === null || baseline === undefined) &&
+        (transformed === null || transformed === undefined)
+      ) {
         return differences;
       }
 
       if (baseline !== transformed) {
-        differences.push(this.createDifference(
-          path,
-          'null-mismatch',
-          baseline,
-          transformed,
-          `Value changed from ${baseline} to ${transformed}`
-        ));
+        differences.push(
+          this.createDifference(
+            path,
+            'null-mismatch',
+            baseline,
+            transformed,
+            `Value changed from ${baseline} to ${transformed}`,
+          ),
+        );
       }
       return differences;
     }
@@ -221,13 +226,15 @@ export class ResponseComparator {
     const transformedType = Array.isArray(transformed) ? 'array' : typeof transformed;
 
     if (baselineType !== transformedType) {
-      differences.push(this.createDifference(
-        path,
-        'type-mismatch',
-        baseline,
-        transformed,
-        `Type changed from ${baselineType} to ${transformedType}`
-      ));
+      differences.push(
+        this.createDifference(
+          path,
+          'type-mismatch',
+          baseline,
+          transformed,
+          `Type changed from ${baselineType} to ${transformedType}`,
+        ),
+      );
       return differences;
     }
 
@@ -241,13 +248,15 @@ export class ResponseComparator {
         break;
       default:
         if (baseline !== transformed) {
-          differences.push(this.createDifference(
-            path,
-            'value-change',
-            baseline,
-            transformed,
-            `Value changed from ${baseline} to ${transformed}`
-          ));
+          differences.push(
+            this.createDifference(
+              path,
+              'value-change',
+              baseline,
+              transformed,
+              `Value changed from ${baseline} to ${transformed}`,
+            ),
+          );
         }
     }
 
@@ -257,7 +266,7 @@ export class ResponseComparator {
   private compareObjects(
     baseline: Record<string, any>,
     transformed: Record<string, any>,
-    path: string[]
+    path: string[],
   ): Difference[] {
     const differences: Difference[] = [];
     const baselineKeys = Object.keys(baseline);
@@ -266,70 +275,64 @@ export class ResponseComparator {
     // Check for missing fields
     for (const key of baselineKeys) {
       if (!(key in transformed)) {
-        differences.push(this.createDifference(
-          [...path, key],
-          'missing-field',
-          baseline[key],
-          undefined,
-          `Field '${key}' was removed`
-        ));
+        differences.push(
+          this.createDifference(
+            [...path, key],
+            'missing-field',
+            baseline[key],
+            undefined,
+            `Field '${key}' was removed`,
+          ),
+        );
       }
     }
 
     // Check for extra fields
     for (const key of transformedKeys) {
       if (!(key in baseline)) {
-        differences.push(this.createDifference(
-          [...path, key],
-          'extra-field',
-          undefined,
-          transformed[key],
-          `Field '${key}' was added`
-        ));
+        differences.push(
+          this.createDifference(
+            [...path, key],
+            'extra-field',
+            undefined,
+            transformed[key],
+            `Field '${key}' was added`,
+          ),
+        );
       }
     }
 
     // Compare common fields
     for (const key of baselineKeys) {
       if (key in transformed) {
-        differences.push(...this.compareData(
-          baseline[key],
-          transformed[key],
-          [...path, key]
-        ));
+        differences.push(...this.compareData(baseline[key], transformed[key], [...path, key]));
       }
     }
 
     return differences;
   }
 
-  private compareArrays(
-    baseline: any[],
-    transformed: any[],
-    path: string[]
-  ): Difference[] {
+  private compareArrays(baseline: any[], transformed: any[], path: string[]): Difference[] {
     const differences: Difference[] = [];
 
     // Check length
     if (baseline.length !== transformed.length) {
-      differences.push(this.createDifference(
-        path,
-        'array-length',
-        baseline.length,
-        transformed.length,
-        `Array length changed from ${baseline.length} to ${transformed.length}`
-      ));
+      differences.push(
+        this.createDifference(
+          path,
+          'array-length',
+          baseline.length,
+          transformed.length,
+          `Array length changed from ${baseline.length} to ${transformed.length}`,
+        ),
+      );
     }
 
     // Compare elements
     const maxLength = Math.max(baseline.length, transformed.length);
     for (let i = 0; i < maxLength; i++) {
       if (i < baseline.length && i < transformed.length) {
-        differences.push(...this.compareData(
-          baseline[i],
-          transformed[i],
-          [...path, i.toString()]
-        ));
+        differences.push(...this.compareData(baseline[i], transformed[i], [...path, i.toString()]));
       }
     }
 
@@ -339,43 +342,46 @@ export class ResponseComparator {
       if (reordered) {
         // Clear differences and add order change
         differences.length = 0;
-        differences.push(this.createDifference(
-          path,
-          'array-order',
-          baseline,
-          transformed,
-          'Array elements were reordered but content is the same'
-        ));
+        differences.push(
+          this.createDifference(
+            path,
+            'array-order',
+            baseline,
+            transformed,
+            'Array elements were reordered but content is the same',
+          ),
+        );
       }
     }
 
     return differences;
   }
 
-  private compareErrors(
-    baseline?: any[],
-    transformed?: any[]
-  ): Difference[] {
+  private compareErrors(baseline?: any[], transformed?: any[]): Difference[] {
     const differences: Difference[] = [];
 
     if (!baseline && !transformed) return differences;
 
     if (!baseline && transformed) {
-      differences.push(this.createDifference(
-        ['errors'],
-        'extra-field',
-        undefined,
-        transformed,
-        'Errors were introduced in transformed response'
-      ));
+      differences.push(
+        this.createDifference(
+          ['errors'],
+          'extra-field',
+          undefined,
+          transformed,
+          'Errors were introduced in transformed response',
+        ),
+      );
     } else if (baseline && !transformed) {
-      differences.push(this.createDifference(
-        ['errors'],
-        'missing-field',
-        baseline,
-        undefined,
-        'Errors were removed in transformed response'
-      ));
+      differences.push(
+        this.createDifference(
+          ['errors'],
+          'missing-field',
+          baseline,
+          undefined,
+          'Errors were removed in transformed response',
+        ),
+      );
     } else if (baseline && transformed) {
       // Compare error arrays
       differences.push(...this.compareData(baseline, transformed, ['errors']));
@@ -389,25 +395,26 @@ export class ResponseComparator {
     type: DifferenceType,
     baseline: any,
     transformed: any,
-    description: string
+    description: string,
   ): Difference {
     const severity = this.calculateSeverity(type, path);
     const fixable = this.isFixable(type, baseline, transformed);
 
     // Check if this path has specific ignore rules
     const ignorePattern = this.findIgnorePattern(path);
-    const adjustedSeverity = ignorePattern && ignorePattern.type === type
-      ? 'low' as const
-      : severity;
+    const adjustedSeverity =
+      ignorePattern && ignorePattern.type === type ? ('low' as const) : severity;
 
     // Format path as string for consistency with test expectations
-    const pathString = path.map((segment, index) => {
-      // Handle array indices
-      if (index > 0 && /^\d+$/.test(segment)) {
-        return `[${segment}]`;
-      }
-      return index === 0 ? segment : `.${segment}`;
-    }).join('');
+    const pathString = path
+      .map((segment, index) => {
+        // Handle array indices
+        if (index > 0 && /^\d+$/.test(segment)) {
+          return `[${segment}]`;
+        }
+        return index === 0 ? segment : `.${segment}`;
+      })
+      .join('');
 
     return {
       path: pathString, // Type is now properly 'string | string[]' from the interface
@@ -417,13 +424,13 @@ export class ResponseComparator {
       severity: adjustedSeverity,
       description,
       fixable,
-      ignored: ignorePattern ? ignorePattern.reason : undefined
+      ignored: ignorePattern ? ignorePattern.reason : undefined,
     };
   }
 
   private calculateSeverity(
     type: DifferenceType,
-    path: string[]
+    path: string[],
   ): 'low' | 'medium' | 'high' | 'critical' {
     // Critical: Missing required fields or type changes
     if (type === 'missing-field' || type === 'type-mismatch') {
@@ -444,11 +451,7 @@ export class ResponseComparator {
     return 'low';
   }
 
-  private isFixable(
-    type: DifferenceType,
-    baseline: any,
-    transformed: any
-  ): boolean {
+  private isFixable(type: DifferenceType, baseline: any, transformed: any): boolean {
     switch (type) {
       case 'extra-field':
       case 'array-order':
@@ -487,7 +490,7 @@ export class ResponseComparator {
           path: diff.path,
           description: diff.description,
           impact: 'high',
-          migrationStrategy: 'Add field mapping or provide default value'
+          migrationStrategy: 'Add field mapping or provide default value',
         };
 
       case 'type-mismatch':
@@ -496,7 +499,7 @@ export class ResponseComparator {
           path: diff.path,
           description: diff.description,
           impact: 'high',
-          migrationStrategy: 'Add type conversion in alignment function'
+          migrationStrategy: 'Add type conversion in alignment function',
         };
 
       case 'structure-change':
@@ -505,7 +508,7 @@ export class ResponseComparator {
           path: diff.path,
           description: diff.description,
           impact: 'medium',
-          migrationStrategy: 'Restructure data in alignment function'
+          migrationStrategy: 'Restructure data in alignment function',
         };
 
       default:
@@ -515,7 +518,7 @@ export class ResponseComparator {
 
   private analyzePerformanceImpact(
     baseline: CapturedResponse,
-    transformed: CapturedResponse
+    transformed: CapturedResponse,
   ): PerformanceImpact {
     let latencyChange: number;
 
@@ -525,7 +528,8 @@ export class ResponseComparator {
     } else {
       latencyChange =
         ((transformed.metadata.duration - baseline.metadata.duration) /
-         baseline.metadata.duration) * 100;
+          baseline.metadata.duration) *
+        100;
     }
 
     let sizeChange: number;
@@ -535,28 +539,29 @@ export class ResponseComparator {
       sizeChange = transformed.metadata.size > 0 ? Infinity : 0;
     } else {
       sizeChange =
-        ((transformed.metadata.size - baseline.metadata.size) /
-         baseline.metadata.size) * 100;
+        ((transformed.metadata.size - baseline.metadata.size) / baseline.metadata.size) * 100;
     }
 
     let recommendation = 'Performance impact is acceptable';
 
     if (Math.abs(latencyChange) > 50 && isFinite(latencyChange)) {
-      recommendation = latencyChange > 0
-        ? 'Significant latency increase detected. Consider optimization.'
-        : 'Significant latency improvement detected.';
+      recommendation =
+        latencyChange > 0
+          ? 'Significant latency increase detected. Consider optimization.'
+          : 'Significant latency improvement detected.';
     }
 
     if (Math.abs(sizeChange) > 50 && isFinite(sizeChange)) {
-      recommendation += sizeChange > 0
-        ? ' Response size increased significantly.'
-        : ' Response size decreased significantly.';
+      recommendation +=
+        sizeChange > 0
+          ? ' Response size increased significantly.'
+          : ' Response size decreased significantly.';
     }
 
     return {
       latencyChange,
       sizeChange,
-      recommendation
+      recommendation,
     };
   }
 
@@ -564,7 +569,7 @@ export class ResponseComparator {
     differences: Difference[],
     breakingChanges: BreakingChange[],
     similarity: number,
-    performanceImpact: PerformanceImpact
+    performanceImpact: PerformanceImpact,
   ): 'safe' | 'review' | 'unsafe' {
     // Unsafe if any breaking changes
     if (breakingChanges.length > 0) {
@@ -577,13 +582,15 @@ export class ResponseComparator {
     }
 
     // Review if significant performance impact
-    if (Math.abs(performanceImpact.latencyChange) > 30 ||
-        Math.abs(performanceImpact.sizeChange) > 30) {
+    if (
+      Math.abs(performanceImpact.latencyChange) > 30 ||
+      Math.abs(performanceImpact.sizeChange) > 30
+    ) {
       return 'review';
     }
 
     // Review if medium severity differences
-    if (differences.some(d => d.severity === 'medium')) {
+    if (differences.some((d) => d.severity === 'medium')) {
       return 'review';
     }
 
@@ -597,7 +604,7 @@ export class ResponseComparator {
 
     return stringSimilarity.compareTwoStrings(
       JSON.stringify(baselineStructure),
-      JSON.stringify(transformedStructure)
+      JSON.stringify(transformedStructure),
     );
   }
 
@@ -648,12 +655,14 @@ export class ResponseComparator {
   }
 
   private filterExpectedDifferences(differences: Difference[]): Difference[] {
-    return differences.filter(diff => {
+    return differences.filter((diff) => {
       // Check if this difference is expected
-      const expected = this.expectedDifferences.find(exp => {
+      const expected = this.expectedDifferences.find((exp) => {
         const pathStr = typeof diff.path === 'string' ? diff.path : diff.path.join('.');
-        return pathStr === exp.path &&
-          (!exp.expectedChange.type || exp.expectedChange.type === diff.type);
+        return (
+          pathStr === exp.path &&
+          (!exp.expectedChange.type || exp.expectedChange.type === diff.type)
+        );
       });
 
       if (expected) {
@@ -669,12 +678,12 @@ export class ResponseComparator {
   private shouldIgnorePath(path: string[]): boolean {
     const pathString = path.join('.');
 
-    return this.ignorePatterns.some(pattern => {
+    return this.ignorePatterns.some((pattern) => {
       if (typeof pattern.path === 'string') {
         // Support wildcards in string patterns
         if (pattern.path.includes('*')) {
           const regex = new RegExp(
-            '^' + pattern.path.replace(/\*/g, '.*').replace(/\./g, '\\.') + '$'
+            '^' + pattern.path.replace(/\*/g, '.*').replace(/\./g, '\\.') + '$',
           );
           return regex.test(pathString);
         }
@@ -695,7 +704,7 @@ export class ResponseComparator {
     const importantPatterns = ['id', 'key', 'name', 'type', 'status'];
     const lastSegment = path[path.length - 1]?.toLowerCase() || '';
 
-    return importantPatterns.some(pattern => lastSegment.includes(pattern));
+    return importantPatterns.some((pattern) => lastSegment.includes(pattern));
   }
 
   private checkArrayReordering(baseline: any[], transformed: any[]): boolean {
@@ -770,18 +779,18 @@ export class ResponseComparator {
   } {
     return {
       ignorePatterns: this.ignorePatterns,
-      expectedDifferences: this.expectedDifferences
+      expectedDifferences: this.expectedDifferences,
     };
   }
 
   private findIgnorePattern(path: string[]): IgnorePattern | undefined {
     const pathString = path.join('.');
 
-    return this.ignorePatterns.find(pattern => {
+    return this.ignorePatterns.find((pattern) => {
       if (typeof pattern.path === 'string') {
         if (pattern.path.includes('*')) {
           const regex = new RegExp(
-            '^' + pattern.path.replace(/\*/g, '.*').replace(/\./g, '\\.') + '$'
+            '^' + pattern.path.replace(/\*/g, '.*').replace(/\./g, '\\.') + '$',
           );
           return regex.test(pathString);
         }

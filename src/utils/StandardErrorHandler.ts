@@ -1,17 +1,17 @@
 import { logger } from './logger.js';
 
 export interface StandardError {
-  code: string;          // e.g., "EXTRACT_001", "TRANSFORM_002"
-  message: string;       // Human-readable message
-  module: string;        // Origin module (e.g., "extraction", "transformer")
-  file?: string;         // Affected file
+  code: string; // e.g., "EXTRACT_001", "TRANSFORM_002"
+  message: string; // Human-readable message
+  module: string; // Origin module (e.g., "extraction", "transformer")
+  file?: string; // Affected file
   location?: {
     line: number;
     column: number;
   };
   context?: Record<string, unknown>;
   timestamp: string;
-  version: string;       // Error format version
+  version: string; // Error format version
   severity: 'error' | 'warning' | 'info';
   originalError?: Error; // Original error for debugging
 }
@@ -34,7 +34,7 @@ export enum ErrorModule {
   SAFETY = 'safety',
   MONITORING = 'monitoring',
   CLI = 'cli',
-  INTEGRATION = 'integration'
+  INTEGRATION = 'integration',
 }
 
 export enum ErrorCode {
@@ -59,7 +59,7 @@ export enum ErrorCode {
   APPLY_FILE_WRITE = 'APPLY_002',
 
   // General errors
-  GENERAL_UNKNOWN = 'GENERAL_999'
+  GENERAL_UNKNOWN = 'GENERAL_999',
 }
 
 const ERROR_FORMAT_VERSION = '1.0.0';
@@ -79,7 +79,7 @@ export class StandardErrorHandler {
     error: unknown,
     context: ErrorContext,
     code?: ErrorCode,
-    severity: 'error' | 'warning' | 'info' = 'error'
+    severity: 'error' | 'warning' | 'info' = 'error',
   ): StandardError {
     const errorObj = error instanceof Error ? error : new Error(String(error));
     const errorCode = code || this.inferErrorCode(errorObj, context);
@@ -89,15 +89,17 @@ export class StandardErrorHandler {
       message: this.formatMessage(errorObj, context),
       module: this.module,
       file: context.file,
-      location: context.line ? {
-        line: context.line,
-        column: context.column || 0
-      } : undefined,
+      location: context.line
+        ? {
+            line: context.line,
+            column: context.column || 0,
+          }
+        : undefined,
       context: this.sanitizeContext(context),
       timestamp: new Date().toISOString(),
       version: ERROR_FORMAT_VERSION,
       severity,
-      originalError: errorObj
+      originalError: errorObj,
     };
 
     // Log the error
@@ -116,21 +118,23 @@ export class StandardErrorHandler {
     message: string,
     code: ErrorCode,
     context?: ErrorContext,
-    severity: 'error' | 'warning' | 'info' = 'error'
+    severity: 'error' | 'warning' | 'info' = 'error',
   ): StandardError {
     return {
       code,
       message,
       module: this.module,
       file: context?.file,
-      location: context?.line ? {
-        line: context.line,
-        column: context.column || 0
-      } : undefined,
+      location: context?.line
+        ? {
+            line: context.line,
+            column: context.column || 0,
+          }
+        : undefined,
       context: context ? this.sanitizeContext(context) : undefined,
       timestamp: new Date().toISOString(),
       version: ERROR_FORMAT_VERSION,
-      severity
+      severity,
     };
   }
 
@@ -258,8 +262,8 @@ export class ErrorRegistry {
     for (const handler of this.handlers.values()) {
       allErrors.push(...handler.getErrors());
     }
-    return allErrors.sort((a, b) =>
-      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    return allErrors.sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
     );
   }
 

@@ -1,11 +1,11 @@
-import { 
-  DocumentNode, 
+import {
+  DocumentNode,
   VariableDefinitionNode,
   TypeNode,
   visit,
   Kind,
   GraphQLSchema,
-  buildSchema
+  buildSchema,
 } from 'graphql';
 import { logger } from '../../utils/logger.js';
 import { VariableGenerator } from './types.js';
@@ -24,8 +24,8 @@ export class VariableGeneratorImpl implements VariableGenerator {
   }
 
   async generateForQuery(
-    query: DocumentNode, 
-    schema?: GraphQLSchema
+    query: DocumentNode,
+    schema?: GraphQLSchema,
   ): Promise<Record<string, any>[]> {
     const targetSchema = schema || this.schema;
     const variables: VariableDefinitionNode[] = [];
@@ -34,7 +34,7 @@ export class VariableGeneratorImpl implements VariableGenerator {
     visit(query, {
       VariableDefinition(node) {
         variables.push(node);
-      }
+      },
     });
 
     if (variables.length === 0) {
@@ -70,7 +70,7 @@ export class VariableGeneratorImpl implements VariableGenerator {
     for (const example of examples) {
       for (const [key, value] of Object.entries(example)) {
         keyFrequency[key] = (keyFrequency[key] || 0) + 1;
-        
+
         if (!valueTypes[key]) {
           valueTypes[key] = new Set();
         }
@@ -80,7 +80,7 @@ export class VariableGeneratorImpl implements VariableGenerator {
 
     // Generate variations based on analysis
     const commonKeys = Object.keys(keyFrequency).filter(
-      key => keyFrequency[key] >= examples.length * 0.5
+      (key) => keyFrequency[key] >= examples.length * 0.5,
     );
 
     // Use examples as base
@@ -90,7 +90,7 @@ export class VariableGeneratorImpl implements VariableGenerator {
     if (commonKeys.length > 0) {
       const minimalSet: Record<string, any> = {};
       for (const key of commonKeys) {
-        const example = examples.find(ex => ex[key] !== undefined);
+        const example = examples.find((ex) => ex[key] !== undefined);
         if (example) {
           minimalSet[key] = example[key];
         }
@@ -104,28 +104,33 @@ export class VariableGeneratorImpl implements VariableGenerator {
   generateEdgeCases(type: string): any[] {
     switch (type.toLowerCase()) {
       case 'string':
-        return ['', 'a', 'A very long string that might cause issues in some systems'.repeat(10), null];
-      
+        return [
+          '',
+          'a',
+          'A very long string that might cause issues in some systems'.repeat(10),
+          null,
+        ];
+
       case 'int':
       case 'integer':
         return [0, 1, -1, 2147483647, -2147483648, null];
-      
+
       case 'float':
       case 'number':
         return [0.0, 1.0, -1.0, 0.00000001, 999999999.99, null];
-      
+
       case 'boolean':
         return [true, false, null];
-      
+
       case 'id':
         return ['1', '0', 'abc123', 'ffffffff-ffff-ffff-ffff-ffffffffffff', '', null];
-      
+
       case 'array':
         return [[], ['item'], ['item1', 'item2'], new Array(100).fill('item'), null];
-      
+
       case 'object':
         return [{}, { key: 'value' }, null];
-      
+
       default:
         return [null, undefined];
     }
@@ -155,7 +160,7 @@ export class VariableGeneratorImpl implements VariableGenerator {
       const name = variable.variable.name.value;
       const typeName = this.getTypeName(variable.type);
       const edgeCases = this.generateEdgeCases(typeName);
-      
+
       // Pick a random edge case
       result[name] = edgeCases[Math.floor(Math.random() * edgeCases.length)];
     }
@@ -169,7 +174,7 @@ export class VariableGeneratorImpl implements VariableGenerator {
     for (const variable of variables) {
       const name = variable.variable.name.value;
       const typeName = this.getTypeName(variable.type);
-      
+
       result[name] = this.generateRealisticValue(name, typeName);
     }
 
@@ -297,4 +302,4 @@ export class VariableGeneratorImpl implements VariableGenerator {
         return {};
     }
   }
-} 
+}

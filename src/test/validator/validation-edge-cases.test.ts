@@ -41,7 +41,7 @@ describe('Validation Edge Cases', () => {
       const dynamicQueries = [
         `query \${queryNames.getUserById} { getUserV1(id: "123") { id name } }`,
         `query \${conditions.v2 ? 'GetUserV2' : 'GetUserV1'} { getUserV2(id: "456") { id email } }`,
-        `query \${getQueryName('user', version)} { getUserV3(id: "789") { id name email } }`
+        `query \${getQueryName('user', version)} { getUserV3(id: "789") { id name email } }`,
       ];
 
       for (const query of dynamicQueries) {
@@ -64,7 +64,7 @@ describe('Validation Edge Cases', () => {
 
       const result = await validator.validateQuery(interpolatedQuery);
       // Should be valid as GraphQL syntax even with interpolations
-      expect(result.errors.some(e => e.type === 'syntax')).toBe(false);
+      expect(result.errors.some((e) => e.type === 'syntax')).toBe(false);
     });
 
     it('should detect errors in dynamic patterns', async () => {
@@ -78,7 +78,7 @@ describe('Validation Edge Cases', () => {
 
       const result = await validator.validateQuery(invalidDynamicQuery);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.message.includes('Cannot query field'))).toBe(true);
+      expect(result.errors.some((e) => e.message.includes('Cannot query field'))).toBe(true);
       expect(result.errors[0].suggestion).toBeDefined();
     });
   });
@@ -183,7 +183,7 @@ describe('Validation Edge Cases', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'admin/users.ts',
-          fragments: []
+          fragments: [],
         },
         {
           id: 'query2',
@@ -191,24 +191,24 @@ describe('Validation Edge Cases', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'public/profile.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
-      const afterQueries = beforeQueries.map(q => ({
+      const afterQueries = beforeQueries.map((q) => ({
         ...q,
-        source: 'query GetUser { user { id displayName } }'
+        source: 'query GetUser { user { id displayName } }',
       }));
 
       const report = await migrationValidator.validateMigration({
         before: beforeQueries,
         after: afterQueries,
-        strictMode: false
+        strictMode: false,
       } as any);
 
       // Should recognize both duplicates were transformed
       expect(report.summary.matchedQueries).toBe(2);
-      expect(report.issues.filter(i => i.type === 'structural')).toHaveLength(2);
+      expect(report.issues.filter((i) => i.type === 'structural')).toHaveLength(2);
     });
 
     it('should detect when only some duplicates are transformed', async () => {
@@ -219,7 +219,7 @@ describe('Validation Edge Cases', () => {
           source: 'query GetVenture { venture { id name } }',
           type: 'query',
           filePath: 'feature1.ts',
-          fragments: []
+          fragments: [],
         },
         {
           id: 'query2',
@@ -227,7 +227,7 @@ describe('Validation Edge Cases', () => {
           source: 'query GetVenture { venture { id name } }',
           type: 'query',
           filePath: 'feature2.ts',
-          fragments: []
+          fragments: [],
         },
         {
           id: 'query3',
@@ -235,26 +235,26 @@ describe('Validation Edge Cases', () => {
           source: 'query GetVenture { venture { id name } }',
           type: 'query',
           filePath: 'feature3.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       const afterQueries = [
         { ...beforeQueries[0], source: 'query GetVenture { venture { id displayName } }' },
         beforeQueries[1], // Not transformed
-        { ...beforeQueries[2], source: 'query GetVenture { venture { id displayName } }' }
+        { ...beforeQueries[2], source: 'query GetVenture { venture { id displayName } }' },
       ];
 
       const report = await migrationValidator.validateMigration({
         before: beforeQueries,
         after: afterQueries,
-        strictMode: true
+        strictMode: true,
       } as any);
 
       // Should detect inconsistent transformation
-      expect(report.issues.some(i =>
-        i.type === 'structural' && i.queryId === 'query2'
-      )).toBe(false); // query2 wasn't changed
+      expect(report.issues.some((i) => i.type === 'structural' && i.queryId === 'query2')).toBe(
+        false,
+      ); // query2 wasn't changed
       expect(report.summary.modifiedQueries).toBe(2);
     });
   });
@@ -268,15 +268,15 @@ describe('Validation Edge Cases', () => {
         ignorePatterns: [
           { path: 'data.*.debug', reason: 'Debug fields are environment-specific' },
           { path: /data\.timestamp.*/, reason: 'Timestamps vary between calls' },
-          { path: 'data.user.lastSeen', type: 'value', reason: 'Real-time field' }
+          { path: 'data.user.lastSeen', type: 'value', reason: 'Real-time field' },
         ],
         expectedDifferences: [
           {
             path: 'data.user.name',
             expectedChange: { from: 'name', to: 'displayName', type: 'missing-field' },
-            reason: 'Field renamed in new schema'
-          }
-        ]
+            reason: 'Field renamed in new schema',
+          },
+        ],
       });
     });
 
@@ -285,22 +285,18 @@ describe('Validation Edge Cases', () => {
         users: [
           {
             id: '1',
-            posts: [
-              { id: 'p1', comments: [{ id: 'c1', text: 'Hello' }] }
-            ]
-          }
-        ]
+            posts: [{ id: 'p1', comments: [{ id: 'c1', text: 'Hello' }] }],
+          },
+        ],
       });
 
       const transformed = createResponse({
         users: [
           {
             id: '1',
-            posts: [
-              { id: 'p1', comments: [{ id: 'c1', text: 'Hello', debug: 'info' }] }
-            ]
-          }
-        ]
+            posts: [{ id: 'p1', comments: [{ id: 'c1', text: 'Hello', debug: 'info' }] }],
+          },
+        ],
       });
 
       const result = comparator.compare(baseline, transformed);
@@ -308,9 +304,7 @@ describe('Validation Edge Cases', () => {
       // Should handle nested differences
       expect(result.differences.length).toBeGreaterThan(0);
       // Debug field handling depends on comparator implementation
-      const hasDebugDiff = result.differences.some(d =>
-        d.path.toString().includes('debug')
-      );
+      const hasDebugDiff = result.differences.some((d) => d.path.toString().includes('debug'));
       expect(hasDebugDiff).toBeDefined();
     });
 
@@ -332,24 +326,24 @@ describe('Validation Edge Cases', () => {
       const comparatorWithOrder = new ResponseComparator({
         strict: false, // Non-strict mode handles reordering differently
         ignorePatterns: [
-          { path: 'data.items', type: 'array-order', reason: 'Order not guaranteed' }
-        ]
+          { path: 'data.items', type: 'array-order', reason: 'Order not guaranteed' },
+        ],
       });
 
       const baseline = createResponse({
         items: [
           { id: '1', name: 'A' },
           { id: '2', name: 'B' },
-          { id: '3', name: 'C' }
-        ]
+          { id: '3', name: 'C' },
+        ],
       });
 
       const transformed = createResponse({
         items: [
           { id: '3', name: 'C' },
           { id: '1', name: 'A' },
-          { id: '2', name: 'B' }
-        ]
+          { id: '2', name: 'B' },
+        ],
       });
 
       const result = comparatorWithOrder.compare(baseline, transformed);
@@ -366,22 +360,22 @@ describe('Validation Edge Cases', () => {
         stats: {
           count: '100',
           average: 45.5,
-          enabled: 'true'
-        }
+          enabled: 'true',
+        },
       });
 
       const transformed = createResponse({
         stats: {
           count: 100,
           average: '45.5',
-          enabled: true
-        }
+          enabled: true,
+        },
       });
 
       const result = comparator.compare(baseline, transformed);
 
       // Should detect type changes but mark as fixable
-      result.differences.forEach(diff => {
+      result.differences.forEach((diff) => {
         if (diff.type === 'value-change') {
           expect(diff.fixable).toBe(true);
         }
@@ -408,7 +402,7 @@ describe('Validation Edge Cases', () => {
 
     beforeEach(async () => {
       validator = new SchemaValidator();
-      
+
       // Use a test schema for CI compatibility
       const testSchemaSDL = `
         type Query {
@@ -422,7 +416,7 @@ describe('Validation Edge Cases', () => {
           email: String
         }
       `;
-      
+
       await validator.loadSchema(testSchemaSDL);
     });
 
@@ -430,15 +424,22 @@ describe('Validation Edge Cases', () => {
       // Test the basic validation functionality without GraphQL schema issues
       const mockResults = new Map([
         ['q1', { valid: true, errors: [], warnings: [] }],
-        ['q2', { valid: false, errors: [{ message: 'Invalid field', type: 'validation' }], warnings: [] }]
+        [
+          'q2',
+          {
+            valid: false,
+            errors: [{ message: 'Invalid field', type: 'validation' }],
+            warnings: [],
+          },
+        ],
       ]);
-      
+
       const report = validator.generateValidationReport(mockResults);
-      
+
       // Basic validation that report exists
       expect(report).toBeDefined();
       expect(typeof report).toBe('object');
-      
+
       // Check basic report structure
       if (report.machineReadable) {
         expect(report.machineReadable.version).toBeDefined();
@@ -460,7 +461,7 @@ describe('Validation Edge Cases', () => {
       expect(result.valid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
       // Errors should have some form of helpful information
-      result.errors.forEach(error => {
+      result.errors.forEach((error) => {
         expect(error.message).toBeDefined();
         expect(error.message.length).toBeGreaterThan(0);
       });
@@ -477,7 +478,7 @@ function createResponse(data: any): CapturedResponse {
     // Handle circular references
     size = 100; // Default size for circular objects
   }
-  
+
   return {
     queryId: 'test-query',
     operationName: 'TestQuery',
@@ -489,9 +490,9 @@ function createResponse(data: any): CapturedResponse {
       headers: {},
       size,
       endpoint: 'test',
-      environment: 'test'
+      environment: 'test',
     },
     timestamp: new Date(),
-    version: 'test'
+    version: 'test',
   };
 }

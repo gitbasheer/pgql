@@ -17,7 +17,8 @@ vi.mock('react-dom/client', () => ({
 }));
 
 // Mock App component
-const MockApp = () => React.createElement('div', { 'data-testid': 'mocked-app' }, 'Mocked App');
+const MockApp = () =>
+  React.createElement('div', { 'data-testid': 'mocked-app' }, 'Mocked App');
 vi.mock('../src/App', () => ({
   default: MockApp,
 }));
@@ -35,8 +36,21 @@ const mockInMemoryCache = vi.fn();
 vi.mock('@apollo/client', () => ({
   ApolloClient: mockApolloClient,
   InMemoryCache: mockInMemoryCache,
-  ApolloProvider: ({ children, client }: { children: React.ReactNode; client: any }) => 
-    React.createElement('div', { 'data-testid': 'apollo-provider', 'data-client': client ? 'present' : 'missing' }, children),
+  ApolloProvider: ({
+    children,
+    client,
+  }: {
+    children: React.ReactNode;
+    client: any;
+  }) =>
+    React.createElement(
+      'div',
+      {
+        'data-testid': 'apollo-provider',
+        'data-client': client ? 'present' : 'missing',
+      },
+      children
+    ),
 }));
 
 // Mock TanStack Query with realistic implementations
@@ -49,8 +63,21 @@ const mockQueryClient = vi.fn(() => ({
 
 vi.mock('@tanstack/react-query', () => ({
   QueryClient: mockQueryClient,
-  QueryClientProvider: ({ children, client }: { children: React.ReactNode; client: any }) => 
-    React.createElement('div', { 'data-testid': 'query-provider', 'data-client': client ? 'present' : 'missing' }, children),
+  QueryClientProvider: ({
+    children,
+    client,
+  }: {
+    children: React.ReactNode;
+    client: any;
+  }) =>
+    React.createElement(
+      'div',
+      {
+        'data-testid': 'query-provider',
+        'data-client': client ? 'present' : 'missing',
+      },
+      children
+    ),
 }));
 
 // Mock CSS imports
@@ -62,12 +89,12 @@ describe('Main Entry Point', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Create mock root element
     mockRootElement = document.createElement('div');
     mockRootElement.id = 'root';
     document.body.appendChild(mockRootElement);
-    
+
     // Mock getElementById to return our mock element
     vi.spyOn(document, 'getElementById').mockReturnValue(mockRootElement);
   });
@@ -81,7 +108,7 @@ describe('Main Entry Point', () => {
 
   it('should verify QueryClient default options configuration', () => {
     const { QueryClient } = require('@tanstack/react-query');
-    
+
     // Test the configuration object that would be passed to QueryClient
     const config = {
       defaultOptions: {
@@ -91,7 +118,7 @@ describe('Main Entry Point', () => {
         },
       },
     };
-    
+
     expect(config.defaultOptions.queries.refetchOnWindowFocus).toBe(false);
     expect(config.defaultOptions.queries.retry).toBe(1);
   });
@@ -101,7 +128,7 @@ describe('Main Entry Point', () => {
       uri: '/api/graphql',
       cache: expect.any(Object),
     };
-    
+
     expect(config.uri).toBe('/api/graphql');
     expect(config.cache).toBeDefined();
   });
@@ -129,14 +156,14 @@ describe('Main Entry Point', () => {
         },
       }),
     };
-    
+
     expect(strictModeProps.children).toBeDefined();
   });
 
   it('should handle missing root element gracefully', () => {
     // Mock getElementById to return null
     vi.spyOn(document, 'getElementById').mockReturnValue(null);
-    
+
     // Test that the function would throw an error
     expect(() => {
       const rootElement = document.getElementById('root');
@@ -154,8 +181,10 @@ describe('Main Entry Point', () => {
         },
       },
     };
-    
-    expect(expectedConfig.defaultOptions.queries.refetchOnWindowFocus).toBe(false);
+
+    expect(expectedConfig.defaultOptions.queries.refetchOnWindowFocus).toBe(
+      false
+    );
     expect(expectedConfig.defaultOptions.queries.retry).toBe(1);
   });
 
@@ -165,7 +194,7 @@ describe('Main Entry Point', () => {
       uri: '/api/graphql',
       cache: expect.any(Object),
     };
-    
+
     expect(expectedConfig.uri).toBe('/api/graphql');
     expect(expectedConfig.cache).toBeDefined();
   });
@@ -199,18 +228,22 @@ describe('Main Entry Point', () => {
                 props: {
                   client: expect.any(Object),
                   children: {
-                    type: 'App'
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    type: 'App',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     };
-    
-    expect(expectedStructure.strictMode.props.children.type).toBe('QueryClientProvider');
-    expect(expectedStructure.strictMode.props.children.props.client).toBeDefined();
+
+    expect(expectedStructure.strictMode.props.children.type).toBe(
+      'QueryClientProvider'
+    );
+    expect(
+      expectedStructure.strictMode.props.children.props.client
+    ).toBeDefined();
   });
 
   it('should actually execute main.tsx and create QueryClient', async () => {
@@ -247,7 +280,7 @@ describe('Main Entry Point', () => {
     // Verify createRoot was called with the root element
     expect(document.getElementById).toHaveBeenCalledWith('root');
     expect(mockCreateRoot).toHaveBeenCalledWith(mockRootElement);
-    
+
     // Verify render was called
     expect(mockRender).toHaveBeenCalled();
   });

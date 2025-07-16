@@ -6,7 +6,7 @@ describe('ComparatorRegistry', () => {
     it('should compare dates within tolerance', () => {
       const comparator = ComparatorRegistry.getComparator({
         type: 'date-tolerance',
-        options: { tolerance: 60000 } // 1 minute
+        options: { tolerance: 60000 }, // 1 minute
       });
 
       expect(comparator('2024-01-01T00:00:00Z', '2024-01-01T00:00:30Z')).toBe(true);
@@ -16,7 +16,7 @@ describe('ComparatorRegistry', () => {
     it('should handle different date formats', () => {
       const comparator = ComparatorRegistry.getComparator({
         type: 'date-tolerance',
-        options: { tolerance: 1000 }
+        options: { tolerance: 1000 },
       });
 
       expect(comparator('2024-01-01', '2024-01-01')).toBe(true);
@@ -63,7 +63,7 @@ describe('ComparatorRegistry', () => {
     it('should compare numbers with absolute tolerance', () => {
       const comparator = ComparatorRegistry.getComparator({
         type: 'numeric-tolerance',
-        options: { tolerance: 0.1, relative: false }
+        options: { tolerance: 0.1, relative: false },
       });
 
       expect(comparator(10, 10.05)).toBe(true);
@@ -74,7 +74,7 @@ describe('ComparatorRegistry', () => {
     it('should compare numbers with relative tolerance', () => {
       const comparator = ComparatorRegistry.getComparator({
         type: 'numeric-tolerance',
-        options: { tolerance: 0.1, relative: true } // 10%
+        options: { tolerance: 0.1, relative: true }, // 10%
       });
 
       expect(comparator(100, 105)).toBe(true);
@@ -85,7 +85,7 @@ describe('ComparatorRegistry', () => {
     it('should handle string numbers', () => {
       const comparator = ComparatorRegistry.getComparator({
         type: 'numeric-tolerance',
-        options: { tolerance: 0.01 }
+        options: { tolerance: 0.01 },
       });
 
       expect(comparator('10.0', 10.005)).toBe(true);

@@ -33,7 +33,7 @@ describe('App', () => {
 
   it('should render app with all main components', () => {
     render(<App />);
-    
+
     expect(screen.getByTestId('error-boundary')).toBeInTheDocument();
     expect(screen.getByTestId('dashboard')).toBeInTheDocument();
     expect(screen.getByTestId('toast-container')).toBeInTheDocument();
@@ -41,14 +41,14 @@ describe('App', () => {
 
   it('should wrap components with ApolloProvider', () => {
     render(<App />);
-    
+
     // Should render without Apollo provider errors
     expect(screen.getByTestId('dashboard')).toBeInTheDocument();
   });
 
   it('should have correct app structure', () => {
     const { container } = render(<App />);
-    
+
     const appDiv = container.querySelector('.app');
     expect(appDiv).toBeInTheDocument();
     expect(appDiv).toContainElement(screen.getByTestId('dashboard'));
@@ -56,7 +56,7 @@ describe('App', () => {
 
   it('should include toast container with correct props', () => {
     render(<App />);
-    
+
     const toastContainer = screen.getByTestId('toast-container');
     expect(toastContainer).toBeInTheDocument();
   });

@@ -4,9 +4,8 @@ import * as path from 'path';
 import { promises as fs } from 'fs';
 // Mock modules
 vi.mock('util', () => ({
-  promisify: vi.fn(() => mockExecAsync)
-}))
-
+  promisify: vi.fn(() => mockExecAsync),
+}));
 
 // Use vi.hoisted to ensure mocks are set up before imports
 const { mockExecAsync } = vi.hoisted(() => {
@@ -15,8 +14,6 @@ const { mockExecAsync } = vi.hoisted(() => {
 });
 
 // Mock modules at the module level
-;
-
 vi.mock('../../utils/logger');
 
 describe('GitHubService', () => {
@@ -39,7 +36,7 @@ describe('GitHubService', () => {
       info: vi.fn(),
       error: vi.fn(),
       debug: vi.fn(),
-      warn: vi.fn()
+      warn: vi.fn(),
     };
     vi.mocked(loggerModule).logger = mockLogger as any;
 
@@ -129,13 +126,18 @@ describe('GitHubService', () => {
 
       const result = await service.createFeatureBranch('feature-branch');
       expect(result).toBe('feature-branch');
-      expect(mockExecAsync).toHaveBeenCalledWith('git checkout -b feature-branch', expect.any(Object));
+      expect(mockExecAsync).toHaveBeenCalledWith(
+        'git checkout -b feature-branch',
+        expect.any(Object),
+      );
     });
 
     it('should throw error if not a git repository', async () => {
       mockExecAsync.mockRejectedValueOnce(new Error('Not a git repository'));
 
-      await expect(service.createFeatureBranch('feature-branch')).rejects.toThrow('Not a git repository');
+      await expect(service.createFeatureBranch('feature-branch')).rejects.toThrow(
+        'Not a git repository',
+      );
     });
 
     it('should throw error if there are uncommitted changes', async () => {
@@ -144,7 +146,9 @@ describe('GitHubService', () => {
         .mockResolvedValueOnce({ stdout: 'main\n', stderr: '' }) // git branch --show-current
         .mockResolvedValueOnce({ stdout: 'M  src/file.ts', stderr: '' }); // git status --porcelain
 
-      await expect(service.createFeatureBranch('feature-branch')).rejects.toThrow('Uncommitted changes detected');
+      await expect(service.createFeatureBranch('feature-branch')).rejects.toThrow(
+        'Uncommitted changes detected',
+      );
     });
   });
 
@@ -167,7 +171,9 @@ describe('GitHubService', () => {
     it('should throw error if staging fails', async () => {
       mockExecAsync.mockRejectedValueOnce(new Error('Failed to stage'));
 
-      await expect(service.stageFiles(['file.ts'])).rejects.toThrow('Failed to stage file: file.ts');
+      await expect(service.stageFiles(['file.ts'])).rejects.toThrow(
+        'Failed to stage file: file.ts',
+      );
     });
   });
 
@@ -179,7 +185,7 @@ describe('GitHubService', () => {
       expect(hash).toBe('abc123');
       expect(mockExecAsync).toHaveBeenCalledWith(
         expect.stringContaining('git commit -m'),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -209,7 +215,10 @@ describe('GitHubService', () => {
 
       await service.pushToRemote();
 
-      expect(mockExecAsync).toHaveBeenLastCalledWith('git push -u origin feature-branch', expect.any(Object));
+      expect(mockExecAsync).toHaveBeenLastCalledWith(
+        'git push -u origin feature-branch',
+        expect.any(Object),
+      );
     });
 
     it('should handle upstream branch setup', async () => {
@@ -221,7 +230,7 @@ describe('GitHubService', () => {
 
       expect(mockExecAsync).toHaveBeenLastCalledWith(
         expect.stringContaining('--set-upstream origin'),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
   });
@@ -234,7 +243,7 @@ describe('GitHubService', () => {
         transformedQueries: 20,
         deprecationsFixed: 15,
         filesModified: ['src/file1.ts', 'src/file2.ts'],
-        validationPassed: true
+        validationPassed: true,
       };
 
       const body = service.generatePRBody(summary);
@@ -254,7 +263,7 @@ describe('GitHubService', () => {
         transformedQueries: 8,
         deprecationsFixed: 6,
         filesModified: [],
-        validationPassed: false
+        validationPassed: false,
       };
 
       const body = service.generatePRBody(summary);
@@ -287,14 +296,14 @@ describe('GitHubService', () => {
             title: 'Test PR',
             body: 'Test body',
             baseRefName: 'main',
-            headRefName: 'feature-branch'
+            headRefName: 'feature-branch',
           }),
-          stderr: ''
+          stderr: '',
         });
 
       const pr = await service.createPR({
         title: 'Test PR',
-        body: 'Test body'
+        body: 'Test body',
       });
 
       expect(pr.number).toBe(123);
@@ -303,7 +312,7 @@ describe('GitHubService', () => {
 
       expect(mockExecAsync).toHaveBeenCalledWith(
         expect.stringContaining('gh pr create'),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -321,9 +330,9 @@ describe('GitHubService', () => {
             title: 'Test',
             body: 'Body',
             baseRefName: 'develop',
-            headRefName: 'feature'
+            headRefName: 'feature',
           }),
-          stderr: ''
+          stderr: '',
         });
 
       await service.createPR({
@@ -333,7 +342,7 @@ describe('GitHubService', () => {
         draft: true,
         labels: ['bug', 'enhancement'],
         assignees: ['user1', 'user2'],
-        reviewers: ['reviewer1']
+        reviewers: ['reviewer1'],
       });
 
       // Check the second call which should be the PR creation
@@ -351,10 +360,12 @@ describe('GitHubService', () => {
     it('should throw error if not authenticated', async () => {
       mockExecAsync.mockRejectedValueOnce(new Error('Not authenticated'));
 
-      await expect(service.createPR({
-        title: 'Test',
-        body: 'Body'
-      })).rejects.toThrow('GitHub CLI not authenticated');
+      await expect(
+        service.createPR({
+          title: 'Test',
+          body: 'Body',
+        }),
+      ).rejects.toThrow('GitHub CLI not authenticated');
     });
   });
 });

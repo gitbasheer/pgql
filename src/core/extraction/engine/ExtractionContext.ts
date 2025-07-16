@@ -28,7 +28,7 @@ export class ExtractionContext {
       totalVariants: 0,
       totalFragments: 0,
       totalErrors: 0,
-      strategy: options.strategies?.[0] || 'hybrid'
+      strategy: options.strategies?.[0] || 'hybrid',
     };
     this.queryNamingService = queryNamingService || new QueryNamingService();
     this.startTime = Date.now();
@@ -54,7 +54,7 @@ export class ExtractionContext {
       cache: options.cache ?? true,
       parallel: options.parallel ?? true,
       maxConcurrency: options.maxConcurrency || 4,
-      enableIncrementalExtraction: options.enableIncrementalExtraction ?? false
+      enableIncrementalExtraction: options.enableIncrementalExtraction ?? false,
     };
   }
 
@@ -66,7 +66,7 @@ export class ExtractionContext {
   }
 
   incrementStat(key: keyof ExtractionStats, value: number = 1): void {
-    const current = this.stats[key] as number || 0;
+    const current = (this.stats[key] as number) || 0;
     (this.stats as any)[key] = current + value;
   }
 
@@ -84,7 +84,7 @@ export class ExtractionContext {
     this.cache.set(this.getCacheKey(type, key), value);
   }
 
-    /**
+  /**
    * Get the query naming service for pattern-based operations
    */
   getQueryNamingService(): QueryNamingService {
@@ -112,7 +112,7 @@ export class ExtractionContext {
   finalizeStats(): ExtractionStats {
     return {
       ...this.stats,
-      duration: Date.now() - this.startTime
+      duration: Date.now() - this.startTime,
     } as ExtractionStats;
   }
 }

@@ -93,6 +93,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-Upgrade-GetSEO-2LAl6Jf6~
 - Task-Upgrade-RemoveAds-ZsVan1Rs~
 
@@ -107,6 +108,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddFBBookNowOLA-ylid4ZUsF
 
 ---
@@ -120,6 +122,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-Add-Your-Business-Info-6txejSc1E
 
 ---
@@ -133,6 +136,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-ConnectGoogleChannel-Srmwrh1J~
 
 ---
@@ -146,6 +150,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-ReadFBPractices-lhTLuFAXD
 
 ---
@@ -159,6 +164,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - Guidance-C19EmailMarketing-uUD7sJSSw
 
 ---
@@ -172,6 +178,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - SetupO365-9S2CsmNNg
 
 ---
@@ -185,6 +192,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - SetupO365-9S2CsmNNg
 
 ---
@@ -198,6 +206,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - SetupO365-9S2CsmNNg
 
 ---
@@ -211,6 +220,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - SetupO365-9S2CsmNNg
 
 ---
@@ -224,6 +234,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - SetupO365-9S2CsmNNg
 
 ---
@@ -259,7 +270,8 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
-- Task-AbandonedCartOn-UdVHbmFQ_
+
+- Task-AbandonedCartOn-UdVHbmFQ\_
 - Task-Add10MoreProducts-LHwR9aqcU
 - Task-AddMoreProducts-wLwoZl_J6
 - Task-SetupOLS-K4Ke0BhVr
@@ -275,6 +287,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-ReadBlogging-uQzCHoLKn
 - Task-WriteAnotherBlog-GrO7TMHpK
 
@@ -289,6 +302,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddMoreServicesOLA-ggonWjB4r
 - Task-WriteAnotherBlog-GrO7TMHpK
 
@@ -303,6 +317,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddFBBookNowOLA-ylid4ZUsF
 
 ---
@@ -316,6 +331,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-GoDaddyConversations-LoeR11kT~
 
 ---
@@ -329,6 +345,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-GoDaddyConversations-LoeR11kT~
 
 ---
@@ -342,6 +359,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-HolidayTips-T1iPmqWfx
 
 ---
@@ -355,6 +373,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-DIFY-Tier0RAC-8OkZvUlrI
 
 ---
@@ -368,6 +387,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - Task-ConnectInstagram-OJFRzVo1V
 
 ---
@@ -403,6 +423,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - Guidance-C19EmailMarketing-uUD7sJSSw
 - Guidance-DmFull-Social-1-h7zbOhdMB
 - Guidance-DmFull-SocialEmail-1-GmfspIsuO
@@ -420,9 +441,10 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst, wsbvnext
 
 **Used in:**
+
 - Task-AddPhotoGallery-n61NU0wb7
 - Task-AddWidgetSocialLink-4CAcVnOxs
-- Task-CreateFacebook-lJxPzgZ0_
+- Task-CreateFacebook-lJxPzgZ0\_
 - Task-DIYSocialAds-2Rz6HLNBa
 - Task-FacebookAds-Direct-skYt7juRJ
 
@@ -437,6 +459,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst, wsbvnext
 
 **Used in:**
+
 - Task-AddPhotoGallery-n61NU0wb7
 - Task-AddWidgetSocialLink-4CAcVnOxs
 - Task-PostOLSProductGMB-Composer-WX9wdWSpf
@@ -453,6 +476,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst, wsbvnext
 
 **Used in:**
+
 - Task-AddPhotoGallery-n61NU0wb7
 - Task-AddWidgetSocialLink-4CAcVnOxs
 - Task-UploadYelpPhotos-Mnf6UqWHp
@@ -468,6 +492,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-CreateYelp-GA_Og2~US
 - Task-LaunchYelpAd-ttZI44tTV
 
@@ -482,6 +507,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-DoPostToFacebook-Holiday-0Saq7QDFp
 - Task-PostOLSProductFB-Composer-2hJM7wm~n
 
@@ -496,6 +522,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-BoostFacebookPost-PLnyt8eLO
 - Task-DIYSocialAds-2Rz6HLNBa
 
@@ -510,6 +537,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - Task-UpdateHours-5TBU5si9t
 - Task-UploadSocialPhotosV2-nKEwhEHr5
 
@@ -524,6 +552,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - Task-UpdateHours-5TBU5si9t
 - Task-UploadSocialPhotosV2-nKEwhEHr5
 
@@ -538,6 +567,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - Task-UpdateHours-5TBU5si9t
 - Task-UploadSocialPhotosV2-nKEwhEHr5
 
@@ -552,6 +582,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown, wsbvnext
 
 **Used in:**
+
 - Guidance-GetNoticedLocal-1-QqudDQntn
 - Task-DIFY-Tier0RAC-8OkZvUlrI
 
@@ -566,6 +597,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown, wsbvnext
 
 **Used in:**
+
 - Task-ConnectInstagram-OJFRzVo1V
 - Task-DIFY-Tier0RAC-8OkZvUlrI
 
@@ -580,6 +612,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddLogo-6pWJNvpKc
 
 ---
@@ -593,6 +626,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-CreateGMB-rVIKdnkfH
 
 ---
@@ -606,6 +640,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-CreateGMB-rVIKdnkfH
 
 ---
@@ -619,6 +654,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-CreateGMB-rVIKdnkfH
 
 ---
@@ -632,6 +668,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddCustomDomain-wMt3BHgAV
 
 ---
@@ -645,6 +682,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-ProductReviewsOn-JvWllTdA4
 
 ---
@@ -658,6 +696,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - Task-UploadSocialPhotosV2-nKEwhEHr5
 
 ---
@@ -671,6 +710,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** uce
 
 **Used in:**
+
 - Task-SellInPerson-pl9N8kzKb
 
 ---
@@ -684,7 +724,8 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
-- Task-AbandonedCartOn-UdVHbmFQ_
+
+- Task-AbandonedCartOn-UdVHbmFQ\_
 
 ---
 
@@ -697,6 +738,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-UploadGMBPhotos-1n8hDk6g7
 
 ---
@@ -710,6 +752,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - Task-ConnectInstagram-OJFRzVo1V
 
 ---
@@ -723,6 +766,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-PostOLSProductGMB-Composer-WX9wdWSpf
 
 ---
@@ -736,6 +780,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-PostOLSProductGMB-Composer-WX9wdWSpf
 
 ---
@@ -749,6 +794,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - SetupO365-9S2CsmNNg
 
 ---
@@ -774,6 +820,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-Upgrade-GetSEO-2LAl6Jf6~
 - Task-Upgrade-RemoveAds-ZsVan1Rs~
 
@@ -788,6 +835,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-Upgrade-GetSEO-2LAl6Jf6~
 - Task-Upgrade-RemoveAds-ZsVan1Rs~
 
@@ -802,6 +850,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-SetupOLAPaymentsV2-jc8Qp_Caw
 
 ---
@@ -815,6 +864,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-SetupOLSPayment-Yra6mJk4y
 
 ---
@@ -828,6 +878,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-SetupOLSPayment-Yra6mJk4y
 
 ---
@@ -853,6 +904,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-Add10MoreProducts-LHwR9aqcU
 - Task-AddMoreProducts-wLwoZl_J6
 - Task-AddProducts-cNIUx3M29
@@ -869,6 +921,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddMarketplaceProducts-28gG3LLu5
 - Task-AddMarketplaces-ooFFpJyQH
 - Task-ConnectGoogleChannel-Srmwrh1J~
@@ -884,6 +937,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddMoreProducts-wLwoZl_J6
 - Task-SetupOLS-K4Ke0BhVr
 
@@ -898,6 +952,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddMarketplaceProducts-28gG3LLu5
 - Task-AddMarketplaces-ooFFpJyQH
 
@@ -912,6 +967,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddMoreProducts-wLwoZl_J6
 
 ---
@@ -925,6 +981,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-SetupOLSShipping-qsUxHaA42
 
 ---
@@ -960,6 +1017,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-OLACalendarSyncV2-16YkByamt
 - Task-SetupOLANotifications-zen_KPiqs
 
@@ -974,6 +1032,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-SetupOLANotifications-zen_KPiqs
 
 ---
@@ -989,6 +1048,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst, wsbvnext
 
 **Used in:**
+
 - Task-BoostFacebookPost-PLnyt8eLO
 - Task-DoPostToFacebook-Composer-6vaOpXKQY
 - Task-DoPostToFacebook-Holiday-0Saq7QDFp
@@ -1006,6 +1066,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst, wsbvnext
 
 **Used in:**
+
 - Task-DoPostToFacebook-Composer-6vaOpXKQY
 - Task-PromoteAppointmentService-EBVqroHvQ
 
@@ -1020,6 +1081,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddFBBookNowOLA-ylid4ZUsF
 
 ---
@@ -1097,6 +1159,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddGEMSubscribers-gHLTYfjQb
 - Task-DoEmailGEMCampaign-WJmqcTWuG
 - Task-EmailSubscriberWebformC19-ZmFDG9FcG
@@ -1114,6 +1177,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-DoFirstBlog-I0rcrov4y
 - Task-ReadBlogging-uQzCHoLKn
 - Task-SetupOLS-K4Ke0BhVr
@@ -1130,6 +1194,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-DoEmailGEMCampaign-WJmqcTWuG
 - Task-DoFirstBlog-I0rcrov4y
 - Task-EmailSubscriberWebformC19-ZmFDG9FcG
@@ -1146,6 +1211,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-DoEmailGEMCampaign-WJmqcTWuG
 - Task-EmailSubscriberWebformC19-ZmFDG9FcG
 - Task-FirstEmailCampaignC19-nrezDgjU~
@@ -1161,6 +1227,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddGEMSubscribers-gHLTYfjQb
 - Task-ImportSubscribersC19-zmAmJk57a
 
@@ -1175,6 +1242,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-DoStartSEO-JjpaiNG8e
 - Task-OptimizeSEOKeywords-6Rzv6USG0
 
@@ -1189,6 +1257,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-DoStartSEO-JjpaiNG8e
 - Task-OptimizeSEOKeywords-6Rzv6USG0
 
@@ -1203,6 +1272,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-CreateYelp-GA_Og2~US
 - Task-LaunchYelpAd-ttZI44tTV
 
@@ -1217,6 +1287,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-PublishWebsiteV2-v_r5yAuLN
 - Task-RemovePlaceHolderText-K_QK3NSYl
 
@@ -1231,6 +1302,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddBlog-D8U9r02OD
 
 ---
@@ -1244,6 +1316,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-GoDaddyConversations-LoeR11kT~
 
 ---
@@ -1257,6 +1330,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-CreateGMB-rVIKdnkfH
 
 ---
@@ -1270,6 +1344,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddCustomDomain-wMt3BHgAV
 
 ---
@@ -1283,6 +1358,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-AddImportContacts-jfCpiF5eE
 
 ---
@@ -1296,6 +1372,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - Task-SellInPerson-pl9N8kzKb
 
 ---
@@ -1309,6 +1386,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** wsbvnext
 
 **Used in:**
+
 - Task-PublishWebsiteV2-v_r5yAuLN
 
 ---
@@ -1322,6 +1400,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-UploadGMBPhotos-1n8hDk6g7
 
 ---
@@ -1335,7 +1414,8 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
-- Task-CreateFacebook-lJxPzgZ0_
+
+- Task-CreateFacebook-lJxPzgZ0\_
 
 ---
 
@@ -1348,6 +1428,7 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** mktgasst
 
 **Used in:**
+
 - Task-FacebookAds-Direct-skYt7juRJ
 
 ---
@@ -1361,10 +1442,10 @@ This dictionary documents all data fields used by RAD synthesizers.
 **Entity Types:** unknown
 
 **Used in:**
+
 - SetupO365-9S2CsmNNg
 
 ---
-
 
 # Synthesizer Data Requirements
 
@@ -1378,7 +1459,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `email.subscriberCount`
 - `entitlementData`
@@ -1392,7 +1474,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `billing.commitment`
 - `commerce.productCount`
@@ -1410,7 +1493,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `appointments.serviceCount`
 - `entitlementData`
@@ -1427,7 +1511,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `blog`
 - `entitlements.current.blog`
@@ -1442,7 +1527,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `features.published`
 - `features.widgets`
@@ -1456,7 +1542,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `features.userAddedLogo`
 - `websiteType`
@@ -1469,7 +1556,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `commerce.productCount`
 - `customerIntentions`
@@ -1486,7 +1574,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `id`
 
@@ -1498,7 +1587,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `account.paymentStatus`
 - `accountId`
 - `billing.commitment`
@@ -1513,14 +1603,15 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*mktgasst:*
+_mktgasst:_
+
 - `accountId`
 - `features.yelp.hasYelpPublished`
 - `id`
 
 ---
 
-*... and 66 more synthesizers with this pattern*
+_... and 66 more synthesizers with this pattern_
 
 ## Entity Join Query
 
@@ -1530,11 +1621,13 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*mktgasst:*
+_mktgasst:_
+
 - `id`
 - `type`
 
-*unknown:*
+_unknown:_
+
 - `mktgasst.id`
 - `mktgasst.type`
 - `wsbvnext.accountId`
@@ -1542,7 +1635,8 @@ This section shows exactly what data each synthesizer requires.
 - `wsbvnext.id`
 - `wsbvnext.type`
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `type`
 
@@ -1554,11 +1648,13 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*mktgasst:*
+_mktgasst:_
+
 - `id`
 - `type`
 
-*unknown:*
+_unknown:_
+
 - `mktgasst.id`
 - `mktgasst.type`
 - `wsbvnext.accountId`
@@ -1566,7 +1662,8 @@ This section shows exactly what data each synthesizer requires.
 - `wsbvnext.id`
 - `wsbvnext.type`
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `type`
 
@@ -1578,11 +1675,13 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*mktgasst:*
+_mktgasst:_
+
 - `id`
 - `type`
 
-*unknown:*
+_unknown:_
+
 - `mktgasst.id`
 - `mktgasst.type`
 - `wsbvnext.accountId`
@@ -1590,7 +1689,8 @@ This section shows exactly what data each synthesizer requires.
 - `wsbvnext.id`
 - `wsbvnext.type`
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `type`
 
@@ -1602,18 +1702,21 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*mktgasst:*
+_mktgasst:_
+
 - `id`
 - `type`
 
-*unknown:*
+_unknown:_
+
 - `wsbvnext.accountId`
 - `wsbvnext.customerIntentions`
 - `wsbvnext.features`
 - `wsbvnext.id`
 - `wsbvnext.type`
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `type`
 
@@ -1625,7 +1728,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*mktgasst:*
+_mktgasst:_
+
 - `accountId`
 - `entitlementData`
 - `features.gmb.hasGMBOnlineBusiness`
@@ -1647,7 +1751,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*mktgasst:*
+_mktgasst:_
+
 - `accountId`
 - `entitlementData`
 - `features.planType`
@@ -1666,11 +1771,13 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*mktgasst:*
+_mktgasst:_
+
 - `id`
 - `type`
 
-*unknown:*
+_unknown:_
+
 - `mktgasst.id`
 - `mktgasst.type`
 - `wsbvnext.accountId`
@@ -1678,7 +1785,8 @@ This section shows exactly what data each synthesizer requires.
 - `wsbvnext.id`
 - `wsbvnext.type`
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `type`
 
@@ -1690,7 +1798,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*mktgasst:*
+_mktgasst:_
+
 - `accountId`
 - `entitlements.current`
 - `features.businessCategoryGroup`
@@ -1707,7 +1816,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*mktgasst:*
+_mktgasst:_
+
 - `accountId`
 - `entitlements.current`
 - `features.businessCategory`
@@ -1723,11 +1833,13 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*mktgasst:*
+_mktgasst:_
+
 - `id`
 - `type`
 
-*unknown:*
+_unknown:_
+
 - `mktgasst.features.facebook.isConnected`
 - `mktgasst.features.gmb.hasGMBPublished`
 - `mktgasst.features.yelp.hasYelpPublished`
@@ -1736,13 +1848,14 @@ This section shows exactly what data each synthesizer requires.
 - `wsbvnext.id`
 - `wsbvnext.type`
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `accountId`
 - `type`
 
 ---
 
-*... and 24 more synthesizers with this pattern*
+_... and 24 more synthesizers with this pattern_
 
 ## Static/Empty Return
 
@@ -1752,7 +1865,8 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*wsbvnext:*
+_wsbvnext:_
+
 - `account.paymentStatus`
 - `accountId`
 - `billing.autoRenew`
@@ -1769,38 +1883,33 @@ This section shows exactly what data each synthesizer requires.
 
 **Required Fields:**
 
-*unknown:*
+_unknown:_
+
 - `features.widgets`
 
 ---
 
 ### Task-DoEmailGEMCampaign-Social-Tile-R9MtcarCi
 
-
 ---
 
 ### Task-DoPostToFacebook-Holiday-Sales-Tile-VUO1ImXfw
-
 
 ---
 
 ### Task-WaysToSell-VTk695TTb
 
-
 ---
 
 ### Task-DoEmailGEMCampaign-Sales-Tile-qdWVe5QuU
-
 
 ---
 
 ### Task-AddMarketplaceProducts-Orders-Tile-zaOMcPW9~
 
-
 ---
 
 ### SetupO365-Orders-Tile-dO765dxiP
-
 
 ---
 
@@ -1808,13 +1917,10 @@ This section shows exactly what data each synthesizer requires.
 
 **Entity Types:** wsbvnext, uce
 
-
 ---
 
 ### Task-DoPostToFacebook-Composer-Sales-Tile-9GxHrujAX
 
-
 ---
 
-*... and 24 more synthesizers with this pattern*
-
+_... and 24 more synthesizers with this pattern_

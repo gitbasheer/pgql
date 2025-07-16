@@ -30,7 +30,7 @@ async function simpleExample() {
       }
     }
   `;
-  
+
   const customResult = await api.rawQuery(customQuery, { ventureId });
   console.log('Custom result:', customResult);
 }
@@ -39,7 +39,7 @@ async function simpleExample() {
 async function advancedExample() {
   const client = new GraphQLClient({
     cookieString: process.env.GODADDY_COOKIES,
-    baselineDir: './my-baselines'
+    baselineDir: './my-baselines',
   });
 
   // Execute query and save baseline
@@ -58,11 +58,11 @@ async function advancedExample() {
   `;
 
   const result = await client.query(query, {}, true); // true = save baseline
-  
+
   // Later, compare with baseline
   const newResult = await client.query(query, {}, false); // false = don't save
   const comparison = await client.compareWithBaseline(query, {}, newResult);
-  
+
   if (!comparison.matches) {
     console.log('Data has changed!', comparison.differences);
   }
@@ -120,7 +120,7 @@ async function curlExample() {
         __typename
       }
     }`,
-    {}
+    {},
   );
 
   console.log('Response:', response);

@@ -48,7 +48,7 @@ export class QueryNamingService {
    * Process multiple queries efficiently
    */
   processQueries(queries: ExtractedQuery[]): PatternExtractedQuery[] {
-    return queries.map(query => this.processQuery(query));
+    return queries.map((query) => this.processQuery(query));
   }
 
   /**
@@ -62,9 +62,9 @@ export class QueryNamingService {
    * Get migration recommendations - replaces old migration logic
    */
   getMigrationRecommendations(queries: PatternExtractedQuery[]) {
-    return queries.map(query => ({
+    return queries.map((query) => ({
       query,
-      recommendations: this.patternService.getMigrationRecommendations(query)
+      recommendations: this.patternService.getMigrationRecommendations(query),
     }));
   }
 

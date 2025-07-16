@@ -9,7 +9,7 @@ import {
   TransformedResponses,
   ResponseMetadata,
   VariableGenerator,
-  AuthConfig
+  AuthConfig,
 } from './types.js';
 import { ResolvedQuery } from '../extraction/types/query.types.js';
 import { VariableGeneratorImpl } from './VariableGenerator.js';
@@ -26,7 +26,7 @@ export class ResponseCaptureService {
       maxConcurrency?: number;
       timeout?: number;
       variableGeneration?: 'auto' | 'manual' | 'examples';
-    } = {}
+    } = {},
   ) {
     this.variableGenerator = new VariableGeneratorImpl();
     this.concurrencyLimit = pLimit(options.maxConcurrency || 10);
@@ -48,8 +48,8 @@ export class ResponseCaptureService {
           'Content-Type': 'application/json',
           'x-app-key': 'vnext-dashboard',
           ...endpoint.headers,
-          ...this.getAuthHeaders(endpoint.authentication)
-        }
+          ...this.getAuthHeaders(endpoint.authentication),
+        },
       };
 
       // Handle cookie authentication
@@ -65,19 +65,19 @@ export class ResponseCaptureService {
       // Handle SSO authentication - get real cookies from SSO service
       if (endpoint.authentication?.type === 'sso') {
         logger.info(`SSO authentication configured for ${endpoint.url}`);
-        
+
         try {
           // Import AuthHelper dynamically to avoid circular dependency
           const { AuthHelper } = await import('./AuthHelper.js');
-          
+
           // Get SSO tokens using credentials from env
           const ssoTokens = await AuthHelper.getSSOTokens();
-          
+
           const cookieString = AuthHelper.formatCookies(ssoTokens);
-          
+
           axiosConfig.headers['Cookie'] = cookieString;
           axiosConfig.withCredentials = true;
-          
+
           logger.info('Successfully configured SSO authentication');
         } catch (error) {
           logger.error('Failed to get SSO tokens:', error);
@@ -89,11 +89,11 @@ export class ResponseCaptureService {
 
       // Add response interceptor for error handling
       client.interceptors.response.use(
-        response => response,
-        async error => {
+        (response) => response,
+        async (error) => {
           logger.error(`Request failed for ${endpoint.url}:`, error.message);
           throw error;
-        }
+        },
       );
 
       this.clients.set(endpoint.url, client);
@@ -109,7 +109,9 @@ export class ResponseCaptureService {
         const token = auth.token || process.env.APOLLO_AUTH_TOKEN;
         if (!token) {
           logger.warn('No bearer token configured, using test token');
-          return { Authorization: `Bearer ${process.env.APOLLO_AUTH_TOKEN || 'test_apollo_token'}` };
+          return {
+            Authorization: `Bearer ${process.env.APOLLO_AUTH_TOKEN || 'test_apollo_token'}`,
+          };
         }
         return { Authorization: `Bearer ${token}` };
       case 'api-key':
@@ -130,11 +132,11 @@ export class ResponseCaptureService {
 
   async captureBaseline(
     queries: ResolvedQuery[],
-    endpoint?: EndpointConfig
+    endpoint?: EndpointConfig,
   ): Promise<BaselineResponses> {
     // Ensure clients are initialized
     await this.ensureClientsInitialized();
-    
+
     const targetEndpoint = endpoint || this.endpoints[0];
     logger.info(`Capturing baseline responses from ${targetEndpoint.url}`);
 
@@ -142,21 +144,17 @@ export class ResponseCaptureService {
     const errors: Array<{ query: ResolvedQuery; error: Error }> = [];
 
     // Process queries with concurrency control
-    const capturePromises = queries.map(query =>
+    const capturePromises = queries.map((query) =>
       this.concurrencyLimit(async () => {
         try {
-          const captured = await this.captureQueryResponse(
-            query,
-            targetEndpoint,
-            'baseline'
-          );
+          const captured = await this.captureQueryResponse(query, targetEndpoint, 'baseline');
           responses.set(query.id, captured);
         } catch (error) {
           errors.push({ query, error: error as Error });
           logger.error(`Failed to capture baseline for ${query.id}:`, error);
           // Don't store failed captures in responses map
         }
-      })
+      }),
     );
 
     await Promise.all(capturePromises);
@@ -170,28 +168,28 @@ export class ResponseCaptureService {
         totalQueries: queries.length,
         successCount: responses.size,
         errorCount: errors.length,
-        endpoint: targetEndpoint
-      }
+        endpoint: targetEndpoint,
+      },
     };
   }
 
   async captureTransformed(
     queries: ResolvedQuery[],
     endpoint?: EndpointConfig,
-    transformationVersion?: string
+    transformationVersion?: string,
   ): Promise<TransformedResponses> {
     const baselineResponses = await this.captureBaseline(queries, endpoint);
 
     return {
       ...baselineResponses,
-      transformationVersion: transformationVersion || 'latest'
+      transformationVersion: transformationVersion || 'latest',
     };
   }
 
   private async captureQueryResponse(
     query: ResolvedQuery,
     endpoint: EndpointConfig,
-    version: 'baseline' | 'transformed'
+    version: 'baseline' | 'transformed',
   ): Promise<CapturedResponse> {
     const client = this.clients.get(endpoint.url);
     if (!client) {
@@ -211,11 +209,12 @@ export class ResponseCaptureService {
       response = await pRetry(
         async () => {
           // Use resolvedContent which is the GraphQL query string, or generate from AST
-          const queryString = query.resolvedContent || (query.ast ? print(query.ast) : query.content);
+          const queryString =
+            query.resolvedContent || (query.ast ? print(query.ast) : query.content);
           const result = await client.post('', {
             query: queryString,
             operationName: query.name,
-            variables: variables[0] || {} // Use first set of variables
+            variables: variables[0] || {}, // Use first set of variables
           });
 
           statusCode = result.status;
@@ -227,25 +226,25 @@ export class ResponseCaptureService {
           minTimeout: endpoint.retryPolicy?.initialDelay || 1000,
           maxTimeout: endpoint.retryPolicy?.maxDelay || 30000,
           factor: endpoint.retryPolicy?.backoffMultiplier || 2,
-          onFailedAttempt: error => {
-            logger.warn(
-              `Attempt ${error.attemptNumber} failed for ${query.id}: ${error.message}`
-            );
-          }
-        }
+          onFailedAttempt: (error) => {
+            logger.warn(`Attempt ${error.attemptNumber} failed for ${query.id}: ${error.message}`);
+          },
+        },
       );
     } catch (error) {
       // Even on error, we want to capture the response
       if (axios.isAxiosError(error)) {
         const axiosError = error as AxiosError;
         response = {
-          errors: [{
-            message: error.message,
-            extensions: {
-              code: error.code,
-              response: axiosError.response?.data
-            }
-          }]
+          errors: [
+            {
+              message: error.message,
+              extensions: {
+                code: error.code,
+                response: axiosError.response?.data,
+              },
+            },
+          ],
         };
         statusCode = axiosError.response?.status || 0;
         responseHeaders = (axiosError.response?.headers as Record<string, string>) || {};
@@ -268,10 +267,10 @@ export class ResponseCaptureService {
         headers: responseHeaders,
         size: responseSize,
         endpoint: endpoint.url,
-        environment: endpoint.environment || 'production'
+        environment: endpoint.environment || 'production',
       },
       timestamp: new Date(),
-      version
+      version,
     };
   }
 
@@ -279,10 +278,13 @@ export class ResponseCaptureService {
     if (this.options.variableGeneration === 'manual') {
       // Use existing variables if any - convert from QueryVariable[] to object
       if (query.variables && query.variables.length > 0) {
-        const varsObject = query.variables.reduce((acc, v) => {
-          acc[v.name] = v.defaultValue;
-          return acc;
-        }, {} as Record<string, any>);
+        const varsObject = query.variables.reduce(
+          (acc, v) => {
+            acc[v.name] = v.defaultValue;
+            return acc;
+          },
+          {} as Record<string, any>,
+        );
         return [varsObject];
       }
       return [{}];
@@ -306,7 +308,7 @@ export class ResponseCaptureService {
   async captureWithVariableSets(
     query: ResolvedQuery,
     variableSets: Record<string, any>[],
-    endpoint?: EndpointConfig
+    endpoint?: EndpointConfig,
   ): Promise<CapturedResponse[]> {
     const targetEndpoint = endpoint || this.endpoints[0];
     const responses: CapturedResponse[] = [];
@@ -314,11 +316,7 @@ export class ResponseCaptureService {
     for (const variables of variableSets) {
       // We need to pass variables differently since ResolvedQuery expects QueryVariable[]
       // Create a modified query object with the variables for this iteration
-      const response = await this.captureQueryResponse(
-        query,
-        targetEndpoint,
-        'baseline'
-      );
+      const response = await this.captureQueryResponse(query, targetEndpoint, 'baseline');
       responses.push(response);
     }
 
@@ -329,7 +327,7 @@ export class ResponseCaptureService {
   async captureSubscription(
     query: ResolvedQuery,
     endpoint: EndpointConfig,
-    duration: number = 5000
+    duration: number = 5000,
   ): Promise<CapturedResponse[]> {
     // For now, we'll implement a basic subscription capture
     // In production, this would use WebSocket or SSE
@@ -342,7 +340,7 @@ export class ResponseCaptureService {
   // Support for batched queries
   async captureBatch(
     queries: ResolvedQuery[],
-    endpoint?: EndpointConfig
+    endpoint?: EndpointConfig,
   ): Promise<CapturedResponse> {
     const targetEndpoint = endpoint || this.endpoints[0];
     const client = this.clients.get(targetEndpoint.url);
@@ -351,10 +349,10 @@ export class ResponseCaptureService {
       throw new Error(`No client configured for endpoint: ${targetEndpoint.url}`);
     }
 
-    const batchedQuery = queries.map(q => ({
+    const batchedQuery = queries.map((q) => ({
       query: q.resolvedContent || (q.ast ? print(q.ast) : q.content),
       operationName: q.name,
-      variables: {} // Convert QueryVariable[] to object if needed
+      variables: {}, // Convert QueryVariable[] to object if needed
     }));
 
     const startTime = Date.now();
@@ -372,10 +370,10 @@ export class ResponseCaptureService {
         headers: response.headers as Record<string, string>,
         size: JSON.stringify(response.data).length,
         endpoint: targetEndpoint.url,
-        environment: targetEndpoint.environment || 'production'
+        environment: targetEndpoint.environment || 'production',
       },
       timestamp: new Date(),
-      version: 'baseline'
+      version: 'baseline',
     };
   }
 

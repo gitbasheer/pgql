@@ -60,55 +60,70 @@ describe('Error Handling', () => {
 
   it('should show error toast when invalid repo path is provided', async () => {
     const user = userEvent.setup();
-    
+
     // Mock API to return error for invalid path
     (global.fetch as any).mockResolvedValueOnce({
       ok: false,
-      json: async () => ({ 
-        message: 'Invalid repository path: Path does not exist or is not accessible' 
+      json: async () => ({
+        message:
+          'Invalid repository path: Path does not exist or is not accessible',
       }),
     });
-    
+
     renderDashboard();
-    
+
     // Fill in form with invalid path
-    await user.type(screen.getByLabelText('Repository Path/URL *'), '/invalid/path');
-    await user.type(screen.getByLabelText('Schema Endpoint *'), 'https://api.test.com/graphql');
-    
+    await user.type(
+      screen.getByLabelText('Repository Path/URL *'),
+      '/invalid/path'
+    );
+    await user.type(
+      screen.getByLabelText('Schema Endpoint *'),
+      'https://api.test.com/graphql'
+    );
+
     // Submit form
     await user.click(screen.getByRole('button', { name: 'Start Pipeline' }));
-    
+
     // Wait for error toast (updated message for extraction endpoint)
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
         'Failed to start extraction: Invalid repository path: Path does not exist or is not accessible'
       );
     });
-    
+
     // Ensure no silent failures - button should be re-enabled
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Start Pipeline' })).toBeEnabled();
+      expect(
+        screen.getByRole('button', { name: 'Start Pipeline' })
+      ).toBeEnabled();
     });
   });
 
   it('should show error toast when schema endpoint is unreachable', async () => {
     const user = userEvent.setup();
-    
+
     // Mock API to return schema error
     (global.fetch as any).mockResolvedValueOnce({
       ok: false,
-      json: async () => ({ 
-        message: 'Failed to connect to schema endpoint: ECONNREFUSED' 
+      json: async () => ({
+        message: 'Failed to connect to schema endpoint: ECONNREFUSED',
       }),
     });
-    
+
     renderDashboard();
-    
-    await user.type(screen.getByLabelText('Repository Path/URL *'), '/valid/path');
-    await user.type(screen.getByLabelText('Schema Endpoint *'), 'https://unreachable.test.com/graphql');
-    
+
+    await user.type(
+      screen.getByLabelText('Repository Path/URL *'),
+      '/valid/path'
+    );
+    await user.type(
+      screen.getByLabelText('Schema Endpoint *'),
+      'https://unreachable.test.com/graphql'
+    );
+
     await user.click(screen.getByRole('button', { name: 'Start Pipeline' }));
-    
+
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
         'Failed to start extraction: Failed to connect to schema endpoint: ECONNREFUSED'
@@ -118,17 +133,23 @@ describe('Error Handling', () => {
 
   it('should show error toast when network request fails', async () => {
     const user = userEvent.setup();
-    
+
     // Mock network failure
     (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
-    
+
     renderDashboard();
-    
-    await user.type(screen.getByLabelText('Repository Path/URL *'), '/test/path');
-    await user.type(screen.getByLabelText('Schema Endpoint *'), 'https://api.test.com/graphql');
-    
+
+    await user.type(
+      screen.getByLabelText('Repository Path/URL *'),
+      '/test/path'
+    );
+    await user.type(
+      screen.getByLabelText('Schema Endpoint *'),
+      'https://api.test.com/graphql'
+    );
+
     await user.click(screen.getByRole('button', { name: 'Start Pipeline' }));
-    
+
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalled();
     });
@@ -136,33 +157,35 @@ describe('Error Handling', () => {
 
   it('should handle GitHub clone errors gracefully', async () => {
     const user = userEvent.setup();
-    
+
     // Mock for GitHub clone error
     (global.fetch as any).mockResolvedValueOnce({
       ok: false,
-      json: async () => ({ 
-        message: 'Authentication failed: Invalid GitHub token' 
+      json: async () => ({
+        message: 'Authentication failed: Invalid GitHub token',
       }),
     });
-    
+
     renderDashboard();
-    
+
     // Click GitHub clone button
     await user.click(screen.getByText('Clone from GitHub'));
-    
+
     // Wait for modal to appear
     await waitFor(() => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
-    
+
     // Enter repo URL in modal
     const input = screen.getByPlaceholderText('https://github.com/owner/repo');
     await user.type(input, 'https://github.com/test/repo');
-    
+
     // Click clone button
-    const cloneButton = screen.getAllByRole('button').find(btn => btn.textContent === 'Clone');
+    const cloneButton = screen
+      .getAllByRole('button')
+      .find((btn) => btn.textContent === 'Clone');
     await user.click(cloneButton!);
-    
+
     // Verify error toast was called
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalled();
@@ -171,34 +194,45 @@ describe('Error Handling', () => {
 
   it('should display error state in QueryResults when fetch fails', async () => {
     const user = userEvent.setup();
-    
+
     // Mock successful pipeline start
     (global.fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ pipelineId: 'test-123' }),
     });
-    
+
     // Mock failed queries fetch
     (global.fetch as any).mockResolvedValueOnce({
       ok: false,
       json: async () => ({ message: 'Failed to fetch queries' }),
     });
-    
+
     renderDashboard();
-    
-    await user.type(screen.getByLabelText('Repository Path/URL *'), '/test/path');
-    await user.type(screen.getByLabelText('Schema Endpoint *'), 'https://api.test.com/graphql');
+
+    await user.type(
+      screen.getByLabelText('Repository Path/URL *'),
+      '/test/path'
+    );
+    await user.type(
+      screen.getByLabelText('Schema Endpoint *'),
+      'https://api.test.com/graphql'
+    );
     await user.click(screen.getByRole('button', { name: 'Start Pipeline' }));
-    
+
     // Wait for error message in QueryResults
-    await waitFor(() => {
-      expect(screen.getByText('Error loading queries:', { exact: false })).toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText('Error loading queries:', { exact: false })
+        ).toBeInTheDocument();
+      },
+      { timeout: 10000 }
+    );
   });
 
   it('should not proceed with PR generation if transformation is incomplete', async () => {
     const user = userEvent.setup();
-    
+
     // Reset mock and set up the sequence of responses
     (global.fetch as any).mockReset();
     (global.fetch as any)
@@ -208,33 +242,49 @@ describe('Error Handling', () => {
       })
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => ([]),
+        json: async () => [],
       })
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ total: 0, tested: 0, passed: 0, failed: 0, results: [] }),
+        json: async () => ({
+          total: 0,
+          tested: 0,
+          passed: 0,
+          failed: 0,
+          results: [],
+        }),
       })
       .mockResolvedValueOnce({
         ok: false,
-        json: async () => ({ 
-          message: 'Pipeline must complete transformation before generating PR' 
+        json: async () => ({
+          message: 'Pipeline must complete transformation before generating PR',
         }),
       });
-    
+
     renderDashboard();
-    
-    await user.type(screen.getByLabelText('Repository Path/URL *'), '/test/path');
-    await user.type(screen.getByLabelText('Schema Endpoint *'), 'https://api.test.com/graphql');
+
+    await user.type(
+      screen.getByLabelText('Repository Path/URL *'),
+      '/test/path'
+    );
+    await user.type(
+      screen.getByLabelText('Schema Endpoint *'),
+      'https://api.test.com/graphql'
+    );
     await user.click(screen.getByRole('button', { name: 'Start Pipeline' }));
-    
+
     // Wait for PR button to appear
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Generate Pull Request' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Generate Pull Request' })
+      ).toBeInTheDocument();
     });
-    
+
     // Try to generate PR
-    await user.click(screen.getByRole('button', { name: 'Generate Pull Request' }));
-    
+    await user.click(
+      screen.getByRole('button', { name: 'Generate Pull Request' })
+    );
+
     // Verify error toast
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(

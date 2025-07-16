@@ -29,7 +29,7 @@ export class SSOService {
     if (config.provider !== 'godaddy') {
       return {
         success: false,
-        error: 'Only GoDaddy SSO is currently supported'
+        error: 'Only GoDaddy SSO is currently supported',
       };
     }
 
@@ -39,23 +39,25 @@ export class SSOService {
       return {
         success: true,
         cookies: this.cachedCookies,
-        expiresAt: this.cookieExpiry
+        expiresAt: this.cookieExpiry,
       };
     }
 
     try {
       logger.info('Starting GoDaddy SSO authentication flow');
-      
+
       if (!config.credentials) {
         return {
           success: false,
-          error: 'SSO credentials not provided. Please configure credentials or provide cookies manually.'
+          error:
+            'SSO credentials not provided. Please configure credentials or provide cookies manually.',
         };
       }
 
       // GoDaddy SSO endpoint
-      const ssoUrl = 'https://sso.godaddy.com/v1/api/idp/login?app=pg.api&realm=idp&path=%2Fv1%2Fgql%2Fcustomer&port=443&subdomain=pg.api&status=0';
-      
+      const ssoUrl =
+        'https://sso.godaddy.com/v1/api/idp/login?app=pg.api&realm=idp&path=%2Fv1%2Fgql%2Fcustomer&port=443&subdomain=pg.api&status=0';
+
       // Prepare the authentication payload
       const payload = {
         plid: 1,
@@ -65,19 +67,19 @@ export class SSOService {
         include_cdt: false,
         remember_me: true,
         include_cookies: true,
-        username: config.credentials.username
+        username: config.credentials.username,
       };
 
       // Make the authentication request
       const response = await axios.post(ssoUrl, payload, {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
-          'Origin': 'https://sso.godaddy.com',
-          'User-Agent': 'pg-migration-620/1.0.0'
+          Origin: 'https://sso.godaddy.com',
+          'User-Agent': 'pg-migration-620/1.0.0',
         },
         withCredentials: true,
-        timeout: 30000
+        timeout: 30000,
       });
 
       // Extract cookies from response
@@ -85,14 +87,14 @@ export class SSOService {
       if (!setCookieHeaders) {
         return {
           success: false,
-          error: 'No cookies returned from SSO authentication'
+          error: 'No cookies returned from SSO authentication',
         };
       }
 
       // Parse the required cookies
       const cookies: Partial<GoDaddySSO> = {};
       const requiredCookies = ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp'];
-      
+
       setCookieHeaders.forEach((cookieString: string) => {
         const [nameValue] = cookieString.split(';');
         const [name, value] = nameValue.split('=');
@@ -102,44 +104,47 @@ export class SSOService {
       });
 
       // Validate we got all required cookies
-      const hasAllCookies = requiredCookies.every(name => name in cookies);
+      const hasAllCookies = requiredCookies.every((name) => name in cookies);
       if (!hasAllCookies) {
-        const missing = requiredCookies.filter(name => !(name in cookies));
+        const missing = requiredCookies.filter((name) => !(name in cookies));
         return {
           success: false,
-          error: `Missing required cookies: ${missing.join(', ')}`
+          error: `Missing required cookies: ${missing.join(', ')}`,
         };
       }
 
       // Cache the cookies
       this.cachedCookies = cookies as GoDaddySSO;
       this.cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-      
+
       logger.info('SSO authentication successful, cookies cached');
-      
+
       return {
         success: true,
         cookies: this.cachedCookies,
-        expiresAt: this.cookieExpiry
+        expiresAt: this.cookieExpiry,
       };
-
     } catch (error) {
       // Don't log the full error object as it may contain circular references
-      logger.error('SSO authentication failed:', error instanceof Error ? error.message : 'Unknown error');
-      
+      logger.error(
+        'SSO authentication failed:',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
+
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           return {
             success: false,
-            error: 'Invalid credentials. Please check your username and password.'
+            error: 'Invalid credentials. Please check your username and password.',
           };
         } else if (error.response?.status === 403) {
           return {
             success: false,
-            error: 'Access forbidden. The SSO endpoint may require additional authentication or the account may be locked.'
+            error:
+              'Access forbidden. The SSO endpoint may require additional authentication or the account may be locked.',
           };
         }
-        
+
         // Extract error message safely
         let errorMessage = error.message;
         if (error.response?.data) {
@@ -151,16 +156,16 @@ export class SSOService {
             errorMessage = error.response.data.error;
           }
         }
-        
+
         return {
           success: false,
-          error: `SSO authentication failed: ${errorMessage}`
+          error: `SSO authentication failed: ${errorMessage}`,
         };
       }
-      
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error during SSO'
+        error: error instanceof Error ? error.message : 'Unknown error during SSO',
       };
     }
   }
@@ -219,7 +224,7 @@ export class SSOService {
     return {
       success: true,
       cookies: this.cachedCookies,
-      expiresAt: this.cookieExpiry
+      expiresAt: this.cookieExpiry,
     };
   }
 
@@ -230,9 +235,12 @@ export class SSOService {
   static parseBrowserCookies(cookieString: string): Partial<GoDaddySSO> {
     const cookies: Record<string, string> = {};
     const requiredCookies = ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp'];
-    
-    cookieString.split(/[;\n]/).forEach(cookie => {
-      const [name, value] = cookie.trim().split('=').map(s => s.trim());
+
+    cookieString.split(/[;\n]/).forEach((cookie) => {
+      const [name, value] = cookie
+        .trim()
+        .split('=')
+        .map((s) => s.trim());
       if (name && value && requiredCookies.includes(name)) {
         cookies[name] = value;
       }
@@ -240,4 +248,4 @@ export class SSOService {
 
     return cookies as Partial<GoDaddySSO>;
   }
-} 
+}

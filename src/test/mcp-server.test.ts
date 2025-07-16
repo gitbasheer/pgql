@@ -79,22 +79,24 @@ describe('MCP Server Integration Tests', () => {
     const queriesJson = {
       queries: [
         {
-          id: "GetUser",
-          name: "GetUser",
-          content: "query GetUser($id: ID!) { user(id: $id) { id name email profile { avatar bio } } }",
+          id: 'GetUser',
+          name: 'GetUser',
+          content:
+            'query GetUser($id: ID!) { user(id: $id) { id name email profile { avatar bio } } }',
           filePath: join(testFixturesDir, 'queries.ts'),
           line: 5,
-          type: "query"
+          type: 'query',
         },
         {
-          id: "UpdateUser",
-          name: "UpdateUser",
-          content: "mutation UpdateUser($id: ID!, $input: UserInput!) { updateUser(id: $id, input: $input) { id name email } }",
+          id: 'UpdateUser',
+          name: 'UpdateUser',
+          content:
+            'mutation UpdateUser($id: ID!, $input: UserInput!) { updateUser(id: $id, input: $input) { id name email } }',
           filePath: join(testFixturesDir, 'queries.ts'),
           line: 18,
-          type: "mutation"
-        }
-      ]
+          type: 'mutation',
+        },
+      ],
     };
     writeFileSync(join(testFixturesDir, 'queries.json'), JSON.stringify(queriesJson, null, 2));
   });
@@ -106,7 +108,7 @@ describe('MCP Server Integration Tests', () => {
     }
   });
 
-      // Helper to send JSON-RPC request
+  // Helper to send JSON-RPC request
   async function sendRequest(method: string, params?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       let child: ChildProcessWithoutNullStreams;
@@ -122,7 +124,7 @@ describe('MCP Server Integration Tests', () => {
           stdio: ['pipe', 'pipe', 'pipe'],
           shell: false,
           windowsHide: true,
-          cwd: process.cwd()
+          cwd: process.cwd(),
         }) as ChildProcessWithoutNullStreams;
       } catch (err) {
         reject(new Error(`Failed to spawn server: ${err}`));
@@ -148,7 +150,7 @@ describe('MCP Server Integration Tests', () => {
 
           // Try to parse complete JSON-RPC responses
           try {
-            const lines = response.split('\n').filter(line => line.trim());
+            const lines = response.split('\n').filter((line) => line.trim());
             for (const line of lines) {
               // Skip server startup messages and only process JSON-RPC responses
               if (line.startsWith('{') && line.includes('"jsonrpc"') && line.includes('"id"')) {
@@ -172,11 +174,21 @@ describe('MCP Server Integration Tests', () => {
           if (hasResponded) return; // Already resolved
 
           if (errorOutput) {
-            reject(new Error(`❌ Build tool error\n\nThe pg-migration tool failed to start: ${errorOutput.trim()}`));
+            reject(
+              new Error(
+                `❌ Build tool error\n\nThe pg-migration tool failed to start: ${errorOutput.trim()}`,
+              ),
+            );
           } else if (!response || response.trim() === 'GraphQL Migration MCP server started') {
-            reject(new Error(`❌ Build tool error\n\nThe pg-migration tool started but didn't respond to ${method} request (exit code: ${code})`));
+            reject(
+              new Error(
+                `❌ Build tool error\n\nThe pg-migration tool started but didn't respond to ${method} request (exit code: ${code})`,
+              ),
+            );
           } else {
-            reject(new Error(`❌ Build tool error\n\nInvalid response to ${method}: ${response.trim()}`));
+            reject(
+              new Error(`❌ Build tool error\n\nInvalid response to ${method}: ${response.trim()}`),
+            );
           }
         });
 
@@ -188,7 +200,7 @@ describe('MCP Server Integration Tests', () => {
           jsonrpc: '2.0',
           method,
           params: params || {},
-          id: Date.now()
+          id: Date.now(),
         });
 
         // Send request
@@ -204,7 +216,9 @@ describe('MCP Server Integration Tests', () => {
           if (!hasResponded) {
             hasResponded = true;
             child.kill();
-            reject(new Error(`❌ Build tool error\n\nTimeout waiting for response to ${method} request`));
+            reject(
+              new Error(`❌ Build tool error\n\nTimeout waiting for response to ${method} request`),
+            );
           }
         }, 5000);
       }, 500);
@@ -218,8 +232,8 @@ describe('MCP Server Integration Tests', () => {
         capabilities: {},
         clientInfo: {
           name: 'test-client',
-          version: '1.0.0'
-        }
+          version: '1.0.0',
+        },
       });
 
       expect(response).toBeDefined();
@@ -268,8 +282,8 @@ describe('MCP Server Integration Tests', () => {
         name: 'extract_queries',
         arguments: {
           directory: 'test/fixtures/mcp-test',
-          output: 'test/fixtures/mcp-test/extracted.json'
-        }
+          output: 'test/fixtures/mcp-test/extracted.json',
+        },
       });
 
       expect(response.result).toBeDefined();
@@ -282,7 +296,7 @@ describe('MCP Server Integration Tests', () => {
     it('should analyze operations in test directory', async () => {
       const response = await sendRequest('tools/call', {
         name: 'analyze_operations',
-        arguments: { directory: 'test/fixtures/mcp-test' }
+        arguments: { directory: 'test/fixtures/mcp-test' },
       });
 
       expect(response.result).toBeDefined();
@@ -292,7 +306,7 @@ describe('MCP Server Integration Tests', () => {
     it('should handle missing directory gracefully', async () => {
       const response = await sendRequest('tools/call', {
         name: 'extract_queries',
-        arguments: { directory: 'non-existent-dir' }
+        arguments: { directory: 'non-existent-dir' },
       });
 
       expect(response.result).toBeDefined();
@@ -304,14 +318,16 @@ describe('MCP Server Integration Tests', () => {
         name: 'validate_queries',
         arguments: {
           queries: 'test/fixtures/mcp-test/queries.json',
-          schema: 'test/fixtures/mcp-test/schema.graphql'
-        }
+          schema: 'test/fixtures/mcp-test/schema.graphql',
+        },
       });
 
       expect(response.result).toBeDefined();
       expect(response.result.content[0].text).toContain('Validation');
       // Should be successful since our test queries match the schema
-      expect(response.result.content[0].text).toMatch(/validation successful|all queries are valid/i);
+      expect(response.result.content[0].text).toMatch(
+        /validation successful|all queries are valid/i,
+      );
     });
 
     it('should transform queries in dry-run mode', async () => {
@@ -320,8 +336,8 @@ describe('MCP Server Integration Tests', () => {
         arguments: {
           input: 'test/fixtures/mcp-test/queries.json',
           schema: 'test/fixtures/mcp-test/schema.graphql',
-          dryRun: true
-        }
+          dryRun: true,
+        },
       });
 
       expect(response.result).toBeDefined();
@@ -334,8 +350,8 @@ describe('MCP Server Integration Tests', () => {
         name: 'assess_migration_impact',
         arguments: {
           schema: 'test/fixtures/mcp-test/schema.graphql',
-          queriesFile: 'test/fixtures/mcp-test/queries.json'
-        }
+          queriesFile: 'test/fixtures/mcp-test/queries.json',
+        },
       });
 
       expect(response.result).toBeDefined();
@@ -349,7 +365,7 @@ describe('MCP Server Integration Tests', () => {
       try {
         await sendRequest('tools/call', {
           name: 'non_existent_tool',
-          arguments: {}
+          arguments: {},
         });
         expect.fail('Should have thrown an error');
       } catch (error: any) {
@@ -363,8 +379,8 @@ describe('MCP Server Integration Tests', () => {
         name: 'validate_queries',
         arguments: {
           queries: 'non-existent-queries.json',
-          schema: 'non-existent-schema.graphql'
-        }
+          schema: 'non-existent-schema.graphql',
+        },
       });
 
       expect(response.result).toBeDefined();
@@ -381,8 +397,8 @@ describe('MCP Server Integration Tests', () => {
         arguments: {
           input: malformedPath,
           schema: 'test/fixtures/mcp-test/schema.graphql',
-          dryRun: true
-        }
+          dryRun: true,
+        },
       });
 
       expect(response.result).toBeDefined();
@@ -397,8 +413,8 @@ describe('MCP Server Integration Tests', () => {
         arguments: {
           directory: 'test/fixtures/mcp-test',
           schema: 'test/fixtures/mcp-test/schema.graphql',
-          autoApply: false
-        }
+          autoApply: false,
+        },
       });
 
       expect(response.result).toBeDefined();
@@ -413,8 +429,8 @@ describe('MCP Server Integration Tests', () => {
           directory: 'test/fixtures/mcp-test',
           schema: 'test/fixtures/mcp-test/schema.graphql',
           autoApply: true,
-          confidenceThreshold: 95
-        }
+          confidenceThreshold: 95,
+        },
       });
 
       expect(response.result).toBeDefined();
@@ -429,14 +445,15 @@ describe('MCP Server Integration Tests', () => {
       const transformedData = {
         queries: [
           {
-            name: "GetUser",
-            originalQuery: "query GetUser($id: ID!) { user(id: $id) { id name email } }",
-            transformedQuery: "query GetUser($id: ID!) { user(id: $id) { id name email profile { avatar bio } } }",
+            name: 'GetUser',
+            originalQuery: 'query GetUser($id: ID!) { user(id: $id) { id name email } }',
+            transformedQuery:
+              'query GetUser($id: ID!) { user(id: $id) { id name email profile { avatar bio } } }',
             filePath: join(testFixturesDir, 'queries.ts'),
             line: 5,
-            confidence: 95
-          }
-        ]
+            confidence: 95,
+          },
+        ],
       };
       writeFileSync(transformedPath, JSON.stringify(transformedData, null, 2));
 
@@ -444,8 +461,8 @@ describe('MCP Server Integration Tests', () => {
         name: 'create_rollback_plan',
         arguments: {
           transformedFile: transformedPath,
-          strategy: 'gradual'
-        }
+          strategy: 'gradual',
+        },
       });
 
       expect(response.result).toBeDefined();

@@ -22,7 +22,7 @@ export function usePipelineLogs(socket: Socket | null) {
       if (!data || typeof data !== 'object' || !('message' in data)) {
         return; // Skip malformed log data
       }
-      
+
       const logEntry: LogEntry = {
         stage: data.stage || 'general',
         level: data.level,

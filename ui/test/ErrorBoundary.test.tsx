@@ -56,7 +56,7 @@ describe('ErrorBoundary', () => {
 
   it('should provide retry functionality', async () => {
     const user = userEvent.setup();
-    
+
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />

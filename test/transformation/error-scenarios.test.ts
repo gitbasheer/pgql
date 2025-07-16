@@ -11,7 +11,7 @@ describe('Transformation Error Scenarios', () => {
       commentOutVague: true,
       addDeprecationComments: true,
       preserveOriginalAsComment: false,
-      enableCache: false
+      enableCache: false,
     });
   });
 
@@ -49,35 +49,38 @@ describe('Transformation Error Scenarios', () => {
 
   describe('Transformation Logic Errors', () => {
     it('should handle circular references', async () => {
-      const circularTransformer = new OptimizedSchemaTransformer([
+      const circularTransformer = new OptimizedSchemaTransformer(
+        [
+          {
+            objectType: 'Venture',
+            fieldName: 'fieldA',
+            deprecatedField: 'fieldA',
+            replacementPath: 'fieldB',
+            isNested: false,
+            confidence: 100,
+            transformationType: 'field-rename',
+            deprecationDate: '2025-01-01',
+            affectedEndpoints: ['productGraph'],
+          },
+          {
+            objectType: 'Venture',
+            fieldName: 'fieldB',
+            deprecatedField: 'fieldB',
+            replacementPath: 'fieldA',
+            isNested: false,
+            confidence: 100,
+            transformationType: 'field-rename',
+            deprecationDate: '2025-01-01',
+            affectedEndpoints: ['productGraph'],
+          },
+        ],
         {
-          objectType: 'Venture',
-          fieldName: 'fieldA',
-          deprecatedField: 'fieldA',
-          replacementPath: 'fieldB',
-          isNested: false,
-          confidence: 100,
-          transformationType: 'field-rename',
-          deprecationDate: '2025-01-01',
-          affectedEndpoints: ['productGraph']
+          commentOutVague: false,
+          addDeprecationComments: false,
+          preserveOriginalAsComment: false,
+          enableCache: false,
         },
-        {
-          objectType: 'Venture',
-          fieldName: 'fieldB',
-          deprecatedField: 'fieldB',
-          replacementPath: 'fieldA',
-          isNested: false,
-          confidence: 100,
-          transformationType: 'field-rename',
-          deprecationDate: '2025-01-01',
-          affectedEndpoints: ['productGraph']
-        }
-      ], {
-        commentOutVague: false,
-        addDeprecationComments: false,
-        preserveOriginalAsComment: false,
-        enableCache: false
-      });
+      );
 
       const query = `
         query GetVenture {
@@ -95,35 +98,38 @@ describe('Transformation Error Scenarios', () => {
     });
 
     it('should handle conflicting transformations', async () => {
-      const conflictingTransformer = new OptimizedSchemaTransformer([
+      const conflictingTransformer = new OptimizedSchemaTransformer(
+        [
+          {
+            objectType: 'Venture',
+            fieldName: 'status',
+            deprecatedField: 'status',
+            replacementPath: 'currentStatus',
+            isNested: false,
+            confidence: 100,
+            transformationType: 'field-rename',
+            deprecationDate: '2025-01-01',
+            affectedEndpoints: ['productGraph'],
+          },
+          {
+            objectType: 'Venture',
+            fieldName: 'status',
+            deprecatedField: 'status',
+            replacementPath: 'activeStatus',
+            isNested: false,
+            confidence: 100,
+            transformationType: 'field-rename',
+            deprecationDate: '2025-01-01',
+            affectedEndpoints: ['productGraph'],
+          },
+        ],
         {
-          objectType: 'Venture',
-          fieldName: 'status',
-          deprecatedField: 'status',
-          replacementPath: 'currentStatus',
-          isNested: false,
-          confidence: 100,
-          transformationType: 'field-rename',
-          deprecationDate: '2025-01-01',
-          affectedEndpoints: ['productGraph']
+          commentOutVague: false,
+          addDeprecationComments: false,
+          preserveOriginalAsComment: false,
+          enableCache: false,
         },
-        {
-          objectType: 'Venture',
-          fieldName: 'status',
-          deprecatedField: 'status',
-          replacementPath: 'activeStatus',
-          isNested: false,
-          confidence: 100,
-          transformationType: 'field-rename',
-          deprecationDate: '2025-01-01',
-          affectedEndpoints: ['productGraph']
-        }
-      ], {
-        commentOutVague: false,
-        addDeprecationComments: false,
-        preserveOriginalAsComment: false,
-        enableCache: false
-      });
+      );
 
       const query = `
         query GetVenture {
@@ -154,7 +160,7 @@ describe('Transformation Error Scenarios', () => {
       const startMemory = process.memoryUsage().heapUsed;
       const result = await transformer.transform(largeQuery);
       const endMemory = process.memoryUsage().heapUsed;
-      
+
       const memoryIncrease = endMemory - startMemory;
       expect(memoryIncrease).toBeLessThan(100 * 1024 * 1024); // Less than 100MB
       expect(result.transformed).toBeDefined();
@@ -162,24 +168,27 @@ describe('Transformation Error Scenarios', () => {
 
     it('should timeout on infinite processing', async () => {
       // Create a transformer that would infinitely process
-      const infiniteTransformer = new OptimizedSchemaTransformer([
+      const infiniteTransformer = new OptimizedSchemaTransformer(
+        [
+          {
+            objectType: 'Venture',
+            fieldName: 'field',
+            deprecatedField: 'field',
+            replacementPath: 'field_temp',
+            isNested: false,
+            confidence: 100,
+            transformationType: 'field-rename',
+            deprecationDate: '2025-01-01',
+            affectedEndpoints: ['productGraph'],
+          },
+        ],
         {
-          objectType: 'Venture',
-          fieldName: 'field',
-          deprecatedField: 'field',
-          replacementPath: 'field_temp',
-          isNested: false,
-          confidence: 100,
-          transformationType: 'field-rename',
-          deprecationDate: '2025-01-01',
-          affectedEndpoints: ['productGraph']
-        }
-      ], {
-        commentOutVague: false,
-        addDeprecationComments: false,
-        preserveOriginalAsComment: false,
-        enableCache: false
-      });
+          commentOutVague: false,
+          addDeprecationComments: false,
+          preserveOriginalAsComment: false,
+          enableCache: false,
+        },
+      );
 
       const query = `
         query GetVenture {
@@ -192,7 +201,7 @@ describe('Transformation Error Scenarios', () => {
       const start = Date.now();
       const result = await infiniteTransformer.transform(query);
       const duration = Date.now() - start;
-      
+
       expect(duration).toBeLessThan(5000); // Should complete within 5 seconds
       expect(result.transformed).toBeDefined();
     });
@@ -200,15 +209,7 @@ describe('Transformation Error Scenarios', () => {
 
   describe('Edge Case Inputs', () => {
     it('should handle non-string inputs', async () => {
-      const nonStringInputs = [
-        null,
-        undefined,
-        123,
-        {},
-        [],
-        true,
-        false
-      ];
+      const nonStringInputs = [null, undefined, 123, {}, [], true, false];
 
       for (const input of nonStringInputs) {
         try {
@@ -229,7 +230,7 @@ describe('Transformation Error Scenarios', () => {
         'query { venture { "field with spaces" } }',
         'query { venture { field\\nwith\\nnewlines } }',
         'query { venture { field\twith\ttabs } }',
-        'query { venture { field/* with comments */ } }'
+        'query { venture { field/* with comments */ } }',
       ];
 
       for (const query of specialCharQueries) {
@@ -245,7 +246,7 @@ describe('Transformation Error Scenarios', () => {
         'query { 企业 { 名称 } }', // Chinese
         'query { предприятие { название } }', // Russian
         'query { شركة { اسم } }', // Arabic
-        'query { 会社 { 名前 } }' // Japanese
+        'query { 会社 { 名前 } }', // Japanese
       ];
 
       for (const query of i18nQueries) {
@@ -262,43 +263,45 @@ describe('Transformation Error Scenarios', () => {
         commentOutVague: false,
         addDeprecationComments: false,
         preserveOriginalAsComment: false,
-        enableCache: true
+        enableCache: true,
       });
 
       const query = 'query { venture { id } }';
-      
+
       // Simulate concurrent transformations
-      const promises = Array.from({ length: 100 }, () => 
-        Promise.resolve(cachedTransformer.transform(query))
+      const promises = Array.from({ length: 100 }, () =>
+        Promise.resolve(cachedTransformer.transform(query)),
       );
 
       const results = await Promise.all(promises);
-      
+
       // All results should be identical
       const firstResult = JSON.stringify(results[0]);
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(JSON.stringify(result)).toBe(firstResult);
       });
     });
 
     it('should handle concurrent modifications to deprecation rules', async () => {
-      const rules = [{
-        objectType: 'Venture',
-        fieldName: 'status',
-        deprecatedField: 'status',
-        replacementPath: 'currentStatus',
-        isNested: false,
-        confidence: 100,
-        transformationType: 'field-rename' as const,
-        deprecationDate: '2025-01-01',
-        affectedEndpoints: ['productGraph']
-      }];
+      const rules = [
+        {
+          objectType: 'Venture',
+          fieldName: 'status',
+          deprecatedField: 'status',
+          replacementPath: 'currentStatus',
+          isNested: false,
+          confidence: 100,
+          transformationType: 'field-rename' as const,
+          deprecationDate: '2025-01-01',
+          affectedEndpoints: ['productGraph'],
+        },
+      ];
 
       const transformer1 = new OptimizedSchemaTransformer(rules, {
         commentOutVague: false,
         addDeprecationComments: false,
         preserveOriginalAsComment: false,
-        enableCache: false
+        enableCache: false,
       });
 
       // Modify rules (simulating concurrent update)
@@ -308,11 +311,11 @@ describe('Transformation Error Scenarios', () => {
         commentOutVague: false,
         addDeprecationComments: false,
         preserveOriginalAsComment: false,
-        enableCache: false
+        enableCache: false,
       });
 
       const query = 'query { venture { status } }';
-      
+
       const result1 = await transformer1.transform(query);
       const result2 = await transformer2.transform(query);
 
@@ -328,7 +331,7 @@ describe('Transformation Error Scenarios', () => {
     it('should provide meaningful error messages', async () => {
       const malformedQuery = 'query { venture { {{ } }';
       const result = await transformer.transform(malformedQuery);
-      
+
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0]).toMatch(/parse|syntax|invalid/i);
       expect(result.warnings[0]).not.toContain('undefined');
@@ -336,24 +339,27 @@ describe('Transformation Error Scenarios', () => {
     });
 
     it('should preserve query structure on partial failures', async () => {
-      const partialFailTransformer = new OptimizedSchemaTransformer([
+      const partialFailTransformer = new OptimizedSchemaTransformer(
+        [
+          {
+            objectType: 'InvalidType',
+            fieldName: 'field',
+            deprecatedField: 'field',
+            replacementPath: 'newField',
+            isNested: false,
+            confidence: 100,
+            transformationType: 'field-rename',
+            deprecationDate: '2025-01-01',
+            affectedEndpoints: ['productGraph'],
+          },
+        ],
         {
-          objectType: 'InvalidType',
-          fieldName: 'field',
-          deprecatedField: 'field',
-          replacementPath: 'newField',
-          isNested: false,
-          confidence: 100,
-          transformationType: 'field-rename',
-          deprecationDate: '2025-01-01',
-          affectedEndpoints: ['productGraph']
-        }
-      ], {
-        commentOutVague: false,
-        addDeprecationComments: false,
-        preserveOriginalAsComment: false,
-        enableCache: false
-      });
+          commentOutVague: false,
+          addDeprecationComments: false,
+          preserveOriginalAsComment: false,
+          enableCache: false,
+        },
+      );
 
       const query = `
         query GetVenture {
@@ -368,7 +374,7 @@ describe('Transformation Error Scenarios', () => {
       `;
 
       const result = await partialFailTransformer.transform(query);
-      
+
       // Should preserve valid parts
       expect(result.transformed).toContain('venture');
       expect(result.transformed).toContain('id');

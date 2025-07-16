@@ -9,7 +9,7 @@ export const sampleDeprecationRules: DeprecationRule[] = [
     deprecationReason: 'Use ventureNode',
     replacement: 'ventureNode',
     isVague: false,
-    action: 'replace'
+    action: 'replace',
   },
   {
     type: 'field',
@@ -18,7 +18,7 @@ export const sampleDeprecationRules: DeprecationRule[] = [
     deprecationReason: 'Use projectNode',
     replacement: 'projectNode',
     isVague: false,
-    action: 'replace'
+    action: 'replace',
   },
   {
     type: 'field',
@@ -27,7 +27,7 @@ export const sampleDeprecationRules: DeprecationRule[] = [
     deprecationReason: 'Use CustomerQuery.ventures',
     replacement: 'CustomerQuery.ventures',
     isVague: false,
-    action: 'replace'
+    action: 'replace',
   },
   {
     type: 'field',
@@ -36,7 +36,7 @@ export const sampleDeprecationRules: DeprecationRule[] = [
     deprecationReason: 'Use CustomerQuery.projects',
     replacement: 'CustomerQuery.projects',
     isVague: false,
-    action: 'replace'
+    action: 'replace',
   },
   {
     type: 'field',
@@ -45,7 +45,7 @@ export const sampleDeprecationRules: DeprecationRule[] = [
     deprecationReason: 'Use profile.logoUrl instead',
     replacement: 'profile.logoUrl',
     isVague: false,
-    action: 'replace'
+    action: 'replace',
   },
   {
     type: 'field',
@@ -54,7 +54,7 @@ export const sampleDeprecationRules: DeprecationRule[] = [
     deprecationReason: 'switch to using aiOnboarded',
     replacement: 'aiOnboarded',
     isVague: false,
-    action: 'replace'
+    action: 'replace',
   },
   // Vague deprecations
   {
@@ -64,7 +64,7 @@ export const sampleDeprecationRules: DeprecationRule[] = [
     deprecationReason: 'Use the billing property to ensure forward compatibility',
     replacement: undefined,
     isVague: true,
-    action: 'comment-out'
+    action: 'comment-out',
   },
   {
     type: 'field',
@@ -73,17 +73,18 @@ export const sampleDeprecationRules: DeprecationRule[] = [
     deprecationReason: 'Use calculated fields to ensure forward compatibility',
     replacement: undefined,
     isVague: true,
-    action: 'comment-out'
+    action: 'comment-out',
   },
   {
     type: 'field',
     objectType: 'WAMProduct',
     fieldName: 'gcEntity',
-    deprecationReason: 'this field is unstable and may not exist in future versions of product-graph',
+    deprecationReason:
+      'this field is unstable and may not exist in future versions of product-graph',
     replacement: undefined,
     isVague: true,
-    action: 'comment-out'
-  }
+    action: 'comment-out',
+  },
 ];
 
 export const testQueries = {
@@ -109,9 +110,9 @@ query GetUser {
       }
     }
   }
-}`
+}`,
   },
-  
+
   nestedReplacement: {
     input: `
 query VentureDetails {
@@ -136,9 +137,9 @@ query VentureDetails {
       aiOnboarded
     }
   }
-}`
+}`,
   },
-  
+
   vagueDeprecations: {
     input: `
 query WebsiteData {
@@ -159,9 +160,9 @@ query WebsiteData {
     id
     planType
   }
-}`
+}`,
   },
-  
+
   complexQuery: {
     input: `
 query Dashboard {
@@ -214,6 +215,6 @@ query Dashboard {
     id
     status
   }
-}`
-  }
+}`,
+  },
 };

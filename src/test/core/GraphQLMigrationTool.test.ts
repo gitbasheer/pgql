@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { GraphQLMigrationTool, MigrationOptions, MigrationResult } from '../../core/GraphQLMigrationTool.js';
+import {
+  GraphQLMigrationTool,
+  MigrationOptions,
+  MigrationResult,
+} from '../../core/GraphQLMigrationTool.js';
 import { GraphQLExtractor } from '../../core/scanner/GraphQLExtractor.js';
 import { SchemaAnalyzer } from '../../core/analyzer/SchemaAnalyzer.js';
 import { PatternMatcher } from '../../core/analyzer/PatternMatcher.js';
@@ -19,7 +23,7 @@ describe('GraphQLMigrationTool', () => {
     configPath: '/path/to/config.json',
     dryRun: false,
     interactive: false,
-    generateTypes: false
+    generateTypes: false,
   };
 
   let tool: GraphQLMigrationTool;
@@ -29,19 +33,19 @@ describe('GraphQLMigrationTool', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Setup mocks
     mockExtractor = {
       extractQueries: vi.fn(),
-      extractFragments: vi.fn()
+      extractFragments: vi.fn(),
     };
     mockAnalyzer = {
       analyze: vi.fn(),
-      getDeprecatedFields: vi.fn()
+      getDeprecatedFields: vi.fn(),
     };
     mockPatternMatcher = {
       findPatterns: vi.fn(),
-      matchOperation: vi.fn()
+      matchOperation: vi.fn(),
     };
 
     vi.mocked(GraphQLExtractor).mockImplementation(() => mockExtractor);
@@ -71,7 +75,7 @@ describe('GraphQLMigrationTool', () => {
     it('should initialize with default options when optional fields are missing', () => {
       const minimalOptions: MigrationOptions = {
         schemaPath: '/path/to/schema.graphql',
-        targetPath: '/path/to/target'
+        targetPath: '/path/to/target',
       };
 
       const minimalTool = new GraphQLMigrationTool(minimalOptions);
@@ -90,21 +94,21 @@ describe('GraphQLMigrationTool', () => {
           source: 'query GetUser { user { id name } }',
           file: '/path/to/file.ts',
           line: 1,
-          column: 1
-        }
+          column: 1,
+        },
       ]);
 
       mockAnalyzer.analyze.mockResolvedValue({
         deprecatedFields: ['user.oldField'],
-        operations: []
+        operations: [],
       });
 
       mockPatternMatcher.findPatterns.mockResolvedValue([
         {
           pattern: 'GetUser',
           confidence: 95,
-          transformations: []
-        }
+          transformations: [],
+        },
       ]);
     });
 
@@ -150,8 +154,24 @@ describe('GraphQLMigrationTool', () => {
 
     it('should track correct metrics', async () => {
       const mockQueries = [
-        { id: 'q1', name: 'Query1', type: 'query', source: 'query Query1 { user { id } }', file: 'file1.ts', line: 1, column: 1 },
-        { id: 'q2', name: 'Query2', type: 'query', source: 'query Query2 { posts { id } }', file: 'file2.ts', line: 1, column: 1 }
+        {
+          id: 'q1',
+          name: 'Query1',
+          type: 'query',
+          source: 'query Query1 { user { id } }',
+          file: 'file1.ts',
+          line: 1,
+          column: 1,
+        },
+        {
+          id: 'q2',
+          name: 'Query2',
+          type: 'query',
+          source: 'query Query2 { posts { id } }',
+          file: 'file2.ts',
+          line: 1,
+          column: 1,
+        },
       ];
 
       mockExtractor.extractQueries.mockResolvedValue(mockQueries);
@@ -187,7 +207,7 @@ describe('GraphQLMigrationTool', () => {
       mockAnalyzer.analyze.mockResolvedValue({
         deprecatedFields: ['user.oldField'],
         operations: [],
-        warnings: ['Warning: Field will be deprecated soon']
+        warnings: ['Warning: Field will be deprecated soon'],
       });
 
       const result = await tool.run();
@@ -198,9 +218,9 @@ describe('GraphQLMigrationTool', () => {
 
     it('should measure execution duration', async () => {
       const startTime = Date.now();
-      
+
       const result = await tool.run();
-      
+
       const endTime = Date.now();
       expect(result.duration).toBeGreaterThan(0);
       expect(result.duration).toBeLessThanOrEqual(endTime - startTime + 100); // Allow for some variance
@@ -264,7 +284,7 @@ describe('GraphQLMigrationTool', () => {
         `,
         file: 'complex.ts',
         line: 1,
-        column: 1
+        column: 1,
       };
 
       mockExtractor.extractQueries.mockResolvedValue([complexQuery]);
@@ -295,7 +315,7 @@ describe('GraphQLMigrationTool', () => {
         `,
         file: 'fragment.ts',
         line: 1,
-        column: 1
+        column: 1,
       };
 
       mockExtractor.extractQueries.mockResolvedValue([queryWithFragment]);
@@ -303,8 +323,8 @@ describe('GraphQLMigrationTool', () => {
         {
           name: 'UserFragment',
           type: 'User',
-          source: 'fragment UserFragment on User { id name email }'
-        }
+          source: 'fragment UserFragment on User { id name email }',
+        },
       ]);
 
       const result = await tool.run();
@@ -319,10 +339,11 @@ describe('GraphQLMigrationTool', () => {
           id: 'mutation1',
           name: 'CreateUser',
           type: 'mutation' as const,
-          source: 'mutation CreateUser($input: CreateUserInput!) { createUser(input: $input) { id } }',
+          source:
+            'mutation CreateUser($input: CreateUserInput!) { createUser(input: $input) { id } }',
           file: 'mutations.ts',
           line: 1,
-          column: 1
+          column: 1,
         },
         {
           id: 'subscription1',
@@ -331,8 +352,8 @@ describe('GraphQLMigrationTool', () => {
           source: 'subscription UserUpdated { userUpdated { id name } }',
           file: 'subscriptions.ts',
           line: 1,
-          column: 1
-        }
+          column: 1,
+        },
       ];
 
       mockExtractor.extractQueries.mockResolvedValue(operations);

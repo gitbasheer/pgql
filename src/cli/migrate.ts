@@ -13,7 +13,9 @@ const program = new Command();
 
 program
   .name('pg-migrate')
-  .description('Unified GraphQL migration command - Extract → Validate → Transform → Apply → Generate PR')
+  .description(
+    'Unified GraphQL migration command - Extract → Validate → Transform → Apply → Generate PR',
+  )
   .option('-d, --directory <path>', 'Directory to scan for GraphQL operations', './src')
   .option('-s, --schema <path>', 'GraphQL schema file path', './schema.graphql')
   .option('-c, --config <path>', 'Configuration file path', './migration.config.yaml')
@@ -49,12 +51,10 @@ program
 
       // Clear caches if --no-cache is specified
       if (options.cache === false) {
-        const { astCache, validationCache, transformCache } = await import('../core/cache/CacheManager.js');
-        await Promise.all([
-          astCache.clear(),
-          validationCache.clear(),
-          transformCache.clear()
-        ]);
+        const { astCache, validationCache, transformCache } = await import(
+          '../core/cache/CacheManager.js'
+        );
+        await Promise.all([astCache.clear(), validationCache.clear(), transformCache.clear()]);
         logger.info('Caches cleared for fresh analysis');
       }
 
@@ -66,13 +66,15 @@ program
         enableSafety: options.safety !== false,
         rolloutPercentage: parseInt(options.rollout),
         cache: options.cache !== false,
-        responseValidation: options.validateResponses ? {
-          enabled: true,
-          endpoint: options.validationEndpoint,
-          authToken: options.validationToken,
-          generateAlignments: options.generateAlignments,
-          setupABTest: options.setupAbTest
-        } : undefined
+        responseValidation: options.validateResponses
+          ? {
+              enabled: true,
+              endpoint: options.validationEndpoint,
+              authToken: options.validationToken,
+              generateAlignments: options.generateAlignments,
+              setupABTest: options.setupAbTest,
+            }
+          : undefined,
       });
 
       spinner.succeed('Pipeline initialized');
@@ -80,7 +82,9 @@ program
       // Step 1: Extract
       spinner = ora('Extracting GraphQL operations...').start();
       const extractionResult = await pipeline.extract();
-      spinner.succeed(`Extracted ${extractionResult.operations.length} operations from ${extractionResult.files.length} files`);
+      spinner.succeed(
+        `Extracted ${extractionResult.operations.length} operations from ${extractionResult.files.length} files`,
+      );
 
       if (options.interactive) {
         await displayExtractionSummary(extractionResult);
@@ -129,14 +133,21 @@ program
           if (validationReport.summary.safeToMigrate) {
             spinner.succeed('Response validation passed - data integrity maintained');
           } else {
-            spinner.fail(`Response validation failed: ${validationReport.summary.breakingChanges} breaking changes detected`);
+            spinner.fail(
+              `Response validation failed: ${validationReport.summary.breakingChanges} breaking changes detected`,
+            );
 
             console.log(chalk.yellow('\n⚠️  Response Validation Summary:'));
-            console.log(`  Average Similarity: ${(validationReport.summary.averageSimilarity * 100).toFixed(1)}%`);
+            console.log(
+              `  Average Similarity: ${(validationReport.summary.averageSimilarity * 100).toFixed(1)}%`,
+            );
             console.log(`  Breaking Changes: ${validationReport.summary.breakingChanges}`);
             console.log(`  Risk Level: ${validationReport.summary.estimatedRisk}`);
 
-            if (!options.interactive || !(await confirmStep('Continue despite response differences?'))) {
+            if (
+              !options.interactive ||
+              !(await confirmStep('Continue despite response differences?'))
+            ) {
               process.exit(1);
             }
           }
@@ -162,7 +173,7 @@ program
             title: `GraphQL Schema Migration: ${applicationResult.operationsUpdated} operations updated`,
             body: pipeline.generatePRDescription(),
             base: options.prBase,
-            draft: options.interactive
+            draft: options.interactive,
           });
 
           spinner.succeed(`Created PR: ${pr.url}`);
@@ -173,7 +184,9 @@ program
         if (options.safety !== false && !options.dryRun) {
           spinner = ora('Setting up progressive rollout...').start();
           const rolloutResult = await pipeline.setupProgressiveRollout();
-          spinner.succeed(`Progressive rollout configured for ${rolloutResult.operations.length} operations at ${options.rollout}%`);
+          spinner.succeed(
+            `Progressive rollout configured for ${rolloutResult.operations.length} operations at ${options.rollout}%`,
+          );
 
           console.log(chalk.yellow('\n⚠️  Progressive Rollout Active'));
           console.log('Monitor health metrics with: pg-migrate monitor');
@@ -197,11 +210,12 @@ program
 
       // Cleanup
       await pipeline.cleanup();
-
     } catch (error) {
       spinner.fail('Migration failed');
       logger.error('Migration error:', error);
-      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : String(error)}`));
+      console.error(
+        chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : String(error)}`),
+      );
       process.exit(1);
     }
   });
@@ -213,8 +227,8 @@ async function confirmStep(message: string): Promise<boolean> {
       type: 'confirm',
       name: 'proceed',
       message,
-      default: true
-    }
+      default: true,
+    },
   ]);
   return answer.proceed;
 }
@@ -266,7 +280,11 @@ function displayFinalSummary(summary: any): void {
 }
 
 // Only parse if this file is being run directly
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('migrate.ts') || process.argv[1]?.endsWith('migrate.js')) {
+if (
+  import.meta.url === `file://${process.argv[1]}` ||
+  process.argv[1]?.endsWith('migrate.ts') ||
+  process.argv[1]?.endsWith('migrate.js')
+) {
   program.parse(process.argv);
 }
 

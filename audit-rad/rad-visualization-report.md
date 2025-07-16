@@ -1,6 +1,7 @@
 # RAD Field Usage Analysis - Detailed Report
 
 ## Overview
+
 - **Total Synthesizers:** 144
 - **Unique Fields:** 102
 - **Entity Types:** 5
@@ -10,32 +11,32 @@
 
 This table shows which fields are used by which entity types and how often.
 
-| Field | wsbvnext | unknown | mktgasst | vnextgraph | uce | o365 | Total |
-|-------|-------|-------|-------|-------|-------|-------|-------|
-| `accountId` | 93 | - | 27 | - | - | - | 120 |
-| `type` | 28 | - | 69 | 2 | - | 1 | 100 |
-| `id` | 27 | - | 44 | - | - | - | 71 |
-| `entitlementData` | 30 | - | 7 | - | - | - | 37 |
-| `websiteType` | 27 | - | 5 | - | - | - | 32 |
-| `features.published` | 14 | - | 6 | - | - | - | 20 |
-| `features.widgets` | 14 | 4 | - | - | - | - | 18 |
-| `wsbvnext.id` | - | 18 | - | - | - | - | 18 |
-| `wsbvnext.type` | - | 18 | - | - | - | - | 18 |
-| `wsbvnext.accountId` | - | 15 | - | - | - | - | 15 |
-| `billing.commitment` | 14 | - | - | - | - | - | 14 |
-| `wsbvnext.customerIntentions` | - | 14 | - | - | - | - | 14 |
-| `mktgasst.id` | - | 12 | - | - | - | - | 12 |
-| `mktgasst.type` | - | 12 | - | - | - | - | 12 |
-| `account.paymentStatus` | 10 | - | - | - | - | - | 10 |
-| `customerIntentions` | 9 | - | - | - | - | - | 9 |
-| `entitlements.current` | - | - | 6 | - | - | - | 6 |
-| `wsbvnext.features` | - | 5 | - | - | - | - | 5 |
-| `features.planType` | - | - | 5 | - | - | - | 5 |
-| `features.facebook.pageId` | - | - | 5 | - | - | - | 5 |
-| `social.lastFacebookPost` | - | - | 4 | - | - | - | 4 |
-| `mktgasst.features.facebook.isConnected` | - | 2 | - | - | - | - | 2 |
-| `mktgasst.features.gmb.hasGMBPublished` | - | 2 | - | - | - | - | 2 |
-| `features` | - | - | - | - | 1 | - | 1 |
+| Field                                    | wsbvnext | unknown | mktgasst | vnextgraph | uce | o365 | Total |
+| ---------------------------------------- | -------- | ------- | -------- | ---------- | --- | ---- | ----- |
+| `accountId`                              | 93       | -       | 27       | -          | -   | -    | 120   |
+| `type`                                   | 28       | -       | 69       | 2          | -   | 1    | 100   |
+| `id`                                     | 27       | -       | 44       | -          | -   | -    | 71    |
+| `entitlementData`                        | 30       | -       | 7        | -          | -   | -    | 37    |
+| `websiteType`                            | 27       | -       | 5        | -          | -   | -    | 32    |
+| `features.published`                     | 14       | -       | 6        | -          | -   | -    | 20    |
+| `features.widgets`                       | 14       | 4       | -        | -          | -   | -    | 18    |
+| `wsbvnext.id`                            | -        | 18      | -        | -          | -   | -    | 18    |
+| `wsbvnext.type`                          | -        | 18      | -        | -          | -   | -    | 18    |
+| `wsbvnext.accountId`                     | -        | 15      | -        | -          | -   | -    | 15    |
+| `billing.commitment`                     | 14       | -       | -        | -          | -   | -    | 14    |
+| `wsbvnext.customerIntentions`            | -        | 14      | -        | -          | -   | -    | 14    |
+| `mktgasst.id`                            | -        | 12      | -        | -          | -   | -    | 12    |
+| `mktgasst.type`                          | -        | 12      | -        | -          | -   | -    | 12    |
+| `account.paymentStatus`                  | 10       | -       | -        | -          | -   | -    | 10    |
+| `customerIntentions`                     | 9        | -       | -        | -          | -   | -    | 9     |
+| `entitlements.current`                   | -        | -       | 6        | -          | -   | -    | 6     |
+| `wsbvnext.features`                      | -        | 5       | -        | -          | -   | -    | 5     |
+| `features.planType`                      | -        | -       | 5        | -          | -   | -    | 5     |
+| `features.facebook.pageId`               | -        | -       | 5        | -          | -   | -    | 5     |
+| `social.lastFacebookPost`                | -        | -       | 4        | -          | -   | -    | 4     |
+| `mktgasst.features.facebook.isConnected` | -        | 2       | -        | -          | -   | -    | 2     |
+| `mktgasst.features.gmb.hasGMBPublished`  | -        | 2       | -        | -          | -   | -    | 2     |
+| `features`                               | -        | -       | -        | -          | 1   | -    | 1     |
 
 # Entity Relationships
 
@@ -119,14 +120,15 @@ Total field accesses in this category: **17**
 - `ola.account.has_business_address`: 1 times (0.2% of all accesses)
 - `ola.notifications.c1_sms`: 1 times (0.2% of all accesses)
 
-
 # Common Synthesizer Patterns
 
 ## Simple Entity Filter
+
 **Description:** Simple filtering of entities with field selection
 **Count:** 73 synthesizers
 
 Examples:
+
 - Task-AddGEMSubscribers-gHLTYfjQb
 - Task-AddMoreProducts-wLwoZl_J6
 - Task-PromoteAppointmentService-EBVqroHvQ
@@ -135,10 +137,12 @@ Examples:
 - ... and 68 more
 
 ## Entity Join
+
 **Description:** Joins multiple entity types (e.g., mktgasst + wsbvnext)
 **Count:** 34 synthesizers
 
 Examples:
+
 - Guidance-Local-2-jDYwffkHC
 - Guidance-GetNoticed-2-ODfCE4BVy
 - Guidance-Appointments-1-Cs1c8jdv9
@@ -147,19 +151,23 @@ Examples:
 - ... and 29 more
 
 ## Conditional Return
+
 **Description:** Returns data based on conditions
 **Count:** 3 synthesizers
 
 Examples:
+
 - Task-SetupOLANotifications-zen_KPiqs
 - Task-ConnectSocialAccounts-leCIpNDXg(copy)-hhIvw3CG0
 - Task-ViewMySubscribers-TCLmO4CU3
 
 ## Static Return
+
 **Description:** Always returns empty or static data
 **Count:** 34 synthesizers
 
 Examples:
+
 - Task-Upgrade-RemoveAds-ZsVan1Rs~
 - Task-SubscriptionsCouponOrInsights-EfdGoWY3R
 - Task-DoEmailGEMCampaign-Social-Tile-R9MtcarCi
@@ -167,12 +175,12 @@ Examples:
 - Task-WaysToSell-VTk695TTb
 - ... and 29 more
 
-
 # Field Access Variations Analysis
 
 This shows how the same logical data is accessed through different field paths.
 
 ## billing
+
 This data is accessed in **3** different ways:
 
 - `vnextAccount.billing.autoRenew`
@@ -180,6 +188,7 @@ This data is accessed in **3** different ways:
 - `vnextAccount.billing.termType`
 
 ## entitlements.current
+
 This data is accessed in **6** different ways:
 
 - `entitlementData.current`
@@ -189,10 +198,10 @@ This data is accessed in **6** different ways:
 - `entitlementData.current.conversations`
 - `entitlementData.current[`
 
-
 # Recommendations
 
 ## Standardize Field Access
+
 The following fields are accessed inconsistently:
 
 - `billing` has 3 variations
@@ -201,9 +210,10 @@ The following fields are accessed inconsistently:
 Consider standardizing these to reduce complexity.
 
 ## Simplify Complex Synthesizers
+
 Found **6** complex synthesizers that might benefit from simplification.
 
 ## Review Static Returns
+
 Found **34** synthesizers that always return empty/static data.
 Consider if these are still needed.
-

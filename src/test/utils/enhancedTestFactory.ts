@@ -10,27 +10,27 @@ export class EnhancedTestDataFactory {
   }): ExtractedQuery {
     const complexity = options?.complexity || 'simple';
     const queryName = faker.helpers.fromRegExp(/[A-Z][a-zA-Z]{4,12}Query/);
-    
+
     let content = `query ${queryName}`;
-    
+
     if (options?.includeVariables) {
       const varCount = complexity === 'simple' ? 1 : complexity === 'medium' ? 3 : 5;
       const variables = Array.from({ length: varCount }, () => ({
         name: faker.helpers.fromRegExp(/\$[a-z][a-zA-Z]{3,8}/),
-        type: faker.helpers.arrayElement(['ID!', 'String', 'Int', 'Boolean', 'Input'])
+        type: faker.helpers.arrayElement(['ID!', 'String', 'Int', 'Boolean', 'Input']),
       }));
-      content += `(${variables.map(v => `${v.name}: ${v.type}`).join(', ')})`;
+      content += `(${variables.map((v) => `${v.name}: ${v.type}`).join(', ')})`;
     }
-    
+
     content += ' {\n';
-    
+
     // Add fields based on complexity
     const fieldCount = complexity === 'simple' ? 3 : complexity === 'medium' ? 7 : 15;
     for (let i = 0; i < fieldCount; i++) {
       const indent = '  ';
       const fieldName = faker.helpers.fromRegExp(/[a-z][a-zA-Z]{3,10}/);
       content += `${indent}${fieldName}`;
-      
+
       if (Math.random() > 0.7 && complexity !== 'simple') {
         // Add nested fields
         content += ' {\n';
@@ -44,13 +44,13 @@ export class EnhancedTestDataFactory {
         content += '\n';
       }
     }
-    
+
     content += '}';
-    
+
     if (options?.includeFragments) {
       content += `\n${faker.helpers.fromRegExp(/fragment [A-Z][a-zA-Z]{4,10} on [A-Z][a-zA-Z]{3,8} \{[^}]+\}/)}\n`;
     }
-    
+
     return {
       id: faker.string.uuid(),
       name: queryName,
@@ -61,19 +61,19 @@ export class EnhancedTestDataFactory {
       location: {
         line: faker.number.int({ min: 1, max: 500 }),
         column: faker.number.int({ min: 1, max: 80 }),
-        file: faker.system.filePath()
-      }
+        file: faker.system.filePath(),
+      },
     };
   }
-  
+
   // Generate datasets for performance testing
   static generateLargeDataset(size: number): ExtractedQuery[] {
-    return Array.from({ length: size }, () => 
+    return Array.from({ length: size }, () =>
       this.generateRealisticQuery({
         complexity: faker.helpers.arrayElement(['simple', 'medium', 'complex']),
         includeFragments: Math.random() > 0.7,
-        includeVariables: Math.random() > 0.5
-      })
+        includeVariables: Math.random() > 0.5,
+      }),
     );
   }
 }

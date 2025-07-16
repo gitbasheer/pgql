@@ -45,7 +45,7 @@ describe('GitHubIntegration', () => {
 
   it('should render clone button', () => {
     renderComponent();
-    
+
     const button = screen.getByRole('button', { name: /Clone from GitHub/i });
     expect(button).toBeInTheDocument();
     expect(button).toHaveAttribute('type', 'button');
@@ -55,18 +55,24 @@ describe('GitHubIntegration', () => {
     const user = userEvent.setup();
     renderComponent();
 
-    await user.click(screen.getByRole('button', { name: /Clone from GitHub/i }));
+    await user.click(
+      screen.getByRole('button', { name: /Clone from GitHub/i })
+    );
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('Clone GitHub Repository')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('https://github.com/owner/repo')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('https://github.com/owner/repo')
+    ).toBeInTheDocument();
   });
 
   it('should close dialog when overlay is clicked', async () => {
     const user = userEvent.setup();
     renderComponent();
 
-    await user.click(screen.getByRole('button', { name: /Clone from GitHub/i }));
+    await user.click(
+      screen.getByRole('button', { name: /Clone from GitHub/i })
+    );
     expect(screen.getByRole('dialog')).toBeInTheDocument();
 
     const overlay = screen.getByRole('dialog').parentElement;
@@ -79,7 +85,9 @@ describe('GitHubIntegration', () => {
     const user = userEvent.setup();
     renderComponent();
 
-    await user.click(screen.getByRole('button', { name: /Clone from GitHub/i }));
+    await user.click(
+      screen.getByRole('button', { name: /Clone from GitHub/i })
+    );
     await user.click(screen.getByText('Cancel'));
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -87,7 +95,7 @@ describe('GitHubIntegration', () => {
 
   it('should successfully clone repository', async () => {
     const user = userEvent.setup();
-    
+
     (global.fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -98,11 +106,13 @@ describe('GitHubIntegration', () => {
 
     renderComponent();
 
-    await user.click(screen.getByRole('button', { name: /Clone from GitHub/i }));
-    
+    await user.click(
+      screen.getByRole('button', { name: /Clone from GitHub/i })
+    );
+
     const input = screen.getByPlaceholderText('https://github.com/owner/repo');
     await user.type(input, 'https://github.com/test/repo');
-    
+
     await user.click(screen.getByRole('button', { name: 'Clone' }));
 
     await waitFor(() => {
@@ -111,7 +121,9 @@ describe('GitHubIntegration', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repoUrl: 'https://github.com/test/repo' }),
       });
-      expect(toast.success).toHaveBeenCalledWith('Repository cloned successfully!');
+      expect(toast.success).toHaveBeenCalledWith(
+        'Repository cloned successfully!'
+      );
       expect(mockOnRepoCloned).toHaveBeenCalledWith('/tmp/cloned-repo');
     });
 
@@ -121,7 +133,7 @@ describe('GitHubIntegration', () => {
 
   it('should handle clone error', async () => {
     const user = userEvent.setup();
-    
+
     (global.fetch as any).mockResolvedValueOnce({
       ok: false,
       json: async () => ({ message: 'Repository not found' }),
@@ -129,12 +141,19 @@ describe('GitHubIntegration', () => {
 
     renderComponent();
 
-    await user.click(screen.getByRole('button', { name: /Clone from GitHub/i }));
-    await user.type(screen.getByPlaceholderText('https://github.com/owner/repo'), 'https://github.com/invalid/repo');
+    await user.click(
+      screen.getByRole('button', { name: /Clone from GitHub/i })
+    );
+    await user.type(
+      screen.getByPlaceholderText('https://github.com/owner/repo'),
+      'https://github.com/invalid/repo'
+    );
     await user.click(screen.getByRole('button', { name: 'Clone' }));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Failed to clone repository: Repository not found');
+      expect(toast.error).toHaveBeenCalledWith(
+        'Failed to clone repository: Repository not found'
+      );
       expect(mockOnRepoCloned).not.toHaveBeenCalled();
     });
 
@@ -144,19 +163,34 @@ describe('GitHubIntegration', () => {
 
   it('should disable clone button while cloning', async () => {
     const user = userEvent.setup();
-    
-    (global.fetch as any).mockImplementation(() => 
-      new Promise(resolve => setTimeout(() => resolve({
-        ok: true,
-        json: async () => ({ localPath: '/tmp/repo', message: 'Success' }),
-      }), 100))
+
+    (global.fetch as any).mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve({
+                ok: true,
+                json: async () => ({
+                  localPath: '/tmp/repo',
+                  message: 'Success',
+                }),
+              }),
+            100
+          )
+        )
     );
 
     renderComponent();
 
-    await user.click(screen.getByRole('button', { name: /Clone from GitHub/i }));
-    await user.type(screen.getByPlaceholderText('https://github.com/owner/repo'), 'https://github.com/test/repo');
-    
+    await user.click(
+      screen.getByRole('button', { name: /Clone from GitHub/i })
+    );
+    await user.type(
+      screen.getByPlaceholderText('https://github.com/owner/repo'),
+      'https://github.com/test/repo'
+    );
+
     const cloneButton = screen.getByRole('button', { name: 'Clone' });
     await user.click(cloneButton);
 
@@ -172,8 +206,10 @@ describe('GitHubIntegration', () => {
     const user = userEvent.setup();
     renderComponent();
 
-    await user.click(screen.getByRole('button', { name: /Clone from GitHub/i }));
-    
+    await user.click(
+      screen.getByRole('button', { name: /Clone from GitHub/i })
+    );
+
     const input = screen.getByPlaceholderText('https://github.com/owner/repo');
     const cloneButton = screen.getByRole('button', { name: 'Clone' });
 
@@ -185,31 +221,40 @@ describe('GitHubIntegration', () => {
     await user.clear(input);
     await user.type(input, 'not-a-url');
     await user.click(cloneButton);
-    
+
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Please enter a valid GitHub repository URL');
+      expect(toast.error).toHaveBeenCalledWith(
+        'Please enter a valid GitHub repository URL'
+      );
     });
   });
 
   it('should handle network errors', async () => {
     const user = userEvent.setup();
-    
+
     (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
 
     renderComponent();
 
-    await user.click(screen.getByRole('button', { name: /Clone from GitHub/i }));
-    await user.type(screen.getByPlaceholderText('https://github.com/owner/repo'), 'https://github.com/test/repo');
+    await user.click(
+      screen.getByRole('button', { name: /Clone from GitHub/i })
+    );
+    await user.type(
+      screen.getByPlaceholderText('https://github.com/owner/repo'),
+      'https://github.com/test/repo'
+    );
     await user.click(screen.getByRole('button', { name: 'Clone' }));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Failed to clone repository: Network error');
+      expect(toast.error).toHaveBeenCalledWith(
+        'Failed to clone repository: Network error'
+      );
     });
   });
 
   it('should clear input after successful clone', async () => {
     const user = userEvent.setup();
-    
+
     (global.fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ localPath: '/tmp/repo', message: 'Success' }),
@@ -217,12 +262,16 @@ describe('GitHubIntegration', () => {
 
     renderComponent();
 
-    await user.click(screen.getByRole('button', { name: /Clone from GitHub/i }));
-    
-    const input = screen.getByPlaceholderText('https://github.com/owner/repo') as HTMLInputElement;
+    await user.click(
+      screen.getByRole('button', { name: /Clone from GitHub/i })
+    );
+
+    const input = screen.getByPlaceholderText(
+      'https://github.com/owner/repo'
+    ) as HTMLInputElement;
     await user.type(input, 'https://github.com/test/repo');
     expect(input.value).toBe('https://github.com/test/repo');
-    
+
     await user.click(screen.getByRole('button', { name: 'Clone' }));
 
     await waitFor(() => {
@@ -230,8 +279,12 @@ describe('GitHubIntegration', () => {
     });
 
     // Re-open dialog to check input is cleared
-    await user.click(screen.getByRole('button', { name: /Clone from GitHub/i }));
-    const newInput = screen.getByPlaceholderText('https://github.com/owner/repo') as HTMLInputElement;
+    await user.click(
+      screen.getByRole('button', { name: /Clone from GitHub/i })
+    );
+    const newInput = screen.getByPlaceholderText(
+      'https://github.com/owner/repo'
+    ) as HTMLInputElement;
     expect(newInput.value).toBe('');
   });
 });

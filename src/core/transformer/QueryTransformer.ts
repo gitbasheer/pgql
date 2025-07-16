@@ -44,7 +44,7 @@ export class QueryTransformer {
       transformed,
       ast: transformedAst,
       changes,
-      rules: this.rules
+      rules: this.rules,
     };
   }
 
@@ -61,11 +61,11 @@ export class QueryTransformer {
   }
 
   private applyFieldRenames(ast: DocumentNode): DocumentNode {
-    const fieldRenameRules = this.rules.filter(r => r.type === 'field-rename');
+    const fieldRenameRules = this.rules.filter((r) => r.type === 'field-rename');
 
     return visit(ast, {
       Field(node) {
-        const rule = fieldRenameRules.find(r => {
+        const rule = fieldRenameRules.find((r) => {
           // Simple field name matching for now
           return node.name.value === r.from;
         });
@@ -76,44 +76,47 @@ export class QueryTransformer {
             ...node,
             name: {
               ...node.name,
-              value: rule.to
-            }
+              value: rule.to,
+            },
           };
         }
-      }
+      },
     });
   }
 
   private applyStructureChanges(ast: DocumentNode): DocumentNode {
-    const structureRules = this.rules.filter(r => r.type === 'structure-change');
+    const structureRules = this.rules.filter((r) => r.type === 'structure-change');
 
     return visit(ast, {
       Field: {
         enter(node) {
           // Handle edges -> nodes transformation
-          if (node.name.value === 'edges' && structureRules.some(r => r.from === 'edges' && r.to === 'nodes')) {
+          if (
+            node.name.value === 'edges' &&
+            structureRules.some((r) => r.from === 'edges' && r.to === 'nodes')
+          ) {
             logger.debug('Transforming edges to nodes');
-            
+
             // Check if this is a connection pattern
             const hasNodeSelection = node.selectionSet?.selections.some(
-              sel => sel.kind === 'Field' && sel.name.value === 'node'
+              (sel) => sel.kind === 'Field' && sel.name.value === 'node',
             );
 
             if (hasNodeSelection) {
               // Replace edges { node { ... } } with nodes { ... }
               const nodeField = node.selectionSet?.selections.find(
-                sel => sel.kind === 'Field' && sel.name.value === 'node'
+                (sel) => sel.kind === 'Field' && sel.name.value === 'node',
               ) as any;
 
               return {
                 ...node,
                 name: { kind: 'Name', value: 'nodes' },
-                selectionSet: nodeField?.selectionSet
+                selectionSet: nodeField?.selectionSet,
               };
             }
           }
-        }
-      }
+        },
+      },
     });
   }
 
@@ -122,23 +125,25 @@ export class QueryTransformer {
     allVenturesToVentures: {
       type: 'field-rename' as const,
       from: 'allVentures',
-      to: 'ventures'
+      to: 'ventures',
     },
     edgesToNodes: {
       type: 'structure-change' as const,
       from: 'edges',
-      to: 'nodes'
+      to: 'nodes',
     },
     userToAccount: {
       type: 'field-rename' as const,
       from: 'user',
-      to: 'account'
-    }
+      to: 'account',
+    },
   };
 }
 
 // Helper to load rules from deprecation analysis
-export async function loadTransformationRules(deprecationFile: string): Promise<TransformationRule[]> {
+export async function loadTransformationRules(
+  deprecationFile: string,
+): Promise<TransformationRule[]> {
   try {
     const fs = await import('fs/promises');
     const content = await fs.readFile(deprecationFile, 'utf-8');
@@ -156,7 +161,7 @@ export async function loadTransformationRules(deprecationFile: string): Promise<
               type: 'field-rename',
               from: field.name,
               to: match[1],
-              parent: type !== 'Query' ? type : undefined
+              parent: type !== 'Query' ? type : undefined,
             });
           }
         }

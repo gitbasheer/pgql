@@ -2,11 +2,11 @@ import { DocumentNode } from 'graphql';
 import { ExtractedQuery } from './query.types.js';
 
 export interface QueryPattern {
-  templatePattern: string;  // e.g., "query ${queryNames.byIdV1}"
-  possibleNames: string[];  // All possible runtime values
+  templatePattern: string; // e.g., "query ${queryNames.byIdV1}"
+  possibleNames: string[]; // All possible runtime values
   usageContext: {
     file: string;
-    conditions: string[];   // e.g., ["infinityStoneEnabled", "ventureId"]
+    conditions: string[]; // e.g., ["infinityStoneEnabled", "ventureId"]
     dependencies: string[]; // Other patterns this depends on
   };
 }
@@ -23,27 +23,30 @@ export interface QueryPatternRegistry {
 
 export interface PatternExtractedQuery extends ExtractedQuery {
   namePattern?: {
-    template: string;        // "${queryNames.byIdV1}"
-    resolvedName: string;    // "getVentureHomeDataByVentureIdDashboard"
+    template: string; // "${queryNames.byIdV1}"
+    resolvedName: string; // "getVentureHomeDataByVentureIdDashboard"
     possibleValues: string[]; // All possible runtime values
-    patternKey: string;      // "getVentureById"
-    version: string;         // "V1"
+    patternKey: string; // "getVentureById"
+    version: string; // "V1"
     isDeprecated: boolean;
-    migrationPath?: string;  // Target version/pattern
+    migrationPath?: string; // Target version/pattern
   };
   contentFingerprint?: string; // Hash of normalized AST structure
 }
 
 export interface MigrationManifest {
-  patterns: Record<string, {
-    to: string;
-    fragments: {
-      old: string;
-      new: string;
-    };
-    conditions?: string[];
-    deprecationReason?: string;
-  }>;
+  patterns: Record<
+    string,
+    {
+      to: string;
+      fragments: {
+        old: string;
+        new: string;
+      };
+      conditions?: string[];
+      deprecationReason?: string;
+    }
+  >;
   globalReplacements: Array<{
     from: string;
     to: string;

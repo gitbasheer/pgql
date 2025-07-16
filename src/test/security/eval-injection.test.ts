@@ -28,15 +28,15 @@ describe('MinimalChangeCalculator Security Tests - eval() Injection Prevention',
           '\\\\"); eval(\\"console.log(\'INJECTED\')\\"); (\\"',
         ];
 
-        payloads.forEach(payload => {
+        payloads.forEach((payload) => {
           expect(() => testCookString(payload)).not.toThrow();
           const result = testCookString(payload);
-          
+
           // The key security test: verify no code was executed
           // The cookString method will process escape sequences, but won't execute code
           // What matters is that the payload didn't trigger any code execution
           expect(typeof result).toBe('string');
-          
+
           // Verify process is still intact
           expect(process).toBeDefined();
           expect(process.exit).toBeDefined();
@@ -51,12 +51,12 @@ describe('MinimalChangeCalculator Security Tests - eval() Injection Prevention',
           '"); delete process.env.PATH; ("',
         ];
 
-        payloads.forEach(payload => {
+        payloads.forEach((payload) => {
           const originalEnv = { ...process.env };
           const originalCwd = process.cwd();
-          
+
           expect(() => testCookString(payload)).not.toThrow();
-          
+
           // Verify process wasn't manipulated
           expect(process.env).toEqual(originalEnv);
           expect(process.cwd()).toBe(originalCwd);
@@ -71,7 +71,7 @@ describe('MinimalChangeCalculator Security Tests - eval() Injection Prevention',
           '"); global.require = null; ("',
         ];
 
-        payloads.forEach(payload => {
+        payloads.forEach((payload) => {
           expect(() => testCookString(payload)).not.toThrow();
           // Verify require is still functional
           expect(require).toBeDefined();
@@ -89,16 +89,18 @@ describe('MinimalChangeCalculator Security Tests - eval() Injection Prevention',
         // Set a test env var
         process.env.TEST_SECRET = 'secret-value';
 
-        payloads.forEach(payload => {
+        payloads.forEach((payload) => {
           const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-          
+
           expect(() => testCookString(payload)).not.toThrow();
-          
+
           // Verify console.log wasn't called with env vars
-          expect(consoleSpy).not.toHaveBeenCalledWith(expect.objectContaining({
-            TEST_SECRET: 'secret-value'
-          }));
-          
+          expect(consoleSpy).not.toHaveBeenCalledWith(
+            expect.objectContaining({
+              TEST_SECRET: 'secret-value',
+            }),
+          );
+
           consoleSpy.mockRestore();
         });
 
@@ -135,15 +137,15 @@ describe('MinimalChangeCalculator Security Tests - eval() Injection Prevention',
 
       it('should handle malformed Unicode escapes', () => {
         const payloads = [
-          '\\u041',      // Too short
-          '\\u041G',     // Invalid hex char
-          '\\uGGGG',     // All invalid
-          '\\u',         // No digits
-          '\\u00',       // Too short
-          '\\u\\u0041',  // Double escape
+          '\\u041', // Too short
+          '\\u041G', // Invalid hex char
+          '\\uGGGG', // All invalid
+          '\\u', // No digits
+          '\\u00', // Too short
+          '\\u\\u0041', // Double escape
         ];
 
-        payloads.forEach(payload => {
+        payloads.forEach((payload) => {
           expect(() => testCookString(payload)).not.toThrow();
           // Should either parse what it can or return as-is
         });
@@ -151,32 +153,32 @@ describe('MinimalChangeCalculator Security Tests - eval() Injection Prevention',
 
       it('should handle malformed hex escapes', () => {
         const payloads = [
-          '\\x4',        // Too short
-          '\\xGG',       // Invalid hex
-          '\\x',         // No digits
-          '\\x\\x41',    // Double escape
+          '\\x4', // Too short
+          '\\xGG', // Invalid hex
+          '\\x', // No digits
+          '\\x\\x41', // Double escape
         ];
 
-        payloads.forEach(payload => {
+        payloads.forEach((payload) => {
           expect(() => testCookString(payload)).not.toThrow();
         });
       });
 
       it('should prevent Unicode injection attacks', () => {
         const payloads = [
-          '\\u0022); console.log(\\u0022INJECTED',  // " encoded as \u0022
-          '\\x22); console.log(\\x22INJECTED',      // " encoded as \x22
-          '\\u0027); alert(\\u0027INJECTED',        // ' encoded as \u0027
+          '\\u0022); console.log(\\u0022INJECTED', // " encoded as \u0022
+          '\\x22); console.log(\\x22INJECTED', // " encoded as \x22
+          '\\u0027); alert(\\u0027INJECTED', // ' encoded as \u0027
         ];
 
-        payloads.forEach(payload => {
+        payloads.forEach((payload) => {
           const result = testCookString(payload);
           // The Unicode/hex escapes should be decoded but code should not execute
           expect(() => testCookString(payload)).not.toThrow();
-          
+
           // Verify it's returning a string (not executing code)
           expect(typeof result).toBe('string');
-          
+
           // For the first two payloads, verify the quote was decoded
           if (payload.includes('\\u0022') || payload.includes('\\x22')) {
             expect(result).toContain('"');
@@ -218,14 +220,9 @@ describe('MinimalChangeCalculator Security Tests - eval() Injection Prevention',
 
     describe('Edge Cases and Complex Attacks', () => {
       it('should handle nested quotes and escapes', () => {
-        const payloads = [
-          '\\"\\"\\"',
-          "\\'\\'\\'",
-          '\\\\\\\\\\\\',
-          '\\\\\\"\\\\\\"\\\\\\"',
-        ];
+        const payloads = ['\\"\\"\\"', "\\'\\'\\'", '\\\\\\\\\\\\', '\\\\\\"\\\\\\"\\\\\\"'];
 
-        payloads.forEach(payload => {
+        payloads.forEach((payload) => {
           expect(() => testCookString(payload)).not.toThrow();
         });
       });
@@ -238,13 +235,9 @@ describe('MinimalChangeCalculator Security Tests - eval() Injection Prevention',
       });
 
       it('should handle null bytes and control characters', () => {
-        const payloads = [
-          '\\0\\0\\0',
-          'Before\\0After',
-          '\\x00\\x01\\x02\\x03',
-        ];
+        const payloads = ['\\0\\0\\0', 'Before\\0After', '\\x00\\x01\\x02\\x03'];
 
-        payloads.forEach(payload => {
+        payloads.forEach((payload) => {
           expect(() => testCookString(payload)).not.toThrow();
         });
       });
@@ -257,7 +250,7 @@ describe('MinimalChangeCalculator Security Tests - eval() Injection Prevention',
           '`${alert("XSS")}`',
         ];
 
-        payloads.forEach(payload => {
+        payloads.forEach((payload) => {
           const result = testCookString(payload);
           // Should return the literal string, not evaluate template
           expect(result).toBe(payload);
@@ -266,15 +259,15 @@ describe('MinimalChangeCalculator Security Tests - eval() Injection Prevention',
 
       it('should handle JSON.parse edge cases', () => {
         const payloads = [
-          '{"key": "value"}',  // Valid JSON but not a string
-          '[1, 2, 3]',         // Array
-          'null',              // null literal
-          'undefined',         // undefined
-          'true',              // boolean
-          '123',               // number
+          '{"key": "value"}', // Valid JSON but not a string
+          '[1, 2, 3]', // Array
+          'null', // null literal
+          'undefined', // undefined
+          'true', // boolean
+          '123', // number
         ];
 
-        payloads.forEach(payload => {
+        payloads.forEach((payload) => {
           expect(() => testCookString(payload)).not.toThrow();
         });
       });
@@ -286,7 +279,7 @@ describe('MinimalChangeCalculator Security Tests - eval() Injection Prevention',
         for (let i = 0; i < 100; i++) {
           nested = `\\\\${nested}`;
         }
-        
+
         expect(() => testCookString(nested)).not.toThrow();
       });
 
@@ -326,13 +319,13 @@ describe('MinimalChangeCalculator Security Tests - eval() Injection Prevention',
     it('should handle template literals with injections', () => {
       const quasis = [
         { value: { raw: 'query { user(id: "', cooked: null } },
-        { value: { raw: '") { \\u0022); console.log(\\u0022INJECTED } }', cooked: null } }
+        { value: { raw: '") { \\u0022); console.log(\\u0022INJECTED } }', cooked: null } },
       ];
 
       const changeMap = {
         additions: new Map(),
         deletions: new Map(),
-        replacements: new Map()
+        replacements: new Map(),
       };
 
       expect(() => {

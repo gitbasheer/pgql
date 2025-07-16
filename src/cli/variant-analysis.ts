@@ -20,39 +20,39 @@ program
   .option('-p, --pattern <patterns...>', 'File patterns to scan', ['**/*.{js,jsx,ts,tsx}'])
   .action(async (directory: string, options: any) => {
     const spinner = ora('Analyzing GraphQL query variants...').start();
-    
+
     try {
       // Extract with variant awareness
       const extractor = new UnifiedVariantExtractor({ enableIncrementalExtraction: true });
       const queries = await extractor.extractFromDirectory(
         directory,
         options.pattern,
-        true // resolve fragments
+        true, // resolve fragments
       );
-      
+
       spinner.succeed(`Found ${queries.length} total queries (including variants)`);
-      
+
       // Generate variant report
       const variantReport = await extractor.generateVariantReport();
-      
+
       // Separate original queries from variants
-      const originalQueries = queries.filter(q => !(q as any).variantMetadata?.isVariant);
-      const variants = queries.filter(q => (q as any).variantMetadata?.isVariant);
-      
+      const originalQueries = queries.filter((q) => !(q as any).variantMetadata?.isVariant);
+      const variants = queries.filter((q) => (q as any).variantMetadata?.isVariant);
+
       console.log(chalk.blue('\n📊 Variant Analysis Summary:\n'));
       console.log(`  Original queries: ${originalQueries.length}`);
       console.log(`  Generated variants: ${variants.length}`);
       console.log(`  Condition variables: ${variantReport.summary.totalConditions}`);
       console.log(`  Queries with variants: ${variantReport.summary.totalQueriesWithVariants}`);
-      
+
       if (variantReport.conditions.length > 0) {
         console.log(chalk.yellow('\n🔧 Condition Variables:\n'));
-        
+
         for (const condition of variantReport.conditions) {
           console.log(`  ${chalk.bold(condition.variable)} (${condition.type})`);
           console.log(`    Possible values: ${condition.possibleValues.join(', ')}`);
           console.log(`    Used in ${condition.usage.length} locations:`);
-          
+
           const usageByQuery = new Map<string, any[]>();
           for (const usage of condition.usage) {
             if (!usageByQuery.has(usage.queryId)) {
@@ -60,7 +60,7 @@ program
             }
             usageByQuery.get(usage.queryId)!.push(usage);
           }
-          
+
           for (const [queryId, usages] of usageByQuery) {
             console.log(`      - ${queryId}`);
             for (const usage of usages) {
@@ -69,7 +69,7 @@ program
           }
         }
       }
-      
+
       // Group variants by original query
       const variantsByOriginal = new Map<string, any[]>();
       for (const variant of variants) {
@@ -79,15 +79,15 @@ program
         }
         variantsByOriginal.get(metadata.originalQueryId)!.push(variant);
       }
-      
+
       if (variantsByOriginal.size > 0) {
         console.log(chalk.green('\n🎯 Queries with Variants:\n'));
-        
+
         for (const [originalId, queryVariants] of variantsByOriginal) {
-          const original = originalQueries.find(q => q.id === originalId);
+          const original = originalQueries.find((q) => q.id === originalId);
           console.log(`  ${chalk.bold(original?.name || originalId)}`);
           console.log(`    ${queryVariants.length} variants generated:`);
-          
+
           for (const variant of queryVariants) {
             const metadata = (variant as any).variantMetadata;
             const conditionStr = Object.entries(metadata.conditions)
@@ -97,15 +97,15 @@ program
           }
         }
       }
-      
+
       // Analyze operations including variants
       const analyzer = new OperationAnalyzer();
       const operationGroups = analyzer.analyzeOperations(queries);
       const operationReport = analyzer.generateOperationReport();
-      
+
       // Create output directory
       await fs.mkdir(options.output, { recursive: true });
-      
+
       // Save detailed reports
       const detailedReport = {
         timestamp: new Date().toISOString(),
@@ -115,50 +115,57 @@ program
           originalQueries: originalQueries.length,
           variants: variants.length,
           conditions: variantReport.summary.totalConditions,
-          queriesWithVariants: variantReport.summary.totalQueriesWithVariants
+          queriesWithVariants: variantReport.summary.totalQueriesWithVariants,
         },
         conditions: variantReport.conditions,
         variantsByQuery: Array.from(variantsByOriginal.entries()).map(([id, variants]) => ({
           originalQueryId: id,
           variantCount: variants.length,
-          variants: variants.map(v => ({
+          variants: variants.map((v) => ({
             id: v.id,
             name: v.name,
             conditions: (v as any).variantMetadata.conditions,
-            replacements: (v as any).variantMetadata.replacements
-          }))
+            replacements: (v as any).variantMetadata.replacements,
+          })),
         })),
-        operationAnalysis: operationReport
+        operationAnalysis: operationReport,
       };
-      
+
       const reportPath = path.join(options.output, 'variant-analysis.json');
       await fs.writeFile(reportPath, JSON.stringify(detailedReport, null, 2));
-      
+
       // Save extracted queries with variants
       const queriesPath = path.join(options.output, 'queries-with-variants.json');
-      await fs.writeFile(queriesPath, JSON.stringify({
-        timestamp: new Date().toISOString(),
-        directory,
-        totalQueries: queries.length,
-        queries: queries.map(q => ({
-          id: q.id,
-          file: q.filePath,
-          name: q.name,
-          type: q.type,
-          location: q.location,
-          content: q.content,
-          variantMetadata: (q as any).variantMetadata
-        }))
-      }, null, 2));
-      
+      await fs.writeFile(
+        queriesPath,
+        JSON.stringify(
+          {
+            timestamp: new Date().toISOString(),
+            directory,
+            totalQueries: queries.length,
+            queries: queries.map((q) => ({
+              id: q.id,
+              file: q.filePath,
+              name: q.name,
+              type: q.type,
+              location: q.location,
+              content: q.content,
+              variantMetadata: (q as any).variantMetadata,
+            })),
+          },
+          null,
+          2,
+        ),
+      );
+
       // Generate HTML visualization
       const htmlReport = generateHTMLReport(detailedReport);
       const htmlPath = path.join(options.output, 'variant-analysis.html');
       await fs.writeFile(htmlPath, htmlReport);
-      
+
       console.log(chalk.green(`\n✅ Analysis complete!`));
       console.log(chalk.dim(`Reports saved to ${options.output}`));
-      
+
       // Show recommendations
       if (variantReport.summary.totalConditions > 0) {
         console.log(chalk.yellow('\n💡 Recommendations:\n'));
@@ -167,7 +174,6 @@ program
         console.log('  3. Test all variant combinations in your migration');
         console.log('  4. Consider consolidating similar variants if possible');
       }
-      
     } catch (error) {
       spinner.fail('Analysis failed');
       logger.error('Error:', error);
@@ -300,7 +306,9 @@ function generateHTMLReport(report: any): string {
 
   <div class="section">
     <h2>🔧 Condition Variables</h2>
-    ${report.conditions.map((condition: any) => `
+    ${report.conditions
+      .map(
+        (condition: any) => `
       <div class="condition-card">
         <div class="condition-name">${condition.variable}</div>
         <div>Type: <code>${condition.type}</code></div>
@@ -308,30 +316,46 @@ function generateHTMLReport(report: any): string {
         <div class="condition-usage">
           <strong>Used in ${condition.usage.length} locations:</strong>
           <ul>
-            ${condition.usage.map((u: any) => `
+            ${condition.usage
+              .map(
+                (u: any) => `
               <li>${u.queryId}: <code>${u.trueValue}</code> / <code>${u.falseValue}</code></li>
-            `).join('')}
+            `,
+              )
+              .join('')}
           </ul>
         </div>
       </div>
-    `).join('')}
+    `,
+      )
+      .join('')}
   </div>
 
   <div class="section">
     <h2>🎯 Queries with Variants</h2>
-    ${report.variantsByQuery.map((group: any) => `
+    ${report.variantsByQuery
+      .map(
+        (group: any) => `
       <div class="variant-group">
         <h3>${group.originalQueryId}</h3>
         <div>${group.variantCount} variants generated</div>
         <div class="variant-list">
-          ${group.variants.map((v: any) => `
+          ${group.variants
+            .map(
+              (v: any) => `
             <div class="variant-item">
-              ${Object.entries(v.conditions).map(([k, val]) => `${k}=${val}`).join(', ')}
+              ${Object.entries(v.conditions)
+                .map(([k, val]) => `${k}=${val}`)
+                .join(', ')}
             </div>
-          `).join('')}
+          `,
+            )
+            .join('')}
         </div>
       </div>
-    `).join('')}
+    `,
+      )
+      .join('')}
   </div>
 
   <div class="section">
@@ -342,9 +366,13 @@ function generateHTMLReport(report: any): string {
     
     <h3>Fragment Usage</h3>
     <ul>
-      ${report.operationAnalysis.fragmentUsage.map((f: any) => `
+      ${report.operationAnalysis.fragmentUsage
+        .map(
+          (f: any) => `
         <li><code>${f.fragment}</code>: Used in ${f.usageCount} operations</li>
-      `).join('')}
+      `,
+        )
+        .join('')}
     </ul>
   </div>
 </body>
