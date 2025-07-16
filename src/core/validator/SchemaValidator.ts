@@ -7,6 +7,7 @@ import {
   visit,
   visitWithTypeInfo,
   TypeInfo,
+  buildSchema,
 } from 'graphql';
 import { logger } from '../../utils/logger.js';
 import { createTwoFilesPatch } from 'diff';
@@ -63,7 +64,7 @@ export class SchemaValidator {
   }
 
   getCacheSize(): number {
-    return this.schemaLoader.getCacheStats().size;
+    return this.schemaLoader.getCacheStats().entries;
   }
 
   getCacheStats() {
@@ -242,10 +243,10 @@ export class SchemaValidator {
    * Load large schema with chunked introspection for better performance
    */
   async loadLargeSchema(schemaUrl: string): Promise<GraphQLSchema> {
-    // Check cache first
-    const cached = this.schemaCache.get(schemaUrl);
-    if (cached && Date.now() - cached.loadTime < this.cacheTimeout) {
-      return cached.schema;
+    // Use centralized schema loader
+    const result = await this.schemaLoader.loadSchema(schemaUrl);
+    if (result.cached) {
+      return result.schema;
     }
 
     try {

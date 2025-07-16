@@ -1,4 +1,5 @@
 import { logger } from '../../../utils/logger.js';
+import { parse, print } from 'graphql';
 import {
   ExtractedQuery,
   ResolvedQuery,
@@ -59,7 +60,7 @@ export class ExtractionPipeline {
     this.queryNameAnalyzer = new QueryNameAnalyzer(context);
     this.templateResolver = new TemplateResolver(context);
 
-    this.fragmentResolver = new FragmentResolver(context);
+    this.fragmentResolver = new FragmentResolver();
     this.nameResolver = new NameResolver(context);
 
     this.nameNormalizer = new NameNormalizer(context);
@@ -129,7 +130,24 @@ export class ExtractionPipeline {
 
     if (this.context.options.resolveFragments) {
       logger.info('Resolving fragments...');
-      resolvedQueries = await this.fragmentResolver.resolve(processedQueries);
+      // Convert to compatible format
+      const fragmentResults = await this.fragmentResolver.resolveQueriesWithFragments(processedQueries);
+      resolvedQueries = fragmentResults.map(fragResult => ({
+        ...fragResult,
+        resolvedContent: fragResult.content,
+        resolvedFragments: fragResult.fragments.map(frag => ({
+          name: frag.name.value,
+          content: print(frag),
+          ast: parse(print(frag)),
+          filePath: fragResult.filePath,
+          dependencies: fragResult.imports,
+        })),
+        allDependencies: fragResult.imports,
+        ast: processedQueries.find(q => q.id === fragResult.id)?.ast || parse(fragResult.content),
+        location: processedQueries.find(q => q.id === fragResult.id)?.location!,
+        fragments: fragResult.fragments.map(frag => frag.name.value),
+        imports: fragResult.imports.map(imp => ({ source: imp, imported: [], type: 'es6' as const })),
+      }));
       this.context.stats.totalFragments = this.context.fragments.size;
     }
 

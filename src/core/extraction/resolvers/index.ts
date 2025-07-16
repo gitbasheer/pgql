@@ -1,2 +1,2 @@
-export { FragmentResolver } from './FragmentResolver.js';
+export { FragmentResolver } from '../utils/FragmentResolver.js';
 export { NameResolver } from './NameResolver.js';
