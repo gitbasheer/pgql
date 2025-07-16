@@ -1,6 +1,8 @@
 // @ts-nocheck
 import * as babel from '@babel/parser';
-import traverse, { NodePath } from '@babel/traverse';
+import * as traverseModule from '@babel/traverse';
+const traverse = (traverseModule as any).default || traverseModule;
+import { NodePath } from '@babel/traverse';
 import generate from '@babel/generator';
 import * as t from '@babel/types';
 import { DocumentNode, parse, print, visit, Kind } from 'graphql';
@@ -136,31 +138,37 @@ export class UnifiedVariantExtractor extends GraphQLExtractor {
           }
 
           // Find variant patterns in the AST
-          traverse(ast, {
-            TaggedTemplateExpression: (path) => {
-              if (this.isGraphQLTag(path.node.tag)) {
-                const variants = this.generateVariantsFromTemplate(
-                  path,
-                  filePath,
-                  content,
-                  queryIndex++,
-                );
-                allQueries.push(...variants);
-              }
-            },
+          try {
+            traverse(ast, {
+              TaggedTemplateExpression: (path) => {
+                if (this.isGraphQLTag(path.node.tag)) {
+                  const variants = this.generateVariantsFromTemplate(
+                    path,
+                    filePath,
+                    content,
+                    queryIndex++,
+                  );
+                  allQueries.push(...variants);
+                }
+              },
 
-            CallExpression: (path) => {
-              if (this.isGraphQLCall(path.node)) {
-                const variants = this.generateVariantsFromTemplate(
-                  path,
-                  filePath,
-                  content,
-                  queryIndex++,
-                );
-                allQueries.push(...variants);
-              }
-            },
-          });
+              CallExpression: (path) => {
+                if (this.isGraphQLCall(path.node)) {
+                  const variants = this.generateVariantsFromTemplate(
+                    path,
+                    filePath,
+                    content,
+                    queryIndex++,
+                  );
+                  allQueries.push(...variants);
+                }
+              },
+            });
+          } catch (traverseError) {
+            logger.error('AST Traverse Failed:', traverseError);
+            // Fallback to base queries if traverse fails
+            return baseQueries;
+          }
 
           // If no variants found, return original queries
           return allQueries.length > 0 ? allQueries : baseQueries;
