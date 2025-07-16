@@ -8,7 +8,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
     it('should preserve source AST when enabled', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
 
       const context = new ExtractionContext(options);
@@ -45,7 +45,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
     it('should not preserve source AST when disabled', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: false
+        preserveSourceAST: false,
       };
 
       const context = new ExtractionContext(options);
@@ -66,7 +66,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
     it('should preserve template literal structure with interpolations', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
 
       const context = new ExtractionContext(options);
@@ -110,7 +110,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
     it('should preserve source AST for graphql() function calls', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
 
       const context = new ExtractionContext(options);
@@ -142,7 +142,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
     it('should preserve source AST for all queries', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
 
       const context = new ExtractionContext(options);
@@ -177,7 +177,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
     it('should handle various interpolation types', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
 
       const context = new ExtractionContext(options);
@@ -210,7 +210,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
 
       // NOTE:what does interpolations exactly mean? do we have any code that classifies what interpolations are and assigns them proper field names?
       // Verify interpolation types
-      const types = interpolations.map(i => i.type);
+      const types = interpolations.map((i) => i.type);
       expect(types).toContain('queryName'); // queryNames.dynamicName
       expect(types).toContain('functionCall'); // getUserFields()
       expect(types).toContain('conditional'); // ternary expression
@@ -222,7 +222,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
       const options: ExtractionOptions = {
         directory: '.',
         preserveSourceAST: true,
-        analyzeContext: true
+        analyzeContext: true,
       };
 
       const context = new ExtractionContext(options);
@@ -258,7 +258,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
     it('should handle empty template literals', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
 
       const context = new ExtractionContext(options);
@@ -274,7 +274,7 @@ describe('ASTStrategy with Source AST Preservation', () => {
     it('should handle parsing errors gracefully', async () => {
       const options: ExtractionOptions = {
         directory: '.',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
 
       const context = new ExtractionContext(options);

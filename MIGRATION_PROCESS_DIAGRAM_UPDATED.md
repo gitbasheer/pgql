@@ -1,6 +1,7 @@
 # GraphQL Migration Tool - Architecture & Process Diagrams
 
 ## 1. High-Level System Architecture
+
 ```mermaid
 graph TB
     subgraph "External Interfaces"
@@ -38,21 +39,21 @@ graph TB
     CLI --> ORCH
     MCP --> ORCH
     API --> TOOL
-    
+
     ORCH --> PIPE
     PIPE --> EXT
     PIPE --> TRANS
     PIPE --> VAL
     PIPE --> APP
-    
+
     PIPE --> HEALTH
     PIPE --> PROG
     PIPE --> ROLL
-    
+
     EXT --> CACHE
     VAL --> CACHE
     ORCH --> GITHUB
-    
+
     PERF --> PIPE
 
     style CLI fill:#e1f5e1
@@ -65,6 +66,7 @@ graph TB
 ```
 
 ## 2. Migration Pipeline Flow
+
 ```mermaid
 flowchart LR
     subgraph "Input Phase"
@@ -77,7 +79,7 @@ flowchart LR
         SCAN[Code Scanner<br/>src/core/scanner/*]
         EXTRACT[Query Extractor<br/>src/core/extraction/UnifiedExtractor.ts]
         ANALYZE[Query Analyzer<br/>src/core/extraction/analyzers/*]
-        
+
         SOURCE --> SCAN
         SCAN --> EXTRACT
         EXTRACT --> ANALYZE
@@ -88,7 +90,7 @@ flowchart LR
         DEPRECATION[Deprecation Analyzer<br/>src/core/analyzer/SchemaDeprecationAnalyzer.ts]
         PATTERN[Pattern Matcher<br/>src/core/analyzer/PatternMatcher.ts]
         CONFIDENCE[Confidence Scorer<br/>src/core/analyzer/ConfidenceScorer.ts]
-        
+
         QUERIES --> DEPRECATION
         SCHEMA --> DEPRECATION
         DEPRECATION --> PATTERN
@@ -99,7 +101,7 @@ flowchart LR
     subgraph "Transformation Phase"
         TRANSFORMER[Schema Transformer<br/>src/core/transformer/OptimizedSchemaTransformer.ts]
         VALIDATOR[Transform Validator<br/>src/core/validator/SchemaValidator.ts]
-        
+
         REPORT --> TRANSFORMER
         TRANSFORMER --> VALIDATOR
         VALIDATOR --> TRANSFORMED[Transformed Queries]
@@ -109,7 +111,7 @@ flowchart LR
         RESPONSE[Response Validator<br/>src/core/validator/ResponseValidationService.ts]
         COMPARATOR[Response Comparator<br/>src/core/validator/ResponseComparator.ts]
         SEMANTIC[Semantic Validator<br/>src/core/validator/SemanticValidator.ts]
-        
+
         TRANSFORMED --> RESPONSE
         RESPONSE --> COMPARATOR
         COMPARATOR --> SEMANTIC
@@ -119,7 +121,7 @@ flowchart LR
     subgraph "Application Phase"
         APPLICATOR[AST Code Applicator<br/>src/core/applicator/ASTCodeApplicator.ts]
         CALCULATOR[Change Calculator<br/>src/core/applicator/MinimalChangeCalculator.ts]
-        
+
         VALIDATED --> APPLICATOR
         APPLICATOR --> CALCULATOR
         CALCULATOR --> OUTPUT[Updated Source Files]
@@ -132,6 +134,7 @@ flowchart LR
 ```
 
 ## 3. CLI Command Architecture
+
 ```mermaid
 graph TB
     subgraph "CLI Entry Points"
@@ -163,22 +166,22 @@ graph TB
 
     MAIN --> UNIFIED
     UNIFIED --> COMPAT
-    
+
     COMPAT --> EXTRACT_CMD
     COMPAT --> MIGRATE_CMD
     COMPAT --> VALIDATE_CMD
     COMPAT --> ANALYZE_CMD
-    
+
     COMPAT --> PATTERN
     COMPAT --> VARIANT
     COMPAT --> PR
     COMPAT --> CONVERT
-    
+
     EXTRACT_CMD --> OUTPUT
     MIGRATE_CMD --> OUTPUT
     VALIDATE_CMD --> OUTPUT
     ANALYZE_CMD --> OUTPUT
-    
+
     OUTPUT --> JSON
     OUTPUT --> TEXT
     OUTPUT --> HTML
@@ -189,6 +192,7 @@ graph TB
 ```
 
 ## 4. Extraction Strategy Hierarchy
+
 ```mermaid
 classDiagram
     class BaseStrategy {
@@ -229,11 +233,12 @@ classDiagram
     BaseStrategy <|-- ASTStrategy
     BaseStrategy <|-- PluckStrategy
     ASTStrategy <|-- PatternAwareASTStrategy
-    
+
     UnifiedExtractor o-- BaseStrategy : uses
 ```
 
 ## 5. Validation & Comparison System
+
 ```mermaid
 graph TB
     subgraph "Validation Pipeline"
@@ -246,7 +251,7 @@ graph TB
     subgraph "Comparison System"
         COMPARATOR[Response Comparator<br/>src/core/validator/ResponseComparator.ts]
         REGISTRY[Comparator Registry<br/>src/core/validator/comparators/index.ts]
-        
+
         subgraph "Comparator Types"
             DATE[date-tolerance]
             CASE[case-insensitive]
@@ -266,7 +271,7 @@ graph TB
     INPUT --> SCHEMA_VAL
     SCHEMA_VAL --> RESPONSE_VAL
     RESPONSE_VAL --> COMPARATOR
-    
+
     COMPARATOR --> REGISTRY
     REGISTRY --> DATE
     REGISTRY --> CASE
@@ -275,7 +280,7 @@ graph TB
     REGISTRY --> SPACE
     REGISTRY --> TYPE
     REGISTRY --> PARTIAL
-    
+
     COMPARATOR --> SEMANTIC_VAL
     SEMANTIC_VAL --> REPORT_GEN
     REPORT_GEN --> ALIGN_GEN
@@ -286,6 +291,7 @@ graph TB
 ```
 
 ## 6. Safety & Monitoring Architecture
+
 ```mermaid
 graph LR
     subgraph "Safety Controls"
@@ -317,15 +323,15 @@ graph LR
     HEALTH --> TRANSFORM_HEALTH
     HEALTH --> VALIDATION_HEALTH
     HEALTH --> SYSTEM_HEALTH
-    
+
     PROGRESSIVE --> PERF_MON
     PERF_MON --> METRICS
     METRICS --> ALERTS
-    
+
     ROLLBACK --> IMMEDIATE
     ROLLBACK --> GRADUAL
     ROLLBACK --> CHECKPOINT
-    
+
     ALERTS --> ROLLBACK
 
     style HEALTH fill:#ffe1e1
@@ -334,6 +340,7 @@ graph LR
 ```
 
 ## 7. MCP Server Integration
+
 ```mermaid
 sequenceDiagram
     participant Client as MCP Client
@@ -347,7 +354,7 @@ sequenceDiagram
 
     Client->>Server: Call Tool (e.g., extract_queries)
     Server->>Handler: Validate Arguments
-    
+
     alt Valid Arguments
         Server->>CLI: Execute Command
         CLI->>Pipeline: Run Migration Step
@@ -365,6 +372,7 @@ sequenceDiagram
 ```
 
 ## 8. Test Architecture Overview
+
 ```mermaid
 graph TB
     subgraph "Unit Tests"
@@ -396,19 +404,20 @@ graph TB
     EXTRACTOR_TESTS --> MOCK_FACTORY
     VALIDATOR_TESTS --> MOCK_FACTORY
     TRANSFORMER_TESTS --> MOCK_FACTORY
-    
+
     PIPELINE_TESTS --> TEST_HELPERS
     CLI_TESTS --> TEST_HELPERS
     E2E_TESTS --> TEST_HELPERS
-    
+
     PERF_TESTS --> PERF_TRACKER
-    
+
     style SAFETY_TESTS fill:#ffe1e1
     style PERF_TESTS fill:#e1f5e1
     style EDGE_TESTS fill:#e1e1ff
 ```
 
 ## 9. Cache & Performance Strategy
+
 ```mermaid
 graph LR
     subgraph "Cache Layers"
@@ -439,15 +448,15 @@ graph LR
     MANAGER --> MEMORY
     MANAGER --> DISK
     MANAGER --> DISTRIBUTED
-    
+
     MANAGER --> STRATEGY
     STRATEGY --> INVALIDATION
-    
+
     SCHEMA_CACHE --> MANAGER
     QUERY_CACHE --> MANAGER
     TRANSFORM_CACHE --> MANAGER
     VALIDATION_CACHE --> MANAGER
-    
+
     MONITOR --> METRICS
     METRICS --> REPORTING
     METRICS --> MANAGER
@@ -458,10 +467,11 @@ graph LR
 ```
 
 ## 10. Error Handling & Recovery Flow
+
 ```mermaid
 flowchart TB
     ERROR[Error Occurs]
-    
+
     subgraph "Error Classification"
         PARSE_ERR[Parse Error]
         VALIDATION_ERR[Validation Error]
@@ -469,49 +479,49 @@ flowchart TB
         RUNTIME_ERR[Runtime Error]
         PERMISSION_ERR[Permission Error]
     end
-    
+
     subgraph "Error Handlers"
         STANDARD[StandardErrorHandler<br/>src/utils/StandardErrorHandler.ts]
         MCP_HANDLER[MCP ErrorHandler<br/>src/mcp/server.ts]
         CLI_HANDLER[CLI Error Handler]
     end
-    
+
     subgraph "Recovery Strategies"
         RETRY[Retry with Backoff]
         SKIP[Skip & Continue]
         ROLLBACK[Rollback Changes]
         MANUAL[Manual Intervention]
     end
-    
+
     subgraph "User Feedback"
         ERROR_MSG[Error Message]
         SUGGESTION[Recovery Suggestion]
         DEBUG_INFO[Debug Information]
         NEXT_STEPS[Next Steps]
     end
-    
+
     ERROR --> PARSE_ERR
     ERROR --> VALIDATION_ERR
     ERROR --> TRANSFORM_ERR
     ERROR --> RUNTIME_ERR
     ERROR --> PERMISSION_ERR
-    
+
     PARSE_ERR --> STANDARD
     VALIDATION_ERR --> STANDARD
     TRANSFORM_ERR --> STANDARD
     RUNTIME_ERR --> MCP_HANDLER
     PERMISSION_ERR --> CLI_HANDLER
-    
+
     STANDARD --> RETRY
     STANDARD --> SKIP
     MCP_HANDLER --> ROLLBACK
     CLI_HANDLER --> MANUAL
-    
+
     RETRY --> ERROR_MSG
     SKIP --> ERROR_MSG
     ROLLBACK --> ERROR_MSG
     MANUAL --> ERROR_MSG
-    
+
     ERROR_MSG --> SUGGESTION
     SUGGESTION --> DEBUG_INFO
     DEBUG_INFO --> NEXT_STEPS
@@ -524,12 +534,14 @@ flowchart TB
 ## Quick Reference
 
 ### Key Entry Points
+
 - **CLI**: `src/cli/main-cli.ts`
 - **MCP Server**: `src/mcp/server.ts`
 - **API**: `src/index.ts`
 - **Pipeline**: `src/core/pipeline/UnifiedMigrationPipeline.ts`
 
 ### Core Components
+
 - **Orchestrator**: `src/core/MigrationOrchestrator.ts`
 - **Extractor**: `src/core/extraction/engine/UnifiedExtractor.ts`
 - **Transformer**: `src/core/transformer/OptimizedSchemaTransformer.ts`
@@ -537,12 +549,14 @@ flowchart TB
 - **Applicator**: `src/core/applicator/ASTCodeApplicator.ts`
 
 ### Safety Systems
+
 - **Health Check**: `src/core/safety/HealthCheck.ts`
 - **Progressive Migration**: `src/core/safety/ProgressiveMigration.ts`
 - **Rollback**: `src/core/safety/Rollback.ts`
 - **Performance Monitor**: `src/core/monitoring/PerformanceMonitor.ts`
 
 ### Recent Additions
+
 - **MCP Server**: Model Context Protocol integration for AI assistance
 - **CLI Compatibility**: Backward-compatible wrapper for automation
 - **Comparator Registry**: Type-safe response comparison system

@@ -62,10 +62,12 @@ export class MockFactory {
   /**
    * Create a mock TransformationResult
    */
-  static createTransformationResult(overrides?: Partial<TransformationResult>): TransformationResult {
+  static createTransformationResult(
+    overrides?: Partial<TransformationResult>,
+  ): TransformationResult {
     const { parse } = require('graphql');
     const transformed = overrides?.transformed || 'query TestQuery { users { id name email } }';
-    
+
     return {
       original: overrides?.original || 'query TestQuery { users { id name } }',
       transformed,
@@ -173,11 +175,11 @@ export class MockFactory {
    */
   static async mockModule<T>(
     modulePath: string,
-    factory: (actual: T) => T | Promise<T>
+    factory: (actual: T) => T | Promise<T>,
   ): Promise<void> {
     vi.mock(modulePath, async () => {
       const actual = await vi.importActual<T>(modulePath);
       return await factory(actual);
     });
   }
-} 
+}

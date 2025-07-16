@@ -20,7 +20,7 @@ export class OutputAdapter {
   constructor(options: OutputOptions = {}) {
     this.options = options;
     this.version = options.outputVersion || process.env.PG_CLI_OUTPUT_VERSION || '1.0';
-    
+
     if (options.legacyFormat) {
       this.version = '0.9'; // Pre-1.0 format
     }
@@ -37,9 +37,9 @@ export class OutputAdapter {
           queries: data.queries || data.operations,
           total: data.totalQueries || data.totalOperations,
           fragments: data.fragments || [],
-          timestamp: data.timestamp
+          timestamp: data.timestamp,
         };
-      
+
       case '1.0':
       default:
         // Current stable format
@@ -56,10 +56,10 @@ export class OutputAdapter {
             totalQueries: data.totalQueries || 0,
             totalFragments: data.fragments?.length || 0,
             totalVariants: data.variants?.length || 0,
-            extractionTime: data.extractionTime || 0
-          }
+            extractionTime: data.extractionTime || 0,
+          },
         };
-      
+
       case '2.0':
         // Future format (not yet released)
         logger.warn('Output version 2.0 is experimental');
@@ -69,16 +69,16 @@ export class OutputAdapter {
             timestamp: data.timestamp,
             directory: data.directory,
             tool: 'pg-cli',
-            version: process.env.npm_package_version
+            version: process.env.npm_package_version,
           },
           operations: data.queries || data.operations || [],
           fragments: data.fragments || [],
           variants: data.variants || [],
           diagnostics: {
             errors: data.errors || [],
-            warnings: data.warnings || []
+            warnings: data.warnings || [],
           },
-          statistics: data.stats || {}
+          statistics: data.stats || {},
         };
     }
   }
@@ -93,9 +93,9 @@ export class OutputAdapter {
         return {
           transformed: data.transformations?.length || 0,
           changes: data.transformations || [],
-          timestamp: data.timestamp
+          timestamp: data.timestamp,
         };
-      
+
       case '1.0':
       default:
         // Current stable format
@@ -107,8 +107,8 @@ export class OutputAdapter {
             total: data.totalTransformed || 0,
             transformed: data.transformations?.filter((t: any) => t.changes.length > 0).length || 0,
             skipped: 0,
-            failed: 0
-          }
+            failed: 0,
+          },
         };
     }
   }
@@ -130,9 +130,9 @@ export class OutputAdapter {
           valid: data.results?.valid || 0,
           invalid: data.results?.invalid || 0,
           queries: data.queries || [],
-          timestamp: data.timestamp
+          timestamp: data.timestamp,
         };
-      
+
       case '1.0':
       default:
         // Current stable format
@@ -147,13 +147,13 @@ export class OutputAdapter {
     switch (format) {
       case 'junit':
         return this.toJUnitFormat(data);
-      
+
       case 'markdown':
         return this.toMarkdownFormat(data);
-      
+
       case 'html':
         return this.toHTMLFormat(data);
-      
+
       default:
         return JSON.stringify(data, null, 2);
     }
@@ -165,11 +165,11 @@ export class OutputAdapter {
   private toJUnitFormat(data: any): string {
     const results = data.results || {};
     const queries = data.queries || [];
-    
+
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += `<testsuites name="GraphQL Validation" tests="${results.total}" failures="${results.invalid}">\n`;
     xml += `  <testsuite name="Query Validation" tests="${results.total}" failures="${results.invalid}">\n`;
-    
+
     for (const query of queries) {
       xml += `    <testcase name="${query.id}" classname="graphql.queries">\n`;
       if (!query.valid) {
@@ -181,10 +181,10 @@ export class OutputAdapter {
       }
       xml += `    </testcase>\n`;
     }
-    
+
     xml += `  </testsuite>\n`;
     xml += `</testsuites>\n`;
-    
+
     return xml;
   }
 
@@ -194,13 +194,13 @@ export class OutputAdapter {
   private toMarkdownFormat(data: any): string {
     const results = data.results || {};
     let md = '# GraphQL Validation Report\n\n';
-    
+
     md += `## Summary\n\n`;
     md += `- **Total Queries**: ${results.total}\n`;
     md += `- **Valid**: ${results.valid}\n`;
     md += `- **Invalid**: ${results.invalid}\n`;
     md += `- **Warnings**: ${results.warnings}\n\n`;
-    
+
     if (results.invalid > 0) {
       md += `## Errors\n\n`;
       for (const query of data.queries || []) {
@@ -217,7 +217,7 @@ export class OutputAdapter {
         }
       }
     }
-    
+
     return md;
   }
 
@@ -254,16 +254,16 @@ export class OutputAdapter {
             <h3>${query.id}</h3>
             <p>File: <code>${query.file}</code></p>
             <ul>`;
-          
+
           for (const error of query.errors || []) {
             html += `<li class="error">${this.escapeHTML(error.message)}</li>`;
           }
-          
+
           html += '</ul></div>';
         }
       }
     }
-    
+
     html += '</body></html>';
     return html;
   }
@@ -297,7 +297,7 @@ export class OutputAdapter {
    */
   async writeOutput(data: any, outputPath?: string): Promise<void> {
     const shouldOutputJSON = this.options.json || process.env.PG_CLI_JSON_STDOUT === '1';
-    
+
     if (shouldOutputJSON && !outputPath) {
       // Output to stdout as pure JSON
       console.log(JSON.stringify(data, null, 2));
@@ -305,7 +305,7 @@ export class OutputAdapter {
       // Write to file
       const fs = await import('fs/promises');
       await fs.writeFile(outputPath, JSON.stringify(data, null, 2));
-      
+
       if (!this.options.quiet) {
         logger.info(`Output written to ${outputPath}`);
       }
@@ -322,6 +322,6 @@ export function createOutputAdapter(options: any): OutputAdapter {
     legacyFormat: options.legacyFormat,
     format: options.format,
     json: options.json,
-    quiet: options.quiet || process.env.PG_CLI_NO_PROGRESS === '1'
+    quiet: options.quiet || process.env.PG_CLI_NO_PROGRESS === '1',
   });
 }

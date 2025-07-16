@@ -33,8 +33,8 @@ describe('Pattern Migration Performance', () => {
       patternMetadata: {
         isDynamic: query.includes('${'),
         hasInterpolation: query.includes('${'),
-        confidence: 1.0
-      }
+        confidence: 1.0,
+      },
     }));
 
     // Initialize services
@@ -44,7 +44,7 @@ describe('Pattern Migration Performance', () => {
       cacheConfig: {
         memoryLimit: 50 * 1024 * 1024,
         ttl: 30 * 60 * 1000,
-      }
+      },
     });
   });
 
@@ -135,8 +135,8 @@ describe('Pattern Migration Performance', () => {
         patternMetadata: {
           isDynamic: query.includes('${'),
           hasInterpolation: query.includes('${'),
-          confidence: 1.0
-        }
+          confidence: 1.0,
+        },
       }));
 
       for (const query of largePatternQueries) {
@@ -176,7 +176,7 @@ describe('Pattern Migration Performance', () => {
         cacheConfig: {
           memoryLimit: 10 * 1024 * 1024,
           ttl: 10 * 60 * 1000,
-        }
+        },
       });
     });
 
@@ -187,7 +187,7 @@ describe('Pattern Migration Performance', () => {
         cacheConfig: {
           memoryLimit: 50 * 1024 * 1024,
           ttl: 30 * 60 * 1000,
-        }
+        },
       });
     });
   });
@@ -207,8 +207,8 @@ describe('Pattern Migration Performance', () => {
         patternMetadata: {
           isDynamic: query.includes('${'),
           hasInterpolation: query.includes('${'),
-          confidence: 1.0
-        }
+          confidence: 1.0,
+        },
       }));
 
       // Process in batches to measure memory efficiency
@@ -267,7 +267,7 @@ function generateSampleQueries(count: number): string[] {
     'query GetUserWithVentures($userId: ID!) { user(id: $userId) { id ventures { id name } } }',
     'query ${queryNames.getUserById} { user { id name } }',
     'query ${queryNames.getVentureByDomain} { venture { id domain } }',
-    'query ComplexQuery($filter: FilterInput!) { items(filter: $filter) { ...FragmentA ...FragmentB } }'
+    'query ComplexQuery($filter: FilterInput!) { items(filter: $filter) { ...FragmentA ...FragmentB } }',
   ];
 
   const queries: string[] = [];
@@ -284,7 +284,7 @@ function generateSimpleHash(content: string): number {
   let hash = 0;
   for (let i = 0; i < content.length; i++) {
     const char = content.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   return hash;
@@ -301,11 +301,11 @@ function analyzeDynamicPatterns(query: string): {
 } {
   const hasInterpolation = query.includes('${');
   const patterns = query.match(/\$\{[^}]+\}/g) || [];
-  const isDynamic = patterns.some(p => p.includes('queryNames') || p.includes('variables'));
+  const isDynamic = patterns.some((p) => p.includes('queryNames') || p.includes('variables'));
 
   return {
     isDynamic,
     hasInterpolation,
-    patternCount: patterns.length
+    patternCount: patterns.length,
   };
 }

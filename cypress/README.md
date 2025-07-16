@@ -3,16 +3,19 @@
 ## Setup
 
 1. Start the mock server (in one terminal):
+
    ```bash
    cd ui && pnpm mock-server
    ```
 
 2. Start the UI development server (in another terminal):
+
    ```bash
    pnpm ui:dev
    ```
 
 3. Run the E2E tests:
+
    ```bash
    # Headless mode
    pnpm test:e2e

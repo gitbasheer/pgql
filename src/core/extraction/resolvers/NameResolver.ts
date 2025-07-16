@@ -11,22 +11,26 @@ export class NameResolver {
   async resolve(queries: ResolvedQuery[]): Promise<ResolvedQuery[]> {
     // Name resolution is already handled by QueryNameAnalyzer
     // This resolver can do final adjustments if needed
-    
-    return queries.map(query => {
+
+    return queries.map((query) => {
       // Ensure every query has a name
       if (!query.name) {
         query.name = this.generateFallbackName(query);
       }
-      
+
       return query;
     });
   }
 
   private generateFallbackName(query: ResolvedQuery): string {
-    const baseName = query.filePath.split('/').pop()?.replace(/\.[^.]+$/, '') || 'unknown';
+    const baseName =
+      query.filePath
+        .split('/')
+        .pop()
+        ?.replace(/\.[^.]+$/, '') || 'unknown';
     const type = query.type.charAt(0).toUpperCase() + query.type.slice(1);
     const index = query.id.split('-').pop() || '0';
-    
+
     return `${type}${this.capitalize(baseName)}${index}`;
   }
 

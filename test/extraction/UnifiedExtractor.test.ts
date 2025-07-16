@@ -20,17 +20,17 @@ describe('UnifiedExtractor for vnext-dashboard patterns', () => {
           }
         }\`;
     `;
-    
+
     // Mock glob to return our test file
     vi.mocked(glob).mockResolvedValue(['src/features/VentureHome/queries/mock.js']);
     vi.mocked(fs.readFile).mockResolvedValue(mockFileContent);
-    
-    const extractor = new UnifiedExtractor({ 
+
+    const extractor = new UnifiedExtractor({
       directory: 'mock-repo',
       strategies: ['pluck', 'ast'],
-      resolveFragments: false
+      resolveFragments: false,
     });
-    
+
     const result = await extractor.extract();
     expect(result.queries.length).toBeGreaterThan(0);
     expect(result.queries[0].content).toContain('GetVenture');
@@ -47,16 +47,16 @@ describe('UnifiedExtractor for vnext-dashboard patterns', () => {
           }
         }\`;
     `;
-    
+
     vi.mocked(glob).mockResolvedValue(['src/features/VentureHome/queries/factory.js']);
     vi.mocked(fs.readFile).mockResolvedValue(mockFileContent);
-    
-    const extractor = new UnifiedExtractor({ 
+
+    const extractor = new UnifiedExtractor({
       directory: 'mock-repo',
       strategies: ['ast'],
-      resolveFragments: false
+      resolveFragments: false,
     });
-    
+
     const result = await extractor.extract();
     expect(result.queries.length).toBeGreaterThan(0);
     expect(result.queries[0].content).toContain('GetVenture');
@@ -83,24 +83,24 @@ describe('UnifiedExtractor for vnext-dashboard patterns', () => {
           }
         }\`;
     `;
-    
+
     vi.mocked(glob).mockResolvedValue([
       'src/features/VentureHome/queries/main.js',
-      'src/features/VentureHome/queries/fragments.js'
+      'src/features/VentureHome/queries/fragments.js',
     ]);
     vi.mocked(fs.readFile)
       .mockResolvedValueOnce(mainQueryContent)
       .mockResolvedValueOnce(fragmentContent);
-    
-    const extractor = new UnifiedExtractor({ 
+
+    const extractor = new UnifiedExtractor({
       directory: 'mock-repo',
       strategies: ['ast'],
-      resolveFragments: true
+      resolveFragments: true,
     });
-    
+
     const result = await extractor.extract();
     expect(result.queries.length).toBeGreaterThan(0);
-    const query = result.queries.find(q => q.content.includes('GetVenture'));
+    const query = result.queries.find((q) => q.content.includes('GetVenture'));
     expect(query).toBeDefined();
     expect(query?.content).toContain('...ventureFields');
   });

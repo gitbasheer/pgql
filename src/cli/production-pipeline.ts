@@ -86,34 +86,34 @@ program
       extraction: {
         totalFiles: 0,
         totalOperations: 0,
-        byType: {}
+        byType: {},
       },
       fragments: {
         filesFound: 0,
         totalFragments: 0,
-        unresolvedInterpolations: []
+        unresolvedInterpolations: [],
       },
       validation: {
         valid: 0,
         invalid: 0,
         warnings: 0,
-        errors: []
+        errors: [],
       },
       analysis: {
         uniqueOperations: 0,
         duplicates: 0,
         unnamedOperations: 0,
-        fragmentUsage: {}
+        fragmentUsage: {},
       },
       readiness: {
         score: 0,
         issues: [],
-        recommendations: []
-      }
+        recommendations: [],
+      },
     };
 
     console.log(chalk.blue('\n🚀 Production Readiness Pipeline\n'));
-    
+
     try {
       // Step 1: Extract queries
       const extractSpinner = ora('Extracting GraphQL operations...').start();
@@ -122,15 +122,18 @@ program
       const queries = await extractor.extractFromDirectory(
         directory,
         ['**/*.{js,jsx,ts,tsx}'],
-        !options.skipFragments
+        !options.skipFragments,
       );
-      
+
       report.extraction.totalOperations = queries.length;
-      report.extraction.byType = queries.reduce((acc, q) => {
-        acc[q.type] = (acc[q.type] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      
+      report.extraction.byType = queries.reduce(
+        (acc, q) => {
+          acc[q.type] = (acc[q.type] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+
       extractSpinner.succeed(`Extracted ${queries.length} operations`);
 
       // Step 2: Fragment resolution details
@@ -138,18 +141,18 @@ program
         const fragmentSpinner = ora('Analyzing fragment resolution...').start();
         const resolver = new FragmentResolver();
         const fragmentFiles = await resolver.findAndLoadFragmentFiles(directory);
-        
+
         report.fragments.filesFound = fragmentFiles.size;
         let totalFragments = 0;
         for (const fragments of fragmentFiles.values()) {
           totalFragments += fragments.length;
         }
         report.fragments.totalFragments = totalFragments;
-        
+
         // Track unresolved interpolations from logs
         // This is a simplified version - in production you'd want proper tracking
         report.fragments.unresolvedInterpolations = ['ventureInferredFragment'];
-        
+
         fragmentSpinner.succeed(`Found ${totalFragments} fragments in ${fragmentFiles.size} files`);
       }
 
@@ -157,31 +160,31 @@ program
       if (!options.skipValidation) {
         const validationSpinner = ora('Validating against schema...').start();
         const validator = new SchemaValidator();
-        
+
         const validationResults = await validator.validateQueries(
-          queries.map(q => ({ id: q.id, content: q.content })),
-          options.schema
+          queries.map((q) => ({ id: q.id, content: q.content })),
+          options.schema,
         );
-        
+
         const validationReport = validator.generateValidationReport(validationResults);
         report.validation.valid = validationReport.valid;
         report.validation.invalid = validationReport.invalid;
         report.validation.warnings = validationReport.warnings;
-        
+
         // Collect errors
         for (const summary of validationReport.summary) {
           if (!summary.valid && summary.errors) {
             report.validation.errors.push({
               queryId: summary.id,
-              errors: summary.errors.map(e => e.message)
+              errors: summary.errors.map((e) => e.message),
             });
           }
         }
-        
+
         validationSpinner.succeed(
-          `Validation: ${validationReport.valid} valid, ${validationReport.invalid} invalid`
+          `Validation: ${validationReport.valid} valid, ${validationReport.invalid} invalid`,
         );
-        
+
         if (validationReport.invalid > 0 && !options.continueOnError) {
           throw new Error(`${validationReport.invalid} queries failed validation`);
         }
@@ -191,21 +194,21 @@ program
       if (!options.skipAnalysis) {
         const analysisSpinner = ora('Analyzing operations...').start();
         const analyzer = new OperationAnalyzer();
-        
+
         const operationGroups = analyzer.analyzeOperations(queries);
         const analysisReport = analyzer.generateOperationReport();
-        
+
         report.analysis.uniqueOperations = operationGroups.size;
         report.analysis.duplicates = analysisReport.duplicateOperations.length;
         report.analysis.unnamedOperations = analysisReport.unnamedOperations;
-        
+
         // Fragment usage
         for (const fragment of analysisReport.fragmentUsage) {
           report.analysis.fragmentUsage[fragment.fragment] = fragment.usageCount;
         }
-        
+
         analysisSpinner.succeed(
-          `Analysis: ${operationGroups.size} unique operations, ${analysisReport.duplicateOperations.length} duplicates`
+          `Analysis: ${operationGroups.size} unique operations, ${analysisReport.duplicateOperations.length} duplicates`,
         );
       }
 
@@ -214,7 +217,7 @@ program
       const deprecationAnalyzer = new SchemaDeprecationAnalyzer();
       const deprecations = await deprecationAnalyzer.analyzeSchemaFile(options.schema);
       const deprecationSummary = deprecationAnalyzer.getSummary();
-      
+
       if (report.transformation) {
         report.transformation.deprecations = deprecationSummary.total;
         report.transformation.replaceable = deprecationSummary.replaceable;
@@ -224,77 +227,74 @@ program
           deprecations: deprecationSummary.total,
           transformedQueries: 0,
           replaceable: deprecationSummary.replaceable,
-          vague: deprecationSummary.vague
+          vague: deprecationSummary.vague,
         };
       }
-      
+
       deprecationSpinner.succeed(
-        `Found ${deprecationSummary.total} deprecations (${deprecationSummary.replaceable} replaceable)`
+        `Found ${deprecationSummary.total} deprecations (${deprecationSummary.replaceable} replaceable)`,
       );
 
       // Calculate readiness score
       const totalQueries = report.extraction.totalOperations;
       const validQueries = report.validation.valid;
       const validationScore = totalQueries > 0 ? (validQueries / totalQueries) * 100 : 0;
-      
+
       const uniqueRatio = report.analysis.uniqueOperations / totalQueries;
       const duplicationScore = uniqueRatio * 100;
-      
+
       const namedRatio = (totalQueries - report.analysis.unnamedOperations) / totalQueries;
       const namingScore = namedRatio * 100;
-      
-      const fragmentResolutionScore = report.fragments.unresolvedInterpolations.length === 0 ? 100 : 50;
-      
+
+      const fragmentResolutionScore =
+        report.fragments.unresolvedInterpolations.length === 0 ? 100 : 50;
+
       report.readiness.score = Math.round(
-        (validationScore * 0.4 + 
-         duplicationScore * 0.2 + 
-         namingScore * 0.2 + 
-         fragmentResolutionScore * 0.2) 
+        validationScore * 0.4 +
+          duplicationScore * 0.2 +
+          namingScore * 0.2 +
+          fragmentResolutionScore * 0.2,
       );
 
       // Generate issues and recommendations
       if (report.validation.invalid > 0) {
         report.readiness.issues.push(
-          `${report.validation.invalid} queries failed schema validation`
+          `${report.validation.invalid} queries failed schema validation`,
         );
         report.readiness.recommendations.push(
-          'Fix validation errors before proceeding with migration'
+          'Fix validation errors before proceeding with migration',
         );
       }
 
       if (report.analysis.duplicates > 5) {
-        report.readiness.issues.push(
-          `Found ${report.analysis.duplicates} duplicate operations`
-        );
+        report.readiness.issues.push(`Found ${report.analysis.duplicates} duplicate operations`);
         report.readiness.recommendations.push(
-          'Consolidate duplicate operations to reduce maintenance burden'
+          'Consolidate duplicate operations to reduce maintenance burden',
         );
       }
 
       if (report.analysis.unnamedOperations > 0) {
-        report.readiness.issues.push(
-          `${report.analysis.unnamedOperations} operations are unnamed`
-        );
+        report.readiness.issues.push(`${report.analysis.unnamedOperations} operations are unnamed`);
         report.readiness.recommendations.push(
-          'Name all operations for better debugging and monitoring'
+          'Name all operations for better debugging and monitoring',
         );
       }
 
       if (report.fragments.unresolvedInterpolations.length > 0) {
         report.readiness.issues.push(
-          `${report.fragments.unresolvedInterpolations.length} fragment interpolations could not be resolved`
+          `${report.fragments.unresolvedInterpolations.length} fragment interpolations could not be resolved`,
         );
         report.readiness.recommendations.push(
-          'Ensure all fragment dependencies are properly exported and imported'
+          'Ensure all fragment dependencies are properly exported and imported',
         );
       }
 
       // Save report
       await fs.mkdir(options.output, { recursive: true });
-      
+
       const reportPath = path.join(options.output, 'production-readiness.json');
       await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
-      
+
       // Generate HTML report
       const htmlReport = generateHTMLReport(report);
       const htmlPath = path.join(options.output, 'production-readiness.html');
@@ -302,39 +302,42 @@ program
 
       // Console summary
       console.log(chalk.green('\n✅ Pipeline Complete\n'));
-      console.log(chalk.bold('📊 Production Readiness Score: ') + 
-        (report.readiness.score >= 80 ? chalk.green : 
-         report.readiness.score >= 60 ? chalk.yellow : 
-         chalk.red)(`${report.readiness.score}%`));
-      
+      console.log(
+        chalk.bold('📊 Production Readiness Score: ') +
+          (report.readiness.score >= 80
+            ? chalk.green
+            : report.readiness.score >= 60
+              ? chalk.yellow
+              : chalk.red)(`${report.readiness.score}%`),
+      );
+
       console.log(chalk.bold('\n📋 Summary:'));
       console.log(`  • Operations: ${report.extraction.totalOperations}`);
       console.log(`  • Valid: ${report.validation.valid} (${Math.round(validationScore)}%)`);
       console.log(`  • Unique: ${report.analysis.uniqueOperations}`);
       console.log(`  • Named: ${totalQueries - report.analysis.unnamedOperations}`);
-      
+
       if (report.readiness.issues.length > 0) {
         console.log(chalk.bold('\n⚠️  Issues:'));
-        report.readiness.issues.forEach(issue => {
+        report.readiness.issues.forEach((issue) => {
           console.log(`  • ${issue}`);
         });
       }
-      
+
       if (report.readiness.recommendations.length > 0) {
         console.log(chalk.bold('\n💡 Recommendations:'));
-        report.readiness.recommendations.forEach(rec => {
+        report.readiness.recommendations.forEach((rec) => {
           console.log(`  • ${rec}`);
         });
       }
-      
+
       console.log(chalk.dim(`\n📁 Full report saved to ${options.output}`));
-      
+
       // Exit with error if score is too low
       if (report.readiness.score < 60) {
         console.log(chalk.red('\n❌ Production readiness score is below 60%'));
         process.exit(1);
       }
-      
     } catch (error) {
       console.error(chalk.red('\n❌ Pipeline failed:'), error);
       logger.error('Pipeline error:', error);
@@ -343,9 +346,9 @@ program
   });
 
 function generateHTMLReport(report: PipelineReport): string {
-  const statusColor = report.readiness.score >= 80 ? '#10b981' : 
-                     report.readiness.score >= 60 ? '#f59e0b' : '#ef4444';
-  
+  const statusColor =
+    report.readiness.score >= 80 ? '#10b981' : report.readiness.score >= 60 ? '#f59e0b' : '#ef4444';
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -470,19 +473,27 @@ function generateHTMLReport(report: PipelineReport): string {
       <div class="metric-value" style="color: #f59e0b">${report.validation.warnings}</div>
     </div>
     
-    ${report.validation.errors.length > 0 ? `
+    ${
+      report.validation.errors.length > 0
+        ? `
     <h3>Validation Errors</h3>
     <div class="error-list">
-      ${report.validation.errors.map(e => `
+      ${report.validation.errors
+        .map(
+          (e) => `
         <div style="margin-bottom: 10px;">
           <strong>${e.queryId}</strong>
           <ul>
-            ${e.errors.map(err => `<li>${err}</li>`).join('')}
+            ${e.errors.map((err) => `<li>${err}</li>`).join('')}
           </ul>
         </div>
-      `).join('')}
+      `,
+        )
+        .join('')}
     </div>
-    ` : ''}
+    `
+        : ''
+    }
   </div>
 
   <div class="section">
@@ -501,23 +512,31 @@ function generateHTMLReport(report: PipelineReport): string {
     </div>
   </div>
 
-  ${report.readiness.issues.length > 0 ? `
+  ${
+    report.readiness.issues.length > 0
+      ? `
   <div class="section issues">
     <h2>⚠️ Issues</h2>
     <ul>
-      ${report.readiness.issues.map(issue => `<li>${issue}</li>`).join('')}
+      ${report.readiness.issues.map((issue) => `<li>${issue}</li>`).join('')}
     </ul>
   </div>
-  ` : ''}
+  `
+      : ''
+  }
 
-  ${report.readiness.recommendations.length > 0 ? `
+  ${
+    report.readiness.recommendations.length > 0
+      ? `
   <div class="section recommendations">
     <h2>💡 Recommendations</h2>
     <ul>
-      ${report.readiness.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+      ${report.readiness.recommendations.map((rec) => `<li>${rec}</li>`).join('')}
     </ul>
   </div>
-  ` : ''}
+  `
+      : ''
+  }
 </body>
 </html>`;
 }

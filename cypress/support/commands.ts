@@ -21,15 +21,15 @@ declare global {
 Cypress.Commands.add('startPipeline', (config) => {
   cy.get('input[id="repo-path"]').type(config.repoPath);
   cy.get('input[id="schema-endpoint"]').type(config.schemaEndpoint);
-  
+
   if (config.testApiUrl) {
     cy.get('input[id="test-api"]').type(config.testApiUrl);
   }
-  
+
   if (config.testAccountId) {
     cy.get('input[id="test-account"]').type(config.testAccountId);
   }
-  
+
   cy.get('button[type="submit"]').contains('Start Pipeline').click();
 });
 

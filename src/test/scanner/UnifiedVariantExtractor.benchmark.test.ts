@@ -16,7 +16,7 @@ describe('UnifiedVariantExtractor Performance Benchmark', () => {
     // Generate test files
     for (let i = 0; i < NUM_FILES; i++) {
       let fileContent = `import { gql } from 'graphql-tag';\n\n`;
-      
+
       for (let j = 0; j < QUERIES_PER_FILE; j++) {
         fileContent += `
           const query${j} = gql\`
@@ -31,7 +31,7 @@ describe('UnifiedVariantExtractor Performance Benchmark', () => {
           \`;
         `;
       }
-      
+
       await fs.writeFile(path.join(testDir, `file${i}.ts`), fileContent);
     }
   });
@@ -48,8 +48,8 @@ describe('UnifiedVariantExtractor Performance Benchmark', () => {
     const oldTime = Date.now() - oldStart;
 
     // Benchmark new extractor (without cache)
-    const newExtractor = new UnifiedVariantExtractor({ 
-      enableIncrementalExtraction: false 
+    const newExtractor = new UnifiedVariantExtractor({
+      enableIncrementalExtraction: false,
     });
     const newStart = Date.now();
     const newQueries = await newExtractor.extractFromDirectory(testDir);
@@ -57,20 +57,20 @@ describe('UnifiedVariantExtractor Performance Benchmark', () => {
 
     console.log(`Old Extractor: ${oldTime}ms for ${oldQueries.length} queries`);
     console.log(`New Extractor: ${newTime}ms for ${newQueries.length} queries`);
-    console.log(`Performance improvement: ${((oldTime - newTime) / oldTime * 100).toFixed(1)}%`);
+    console.log(`Performance improvement: ${(((oldTime - newTime) / oldTime) * 100).toFixed(1)}%`);
 
     // New should be at least as fast
     expect(newTime).toBeLessThanOrEqual(oldTime * 1.1); // Allow 10% margin
-    
+
     // Should extract similar number of queries
     expect(newQueries.length).toBeGreaterThanOrEqual(oldQueries.length * 0.9);
   });
 
   it('should show significant improvement with incremental extraction', async () => {
     const cacheDir = path.join(testDir, '.cache');
-    const cachedExtractor = new UnifiedVariantExtractor({ 
+    const cachedExtractor = new UnifiedVariantExtractor({
       enableIncrementalExtraction: true,
-      cacheDir
+      cacheDir,
     });
 
     // First run - no cache
@@ -85,7 +85,7 @@ describe('UnifiedVariantExtractor Performance Benchmark', () => {
 
     console.log(`First run (no cache): ${firstTime}ms`);
     console.log(`Second run (cached): ${secondTime}ms`);
-    console.log(`Cache speedup: ${((firstTime - secondTime) / firstTime * 100).toFixed(1)}%`);
+    console.log(`Cache speedup: ${(((firstTime - secondTime) / firstTime) * 100).toFixed(1)}%`);
 
     // Cached run should be much faster
     expect(secondTime).toBeLessThan(firstTime * 0.2); // At least 80% faster
@@ -94,9 +94,9 @@ describe('UnifiedVariantExtractor Performance Benchmark', () => {
 
   it('should handle partial cache invalidation efficiently', async () => {
     const cacheDir = path.join(testDir, '.cache-partial');
-    const cachedExtractor = new UnifiedVariantExtractor({ 
+    const cachedExtractor = new UnifiedVariantExtractor({
       enableIncrementalExtraction: true,
-      cacheDir
+      cacheDir,
     });
 
     // First run

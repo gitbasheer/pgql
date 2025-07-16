@@ -6,7 +6,7 @@ describe('ExtractionContext', () => {
   describe('option normalization', () => {
     it('should default preserveSourceAST to false', () => {
       const options: ExtractionOptions = {
-        directory: './src'
+        directory: './src',
       };
 
       const context = new ExtractionContext(options);
@@ -17,7 +17,7 @@ describe('ExtractionContext', () => {
     it('should respect preserveSourceAST when set to true', () => {
       const options: ExtractionOptions = {
         directory: './src',
-        preserveSourceAST: true
+        preserveSourceAST: true,
       };
 
       const context = new ExtractionContext(options);
@@ -28,7 +28,7 @@ describe('ExtractionContext', () => {
     it('should respect preserveSourceAST when explicitly set to false', () => {
       const options: ExtractionOptions = {
         directory: './src',
-        preserveSourceAST: false
+        preserveSourceAST: false,
       };
 
       const context = new ExtractionContext(options);
@@ -40,14 +40,18 @@ describe('ExtractionContext', () => {
   describe('all options normalization', () => {
     it('should normalize all options with defaults', () => {
       const options: ExtractionOptions = {
-        directory: './src'
+        directory: './src',
       };
 
       const context = new ExtractionContext(options);
 
       // Check all defaults
       expect(context.options.patterns).toEqual(['**/*.{js,jsx,ts,tsx}']);
-      expect(context.options.ignore).toEqual(['**/node_modules/**', '**/__generated__/**', '**/*.test.*']);
+      expect(context.options.ignore).toEqual([
+        '**/node_modules/**',
+        '**/__generated__/**',
+        '**/*.test.*',
+      ]);
       expect(context.options.strategies).toEqual(['hybrid']);
       expect(context.options.detectVariants).toBe(true);
       expect(context.options.analyzeContext).toBe(true);
@@ -72,7 +76,7 @@ describe('ExtractionContext', () => {
         strategies: ['ast'],
         preserveSourceAST: true,
         cache: false,
-        maxConcurrency: 8
+        maxConcurrency: 8,
       };
 
       const context = new ExtractionContext(options);
@@ -102,20 +106,20 @@ describe('ExtractionContext', () => {
         file: 'file1.ts',
         message: 'Error 1',
         line: 10,
-        column: 5
+        column: 5,
       });
       expect(context.errors[1]).toEqual({
         file: 'file2.ts',
         message: 'Error 2',
         line: undefined,
-        column: undefined
+        column: undefined,
       });
     });
 
     it('should handle cache operations', () => {
       const context = new ExtractionContext({
         directory: '.',
-        cache: true
+        cache: true,
       });
 
       // Test cache operations
@@ -133,7 +137,7 @@ describe('ExtractionContext', () => {
     it('should respect cache disabled', () => {
       const context = new ExtractionContext({
         directory: '.',
-        cache: false
+        cache: false,
       });
 
       // Cache operations should be no-ops
@@ -156,47 +160,57 @@ describe('ExtractionContext', () => {
     it('should normalize query names', async () => {
       const context = new ExtractionContext({
         directory: '.',
-        normalizeNames: true
+        normalizeNames: true,
       });
 
       const content1 = `query GetUser { user { id } }`;
       const content2 = `query GetUser { user { id name } }`; // Different content
 
-          // Test pattern-based processing instead of deprecated normalizeQueryName
-    const queryServices = await context.getQueryNamingService();
-    const query1 = {
-      id: 'test1', name: 'GetUser', content: content1, type: 'query' as const,
-      filePath: 'test.ts', fragments: [], ast: null,
-      location: { line: 1, column: 1, file: 'test.ts' },
-      namePattern: {
-        template: 'GetUser',
-        resolvedName: 'GetUser',
-        possibleValues: ['GetUser'],
-        patternKey: 'GetUser',
-        version: 'V1',
-        isDeprecated: false
-      },
-      contentFingerprint: 'test1'
-    };
-    const query2 = {
-      id: 'test2', name: 'GetUser', content: content2, type: 'query' as const,
-      filePath: 'test.ts', fragments: [], ast: null,
-      location: { line: 1, column: 1, file: 'test.ts' },
-      namePattern: {
-        template: 'GetUser',
-        resolvedName: 'GetUser',
-        possibleValues: ['GetUser'],
-        patternKey: 'GetUser',
-        version: 'V1',
-        isDeprecated: false
-      },
-      contentFingerprint: 'test2'
-    };
+      // Test pattern-based processing instead of deprecated normalizeQueryName
+      const queryServices = await context.getQueryNamingService();
+      const query1 = {
+        id: 'test1',
+        name: 'GetUser',
+        content: content1,
+        type: 'query' as const,
+        filePath: 'test.ts',
+        fragments: [],
+        ast: null,
+        location: { line: 1, column: 1, file: 'test.ts' },
+        namePattern: {
+          template: 'GetUser',
+          resolvedName: 'GetUser',
+          possibleValues: ['GetUser'],
+          patternKey: 'GetUser',
+          version: 'V1',
+          isDeprecated: false,
+        },
+        contentFingerprint: 'test1',
+      };
+      const query2 = {
+        id: 'test2',
+        name: 'GetUser',
+        content: content2,
+        type: 'query' as const,
+        filePath: 'test.ts',
+        fragments: [],
+        ast: null,
+        location: { line: 1, column: 1, file: 'test.ts' },
+        namePattern: {
+          template: 'GetUser',
+          resolvedName: 'GetUser',
+          possibleValues: ['GetUser'],
+          patternKey: 'GetUser',
+          version: 'V1',
+          isDeprecated: false,
+        },
+        contentFingerprint: 'test2',
+      };
 
-    const processed1 = queryServices.processQuery(query1);
-    const processed2 = queryServices.processQuery(query2);
-    const name1 = processed1.name;
-    const name2 = processed2.name;
+      const processed1 = queryServices.processQuery(query1);
+      const processed2 = queryServices.processQuery(query2);
+      const name1 = processed1.name;
+      const name2 = processed2.name;
 
       expect(name1).toBe('GetUser');
       expect(name2).toBe('GetUser_1'); // Should get suffix for different content

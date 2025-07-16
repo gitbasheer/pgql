@@ -21,7 +21,7 @@ describe('ProgressiveMigration', () => {
       column: 1,
       variables: [],
       fragments: [],
-      directives: []
+      directives: [],
     };
 
     it('should create feature flag with correct defaults', () => {
@@ -39,7 +39,7 @@ describe('ProgressiveMigration', () => {
       const specialOperation: GraphQLOperation = {
         ...mockOperation,
         name: 'Get-User_Data',
-        id: 'op-special'
+        id: 'op-special',
       };
 
       const flag = progressiveMigration.createFeatureFlag(specialOperation);
@@ -52,13 +52,13 @@ describe('ProgressiveMigration', () => {
       const operation1: GraphQLOperation = {
         ...mockOperation,
         name: 'GetUser',
-        id: 'op1'
+        id: 'op1',
       };
 
       const operation2: GraphQLOperation = {
         ...mockOperation,
         name: 'GetPost',
-        id: 'op2'
+        id: 'op2',
       };
 
       const flag1 = progressiveMigration.createFeatureFlag(operation1);
@@ -83,7 +83,7 @@ describe('ProgressiveMigration', () => {
       column: 1,
       variables: [],
       fragments: [],
-      directives: []
+      directives: [],
     };
 
     beforeEach(() => {
@@ -114,8 +114,12 @@ describe('ProgressiveMigration', () => {
       await progressiveMigration.startRollout('op1', 50);
       progressiveMigration.enableForSegments('op1', ['beta-users']);
 
-      const betaResult = progressiveMigration.shouldUseMigratedQuery('op1', { segment: 'beta-users' });
-      const regularResult = progressiveMigration.shouldUseMigratedQuery('op1', { segment: 'regular-users' });
+      const betaResult = progressiveMigration.shouldUseMigratedQuery('op1', {
+        segment: 'beta-users',
+      });
+      const regularResult = progressiveMigration.shouldUseMigratedQuery('op1', {
+        segment: 'regular-users',
+      });
 
       expect(betaResult).toBe(true);
       expect(regularResult).toBe(false);
@@ -154,7 +158,7 @@ describe('ProgressiveMigration', () => {
       column: 1,
       variables: [],
       fragments: [],
-      directives: []
+      directives: [],
     };
 
     beforeEach(() => {
@@ -178,16 +182,19 @@ describe('ProgressiveMigration', () => {
     });
 
     it('should handle invalid operation ID', async () => {
-      await expect(progressiveMigration.startRollout('nonexistent'))
-        .rejects.toThrow('Feature flag not found: nonexistent');
+      await expect(progressiveMigration.startRollout('nonexistent')).rejects.toThrow(
+        'Feature flag not found: nonexistent',
+      );
     });
 
     it('should handle invalid percentage', async () => {
-      await expect(progressiveMigration.startRollout('op1', -5))
-        .rejects.toThrow('Invalid rollout percentage: -5');
+      await expect(progressiveMigration.startRollout('op1', -5)).rejects.toThrow(
+        'Invalid rollout percentage: -5',
+      );
 
-      await expect(progressiveMigration.startRollout('op1', 150))
-        .rejects.toThrow('Invalid rollout percentage: 150');
+      await expect(progressiveMigration.startRollout('op1', 150)).rejects.toThrow(
+        'Invalid rollout percentage: 150',
+      );
     });
   });
 
@@ -203,7 +210,7 @@ describe('ProgressiveMigration', () => {
       column: 1,
       variables: [],
       fragments: [],
-      directives: []
+      directives: [],
     };
 
     beforeEach(async () => {
@@ -233,8 +240,9 @@ describe('ProgressiveMigration', () => {
     });
 
     it('should handle invalid operation ID', async () => {
-      await expect(progressiveMigration.increaseRollout('nonexistent', 10))
-        .rejects.toThrow('Feature flag not found: nonexistent');
+      await expect(progressiveMigration.increaseRollout('nonexistent', 10)).rejects.toThrow(
+        'Feature flag not found: nonexistent',
+      );
     });
   });
 
@@ -250,7 +258,7 @@ describe('ProgressiveMigration', () => {
       column: 1,
       variables: [],
       fragments: [],
-      directives: []
+      directives: [],
     };
 
     beforeEach(async () => {
@@ -267,8 +275,9 @@ describe('ProgressiveMigration', () => {
     });
 
     it('should handle pausing non-existent rollout', async () => {
-      await expect(progressiveMigration.pauseRollout('nonexistent'))
-        .rejects.toThrow('Feature flag not found: nonexistent');
+      await expect(progressiveMigration.pauseRollout('nonexistent')).rejects.toThrow(
+        'Feature flag not found: nonexistent',
+      );
     });
 
     it('should handle pausing already paused rollout', async () => {
@@ -292,7 +301,7 @@ describe('ProgressiveMigration', () => {
       column: 1,
       variables: [],
       fragments: [],
-      directives: []
+      directives: [],
     };
 
     beforeEach(async () => {
@@ -309,8 +318,9 @@ describe('ProgressiveMigration', () => {
     });
 
     it('should handle rollback of non-existent operation', async () => {
-      await expect(progressiveMigration.rollbackOperation('nonexistent'))
-        .rejects.toThrow('Feature flag not found: nonexistent');
+      await expect(progressiveMigration.rollbackOperation('nonexistent')).rejects.toThrow(
+        'Feature flag not found: nonexistent',
+      );
     });
   });
 
@@ -326,7 +336,7 @@ describe('ProgressiveMigration', () => {
       column: 1,
       variables: [],
       fragments: [],
-      directives: []
+      directives: [],
     };
 
     beforeEach(async () => {
@@ -360,8 +370,9 @@ describe('ProgressiveMigration', () => {
     });
 
     it('should handle invalid operation ID', () => {
-      expect(() => progressiveMigration.enableForSegments('nonexistent', ['beta-users']))
-        .toThrow('Feature flag not found: nonexistent');
+      expect(() => progressiveMigration.enableForSegments('nonexistent', ['beta-users'])).toThrow(
+        'Feature flag not found: nonexistent',
+      );
     });
   });
 
@@ -377,16 +388,16 @@ describe('ProgressiveMigration', () => {
       column: 1,
       variables: [],
       fragments: [],
-      directives: []
+      directives: [],
     };
 
     it('should return status for existing operation', async () => {
       progressiveMigration.createFeatureFlag(mockOperation);
       await progressiveMigration.startRollout('op1', 25);
       progressiveMigration.enableForSegments('op1', ['beta-users']);
-      
+
       const status = progressiveMigration.getRolloutStatus('op1');
-      
+
       expect(status).toBeDefined();
       expect(status?.enabled).toBe(true);
       expect(status?.percentage).toBe(25);
@@ -395,7 +406,7 @@ describe('ProgressiveMigration', () => {
 
     it('should return null for non-existent operation', () => {
       const status = progressiveMigration.getRolloutStatus('nonexistent');
-      
+
       expect(status).toBeNull();
     });
   });
@@ -413,7 +424,7 @@ describe('ProgressiveMigration', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
+        directives: [],
       };
 
       // Create flag
@@ -432,7 +443,9 @@ describe('ProgressiveMigration', () => {
 
       // Enable for beta users
       progressiveMigration.enableForSegments('op1', ['beta-users']);
-      expect(progressiveMigration.shouldUseMigratedQuery('op1', { segment: 'beta-users' })).toBe(true);
+      expect(progressiveMigration.shouldUseMigratedQuery('op1', { segment: 'beta-users' })).toBe(
+        true,
+      );
 
       // Complete rollout
       await progressiveMigration.increaseRollout('op1', 50);
@@ -441,7 +454,9 @@ describe('ProgressiveMigration', () => {
       // Rollback operation
       await progressiveMigration.rollbackOperation('op1');
       expect(progressiveMigration.getRolloutStatus('op1')?.enabled).toBe(false);
-      expect(progressiveMigration.shouldUseMigratedQuery('op1', { userId: 'any-user' })).toBe(false);
+      expect(progressiveMigration.shouldUseMigratedQuery('op1', { userId: 'any-user' })).toBe(
+        false,
+      );
     });
 
     it('should handle emergency rollback scenario', async () => {
@@ -456,7 +471,7 @@ describe('ProgressiveMigration', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
+        directives: [],
       };
 
       // Start rollout at 50%
@@ -482,40 +497,41 @@ describe('ProgressiveMigration', () => {
           column: 1,
           variables: [],
           fragments: [],
-          directives: []
+          directives: [],
         },
         {
           id: 'op2',
           type: 'mutation' as const,
           name: 'CreateUser',
           ast: {} as any,
-          source: 'mutation CreateUser($input: CreateUserInput!) { createUser(input: $input) { id } }',
+          source:
+            'mutation CreateUser($input: CreateUserInput!) { createUser(input: $input) { id } }',
           file: 'user.ts',
           line: 10,
           column: 1,
           variables: [{ name: 'input', type: 'CreateUserInput!' }],
           fragments: [],
-          directives: []
-        }
+          directives: [],
+        },
       ];
 
       // Create flags for both operations
-      operations.forEach(op => progressiveMigration.createFeatureFlag(op));
+      operations.forEach((op) => progressiveMigration.createFeatureFlag(op));
 
       // Different rollout states
       await progressiveMigration.startRollout('op1', 100); // Full rollout
-      await progressiveMigration.startRollout('op2', 25);  // Partial rollout
+      await progressiveMigration.startRollout('op2', 25); // Partial rollout
 
       // Check states
       expect(progressiveMigration.shouldUseMigratedQuery('op1', { userId: 'test' })).toBe(true);
-      
+
       const op2Result = progressiveMigration.shouldUseMigratedQuery('op2', { userId: 'test' });
       expect(typeof op2Result).toBe('boolean'); // Should be consistent for same user
 
       // Rollback one operation
       await progressiveMigration.rollbackOperation('op1');
       expect(progressiveMigration.shouldUseMigratedQuery('op1', { userId: 'test' })).toBe(false);
-      
+
       // Other should still work
       const op2ResultAfter = progressiveMigration.shouldUseMigratedQuery('op2', { userId: 'test' });
       expect(op2ResultAfter).toBe(op2Result); // Should be consistent

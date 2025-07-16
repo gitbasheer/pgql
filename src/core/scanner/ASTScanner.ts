@@ -15,7 +15,7 @@ export interface SourceLocation {
   file: string;
   line: number;
   column: number;
-  component?: string;  // React component name
+  component?: string; // React component name
 }
 
 export interface GraphQLType {
@@ -26,23 +26,18 @@ export interface GraphQLType {
 
 export class ASTScanner {
   // Type-safe visitor pattern
-  extractGraphQLQueries(
-    path: NodePath<t.CallExpression>,
-    file: string
-  ): QueryExtraction | null {
+  extractGraphQLQueries(path: NodePath<t.CallExpression>, file: string): QueryExtraction | null {
     if (!t.isIdentifier(path.node.callee, { name: 'gql' })) {
       return null;
     }
 
     const [templateLiteral] = path.node.arguments;
     if (!t.isTemplateLiteral(templateLiteral)) {
-      return null;  // TypeScript catches this
+      return null; // TypeScript catches this
     }
 
     // Now we KNOW it's a template literal
-    const queryString = templateLiteral.quasis
-      .map(q => q.value.raw)
-      .join('');
+    const queryString = templateLiteral.quasis.map((q) => q.value.raw).join('');
 
     return this.parseAndValidateQuery(queryString, path, file);
   }
@@ -50,18 +45,18 @@ export class ASTScanner {
   private parseAndValidateQuery(
     queryString: string,
     path: NodePath<t.CallExpression>,
-    file: string
+    file: string,
   ): QueryExtraction | null {
     try {
       const query = parse(queryString);
       const operation = this.detectOperationType(query);
       const variables = this.extractVariables(query);
-      
+
       const location: SourceLocation = {
         file,
         line: path.node.loc?.start.line || 0,
         column: path.node.loc?.start.column || 0,
-        component: this.findParentComponent(path)
+        component: this.findParentComponent(path),
       };
 
       return {
@@ -69,7 +64,7 @@ export class ASTScanner {
         location,
         variables,
         operation,
-        rawQuery: queryString
+        rawQuery: queryString,
       };
     } catch (error) {
       logger.warn(`Failed to parse GraphQL query in ${file}:`, error);
@@ -87,10 +82,10 @@ export class ASTScanner {
 
   private extractVariables(query: DocumentNode): Record<string, GraphQLType> {
     const variables: Record<string, GraphQLType> = {};
-    
+
     const definition = query.definitions[0];
     if (definition.kind === 'OperationDefinition' && definition.variableDefinitions) {
-      definition.variableDefinitions.forEach(varDef => {
+      definition.variableDefinitions.forEach((varDef) => {
         const name = varDef.variable.name.value;
         const type = this.parseGraphQLType(varDef.type);
         variables[name] = type;
@@ -127,7 +122,7 @@ export class ASTScanner {
 
   private findParentComponent(path: NodePath): string | undefined {
     let parent = path.parentPath;
-    
+
     while (parent) {
       // React function component
       if (t.isFunctionDeclaration(parent.node)) {
@@ -136,7 +131,7 @@ export class ASTScanner {
           return id.name;
         }
       }
-      
+
       // Arrow function assigned to variable
       if (t.isArrowFunctionExpression(parent.node) && parent.parentPath) {
         const variableDeclarator = parent.parentPath.node;
@@ -144,7 +139,7 @@ export class ASTScanner {
           return variableDeclarator.id.name;
         }
       }
-      
+
       // React class component
       if (t.isClassDeclaration(parent.node)) {
         const id = parent.node.id;

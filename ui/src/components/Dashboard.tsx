@@ -7,6 +7,7 @@ import QueryResults from './QueryResults';
 import RealApiTesting from './RealApiTesting';
 import GitHubIntegration from './GitHubIntegration';
 import PRPreview from './PRPreview';
+import { constructAuthCookies } from '../utils/auth';
 import '../styles/dashboard.css';
 
 interface PipelineConfig {
@@ -35,24 +36,18 @@ function Dashboard() {
   });
   const [isPipelineActive, setIsPipelineActive] = useState(false);
   const [pipelineId, setPipelineId] = useState<string>();
-  const [pipelineStatus, setPipelineStatus] = useState<PipelineStatus | null>(null);
-  const [logs, setLogs] = useState<Array<{
-    timestamp: string;
-    level: 'info' | 'warn' | 'error' | 'success';
-    message: string;
-  }>>([]);
-  
-  const pollingIntervalRef = useRef<number | null>(null);
+  const [pipelineStatus, setPipelineStatus] = useState<PipelineStatus | null>(
+    null
+  );
+  const [logs, setLogs] = useState<
+    Array<{
+      timestamp: string;
+      level: 'info' | 'warn' | 'error' | 'success';
+      message: string;
+    }>
+  >([]);
 
-  // Construct auth cookies from environment variables
-  const constructAuthCookies = useCallback(() => {
-    const authIdp = import.meta.env.REACT_APP_AUTH_IDP || '';
-    const custIdp = import.meta.env.REACT_APP_CUST_IDP || '';
-    const infoCustIdp = import.meta.env.REACT_APP_INFO_CUST_IDP || '';
-    const infoIdp = import.meta.env.REACT_APP_INFO_IDP || '';
-    
-    return `auth_idp=${authIdp}; cust_idp=${custIdp}; info_cust_idp=${infoCustIdp}; info_idp=${infoIdp}`;
-  }, []);
+  const pollingIntervalRef = useRef<number | null>(null);
 
   // Polling function to replace Socket.io
   const pollPipelineStatus = useCallback(async () => {
@@ -62,32 +57,66 @@ function Dashboard() {
       const response = await fetch('/api/status', {
         headers: {
           'x-app-key': 'vnext-dashboard',
-          'Cookie': constructAuthCookies(),
+          Cookie: constructAuthCookies(),
         },
       });
 
       if (response.ok) {
-        const status: PipelineStatus = await response.json();
-        setPipelineStatus(status);
-        
-        // Update logs if new ones are available
-        if (status.logs && status.logs.length > logs.length) {
-          setLogs(status.logs);
+        const data = await response.json();
+
+        // Validate response structure
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid response format from server');
         }
-        
+
+        const status = data as PipelineStatus;
+        setPipelineStatus(status);
+
+        // Update logs if new ones are available with proper validation
+        if (Array.isArray(status.logs) && status.logs.length > logs.length) {
+          // Validate each log entry
+          const validLogs = status.logs.filter(
+            (log) =>
+              log &&
+              typeof log === 'object' &&
+              'message' in log &&
+              'level' in log &&
+              'timestamp' in log
+          );
+          setLogs(validLogs);
+        }
+
         // Check if pipeline is completed
         if (status.status === 'completed' || status.status === 'failed') {
           setIsPipelineActive(false);
-          if (pollingIntervalRef.current) {
+          if (pollingIntervalRef.current !== null) {
             clearInterval(pollingIntervalRef.current);
             pollingIntervalRef.current = null;
           }
+
+          // Notify user of completion
+          if (status.status === 'completed') {
+            toast.success('Pipeline completed successfully');
+          } else {
+            toast.error('Pipeline failed. Check logs for details.');
+          }
         }
+      } else {
+        // Handle non-OK responses
+        const errorText = await response.text();
+        throw new Error(
+          `Server error (${response.status}): ${errorText || 'Unknown error'}`
+        );
       }
     } catch (error) {
-      console.error('Failed to poll pipeline status:', error);
+      // Proper error handling without exposing sensitive data
+      if (error instanceof Error) {
+        toast.error(`Connection error: ${error.message}`);
+      } else {
+        toast.error('An unexpected error occurred. Please try again.');
+      }
     }
-  }, [pipelineId, isPipelineActive, logs.length, constructAuthCookies]);
+  }, [pipelineId, isPipelineActive, logs.length]);
 
   // Start polling when pipeline becomes active
   useEffect(() => {
@@ -124,12 +153,12 @@ function Dashboard() {
           enableVariantDetection: true, // For dynamic query patterns
         }),
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Failed to start extraction pipeline');
       }
-      
+
       return response.json();
     },
     onSuccess: (data) => {
@@ -148,9 +177,14 @@ function Dashboard() {
       // Load Z's sample data path and trigger full pipeline
       const vnextConfig = {
         repoPath: 'data/sample_data/vnext-dashboard', // Z's mock data
-        schemaEndpoint: import.meta.env.REACT_APP_APOLLO_PG_ENDPOINT || 'https://api.example.com/graphql',
-        testApiUrl: import.meta.env.REACT_APP_TEST_API_URL || 'https://test-api.example.com',
-        testAccountId: import.meta.env.REACT_APP_TEST_ACCOUNT_ID || 'test-vnext-123',
+        schemaEndpoint:
+          import.meta.env.REACT_APP_APOLLO_PG_ENDPOINT ||
+          'http://localhost:5173/api/graphql',
+        testApiUrl:
+          import.meta.env.REACT_APP_TEST_API_URL ||
+          'http://localhost:5173/api/test',
+        testAccountId:
+          import.meta.env.REACT_APP_TEST_ACCOUNT_ID || 'test-vnext-123',
       };
 
       // First, extract from repo
@@ -167,44 +201,16 @@ function Dashboard() {
 
       if (!extractResponse.ok) {
         const error = await extractResponse.json();
-        throw new Error(error.message || 'Failed to extract from vnext sample data');
+        throw new Error(
+          error.message || 'Failed to extract from vnext sample data'
+        );
       }
 
       const extractData = await extractResponse.json();
-      
-      // Then, trigger real API testing with auth cookies
-      const authCookies = [
-        import.meta.env.REACT_APP_AUTH_IDP,
-        import.meta.env.REACT_APP_CUST_IDP,
-        import.meta.env.REACT_APP_SESSION_COOKIE
-      ].filter(Boolean).join('; ');
 
-      const testResponse = await fetch('/api/test-real-api', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.REACT_APP_API_TOKEN || ''}`,
-        },
-        body: JSON.stringify({
-          pipelineId: extractData.pipelineId || extractData.extractionId,
-          endpoint: vnextConfig.testApiUrl,
-          auth: {
-            cookies: authCookies,
-            accountId: vnextConfig.testAccountId,
-          },
-          // Mask sensitive data in logs
-          maskSensitiveData: true,
-        }),
-      });
-
-      if (!testResponse.ok) {
-        const error = await testResponse.json();
-        throw new Error(error.message || 'Failed to test on real API');
-      }
-
+      // For vnext, the extract endpoint handles everything
       return {
         extraction: extractData,
-        testing: await testResponse.json(),
       };
     },
     onSuccess: (data) => {
@@ -218,22 +224,27 @@ function Dashboard() {
     },
   });
 
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    clearLogs();
-    startPipeline.mutate(config);
-  }, [config, clearLogs, startPipeline]);
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      clearLogs();
+      startPipeline.mutate(config);
+    },
+    [config, clearLogs, startPipeline]
+  );
 
   const handleVnextTest = useCallback(() => {
     clearLogs();
     testVnextSampleData.mutate();
   }, [clearLogs, testVnextSampleData]);
 
-  const handleInputChange = useCallback((field: keyof PipelineConfig) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setConfig(prev => ({ ...prev, [field]: e.target.value }));
-  }, []);
+  const handleInputChange = useCallback(
+    (field: keyof PipelineConfig) =>
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        setConfig((prev) => ({ ...prev, [field]: e.target.value }));
+      },
+    []
+  );
 
   return (
     <div className="dashboard">
@@ -241,8 +252,12 @@ function Dashboard() {
         <h1>GraphQL Migration Dashboard</h1>
         <p>Real-time monitoring for your GraphQL migration pipeline</p>
         <div className="connection-status">
-          <span className={`status-indicator ${isPipelineActive ? 'connected' : 'disconnected'}`} />
-          {isPipelineActive ? `Polling Status (${pipelineStatus?.stage || 'unknown'})` : 'Ready'}
+          <span
+            className={`status-indicator ${isPipelineActive ? 'connected' : 'disconnected'}`}
+          />
+          {isPipelineActive
+            ? `Polling Status (${pipelineStatus?.stage || 'unknown'})`
+            : 'Ready'}
         </div>
       </header>
 
@@ -261,8 +276,10 @@ function Dashboard() {
                   placeholder="Enter local path or GitHub URL"
                   required
                 />
-                <GitHubIntegration 
-                  onRepoCloned={(path) => setConfig(prev => ({ ...prev, repoPath: path }))}
+                <GitHubIntegration
+                  onRepoCloned={(path) =>
+                    setConfig((prev) => ({ ...prev, repoPath: path }))
+                  }
                 />
               </div>
             </div>
@@ -273,7 +290,7 @@ function Dashboard() {
                 type="text"
                 value={config.schemaEndpoint}
                 onChange={handleInputChange('schemaEndpoint')}
-                placeholder="https://api.example.com/graphql"
+                placeholder="http://localhost:5173/api/graphql"
                 required
               />
             </div>
@@ -284,7 +301,7 @@ function Dashboard() {
                 type="text"
                 value={config.testApiUrl}
                 onChange={handleInputChange('testApiUrl')}
-                placeholder="https://test-api.example.com"
+                placeholder="http://localhost:5173/api/test"
               />
             </div>
             <div className="form-group">
@@ -298,22 +315,30 @@ function Dashboard() {
               />
             </div>
             <div className="button-group">
-              <button 
+              <button
                 type="submit"
                 className="start-pipeline"
-                disabled={!config.repoPath || !config.schemaEndpoint || startPipeline.isPending}
+                disabled={
+                  !config.repoPath ||
+                  !config.schemaEndpoint ||
+                  startPipeline.isPending
+                }
               >
                 {startPipeline.isPending ? 'Starting...' : 'Start Pipeline'}
               </button>
-              
-              <button 
+
+              <button
                 type="button"
                 className="test-vnext-btn"
                 onClick={handleVnextTest}
-                disabled={testVnextSampleData.isPending || startPipeline.isPending}
+                disabled={
+                  testVnextSampleData.isPending || startPipeline.isPending
+                }
                 title="Test with Z's vnext sample data + real API endpoints"
               >
-                {testVnextSampleData.isPending ? 'Testing vnext...' : '🧪 Test vnext Sample'}
+                {testVnextSampleData.isPending
+                  ? 'Testing vnext...'
+                  : '🧪 Test vnext Sample'}
               </button>
             </div>
           </form>
@@ -322,7 +347,11 @@ function Dashboard() {
         <section className="pipeline-section">
           <h2>Pipeline Progress</h2>
           {isPipelineActive ? (
-            <PipelineProgress isActive={isPipelineActive} currentStage={pipelineStatus?.stage} />
+            <PipelineProgress
+              isActive={isPipelineActive}
+              currentStage={pipelineStatus?.stage}
+              pipelineStatus={pipelineStatus || undefined}
+            />
           ) : (
             <div className="pipeline-placeholder">
               <p>Pipeline will appear here once started...</p>
@@ -343,9 +372,9 @@ function Dashboard() {
         </section>
 
         <QueryResults pipelineId={pipelineId} isActive={isPipelineActive} />
-        
+
         <RealApiTesting pipelineId={pipelineId} isActive={isPipelineActive} />
-        
+
         <PRPreview pipelineId={pipelineId} isActive={isPipelineActive} />
       </main>
     </div>

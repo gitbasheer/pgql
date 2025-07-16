@@ -5,9 +5,11 @@ This document summarizes the improvements made to the validation tools to addres
 ## Issues Addressed
 
 ### 1. Performance Concern - Large File Handling
+
 **Issue**: In `validation-edge-cases.test.ts`, the test was silently falling back to a simple schema when the file didn't exist, which could mask potential file loading issues and lead to false positives in CI.
 
 **Fix**: Modified the test to fail explicitly when the schema file is missing:
+
 ```typescript
 // Before: Silent fallback
 await validator.loadSchemaFromFile('./data/schema.graphql').catch(() => {
@@ -22,7 +24,7 @@ try {
 } catch (error) {
   throw new Error(
     `Failed to load schema file: ${error instanceof Error ? error.message : 'Unknown error'}. ` +
-    'Ensure schema.graphql exists in the data directory for proper testing.'
+      'Ensure schema.graphql exists in the data directory for proper testing.',
   );
 }
 ```
@@ -30,9 +32,11 @@ try {
 **Impact**: Tests will now properly fail in CI if required schema files are missing, preventing false positives.
 
 ### 2. Type Safety Issue - Using `as any`
+
 **Issue**: In `ResponseComparator.ts`, `path: pathString as any` was defeating TypeScript's type safety.
 
 **Fix**: Removed the `as any` cast since the `path` field in the `Difference` interface already accepts `string | string[]`:
+
 ```typescript
 // Before: Type safety defeated
 return {
@@ -50,9 +54,11 @@ return {
 **Impact**: TypeScript now properly type-checks the path field, preventing potential type-related bugs.
 
 ### 3. Missing Error Handling in Critical Path
+
 **Issue**: In `ResponseValidationService.ts`, missing responses were only logged as warnings but not tracked in the validation report or marked as failures.
 
 **Fix**: Enhanced error handling to properly track and report missing responses:
+
 ```typescript
 // Added tracking for missing responses
 const missingResponses: string[] = [];
@@ -63,7 +69,9 @@ if (baseline && transformed) {
 } else {
   // Track missing responses properly
   missingResponses.push(queryId);
-  logger.error(`Missing responses for query ${queryId} - baseline: ${!!baseline}, transformed: ${!!transformed}`);
+  logger.error(
+    `Missing responses for query ${queryId} - baseline: ${!!baseline}, transformed: ${!!transformed}`,
+  );
 
   // Add a comparison result indicating failure
   comparisons.push({
@@ -71,28 +79,32 @@ if (baseline && transformed) {
     operationName: baseline?.operationName || 'Unknown',
     identical: false,
     similarity: 0,
-    differences: [{
-      path: 'response',
-      type: 'missing-field',
-      baseline: baseline ? 'present' : 'missing',
-      transformed: transformed ? 'present' : 'missing',
-      severity: 'critical',
-      description: baseline ? 'Transformed response is missing' : 'Baseline response is missing',
-      fixable: false
-    }],
-    breakingChanges: [{
-      type: 'response-missing',
-      path: 'response',
-      description: `Query ${queryId} response is missing`,
-      impact: 'critical',
-      migrationStrategy: 'Ensure query can be executed successfully'
-    }],
+    differences: [
+      {
+        path: 'response',
+        type: 'missing-field',
+        baseline: baseline ? 'present' : 'missing',
+        transformed: transformed ? 'present' : 'missing',
+        severity: 'critical',
+        description: baseline ? 'Transformed response is missing' : 'Baseline response is missing',
+        fixable: false,
+      },
+    ],
+    breakingChanges: [
+      {
+        type: 'response-missing',
+        path: 'response',
+        description: `Query ${queryId} response is missing`,
+        impact: 'critical',
+        migrationStrategy: 'Ensure query can be executed successfully',
+      },
+    ],
     performanceImpact: {
       latencyChange: 0,
       sizeChange: 0,
-      recommendation: 'Cannot compare performance - response missing'
+      recommendation: 'Cannot compare performance - response missing',
     },
-    recommendation: 'unsafe'
+    recommendation: 'unsafe',
   });
 }
 
@@ -104,15 +116,18 @@ if (missingResponses.length > 0) {
 ```
 
 **Impact**:
+
 - Missing responses are now properly tracked and reported
 - Validation fails when responses are missing
 - Report includes details about which queries have missing responses
 - CI/CD will correctly fail when response validation is incomplete
 
 ### 4. Incomplete Implementation - Deprecation Check
+
 **Issue**: The `checkDeprecatedFields` method in `SchemaValidator.ts` was just a stub, not actually checking for deprecated fields.
 
 **Fix**: Implemented full deprecation checking using the existing `SchemaAnalyzer`:
+
 ```typescript
 private checkDeprecatedFields(
   document: DocumentNode,
@@ -166,6 +181,7 @@ private checkDeprecatedFields(
 ```
 
 **Impact**:
+
 - Deprecated fields are now properly detected in queries
 - Warnings include specific deprecation reasons and suggestions
 - Works with fragments and inline fragments
@@ -174,6 +190,7 @@ private checkDeprecatedFields(
 ## Testing
 
 Created comprehensive tests in `schema-validator-deprecation.test.ts` to verify:
+
 - Deprecation detection in simple queries
 - Multiple deprecated fields in nested queries
 - Suggestion extraction from deprecation reasons
@@ -183,6 +200,7 @@ Created comprehensive tests in `schema-validator-deprecation.test.ts` to verify:
 ## Summary
 
 All four issues have been addressed with proper fixes that:
+
 1. **Improve CI reliability** by failing explicitly on missing files
 2. **Enhance type safety** by removing unnecessary type casts
 3. **Ensure data integrity** by properly tracking and reporting missing responses

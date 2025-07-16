@@ -22,12 +22,12 @@ export function useSocket() {
       setError(null);
       toast.success('Connected to server');
     };
-    
+
     const handleDisconnect = () => {
       setIsConnected(false);
       toast.warning('Disconnected from server');
     };
-    
+
     const handleConnectError = (err: Error) => {
       setError(err.message);
       setIsConnected(false);

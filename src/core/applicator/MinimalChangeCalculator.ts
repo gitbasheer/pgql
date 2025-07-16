@@ -16,7 +16,7 @@ export class MinimalChangeCalculator {
     const changeMap: GraphQLChangeMap = {
       additions: new Map(),
       deletions: new Map(),
-      replacements: new Map()
+      replacements: new Map(),
     };
 
     try {
@@ -38,26 +38,23 @@ export class MinimalChangeCalculator {
   /**
    * Apply calculated changes to template literal quasis
    */
-  applyChangesToQuasis(
-    originalQuasis: any[],
-    changeMap: GraphQLChangeMap
-  ): any[] {
+  applyChangesToQuasis(originalQuasis: any[], changeMap: GraphQLChangeMap): any[] {
     // First, let's understand that quasis don't contain interpolations
     // They are the text segments between interpolations
     // For example: `query ${a} { user(id: ${b}) }` has quasis: ["query ", " { user(id: ", ") }"]
-    
+
     // Reconstruct the full content with proper interpolation tracking
     let fullContent = '';
     const segments: { content: string; isInterpolation: boolean; quasiIndex?: number }[] = [];
-    
+
     for (let i = 0; i < originalQuasis.length; i++) {
-      segments.push({ 
-        content: originalQuasis[i].value.raw, 
+      segments.push({
+        content: originalQuasis[i].value.raw,
         isInterpolation: false,
-        quasiIndex: i
+        quasiIndex: i,
       });
       fullContent += originalQuasis[i].value.raw;
-      
+
       if (i < originalQuasis.length - 1) {
         segments.push({ content: '${...}', isInterpolation: true });
         fullContent += '${...}'; // Placeholder for interpolation
@@ -66,44 +63,44 @@ export class MinimalChangeCalculator {
 
     // Apply changes to the full content
     let modifiedContent = fullContent;
-    
+
     // Sort changes by position in reverse order to avoid position shifts
     const allChanges: Array<{ position: number; type: string; value: any }> = [];
-    
+
     for (const [pos, length] of changeMap.deletions) {
       allChanges.push({ position: pos, type: 'delete', value: length });
     }
-    
+
     for (const [pos, text] of changeMap.additions) {
       allChanges.push({ position: pos, type: 'add', value: text });
     }
-    
+
     for (const [pos, replacement] of changeMap.replacements) {
       allChanges.push({ position: pos, type: 'replace', value: replacement });
     }
-    
+
     // Sort by position (descending to avoid position shifts)
     allChanges.sort((a, b) => b.position - a.position);
-    
+
     // Apply changes
     for (const change of allChanges) {
       if (change.type === 'delete') {
-        modifiedContent = 
+        modifiedContent =
           modifiedContent.slice(0, change.position) +
           modifiedContent.slice(change.position + change.value);
       } else if (change.type === 'add') {
-        modifiedContent = 
+        modifiedContent =
           modifiedContent.slice(0, change.position) +
           change.value +
           modifiedContent.slice(change.position);
       } else if (change.type === 'replace') {
-        modifiedContent = 
+        modifiedContent =
           modifiedContent.slice(0, change.position) +
           change.value.newText +
           modifiedContent.slice(change.position + change.value.length);
       }
     }
-    
+
     // Now split the modified content back into quasis
     // We need to find where the interpolations (${...}) are and split around them
     const newQuasis = [];
@@ -111,30 +108,40 @@ export class MinimalChangeCalculator {
     let lastIndex = 0;
     let match;
     let quasiIndex = 0;
-    
+
     while ((match = interpolationRegex.exec(modifiedContent)) !== null) {
       // Add the content before this interpolation
       const quasiContent = modifiedContent.slice(lastIndex, match.index);
       const isLast = false;
-      
-      newQuasis.push(t.templateElement({
-        raw: quasiContent,
-        cooked: this.cookString(quasiContent)
-      }, isLast));
-      
+
+      newQuasis.push(
+        t.templateElement(
+          {
+            raw: quasiContent,
+            cooked: this.cookString(quasiContent),
+          },
+          isLast,
+        ),
+      );
+
       lastIndex = match.index + match[0].length;
       quasiIndex++;
     }
-    
+
     // Add the final quasi (after the last interpolation or the whole string if no interpolations)
     const finalQuasiContent = modifiedContent.slice(lastIndex);
     const isLast = true;
-    
-    newQuasis.push(t.templateElement({
-      raw: finalQuasiContent,
-      cooked: this.cookString(finalQuasiContent)
-    }, isLast));
-    
+
+    newQuasis.push(
+      t.templateElement(
+        {
+          raw: finalQuasiContent,
+          cooked: this.cookString(finalQuasiContent),
+        },
+        isLast,
+      ),
+    );
+
     return newQuasis;
   }
 
@@ -144,7 +151,7 @@ export class MinimalChangeCalculator {
   private calculateASTDifferences(
     originalAst: DocumentNode,
     transformedAst: DocumentNode,
-    changeMap: GraphQLChangeMap
+    changeMap: GraphQLChangeMap,
   ): void {
     const originalStr = print(originalAst);
     const transformedStr = print(transformedAst);
@@ -159,24 +166,26 @@ export class MinimalChangeCalculator {
   private calculateTextDifferences(
     original: string,
     transformed: string,
-    changeMap: GraphQLChangeMap
+    changeMap: GraphQLChangeMap,
   ): void {
     // Use word-based diff for better results
     const originalWords = this.tokenizeGraphQL(original);
     const transformedWords = this.tokenizeGraphQL(transformed);
-    
+
     // Calculate word-level LCS
     const lcs = this.longestCommonSubsequenceWords(originalWords, transformedWords);
-    
+
     let origIdx = 0;
     let transIdx = 0;
     let lcsIdx = 0;
     let charPos = 0;
 
     while (origIdx < originalWords.length || transIdx < transformedWords.length) {
-      if (lcsIdx < lcs.length && 
-          origIdx === lcs[lcsIdx].originalIndex && 
-          transIdx === lcs[lcsIdx].transformedIndex) {
+      if (
+        lcsIdx < lcs.length &&
+        origIdx === lcs[lcsIdx].originalIndex &&
+        transIdx === lcs[lcsIdx].transformedIndex
+      ) {
         // Words match, move forward
         charPos += originalWords[origIdx].text.length;
         origIdx++;
@@ -187,7 +196,7 @@ export class MinimalChangeCalculator {
         const origStartIdx = origIdx;
         const transStartIdx = transIdx;
         const startCharPos = charPos;
-        
+
         // Calculate the actual character position from the original tokens
         let actualStartPos = 0;
         for (let i = 0; i < origStartIdx; i++) {
@@ -196,27 +205,34 @@ export class MinimalChangeCalculator {
         if (origStartIdx < originalWords.length) {
           actualStartPos = originalWords[origStartIdx].pos;
         }
-        
-        while (origIdx < originalWords.length &&
-               (lcsIdx >= lcs.length || origIdx < lcs[lcsIdx].originalIndex)) {
+
+        while (
+          origIdx < originalWords.length &&
+          (lcsIdx >= lcs.length || origIdx < lcs[lcsIdx].originalIndex)
+        ) {
           charPos += originalWords[origIdx].text.length;
           origIdx++;
         }
-        
+
         let replacementText = '';
-        while (transIdx < transformedWords.length &&
-               (lcsIdx >= lcs.length || transIdx < lcs[lcsIdx].transformedIndex)) {
+        while (
+          transIdx < transformedWords.length &&
+          (lcsIdx >= lcs.length || transIdx < lcs[lcsIdx].transformedIndex)
+        ) {
           replacementText += transformedWords[transIdx].text;
           transIdx++;
         }
-        
+
         if (origIdx > origStartIdx && replacementText) {
           // Replace operation
           const oldTextLength = charPos - startCharPos;
-          const oldText = originalWords.slice(origStartIdx, origIdx).map(w => w.text).join('');
+          const oldText = originalWords
+            .slice(origStartIdx, origIdx)
+            .map((w) => w.text)
+            .join('');
           changeMap.replacements.set(actualStartPos, {
             length: oldTextLength,
-            newText: replacementText
+            newText: replacementText,
           });
         } else if (origIdx > origStartIdx) {
           // Delete operation
@@ -236,11 +252,11 @@ export class MinimalChangeCalculator {
     const tokens: Array<{ text: string; pos: number }> = [];
     const regex = /(\$\{\.\.\.}|\s+|[{}()\[\],:]|\w+|"[^"]*"|'[^']*')/g;
     let match;
-    
+
     while ((match = regex.exec(text)) !== null) {
       tokens.push({ text: match[0], pos: match.index });
     }
-    
+
     return tokens;
   }
 
@@ -249,11 +265,13 @@ export class MinimalChangeCalculator {
    */
   private longestCommonSubsequenceWords(
     tokens1: Array<{ text: string; pos: number }>,
-    tokens2: Array<{ text: string; pos: number }>
+    tokens2: Array<{ text: string; pos: number }>,
   ): Array<{ originalIndex: number; transformedIndex: number }> {
     const m = tokens1.length;
     const n = tokens2.length;
-    const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+    const dp: number[][] = Array(m + 1)
+      .fill(null)
+      .map(() => Array(n + 1).fill(0));
 
     // Build LCS table
     for (let i = 1; i <= m; i++) {
@@ -268,8 +286,9 @@ export class MinimalChangeCalculator {
 
     // Backtrack to find the LCS
     const lcs: Array<{ originalIndex: number; transformedIndex: number }> = [];
-    let i = m, j = n;
-    
+    let i = m;
+      let j = n;
+
     while (i > 0 && j > 0) {
       if (tokens1[i - 1].text === tokens2[j - 1].text) {
         lcs.unshift({ originalIndex: i - 1, transformedIndex: j - 1 });
@@ -291,7 +310,7 @@ export class MinimalChangeCalculator {
   private cookString(raw: string): string {
     // SECURITY FIX: Remove eval() to prevent code injection
     // Use safe string parsing instead
-    
+
     // Handle Unicode and hex escape sequences safely
     if (raw.includes('\\u') || raw.includes('\\x')) {
       try {
@@ -301,26 +320,26 @@ export class MinimalChangeCalculator {
       } catch {
         // For invalid escape sequences, process manually
         let result = raw;
-        
+
         // Handle \uXXXX Unicode escapes
         result = result.replace(/\\u([0-9a-fA-F]{4})/g, (match, hex) => {
           return String.fromCharCode(parseInt(hex, 16));
         });
-        
+
         // Handle \xXX hex escapes
         result = result.replace(/\\x([0-9a-fA-F]{2})/g, (match, hex) => {
           return String.fromCharCode(parseInt(hex, 16));
         });
-        
+
         // Then handle standard escapes
         return this.processStandardEscapes(result);
       }
     }
-    
+
     // Handle standard escape sequences
     return this.processStandardEscapes(raw);
   }
-  
+
   /**
    * Process standard escape sequences safely
    */
@@ -337,4 +356,4 @@ export class MinimalChangeCalculator {
       .replace(/\\"/g, '"')
       .replace(/\\\\/g, '\\');
   }
-} 
+}

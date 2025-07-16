@@ -12,29 +12,29 @@ export const ConfigSchema = z.object({
       queries: z.boolean().default(true),
       mutations: z.boolean().default(true),
       subscriptions: z.boolean().default(true),
-      fragments: z.boolean().default(true)
-    })
+      fragments: z.boolean().default(true),
+    }),
   }),
 
   analyzer: z.object({
     schemaPath: z.string(),
     enableFederation: z.boolean().default(false),
     customScalars: z.record(z.string(), z.string()).optional(),
-    deprecationHandling: z.enum(['ignore', 'warn', 'error']).default('warn')
+    deprecationHandling: z.enum(['ignore', 'warn', 'error']).default('warn'),
   }),
 
   transformer: z.object({
     preserveFormatting: z.boolean().default(true),
     addSafetyComments: z.boolean().default(true),
     generateTypeAnnotations: z.boolean().default(false),
-    targetVersion: z.enum(['legacy', 'modern']).default('modern')
+    targetVersion: z.enum(['legacy', 'modern']).default('modern'),
   }),
 
   output: z.object({
     format: z.enum(['json', 'markdown', 'html']).default('markdown'),
     generateDiff: z.boolean().default(true),
-    generateTests: z.boolean().default(false)
-  })
+    generateTests: z.boolean().default(false),
+  }),
 });
 
 export type Config = z.infer<typeof ConfigSchema>;
@@ -43,9 +43,7 @@ export type Config = z.infer<typeof ConfigSchema>;
 export async function loadConfig(path?: string): Promise<Config> {
   const explorer = cosmiconfigSync('graphql-migration');
 
-  const result = path
-    ? explorer.load(path)
-    : explorer.search();
+  const result = path ? explorer.load(path) : explorer.search();
 
   if (!result) {
     throw new Error('No configuration found');
@@ -66,23 +64,23 @@ export const defaultConfig: Config = {
       queries: true,
       mutations: true,
       subscriptions: true,
-      fragments: true
-    }
+      fragments: true,
+    },
   },
   analyzer: {
     schemaPath: './schema.graphql',
     enableFederation: false,
-    deprecationHandling: 'warn'
+    deprecationHandling: 'warn',
   },
   transformer: {
     preserveFormatting: true,
     addSafetyComments: true,
     generateTypeAnnotations: false,
-    targetVersion: 'modern'
+    targetVersion: 'modern',
   },
   output: {
     format: 'markdown',
     generateDiff: true,
-    generateTests: false
-  }
+    generateTests: false,
+  },
 };

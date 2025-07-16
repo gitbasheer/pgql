@@ -51,15 +51,16 @@ If you're using extraction options:
 // Enable incremental extraction for large codebases
 const options: ExtractionOptions = {
   // ... other options
-  enableIncrementalExtraction: true
+  enableIncrementalExtraction: true,
 };
 ```
 
 ### Why Consolidate?
 
 The five different extractors were the result of iterative development without cleanup:
+
 - Each added features but duplicated core functionality
-- Inconsistent error handling made debugging difficult  
+- Inconsistent error handling made debugging difficult
 - Manual template parsing was error-prone
 - No caching meant poor performance on large codebases
 

@@ -22,6 +22,7 @@ npm run cli quick-start
 ## 📋 Command Overview
 
 ### 🔍 Analysis Commands
+
 ```bash
 # Analyze your GraphQL operations
 npm run cli analyze operations ./src -s ./schema.graphql
@@ -34,6 +35,7 @@ npm run cli analyze production-readiness ./src -s ./schema.graphql
 ```
 
 ### 📤 Extraction Commands
+
 ```bash
 # Extract GraphQL queries from your codebase
 npm run cli extract queries ./src -o ./extracted-queries.json
@@ -49,6 +51,7 @@ npm run cli extract unified ./src -o ./extraction-results
 ```
 
 ### 🔄 Transformation Commands
+
 ```bash
 # Transform queries based on schema deprecations
 npm run cli transform queries -s ./schema.graphql --dry-run
@@ -58,6 +61,7 @@ npm run cli transform queries -i ./my-queries.json -o ./transformed-queries
 ```
 
 ### ✅ Validation Commands
+
 ```bash
 # Validate queries against schema
 npm run cli validate schema --pipeline -s ./schema.graphql
@@ -73,6 +77,7 @@ npm run cli validate variants -i ./extracted-variants -s ./schema.graphql
 ```
 
 ### 🚀 Migration Commands
+
 ```bash
 # Run complete migration pipeline (RECOMMENDED)
 npm run cli migrate full --interactive --dry-run
@@ -88,6 +93,7 @@ npm run cli migrate apply --dry-run
 ```
 
 ### 🎯 Pattern-Based Migration Commands
+
 ```bash
 # Run pattern-aware migration
 npm run cli pattern-migrate --directory ./src --schema ./schema.graphql
@@ -100,6 +106,7 @@ npm run cli pattern-migrate --directory ./src --dry-run
 ```
 
 ### 🔧 Utility Commands
+
 ```bash
 # Generate GitHub PR after migration
 npm run cli utils generate-pr -s ./schema.graphql --draft
@@ -109,12 +116,14 @@ npm run cli utils type-safe
 ```
 
 ### 📊 Monitoring Commands
+
 ```bash
 # Monitor migration health
 npm run cli monitor health --real-time
 ```
 
 ### 🎯 Helper Commands
+
 ```bash
 # Check current migration status
 npm run cli status
@@ -126,6 +135,7 @@ npm run cli quick-start
 ## 🌟 Common Workflows
 
 ### 1. **First-time Setup**
+
 ```bash
 # Get guidance
 npm run cli quick-start
@@ -138,6 +148,7 @@ npm run cli analyze operations ./src -s ./schema.graphql
 ```
 
 ### 2. **Development Workflow**
+
 ```bash
 # Extract queries
 npm run cli extract queries ./src
@@ -153,6 +164,7 @@ npm run cli status
 ```
 
 ### 3. **Production Migration**
+
 ```bash
 # Run production readiness check
 npm run cli analyze production-readiness ./src -s ./schema.graphql
@@ -165,6 +177,7 @@ npm run cli monitor health --real-time
 ```
 
 ### 4. **Response Validation Workflow**
+
 ```bash
 # Capture baseline responses
 npm run cli validate responses --capture-baseline --queries ./queries.json --endpoint https://api.example.com/graphql
@@ -174,6 +187,7 @@ npm run cli validate responses --compare --queries ./transformed-queries.json --
 ```
 
 ### 5. **Pattern-Based Migration Workflow**
+
 ```bash
 # Start with demo mode to understand pattern detection
 npm run cli pattern-migrate --demo
@@ -191,6 +205,7 @@ npm run cli validate schema --pipeline
 ## 🛠️ Advanced Usage
 
 ### Custom Configuration
+
 ```bash
 # Use custom config file
 npm run cli migrate full -c ./my-config.yaml
@@ -200,6 +215,7 @@ npm run cli extract queries ./src -p "**/*.tsx" -p "**/*.ts"
 ```
 
 ### GoDaddy Integration
+
 ```bash
 # With individual cookies
 npm run cli validate responses --godaddy --auth-idp xxx --cust-idp yyy
@@ -212,6 +228,7 @@ npm run cli validate responses --godaddy --sso-username user --sso-password pass
 ```
 
 ### Progressive Rollout
+
 ```bash
 # Start with 1% rollout
 npm run cli migrate full --rollout 1
@@ -223,6 +240,7 @@ npm run cli monitor health
 ## 🎨 Features
 
 ### ✨ **User Experience**
+
 - 🎯 **Intuitive Commands** - Logical grouping and clear naming
 - 🌈 **Colored Output** - Beautiful, readable terminal output
 - 📊 **Progress Indicators** - Spinners and progress bars
@@ -230,6 +248,7 @@ npm run cli monitor health
 - 🔄 **Interactive Mode** - Step-by-step confirmations
 
 ### 🛡️ **Safety Features**
+
 - 🧪 **Dry Run Mode** - Preview changes before applying
 - 📋 **Status Tracking** - Know where you are in the process
 - 🚨 **Validation** - Multiple validation layers
@@ -237,6 +256,7 @@ npm run cli monitor health
 - 📊 **Response Validation** - Ensure data integrity
 
 ### 🚀 **Production Ready**
+
 - 🏭 **Enterprise Features** - GoDaddy integration, SSO, etc.
 - 📈 **Monitoring** - Real-time health monitoring
 - 🔧 **GitHub Integration** - Automatic PR generation
@@ -274,6 +294,7 @@ npm run cli:build
 ## 📖 Examples
 
 ### Basic Migration
+
 ```bash
 # 1. Check status
 npm run cli status
@@ -292,6 +313,7 @@ npm run cli validate schema --pipeline
 ```
 
 ### Production Migration with Safety
+
 ```bash
 # Complete migration with all safety features
 npm run cli migrate full \

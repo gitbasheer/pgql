@@ -21,7 +21,7 @@ describe('ConfidenceScorer', () => {
       column: 1,
       variables: [],
       fragments: [],
-      directives: []
+      directives: [],
     };
 
     it('should score simple transformation highly', () => {
@@ -37,9 +37,9 @@ describe('ConfidenceScorer', () => {
             description: 'Rename name to fullName',
             from: 'name',
             to: 'fullName',
-            automated: true
-          }
-        ]
+            automated: true,
+          },
+        ],
       };
 
       const result = scorer.scoreTransformation(change);
@@ -96,10 +96,10 @@ describe('ConfidenceScorer', () => {
         column: 1,
         variables: [
           { name: 'filter', type: 'UserFilter!' },
-          { name: 'pagination', type: 'PaginationInput' }
+          { name: 'pagination', type: 'PaginationInput' },
         ],
         fragments: [],
-        directives: []
+        directives: [],
       };
 
       const change: CodeChange = {
@@ -114,9 +114,9 @@ describe('ConfidenceScorer', () => {
             description: 'Restructure user profile fields',
             from: 'profile',
             to: 'userProfile',
-            automated: false
-          }
-        ]
+            automated: false,
+          },
+        ],
       };
 
       const result = scorer.scoreTransformation(change);
@@ -141,9 +141,9 @@ describe('ConfidenceScorer', () => {
             description: 'Rename name to fullName',
             from: 'name',
             to: 'fullName',
-            automated: true
-          }
-        ]
+            automated: true,
+          },
+        ],
       };
 
       const result = scorer.scoreTransformation(change);
@@ -166,9 +166,9 @@ describe('ConfidenceScorer', () => {
             description: 'Change String to ID type',
             from: 'String',
             to: 'ID',
-            automated: true
-          }
-        ]
+            automated: true,
+          },
+        ],
       };
 
       const result = scorer.scoreTransformation(change);
@@ -191,9 +191,9 @@ describe('ConfidenceScorer', () => {
             description: 'Add custom posts field with business logic',
             from: 'user { id name }',
             to: 'user { id name posts { id } }',
-            automated: false
-          }
-        ]
+            automated: false,
+          },
+        ],
       };
 
       const result = scorer.scoreTransformation(change);
@@ -217,9 +217,9 @@ describe('ConfidenceScorer', () => {
             description: 'Rename name to fullName',
             from: 'name',
             to: 'fullName',
-            automated: true
-          }
-        ]
+            automated: true,
+          },
+        ],
       };
 
       const lowCoverageChange: CodeChange = {
@@ -234,16 +234,18 @@ describe('ConfidenceScorer', () => {
             description: 'Rename name to fullName',
             from: 'name',
             to: 'fullName',
-            automated: true
-          }
-        ]
+            automated: true,
+          },
+        ],
       };
 
       const highCoverageResult = scorer.scoreTransformation(highCoverageChange);
       const lowCoverageResult = scorer.scoreTransformation(lowCoverageChange);
 
       expect(highCoverageResult.score).toBeGreaterThan(lowCoverageResult.score);
-      expect(highCoverageResult.factors.testCoverage).toBeGreaterThan(lowCoverageResult.factors.testCoverage);
+      expect(highCoverageResult.factors.testCoverage).toBeGreaterThan(
+        lowCoverageResult.factors.testCoverage,
+      );
     });
 
     it('should identify risks correctly', () => {
@@ -263,7 +265,7 @@ describe('ConfidenceScorer', () => {
               }
             }
           `,
-          variables: [{ name: 'userId', type: 'ID!' }]
+          variables: [{ name: 'userId', type: 'ID!' }],
         },
         pattern: 'complex-restructure',
         oldQuery: 'query GetUser { user { id name criticalData { sensitiveField } } }',
@@ -274,9 +276,9 @@ describe('ConfidenceScorer', () => {
             description: 'Restructure critical data',
             from: 'criticalData',
             to: 'newCriticalData',
-            automated: false
-          }
-        ]
+            automated: false,
+          },
+        ],
       };
 
       const result = scorer.scoreTransformation(riskyChange);
@@ -294,7 +296,7 @@ describe('ConfidenceScorer', () => {
         pattern: 'no-op',
         oldQuery: 'query GetUser { user { id name } }',
         newQuery: 'query GetUser { user { id name } }',
-        transformations: []
+        transformations: [],
       };
 
       const emptyResult = scorer.scoreTransformation(emptyChange);
@@ -314,16 +316,16 @@ describe('ConfidenceScorer', () => {
             description: 'Rename name to fullName',
             from: 'name',
             to: 'fullName',
-            automated: true
+            automated: true,
           },
           {
             type: 'field-rename',
             description: 'Rename email to emailAddress',
             from: 'email',
             to: 'emailAddress',
-            automated: true
-          }
-        ]
+            automated: true,
+          },
+        ],
       };
 
       const multipleResult = scorer.scoreTransformation(multipleChange);
@@ -340,12 +342,12 @@ describe('ConfidenceScorer', () => {
         pattern: 'simple',
         oldQuery: 'old',
         newQuery: 'new',
-        transformations: []
+        transformations: [],
       };
 
       // Mock internal methods to return high scores
       const result = scorer.scoreTransformation(mockChange);
-      
+
       if (result.score >= 90) {
         expect(result.category).toBe('automatic');
       }
@@ -365,7 +367,7 @@ describe('ConfidenceScorer', () => {
           column: 1,
           variables: [],
           fragments: [],
-          directives: []
+          directives: [],
         },
         pattern: 'medium-complexity',
         oldQuery: 'query TestQuery { field1 field2 field3 }',
@@ -376,13 +378,13 @@ describe('ConfidenceScorer', () => {
             description: 'Rename field2',
             from: 'field2',
             to: 'renamedField2',
-            automated: true
-          }
-        ]
+            automated: true,
+          },
+        ],
       };
 
       const result = scorer.scoreTransformation(mockChange);
-      
+
       if (result.score >= 70 && result.score < 90) {
         expect(result.category).toBe('semi-automatic');
       }
@@ -396,16 +398,18 @@ describe('ConfidenceScorer', () => {
           type: 'query',
           name: 'ComplexQuery',
           ast: {} as any,
-          source: 'query ComplexQuery { deeply { nested { structure { with { many { levels } } } } } }',
+          source:
+            'query ComplexQuery { deeply { nested { structure { with { many { levels } } } } } }',
           file: 'test.ts',
           line: 1,
           column: 1,
           variables: [{ name: 'var1', type: 'String!' }],
           fragments: [{ name: 'Fragment1', type: 'Type1' }],
-          directives: [{ name: 'deprecated', arguments: {} }]
+          directives: [{ name: 'deprecated', arguments: {} }],
         },
         pattern: 'complex-restructure',
-        oldQuery: 'query ComplexQuery { deeply { nested { structure { with { many { levels } } } } } }',
+        oldQuery:
+          'query ComplexQuery { deeply { nested { structure { with { many { levels } } } } } }',
         newQuery: 'query ComplexQuery { completely { different { structure } } }',
         transformations: [
           {
@@ -413,20 +417,20 @@ describe('ConfidenceScorer', () => {
             description: 'Complete restructure',
             from: 'deeply.nested.structure',
             to: 'completely.different.structure',
-            automated: false
+            automated: false,
           },
           {
             type: 'custom',
             description: 'Custom business logic',
             from: 'old logic',
             to: 'new logic',
-            automated: false
-          }
-        ]
+            automated: false,
+          },
+        ],
       };
 
       const result = scorer.scoreTransformation(mockChange);
-      
+
       if (result.score < 70) {
         expect(result.category).toBe('manual');
       }
@@ -446,7 +450,7 @@ describe('ConfidenceScorer', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
+        directives: [],
       };
 
       const complexOperation: GraphQLOperation = {
@@ -454,13 +458,14 @@ describe('ConfidenceScorer', () => {
         type: 'query',
         name: 'ComplexQuery',
         ast: {} as any,
-        source: 'query ComplexQuery($id: ID!) { user(id: $id) { id profile { name settings { theme } } posts(first: 10) { edges { node { id title } } } } }',
+        source:
+          'query ComplexQuery($id: ID!) { user(id: $id) { id profile { name settings { theme } } posts(first: 10) { edges { node { id title } } } } }',
         file: 'complex.ts',
         line: 1,
         column: 1,
         variables: [{ name: 'id', type: 'ID!' }],
         fragments: [{ name: 'UserFragment', type: 'User' }],
-        directives: [{ name: 'deprecated', arguments: {} }]
+        directives: [{ name: 'deprecated', arguments: {} }],
       };
 
       const simpleChange: CodeChange = {
@@ -469,7 +474,7 @@ describe('ConfidenceScorer', () => {
         pattern: 'simple',
         oldQuery: simpleOperation.source,
         newQuery: simpleOperation.source,
-        transformations: []
+        transformations: [],
       };
 
       const complexChange: CodeChange = {
@@ -478,7 +483,7 @@ describe('ConfidenceScorer', () => {
         pattern: 'complex',
         oldQuery: complexOperation.source,
         newQuery: complexOperation.source,
-        transformations: []
+        transformations: [],
       };
 
       const simpleResult = scorer.scoreTransformation(simpleChange);
@@ -501,7 +506,7 @@ describe('ConfidenceScorer', () => {
           column: 1,
           variables: [],
           fragments: [],
-          directives: []
+          directives: [],
         },
         pattern: 'well-known-pattern',
         oldQuery: 'query TestQuery { field }',
@@ -512,13 +517,13 @@ describe('ConfidenceScorer', () => {
             description: 'Rename field',
             from: 'field',
             to: 'renamedField',
-            automated: true
-          }
-        ]
+            automated: true,
+          },
+        ],
       };
 
       const result = scorer.scoreTransformation(change);
-      
+
       expect(result.factors.patternMatch).toBeGreaterThan(0);
       expect(result.factors.patternMatch).toBeLessThanOrEqual(100);
     });
@@ -537,16 +542,16 @@ describe('ConfidenceScorer', () => {
           column: 1,
           variables: [],
           fragments: [],
-          directives: []
+          directives: [],
         },
         pattern: 'historically-successful-pattern',
         oldQuery: 'query TestQuery { field }',
         newQuery: 'query TestQuery { renamedField }',
-        transformations: []
+        transformations: [],
       };
 
       const result = scorer.scoreTransformation(change);
-      
+
       expect(result.factors.historicalSuccess).toBeGreaterThan(0);
       expect(result.factors.historicalSuccess).toBeLessThanOrEqual(100);
     });

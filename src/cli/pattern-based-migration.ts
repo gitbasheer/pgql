@@ -72,12 +72,11 @@ export class PatternBasedMigrationCLI {
           summary,
           queryNamesUpdates,
           migrationResults,
-          duplicateGroups: Array.from(duplicateGroups.entries())
+          duplicateGroups: Array.from(duplicateGroups.entries()),
         });
       }
 
       logger.info('✅ Pattern-based migration analysis complete!');
-
     } catch (error) {
       logger.error(`Migration analysis failed: ${error}`);
       process.exit(1);
@@ -93,7 +92,7 @@ export class PatternBasedMigrationCLI {
     summary: any,
     queryNamesUpdates: any,
     queries: PatternExtractedQuery[],
-    options: PatternMigrationOptions
+    options: PatternMigrationOptions,
   ): void {
     console.log('\n📊 Migration Analysis Summary');
     console.log('═'.repeat(50));
@@ -127,8 +126,8 @@ export class PatternBasedMigrationCLI {
     // Show pattern details for queries
     console.log('\n🏷️  Pattern Analysis');
     console.log('─'.repeat(30));
-    const patternQueries = queries.filter(q => q.namePattern);
-    const staticQueries = queries.filter(q => !q.namePattern);
+    const patternQueries = queries.filter((q) => q.namePattern);
+    const staticQueries = queries.filter((q) => !q.namePattern);
 
     console.log(`Dynamic pattern queries: ${patternQueries.length}`);
     console.log(`Static queries: ${staticQueries.length}`);
@@ -151,7 +150,9 @@ export class PatternBasedMigrationCLI {
   }
 
   private displayDuplicateAnalysis(duplicateGroups: Map<string, PatternExtractedQuery[]>): void {
-    const duplicates = Array.from(duplicateGroups.entries()).filter(([_, queries]) => queries.length > 1);
+    const duplicates = Array.from(duplicateGroups.entries()).filter(
+      ([_, queries]) => queries.length > 1,
+    );
 
     if (duplicates.length === 0) {
       console.log('\n✅ No duplicate queries found');
@@ -182,11 +183,7 @@ export class PatternBasedMigrationCLI {
     const outputDir = path.dirname(outputFile);
     await fs.promises.mkdir(outputDir, { recursive: true });
 
-    await fs.promises.writeFile(
-      outputFile,
-      JSON.stringify(results, null, 2),
-      'utf-8'
-    );
+    await fs.promises.writeFile(outputFile, JSON.stringify(results, null, 2), 'utf-8');
 
     logger.info(`Results saved to: ${outputFile}`);
   }

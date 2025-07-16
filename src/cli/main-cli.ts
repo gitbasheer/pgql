@@ -24,7 +24,7 @@ async function runCLI(scriptPath: string, args: string[] = []): Promise<void> {
   return new Promise((resolve, reject) => {
     const child = spawn('tsx', [scriptPath, ...args], {
       stdio: 'inherit',
-      cwd: process.cwd()
+      cwd: process.cwd(),
     });
 
     child.on('close', (code) => {
@@ -55,7 +55,7 @@ analysis
       directory,
       ...(options.schema ? ['-s', options.schema] : []),
       ...(options.output ? ['-o', options.output] : []),
-      ...(options.detailed ? ['--detailed'] : [])
+      ...(options.detailed ? ['--detailed'] : []),
     ];
     await runCLI(join(__dirname, 'analyze-operations.ts'), args);
   });
@@ -66,13 +66,8 @@ analysis
   .option('-o, --output <path>', 'Output directory', './variant-analysis')
   .option('--advanced', 'Use advanced variant extraction')
   .action(async (directory = './src', options) => {
-    const scriptPath = options.advanced
-      ? 'extract-advanced-variants.ts'
-      : 'variant-analysis.ts';
-    const args = [
-      directory,
-      ...(options.output ? ['-o', options.output] : [])
-    ];
+    const scriptPath = options.advanced ? 'extract-advanced-variants.ts' : 'variant-analysis.ts';
+    const args = [directory, ...(options.output ? ['-o', options.output] : [])];
     await runCLI(join(__dirname, scriptPath), args);
   });
 
@@ -86,10 +81,11 @@ analysis
   .action(async (directory = './src', options) => {
     const args = [
       directory,
-      '-s', options.schema,
+      '-s',
+      options.schema,
       ...(options.output ? ['-o', options.output] : []),
       ...(options.skipValidation ? ['--skip-validation'] : []),
-      ...(options.continueOnError ? ['--continue-on-error'] : [])
+      ...(options.continueOnError ? ['--continue-on-error'] : []),
     ];
     await runCLI(join(__dirname, 'production-pipeline.ts'), args);
   });
@@ -113,7 +109,7 @@ extract
       ...(options.output ? ['-o', options.output] : []),
       ...(options.pattern ? ['-p', ...options.pattern] : []),
       ...(options.dynamic ? ['--dynamic'] : []),
-      ...(options.fragments === false ? ['--no-fragments'] : [])
+      ...(options.fragments === false ? ['--no-fragments'] : []),
     ];
     await runCLI(join(__dirname, 'extract-transform.ts'), args);
   });
@@ -124,13 +120,8 @@ extract
   .option('-o, --output <path>', 'Output directory', './extracted-variants')
   .option('--advanced', 'Use advanced extraction methods')
   .action(async (directory = './src', options) => {
-    const scriptPath = options.advanced
-      ? 'extract-advanced-variants.ts'
-      : 'extract-variants.ts';
-    const args = [
-      directory,
-      ...(options.output ? ['-o', options.output] : [])
-    ];
+    const scriptPath = options.advanced ? 'extract-advanced-variants.ts' : 'extract-variants.ts';
+    const args = [directory, ...(options.output ? ['-o', options.output] : [])];
     await runCLI(join(__dirname, scriptPath), args);
   });
 
@@ -143,7 +134,7 @@ extract
     const args = [
       directory,
       ...(options.output ? ['-o', options.output] : []),
-      ...(options.config ? ['-c', options.config] : [])
+      ...(options.config ? ['-c', options.config] : []),
     ];
     await runCLI(join(__dirname, 'unified-extract.ts'), args);
   });
@@ -168,7 +159,7 @@ transform
       ...(options.schema ? ['-s', options.schema] : []),
       ...(options.output ? ['-o', options.output] : []),
       ...(options.dryRun ? ['--dry-run'] : []),
-      ...(options.validate ? ['--validate'] : [])
+      ...(options.validate ? ['--validate'] : []),
     ];
     await runCLI(join(__dirname, 'extract-transform.ts'), args);
   });
@@ -189,7 +180,7 @@ validate
       const args = [
         'pipeline',
         options.schema,
-        ...(options.queries ? ['--queries', options.queries] : [])
+        ...(options.queries ? ['--queries', options.queries] : []),
       ];
       await runCLI(join(__dirname, 'validate-pipeline.ts'), args);
     } else {
@@ -215,7 +206,7 @@ validate
       ...(options.endpoint ? ['--endpoint', options.endpoint] : []),
       ...(options.godaddy ? ['--godaddy'] : []),
       ...(options.authToken ? ['--auth-token', options.authToken] : []),
-      ...(options.cookies ? ['--cookies', options.cookies] : [])
+      ...(options.cookies ? ['--cookies', options.cookies] : []),
     ];
     await runCLI(join(__dirname, 'validate-responses.ts'), args);
   });
@@ -228,7 +219,7 @@ validate
   .action(async (options) => {
     const args = [
       ...(options.input ? ['-i', options.input] : []),
-      ...(options.schema ? ['-s', options.schema] : [])
+      ...(options.schema ? ['-s', options.schema] : []),
     ];
     await runCLI(join(__dirname, 'validate-variants.ts'), args);
   });
@@ -258,7 +249,7 @@ migrate
       ...(options.interactive ? ['--interactive'] : []),
       ...(options.validateResponses ? ['--validate-responses'] : []),
       ...(options.createPr ? ['--create-pr'] : []),
-      ...(options.rollout ? ['--rollout', options.rollout] : [])
+      ...(options.rollout ? ['--rollout', options.rollout] : []),
     ];
     await runCLI(join(__dirname, 'migrate.ts'), args);
   });
@@ -272,7 +263,7 @@ migrate
     const args = [
       'apply',
       ...(options.input ? ['-i', options.input] : []),
-      ...(options.dryRun ? ['--dry-run'] : [])
+      ...(options.dryRun ? ['--dry-run'] : []),
     ];
     await runCLI(join(__dirname, 'extract-transform.ts'), args);
   });
@@ -289,7 +280,7 @@ migrate
       ...(options.directory ? ['--directory', options.directory] : []),
       ...(options.schema ? ['--schema', options.schema] : []),
       ...(options.dryRun ? ['--dry-run'] : []),
-      ...(options.demo ? ['--demo'] : [])
+      ...(options.demo ? ['--demo'] : []),
     ];
     await runCLI(join(__dirname, 'pattern-based-migration.ts'), args);
   });
@@ -309,11 +300,12 @@ utils
   .option('--summary-file <path>', 'Migration summary file')
   .action(async (options) => {
     const args = [
-      '-s', options.schema,
+      '-s',
+      options.schema,
       ...(options.base ? ['-b', options.base] : []),
       ...(options.title ? ['-t', options.title] : []),
       ...(options.draft ? ['--draft'] : []),
-      ...(options.summaryFile ? ['--summary-file', options.summaryFile] : [])
+      ...(options.summaryFile ? ['--summary-file', options.summaryFile] : []),
     ];
     await runCLI(join(__dirname, 'generate-pr.ts'), args);
   });
@@ -323,9 +315,7 @@ utils
   .description('Run type-safe operations')
   .option('-o, --operation <name>', 'Specific operation to run')
   .action(async (options) => {
-    const args = [
-      ...(options.operation ? ['-o', options.operation] : [])
-    ];
+    const args = [...(options.operation ? ['-o', options.operation] : [])];
     await runCLI(join(__dirname, 'type-safe-cli.ts'), args);
   });
 
@@ -338,10 +328,13 @@ utils
   .option('--dry-run', 'Preview conversion without writing files')
   .action(async (options) => {
     const args = [
-      '-i', options.input,
-      '-o', options.output,
-      '-f', options.format,
-      ...(options.dryRun ? ['--dry-run'] : [])
+      '-i',
+      options.input,
+      '-o',
+      options.output,
+      '-f',
+      options.format,
+      ...(options.dryRun ? ['--dry-run'] : []),
     ];
     await runCLI(join(__dirname, 'convert-querynames.ts'), args);
   });
@@ -356,11 +349,13 @@ utils
   .option('--ignore-whitespace', 'Ignore whitespace differences')
   .action(async (options) => {
     const args = [
-      '-b', options.before,
-      '-a', options.after,
+      '-b',
+      options.before,
+      '-a',
+      options.after,
       ...(options.output ? ['-o', options.output] : []),
       ...(options.strict ? ['--strict'] : []),
-      ...(options.ignoreWhitespace ? ['--ignore-whitespace'] : [])
+      ...(options.ignoreWhitespace ? ['--ignore-whitespace'] : []),
     ];
     await runCLI(join(__dirname, 'validate-migration.ts'), args);
   });
@@ -460,7 +455,9 @@ github
         // Clone and analyze locally
         spinner.text = 'Cloning repository...';
         const tempDir = `/tmp/gh-analyze-${Date.now()}`;
-        execSync(`gh repo clone ${repo} ${tempDir} -- --depth 1 --branch ${options.branch}`, { stdio: 'pipe' });
+        execSync(`gh repo clone ${repo} ${tempDir} -- --depth 1 --branch ${options.branch}`, {
+          stdio: 'pipe',
+        });
 
         spinner.text = 'Extracting GraphQL operations...';
         const outputDir = options.output || `./analysis-${repo.replace('/', '-')}`;
@@ -469,15 +466,13 @@ github
         await runCLI(join(__dirname, 'extract-transform.ts'), [
           'extract',
           tempDir,
-          '-o', `${outputDir}/extracted-queries.json`,
-          '--dynamic'
+          '-o',
+          `${outputDir}/extracted-queries.json`,
+          '--dynamic',
         ]);
 
         spinner.text = 'Analyzing operations...';
-        await runCLI(join(__dirname, 'analyze-operations.ts'), [
-          tempDir,
-          '-o', outputDir
-        ]);
+        await runCLI(join(__dirname, 'analyze-operations.ts'), [tempDir, '-o', outputDir]);
 
         // Cleanup
         execSync(`rm -rf ${tempDir}`, { stdio: 'pipe' });
@@ -492,7 +487,7 @@ github
         const files = execSync(searchCmd, { encoding: 'utf-8' }).trim().split('\n').filter(Boolean);
 
         console.log(chalk.cyan(`\nFound ${files.length} GraphQL files in ${repo}:`));
-        files.forEach(file => console.log(`  - ${file}`));
+        files.forEach((file) => console.log(`  - ${file}`));
 
         // Search for GraphQL usage in code
         spinner.text = 'Searching for GraphQL usage in code...';
@@ -547,9 +542,8 @@ github
       await runCLI(join(__dirname, 'analyze-operations.ts'), [
         '--schema-compare',
         sourceFile,
-        targetFile
+        targetFile,
       ]);
-
     } catch (error) {
       spinner.fail('Comparison failed');
       console.error(chalk.red('Error:'), error);
@@ -582,7 +576,6 @@ github
         console.log(chalk.cyan('\n📋 Files containing GraphQL queries:'));
         console.log(results);
       }
-
     } catch (error) {
       spinner.fail('Search failed');
       console.error(chalk.red('Error:'), error);
@@ -590,9 +583,7 @@ github
   });
 
 // 📊 MONITORING COMMANDS
-const monitor = program
-  .command('monitor')
-  .description('📊 Monitor migration progress and health');
+const monitor = program.command('monitor').description('📊 Monitor migration progress and health');
 
 monitor
   .command('health')
@@ -603,7 +594,7 @@ monitor
     const args = [
       'monitor',
       ...(options.config ? ['-c', options.config] : []),
-      ...(options.realTime ? ['--real-time'] : [])
+      ...(options.realTime ? ['--real-time'] : []),
     ];
     await runCLI(join(__dirname, 'unified-cli.ts'), args);
   });
@@ -614,7 +605,9 @@ program
   .description('🎯 Interactive quick start wizard for new projects')
   .action(async () => {
     console.log(chalk.blue('\n🚀 GraphQL Migration Quick Start Wizard\n'));
-    console.log('Welcome! This interactive wizard will guide you through your GraphQL migration journey.\n');
+    console.log(
+      'Welcome! This interactive wizard will guide you through your GraphQL migration journey.\n',
+    );
 
     // Check current status
     const checkFile = async (path: string): Promise<boolean> => {
@@ -630,7 +623,8 @@ program
     const extractedExists = await checkFile('./extracted-queries.json');
     const transformedExists = await checkFile('./transformed');
     const reportExists = await checkFile('./production-report');
-    const schemaExists = await checkFile('./data/schema.graphql') || await checkFile('./schema.graphql');
+    const schemaExists =
+      (await checkFile('./data/schema.graphql')) || (await checkFile('./schema.graphql'));
 
     // Show current status
     console.log(chalk.cyan('📋 Current Status:'));
@@ -650,64 +644,64 @@ program
       if (!schemaExists) {
         choices.push({
           name: '🔍 Help me find my GraphQL schema',
-          value: 'find-schema'
+          value: 'find-schema',
         });
       }
 
       if (!extractedExists) {
         choices.push({
           name: '📤 Extract GraphQL queries from my codebase',
-          value: 'extract'
+          value: 'extract',
         });
       }
 
       if (extractedExists && !transformedExists && schemaExists) {
         choices.push({
           name: '🔄 Transform queries (dry run first)',
-          value: 'transform'
+          value: 'transform',
         });
       }
 
       if (extractedExists && schemaExists) {
         choices.push({
           name: '✅ Validate queries against schema',
-          value: 'validate'
+          value: 'validate',
         });
       }
 
       if (extractedExists && transformedExists) {
         choices.push({
           name: '🚀 Run full migration (interactive)',
-          value: 'migrate'
+          value: 'migrate',
         });
       }
 
       if (schemaExists) {
         choices.push({
           name: '🔍 Analyze my codebase',
-          value: 'analyze'
+          value: 'analyze',
         });
 
         choices.push({
           name: '🏭 Run production readiness check',
-          value: 'production-check'
+          value: 'production-check',
         });
       }
 
       // Always available options
       choices.push({
         name: '📋 Show detailed status',
-        value: 'status'
+        value: 'status',
       });
 
       choices.push({
         name: '📚 Show available commands',
-        value: 'help'
+        value: 'help',
       });
 
       choices.push({
         name: '🚪 Exit wizard',
-        value: 'exit'
+        value: 'exit',
       });
 
       const { action } = await inquirer.prompt([
@@ -715,8 +709,8 @@ program
           type: 'list',
           name: 'action',
           message: 'What would you like to do?',
-          choices
-        }
+          choices,
+        },
       ]);
 
       console.log(''); // Add spacing
@@ -737,8 +731,8 @@ program
                 type: 'input',
                 name: 'schemaPath',
                 message: 'Enter your GraphQL schema file path:',
-                default: './schema.graphql'
-              }
+                default: './schema.graphql',
+              },
             ]);
 
             const schemaFound = await checkFile(schemaPath);
@@ -757,14 +751,15 @@ program
                 type: 'input',
                 name: 'sourceDir',
                 message: 'Enter your source directory:',
-                default: './src'
-              }
+                default: './src',
+              },
             ]);
 
             await runCLI(join(__dirname, 'extract-transform.ts'), [
               'extract',
               sourceDir,
-              '-o', './extracted-queries.json'
+              '-o',
+              './extracted-queries.json',
             ]);
             break;
 
@@ -775,8 +770,12 @@ program
                 type: 'input',
                 name: 'schemaForTransform',
                 message: 'Enter your GraphQL schema path:',
-                default: schemaExists ? (await checkFile('./data/schema.graphql') ? './data/schema.graphql' : './schema.graphql') : './schema.graphql'
-              }
+                default: schemaExists
+                  ? (await checkFile('./data/schema.graphql'))
+                    ? './data/schema.graphql'
+                    : './schema.graphql'
+                  : './schema.graphql',
+              },
             ]);
 
             const { dryRun } = await inquirer.prompt([
@@ -784,14 +783,15 @@ program
                 type: 'confirm',
                 name: 'dryRun',
                 message: 'Run as dry-run first (recommended)?',
-                default: true
-              }
+                default: true,
+              },
             ]);
 
             const transformArgs = [
               'transform',
-              '-s', schemaForTransform,
-              ...(dryRun ? ['--dry-run'] : [])
+              '-s',
+              schemaForTransform,
+              ...(dryRun ? ['--dry-run'] : []),
             ];
 
             await runCLI(join(__dirname, 'extract-transform.ts'), transformArgs);
@@ -799,12 +799,17 @@ program
 
           case 'validate':
             console.log(chalk.blue('✅ Validating queries...'));
-            const schemaForValidate = schemaExists ? (await checkFile('./data/schema.graphql') ? './data/schema.graphql' : './schema.graphql') : './schema.graphql';
+            const schemaForValidate = schemaExists
+              ? (await checkFile('./data/schema.graphql'))
+                ? './data/schema.graphql'
+                : './schema.graphql'
+              : './schema.graphql';
 
             await runCLI(join(__dirname, 'validate-pipeline.ts'), [
               'pipeline',
               schemaForValidate,
-              '--queries', './extracted-queries.json'
+              '--queries',
+              './extracted-queries.json',
             ]);
             break;
 
@@ -815,14 +820,11 @@ program
                 type: 'confirm',
                 name: 'migrateInteractive',
                 message: 'Run in interactive mode (recommended)?',
-                default: true
-              }
+                default: true,
+              },
             ]);
 
-            const migrationArgs = [
-              '--dry-run',
-              ...(migrateInteractive ? ['--interactive'] : [])
-            ];
+            const migrationArgs = ['--dry-run', ...(migrateInteractive ? ['--interactive'] : [])];
 
             await runCLI(join(__dirname, 'migrate.ts'), migrationArgs);
             break;
@@ -834,16 +836,21 @@ program
                 type: 'input',
                 name: 'analyzeSourceDir',
                 message: 'Enter your source directory:',
-                default: './src'
-              }
+                default: './src',
+              },
             ]);
 
-            const analyzeSchema = schemaExists ? (await checkFile('./data/schema.graphql') ? './data/schema.graphql' : './schema.graphql') : './schema.graphql';
+            const analyzeSchema = schemaExists
+              ? (await checkFile('./data/schema.graphql'))
+                ? './data/schema.graphql'
+                : './schema.graphql'
+              : './schema.graphql';
 
             await runCLI(join(__dirname, 'analyze-operations.ts'), [
               analyzeSourceDir,
-              '-s', analyzeSchema,
-              '--detailed'
+              '-s',
+              analyzeSchema,
+              '--detailed',
             ]);
             break;
 
@@ -854,15 +861,20 @@ program
                 type: 'input',
                 name: 'prodSourceDir',
                 message: 'Enter your source directory:',
-                default: './src'
-              }
+                default: './src',
+              },
             ]);
 
-            const prodSchema = schemaExists ? (await checkFile('./data/schema.graphql') ? './data/schema.graphql' : './schema.graphql') : './schema.graphql';
+            const prodSchema = schemaExists
+              ? (await checkFile('./data/schema.graphql'))
+                ? './data/schema.graphql'
+                : './schema.graphql'
+              : './schema.graphql';
 
             await runCLI(join(__dirname, 'production-pipeline.ts'), [
               prodSourceDir,
-              '-s', prodSchema
+              '-s',
+              prodSchema,
             ]);
             break;
 
@@ -873,7 +885,8 @@ program
             const newExtractedExists = await checkFile('./extracted-queries.json');
             const newTransformedExists = await checkFile('./transformed');
             const newReportExists = await checkFile('./production-report');
-            const newSchemaExists = await checkFile('./data/schema.graphql') || await checkFile('./schema.graphql');
+            const newSchemaExists =
+              (await checkFile('./data/schema.graphql')) || (await checkFile('./schema.graphql'));
 
             console.log('📁 Files:');
             console.log(`  ${newExtractedExists ? '✅' : '❌'} ./extracted-queries.json`);
@@ -926,8 +939,8 @@ program
             type: 'confirm',
             name: 'continueAfterError',
             message: 'Continue with the wizard?',
-            default: true
-          }
+            default: true,
+          },
         ]);
 
         if (!continueAfterError) {

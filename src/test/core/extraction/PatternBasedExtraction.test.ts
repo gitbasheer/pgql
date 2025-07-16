@@ -31,18 +31,20 @@ describe('Pattern-Based Extraction', () => {
           templateLiteral: {
             quasis: [
               { value: { raw: 'query ', cooked: 'query ' } } as any,
-              { value: { raw: ' { venture { id name } }', cooked: ' { venture { id name } }' } } as any
+              {
+                value: { raw: ' { venture { id name } }', cooked: ' { venture { id name } }' },
+              } as any,
             ],
             expressions: [
               {
                 type: 'MemberExpression',
                 object: { type: 'Identifier', name: 'queryNames' },
-                property: { type: 'Identifier', name: 'byIdV1' }
-              } as any
-            ]
+                property: { type: 'Identifier', name: 'byIdV1' },
+              } as any,
+            ],
           },
-          parent: {} as any
-        }
+          parent: {} as any,
+        },
       };
 
       const result = patternService.analyzeQueryPattern(mockQuery);
@@ -62,7 +64,7 @@ describe('Pattern-Based Extraction', () => {
         content: 'query ${queryNames.byIdV1} { venture { id name } }',
         ast: null,
         location: { line: 1, column: 1, file: '/test/file1.ts' },
-        type: 'query'
+        type: 'query',
       };
 
       const query2: PatternExtractedQuery = {
@@ -71,7 +73,7 @@ describe('Pattern-Based Extraction', () => {
         content: 'query ${queryNames.byIdV2} { venture { id name } }',
         ast: null,
         location: { line: 10, column: 1, file: '/test/file2.ts' },
-        type: 'query'
+        type: 'query',
       };
 
       const fingerprint1 = patternService.generateContentFingerprint(query1);
@@ -90,7 +92,7 @@ describe('Pattern-Based Extraction', () => {
           ast: null,
           location: { line: 1, column: 1, file: '/test/file1.ts' },
           type: 'query',
-          contentFingerprint: 'abc123'
+          contentFingerprint: 'abc123',
         },
         {
           id: 'test-2',
@@ -99,7 +101,7 @@ describe('Pattern-Based Extraction', () => {
           ast: null,
           location: { line: 1, column: 1, file: '/test/file2.ts' },
           type: 'query',
-          contentFingerprint: 'abc123'
+          contentFingerprint: 'abc123',
         },
         {
           id: 'test-3',
@@ -108,8 +110,8 @@ describe('Pattern-Based Extraction', () => {
           ast: null,
           location: { line: 1, column: 1, file: '/test/file3.ts' },
           type: 'query',
-          contentFingerprint: 'def456'
-        }
+          contentFingerprint: 'def456',
+        },
       ];
 
       const groups = patternService.groupByFingerprint(queries);
@@ -132,12 +134,15 @@ describe('Pattern-Based Extraction', () => {
         namePattern: {
           template: '${queryNames.byIdV1}',
           resolvedName: 'getVentureHomeDataByVentureIdDashboard',
-          possibleValues: ['getVentureHomeDataByVentureIdDashboard', 'getVentureHomeDataByVentureIdDashboardV3'],
+          possibleValues: [
+            'getVentureHomeDataByVentureIdDashboard',
+            'getVentureHomeDataByVentureIdDashboardV3',
+          ],
           patternKey: 'getVentureById',
           version: 'V1',
           isDeprecated: true,
-          migrationPath: 'V3'
-        }
+          migrationPath: 'V3',
+        },
       };
 
       const result = await migrator.migrateQuery(query);
@@ -165,9 +170,9 @@ describe('Pattern-Based Extraction', () => {
             patternKey: 'getVentureById',
             version: 'V1',
             isDeprecated: true,
-            migrationPath: 'V3'
-          }
-        }
+            migrationPath: 'V3',
+          },
+        },
       ];
 
       const results = await migrator.migrateQueries(queries);
@@ -194,8 +199,8 @@ describe('Pattern-Based Extraction', () => {
             patternKey: 'getVentureById',
             version: 'V1',
             isDeprecated: true,
-            migrationPath: 'V3'
-          }
+            migrationPath: 'V3',
+          },
         },
         {
           id: 'test-2',
@@ -203,8 +208,8 @@ describe('Pattern-Based Extraction', () => {
           content: 'query getStaticQuery { venture { id } }',
           ast: null,
           location: { line: 1, column: 1, file: '/test/file2.ts' },
-          type: 'query'
-        }
+          type: 'query',
+        },
       ];
 
       const results = await migrator.migrateQueries(queries);
@@ -231,7 +236,7 @@ describe('Pattern-Based Extraction', () => {
         content: originalQuery,
         ast: null,
         location: { line: 1, column: 1, file: '/test/file.ts' },
-        type: 'query'
+        type: 'query',
       };
 
       const analyzed = patternService.analyzeQueryPattern(query);
@@ -259,8 +264,8 @@ describe('Pattern-Based Extraction', () => {
           patternKey: 'getVentureById',
           version: 'V1',
           isDeprecated: true,
-          migrationPath: 'V3'
-        }
+          migrationPath: 'V3',
+        },
       };
 
       const recommendations = patternService.getMigrationRecommendations(query);
@@ -269,7 +274,7 @@ describe('Pattern-Based Extraction', () => {
       expect(recommendations.targetPattern).toBe('queryNames.byIdV3');
       expect(recommendations.fragmentChanges).toEqual({
         from: 'ventureFields',
-        to: 'ventureInfinityStoneDataFields'
+        to: 'ventureInfinityStoneDataFields',
       });
     });
 

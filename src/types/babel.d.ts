@@ -7,7 +7,7 @@ declare module '@babel/traverse' {
     opts: Visitor<any> | undefined,
     scope?: any,
     state?: any,
-    parentPath?: any
+    parentPath?: any,
   ): void;
 
   export function traverse(
@@ -15,6 +15,6 @@ declare module '@babel/traverse' {
     opts: Visitor<any> | undefined,
     scope?: any,
     state?: any,
-    parentPath?: any
+    parentPath?: any,
   ): void;
 }

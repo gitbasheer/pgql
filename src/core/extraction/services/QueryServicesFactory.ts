@@ -35,7 +35,8 @@ export class QueryCacheManager {
   private readonly maxSize: number;
   private readonly ttl: number;
 
-  constructor(maxSize = 100 * 1024 * 1024, ttl = 3600000) { // 100MB, 1 hour
+  constructor(maxSize = 100 * 1024 * 1024, ttl = 3600000) {
+    // 100MB, 1 hour
     this.maxSize = maxSize;
     this.ttl = ttl;
   }
@@ -64,7 +65,7 @@ export class QueryCacheManager {
     const entry: CacheEntry<T> = {
       value,
       timestamp: Date.now(),
-      size
+      size,
     };
 
     // Remove existing entry if present
@@ -95,7 +96,7 @@ export class QueryCacheManager {
       entries: this.cache.size,
       totalSize: this.totalSize,
       maxSize: this.maxSize,
-      hitRate: this.calculateHitRate()
+      hitRate: this.calculateHitRate(),
     };
   }
 
@@ -162,10 +163,7 @@ export class QueryServicesFactory {
     logger.info('Creating new query services...');
 
     // Create cache manager
-    const cacheManager = new QueryCacheManager(
-      config.cacheMaxSize,
-      config.cacheTTL
-    );
+    const cacheManager = new QueryCacheManager(config.cacheMaxSize, config.cacheTTL);
 
     // Create pattern service with caching
     const patternService = new QueryPatternService();
@@ -186,7 +184,7 @@ export class QueryServicesFactory {
       preserveApplicationLogic: true,
       updateQueryNamesObject: true,
       trackVersionProgression: true,
-      respectFeatureFlags: true
+      respectFeatureFlags: true,
     });
 
     // Create pattern-aware strategy
@@ -197,7 +195,7 @@ export class QueryServicesFactory {
       namingService,
       migrator,
       strategy,
-      cacheManager
+      cacheManager,
     };
 
     // Initialize services
@@ -224,7 +222,7 @@ export class QueryServicesFactory {
   getCacheStats() {
     return {
       cachedServices: this.servicesCache.size,
-      cacheKeys: Array.from(this.servicesCache.keys())
+      cacheKeys: Array.from(this.servicesCache.keys()),
     };
   }
 
@@ -234,13 +232,16 @@ export class QueryServicesFactory {
       patterns: config.options.patterns,
       enableCaching: config.enableCaching,
       patternRegistryPath: config.patternRegistryPath,
-      enableIncrementalExtraction: config.enableIncrementalExtraction
+      enableIncrementalExtraction: config.enableIncrementalExtraction,
     };
 
     return Buffer.from(JSON.stringify(keyData)).toString('base64');
   }
 
-  private integrateCaching(namingService: QueryNamingService, cacheManager: QueryCacheManager): void {
+  private integrateCaching(
+    namingService: QueryNamingService,
+    cacheManager: QueryCacheManager,
+  ): void {
     // Wrap processQuery with caching
     const originalProcessQuery = namingService.processQuery.bind(namingService);
 
@@ -258,14 +259,17 @@ export class QueryServicesFactory {
     };
   }
 
-  private async initializeServices(services: QueryServices, config: QueryServicesConfig): Promise<void> {
+  private async initializeServices(
+    services: QueryServices,
+    config: QueryServicesConfig,
+  ): Promise<void> {
     // Initialize naming service
     await services.namingService.initialize(config.options);
 
     logger.debug('Services initialized with configuration:', {
       enableCaching: config.enableCaching,
       enableIncrementalExtraction: config.enableIncrementalExtraction,
-      cacheStats: services.cacheManager.getStats()
+      cacheStats: services.cacheManager.getStats(),
     });
   }
 }
@@ -281,12 +285,14 @@ export async function createQueryServices(config: QueryServicesConfig): Promise<
 /**
  * Convenience function with default configuration
  */
-export async function createDefaultQueryServices(options: ExtractionOptions): Promise<QueryServices> {
+export async function createDefaultQueryServices(
+  options: ExtractionOptions,
+): Promise<QueryServices> {
   return createQueryServices({
     options,
     enableCaching: true,
     cacheMaxSize: 50 * 1024 * 1024, // 50MB
     cacheTTL: 1800000, // 30 minutes
-    enableIncrementalExtraction: options.enableIncrementalExtraction ?? false
+    enableIncrementalExtraction: options.enableIncrementalExtraction ?? false,
   });
 }

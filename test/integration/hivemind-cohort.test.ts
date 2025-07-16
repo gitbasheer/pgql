@@ -5,7 +5,7 @@ import { UnifiedExtractor } from '../../src/core/extraction/engine/UnifiedExtrac
 
 // Mock Hivemind getCohortId
 vi.mock('@godaddy/hivemind-client', () => ({
-  getCohortId: vi.fn().mockReturnValue('cohort-123')
+  getCohortId: vi.fn().mockReturnValue('cohort-123'),
 }));
 
 describe('Hivemind Cohort Integration', () => {
@@ -21,47 +21,47 @@ describe('Hivemind Cohort Integration', () => {
       features: {
         templateInterpolation: true,
         patternMatching: true,
-        contextAnalysis: true
-      }
+        contextAnalysis: true,
+      },
     });
 
     validator = new ResponseValidationService({
       endpoints: {
         productGraph: 'https://pg.api.test.com/v1/gql/customer',
-        offerGraph: 'https://og.api.test.com/v1/gql'
+        offerGraph: 'https://og.api.test.com/v1/gql',
       },
       capture: {
         maxConcurrency: 5,
         timeout: 30000,
-        variableGeneration: 'auto'
+        variableGeneration: 'auto',
       },
       comparison: {
         strict: false,
-        ignorePaths: []
+        ignorePaths: [],
       },
       alignment: {
         strict: false,
-        preserveNulls: true
+        preserveNulls: true,
       },
       storage: {
         type: 'file',
-        path: './test-results'
+        path: './test-results',
       },
       abTesting: {
         enabled: true,
         defaultSplit: 50,
         monitoring: {
           errorThreshold: 5,
-          latencyThreshold: 1000
-        }
-      }
+          latencyThreshold: 1000,
+        },
+      },
     });
 
     transformer = new OptimizedSchemaTransformer([], {
       commentOutVague: true,
       addDeprecationComments: true,
       preserveOriginalAsComment: false,
-      enableCache: true
+      enableCache: true,
     });
   });
 
@@ -70,16 +70,16 @@ describe('Hivemind Cohort Integration', () => {
       const queries = [
         {
           name: 'GetVentureData',
-          content: 'query GetVentureData { venture { id } }'
+          content: 'query GetVentureData { venture { id } }',
         },
         {
           name: 'GetUserProfile',
-          content: 'query GetUserProfile { user { id name } }'
-        }
+          content: 'query GetUserProfile { user { id name } }',
+        },
       ];
 
-      const flags = queries.map(q => `migration.${q.name}`);
-      
+      const flags = queries.map((q) => `migration.${q.name}`);
+
       expect(flags).toHaveLength(2);
       expect(flags[0]).toBe('migration.GetVentureData');
       expect(flags[1]).toBe('migration.GetUserProfile');
@@ -90,18 +90,18 @@ describe('Hivemind Cohort Integration', () => {
       const transformResult = {
         queries: [
           { name: 'GetVenture', transformed: true },
-          { name: 'GetProduct', transformed: true }
-        ]
+          { name: 'GetProduct', transformed: true },
+        ],
       };
 
-      const cohortAssignments = transformResult.queries.map(q => ({
+      const cohortAssignments = transformResult.queries.map((q) => ({
         flag: `migration.${q.name}`,
         cohort: 'cohort-123',
-        enabled: Math.random() > 0.5
+        enabled: Math.random() > 0.5,
       }));
 
       expect(cohortAssignments).toHaveLength(2);
-      cohortAssignments.forEach(assignment => {
+      cohortAssignments.forEach((assignment) => {
         expect(assignment.flag).toMatch(/^migration\./);
         expect(assignment.cohort).toBe('cohort-123');
         expect(typeof assignment.enabled).toBe('boolean');
@@ -114,7 +114,7 @@ describe('Hivemind Cohort Integration', () => {
       const rolloutConfig = {
         'migration.GetVentureData': 10,
         'migration.GetUserProfile': 50,
-        'migration.GetProductList': 100
+        'migration.GetProductList': 100,
       };
 
       const results = Object.entries(rolloutConfig).map(([flag, percentage]) => {
@@ -128,11 +128,11 @@ describe('Hivemind Cohort Integration', () => {
         return {
           flag,
           percentage,
-          actualPercentage: (enabledCount / 1000) * 100
+          actualPercentage: (enabledCount / 1000) * 100,
         };
       });
 
-      results.forEach(result => {
+      results.forEach((result) => {
         // Allow 5% variance
         expect(Math.abs(result.actualPercentage - result.percentage)).toBeLessThan(5);
       });
@@ -143,7 +143,7 @@ describe('Hivemind Cohort Integration', () => {
         { day: 1, percentage: 10 },
         { day: 3, percentage: 25 },
         { day: 7, percentage: 50 },
-        { day: 14, percentage: 100 }
+        { day: 14, percentage: 100 },
       ];
 
       rolloutSchedule.forEach((phase, index) => {
@@ -164,11 +164,13 @@ describe('Hivemind Cohort Integration', () => {
         failedTransformations: 5,
         averageLatency: 150,
         p95Latency: 300,
-        errorRate: 5
+        errorRate: 5,
       };
 
       expect(metrics.errorRate).toBe((metrics.failedTransformations / metrics.totalQueries) * 100);
-      expect(metrics.successfulTransformations + metrics.failedTransformations).toBe(metrics.totalQueries);
+      expect(metrics.successfulTransformations + metrics.failedTransformations).toBe(
+        metrics.totalQueries,
+      );
       expect(metrics.p95Latency).toBeGreaterThan(metrics.averageLatency);
     });
 
@@ -178,10 +180,10 @@ describe('Hivemind Cohort Integration', () => {
         { errors: 2, total: 100, shouldAlert: false },
         { errors: 6, total: 100, shouldAlert: true },
         { errors: 15, total: 200, shouldAlert: true },
-        { errors: 4, total: 100, shouldAlert: false }
+        { errors: 4, total: 100, shouldAlert: false },
       ];
 
-      scenarios.forEach(scenario => {
+      scenarios.forEach((scenario) => {
         const errorRate = (scenario.errors / scenario.total) * 100;
         const shouldTriggerAlert = errorRate > errorThreshold;
         expect(shouldTriggerAlert).toBe(scenario.shouldAlert);
@@ -201,7 +203,7 @@ describe('Hivemind Cohort Integration', () => {
             }
             return response;
           }
-        `
+        `,
       };
 
       expect(transformedQuery.mappingUtil).toContain('mapVentureResponse');
@@ -213,19 +215,19 @@ describe('Hivemind Cohort Integration', () => {
       const mappings = [
         {
           from: 'venture.profile.logoUrl',
-          to: 'venture.logoUrl'
+          to: 'venture.logoUrl',
         },
         {
           from: 'owner.contact.email',
-          to: 'owner.email'
+          to: 'owner.email',
         },
         {
           from: 'product.details.status',
-          to: 'product.oldStatus'
-        }
+          to: 'product.oldStatus',
+        },
       ];
 
-      mappings.forEach(mapping => {
+      mappings.forEach((mapping) => {
         const parts = mapping.from.split('.');
         expect(parts.length).toBeGreaterThan(2); // All are nested
         expect(mapping.to.split('.').length).toBeLessThan(parts.length); // Flattening
@@ -239,15 +241,15 @@ describe('Hivemind Cohort Integration', () => {
       const extractionResult = {
         queries: [
           { name: 'GetVenture', content: 'query { venture { id } }' },
-          { name: 'GetUser', content: 'query { user { id } }' }
-        ]
+          { name: 'GetUser', content: 'query { user { id } }' },
+        ],
       };
 
       // Step 2: Transform with deprecations
-      const transformations = extractionResult.queries.map(q => ({
+      const transformations = extractionResult.queries.map((q) => ({
         ...q,
         transformed: q.content.replace('id', 'id\n    __typename'),
-        hivemindFlag: `migration.${q.name}`
+        hivemindFlag: `migration.${q.name}`,
       }));
 
       // Step 3: Generate PR content
@@ -257,7 +259,7 @@ describe('Hivemind Cohort Integration', () => {
 ### Queries Migrated: ${transformations.length}
 
 ### Hivemind Flags:
-${transformations.map(t => `- \`${t.hivemindFlag}\``).join('\n')}
+${transformations.map((t) => `- \`${t.hivemindFlag}\``).join('\n')}
 
 ### Rollout Plan:
 - Day 1-3: 10% (monitoring phase)
@@ -280,7 +282,7 @@ Response mapping utilities generated for all transformed queries.
       const rollbackTrigger = {
         errorThreshold: 5,
         currentErrorRate: 7.5,
-        action: 'rollback'
+        action: 'rollback',
       };
 
       expect(rollbackTrigger.currentErrorRate).toBeGreaterThan(rollbackTrigger.errorThreshold);
@@ -294,7 +296,7 @@ Response mapping utilities generated for all transformed queries.
           query: 'GetVenture',
           action: 'transformed',
           cohort: 'cohort-123',
-          success: true
+          success: true,
         },
         {
           timestamp: new Date().toISOString(),
@@ -302,13 +304,13 @@ Response mapping utilities generated for all transformed queries.
           action: 'error',
           cohort: 'cohort-123',
           success: false,
-          error: 'Transformation failed'
-        }
+          error: 'Transformation failed',
+        },
       ];
 
       expect(auditLog).toHaveLength(2);
-      expect(auditLog.filter(log => log.success).length).toBe(1);
-      expect(auditLog.filter(log => !log.success).length).toBe(1);
+      expect(auditLog.filter((log) => log.success).length).toBe(1);
+      expect(auditLog.filter((log) => !log.success).length).toBe(1);
     });
   });
 });

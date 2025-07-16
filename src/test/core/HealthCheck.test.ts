@@ -21,7 +21,7 @@ describe('HealthCheckSystem', () => {
       column: 1,
       variables: [],
       fragments: [],
-      directives: []
+      directives: [],
     };
 
     it('should return healthy status with insufficient data', async () => {
@@ -58,10 +58,11 @@ describe('HealthCheckSystem', () => {
       const result = await healthCheck.performHealthCheck(mockOperation);
 
       expect(result.status).toBe('unhealthy');
-      expect(result.issues.some(issue => 
-        issue.severity === 'critical' && 
-        issue.message.includes('Error rate')
-      )).toBe(true);
+      expect(
+        result.issues.some(
+          (issue) => issue.severity === 'critical' && issue.message.includes('Error rate'),
+        ),
+      ).toBe(true);
     });
 
     it('should detect high latency', async () => {
@@ -73,10 +74,11 @@ describe('HealthCheckSystem', () => {
       const result = await healthCheck.performHealthCheck(mockOperation);
 
       expect(result.status).toBe('unhealthy');
-      expect(result.issues.some(issue => 
-        issue.severity === 'high' && 
-        issue.message.includes('latency')
-      )).toBe(true);
+      expect(
+        result.issues.some(
+          (issue) => issue.severity === 'high' && issue.message.includes('latency'),
+        ),
+      ).toBe(true);
     });
 
     it('should detect both high error rate and latency', async () => {
@@ -85,7 +87,11 @@ describe('HealthCheckSystem', () => {
         if (i < 140) {
           healthCheck.recordSuccess(mockOperation.id, 2500 + Math.random() * 1000); // High latency
         } else {
-          healthCheck.recordError(mockOperation.id, new Error('Test error'), 2500 + Math.random() * 1000);
+          healthCheck.recordError(
+            mockOperation.id,
+            new Error('Test error'),
+            2500 + Math.random() * 1000,
+          );
         }
       }
 
@@ -93,8 +99,8 @@ describe('HealthCheckSystem', () => {
 
       expect(result.status).toBe('unhealthy');
       expect(result.issues.length).toBeGreaterThan(1);
-      expect(result.issues.some(issue => issue.message.includes('Error rate'))).toBe(true);
-      expect(result.issues.some(issue => issue.message.includes('latency'))).toBe(true);
+      expect(result.issues.some((issue) => issue.message.includes('Error rate'))).toBe(true);
+      expect(result.issues.some((issue) => issue.message.includes('latency'))).toBe(true);
     });
 
     it('should handle operations with no metrics', async () => {
@@ -109,7 +115,7 @@ describe('HealthCheckSystem', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
+        directives: [],
       };
 
       const result = await healthCheck.performHealthCheck(newOperation);
@@ -132,7 +138,7 @@ describe('HealthCheckSystem', () => {
 
     it('should record error operations', () => {
       const error = new Error('Test error');
-      
+
       healthCheck.recordError(operationId, error, 100);
 
       // Should not throw
@@ -141,7 +147,7 @@ describe('HealthCheckSystem', () => {
 
     it('should handle errors without latency', () => {
       const error = new Error('Test error');
-      
+
       expect(() => healthCheck.recordError(operationId, error)).not.toThrow();
     });
 
@@ -157,7 +163,7 @@ describe('HealthCheckSystem', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
+        directives: [],
       };
 
       // Record multiple metrics
@@ -171,10 +177,10 @@ describe('HealthCheckSystem', () => {
 
       // Should have accumulated 100 total metrics
       const result = await healthCheck.performHealthCheck(mockOperation);
-      
+
       // Should detect the 50% error rate
       expect(result.status).toBe('unhealthy');
-      expect(result.issues.some(issue => issue.message.includes('Error rate'))).toBe(true);
+      expect(result.issues.some((issue) => issue.message.includes('Error rate'))).toBe(true);
     });
   });
 
@@ -276,15 +282,20 @@ describe('HealthCheckSystem', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
+        directives: [],
       };
 
       // Phase 1: Initial deployment - mostly successful
       for (let i = 0; i < 120; i++) {
-        if (Math.random() > 0.005) { // 0.5% error rate
+        if (Math.random() > 0.005) {
+          // 0.5% error rate
           healthCheck.recordSuccess(mockOperation.id, 80 + Math.random() * 40); // 80-120ms latency
         } else {
-          healthCheck.recordError(mockOperation.id, new Error('Rare error'), 80 + Math.random() * 40);
+          healthCheck.recordError(
+            mockOperation.id,
+            new Error('Rare error'),
+            80 + Math.random() * 40,
+          );
         }
       }
 
@@ -293,20 +304,25 @@ describe('HealthCheckSystem', () => {
 
       // Phase 2: Performance degradation
       for (let i = 0; i < 50; i++) {
-        if (Math.random() > 0.02) { // 2% error rate
+        if (Math.random() > 0.02) {
+          // 2% error rate
           healthCheck.recordSuccess(mockOperation.id, 200 + Math.random() * 100); // 200-300ms latency
         } else {
-          healthCheck.recordError(mockOperation.id, new Error('Performance error'), 200 + Math.random() * 100);
+          healthCheck.recordError(
+            mockOperation.id,
+            new Error('Performance error'),
+            200 + Math.random() * 100,
+          );
         }
       }
 
       result = await healthCheck.performHealthCheck(mockOperation);
       expect(result.status).toBe('unhealthy');
-      expect(result.issues.some(issue => issue.message.includes('Error rate'))).toBe(true);
+      expect(result.issues.some((issue) => issue.message.includes('Error rate'))).toBe(true);
 
       // Phase 3: Recovery after fix
       healthCheck.resetMetrics(mockOperation.id);
-      
+
       for (let i = 0; i < 120; i++) {
         healthCheck.recordSuccess(mockOperation.id, 70 + Math.random() * 30); // Improved latency
       }
@@ -329,7 +345,7 @@ describe('HealthCheckSystem', () => {
           column: 1,
           variables: [],
           fragments: [],
-          directives: []
+          directives: [],
         },
         {
           id: 'unhealthy-op',
@@ -342,8 +358,8 @@ describe('HealthCheckSystem', () => {
           column: 1,
           variables: [],
           fragments: [],
-          directives: []
-        }
+          directives: [],
+        },
       ];
 
       // Record good metrics for first operation
@@ -353,10 +369,15 @@ describe('HealthCheckSystem', () => {
 
       // Record bad metrics for second operation
       for (let i = 0; i < 150; i++) {
-        if (i < 130) { // ~13% error rate
+        if (i < 130) {
+          // ~13% error rate
           healthCheck.recordSuccess(operations[1].id, 300 + Math.random() * 200);
         } else {
-          healthCheck.recordError(operations[1].id, new Error('Mutation error'), 300 + Math.random() * 200);
+          healthCheck.recordError(
+            operations[1].id,
+            new Error('Mutation error'),
+            300 + Math.random() * 200,
+          );
         }
       }
 
@@ -380,7 +401,7 @@ describe('HealthCheckSystem', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
+        directives: [],
       };
 
       // Edge case: Exactly at threshold
@@ -389,12 +410,12 @@ describe('HealthCheckSystem', () => {
           success: i < 99, // Exactly 1% error rate (at threshold)
           latency: 2000, // Exactly at latency threshold
           timestamp: new Date(),
-          error: i >= 99 ? new Error('Threshold error') : undefined
+          error: i >= 99 ? new Error('Threshold error') : undefined,
         });
       }
 
       const result = await healthCheck.performHealthCheck(mockOperation);
-      
+
       // Should be healthy since we're at threshold, not above
       expect(result.status).toBe('healthy');
 
@@ -403,7 +424,7 @@ describe('HealthCheckSystem', () => {
         success: false,
         latency: 2001,
         timestamp: new Date(),
-        error: new Error('Push over threshold')
+        error: new Error('Push over threshold'),
       });
 
       const result2 = await healthCheck.performHealthCheck(mockOperation);

@@ -22,7 +22,7 @@ describe('Main Entry Point Coverage', () => {
     // Test the entry point logic without importing main.tsx
     const mockRoot = document.createElement('div');
     mockRoot.id = 'root';
-    
+
     // Simulate the main.tsx logic
     const rootElement = mockRoot;
     expect(rootElement).toBeDefined();
@@ -34,7 +34,7 @@ describe('Main Entry Point Coverage', () => {
     const rootDiv = document.createElement('div');
     rootDiv.id = 'root';
     document.body.appendChild(rootDiv);
-    
+
     const foundRoot = document.getElementById('root');
     expect(foundRoot).toStrictEqual(rootDiv);
     expect(foundRoot?.id).toBe('root');

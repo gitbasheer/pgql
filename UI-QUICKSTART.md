@@ -15,6 +15,7 @@ node ui-server.js
 ## 🎯 Key Features
 
 ### 1. **Authentication Testing**
+
 - Click "Test Auth Config" button
 - Verifies SSO cookies and Apollo token
 - Shows status: ✅ Auth OK or ❌ Auth Missing
@@ -22,27 +23,32 @@ node ui-server.js
 ### 2. **Core Pipeline Operations**
 
 #### Extract Queries
+
 - Finds all GraphQL queries in your codebase
 - Uses hybrid extraction (AST + Pluck strategies)
 - Resolves fragments and normalizes names
 - Default input: `data/sample_data`
 
 #### Transform
+
 - Applies schema-based transformations
 - Updates deprecated fields automatically
 - Creates transformed queries in `transformed/` directory
 
 #### Validate
+
 - Checks queries against GraphQL schema
 - Reports syntax errors and invalid fields
 - Shows validation success rate
 
 #### Apply Changes
+
 - Writes transformed queries back to source files
 - Optional backup creation
 - Dry-run mode by default
 
 ### 3. **Query Viewer**
+
 - **Query List**: Shows all extracted queries with types (query/mutation/subscription)
 - **Before/After Views**: Toggle between original and transformed versions
 - **Error Display**: Shows validation errors for each query
@@ -50,6 +56,7 @@ node ui-server.js
 - **Metadata**: Shows source file, line numbers, and query ID
 
 ### 4. **Configuration Options**
+
 - **Input Directory**: Source files location (default: `data/sample_data`)
 - **Schema File**: GraphQL schema path (default: `schema.graphql`)
 - **Output File**: Extraction output (default: `extracted-queries.json`)
@@ -58,6 +65,7 @@ node ui-server.js
 - **Create Backup**: Backup files before changes
 
 ### 5. **Real-time Output**
+
 - Live command execution output
 - Color-coded messages (success/error/warning)
 - Performance metrics and timing
@@ -89,16 +97,21 @@ node ui-server.js
 ## 🛠️ Troubleshooting
 
 ### Server Not Running
+
 ```bash
 Error: Server not running. Start it with: node ui-server.js
 ```
+
 **Solution**: Run `./start-ui.sh` or `node ui-server.js`
 
 ### Auth Missing
+
 ```
 ❌ Auth not configured. Set SSO_AUTH_IDP or APOLLO_AUTH_TOKEN in .env
 ```
+
 **Solution**: Add auth tokens to `.env` file:
+
 ```env
 APOLLO_AUTH_TOKEN=your_token_here
 # OR
@@ -109,9 +122,11 @@ SSO_INFO_IDP=your_info_cookie
 ```
 
 ### No Queries Found
+
 ```
 No queries found. Run "Extract Queries" first.
 ```
+
 **Solution**: Click "Extract Queries" button with correct input path
 
 ## 📌 Tips
@@ -125,6 +140,7 @@ No queries found. Run "Extract Queries" first.
 ## 🎯 Production Launch Readiness
 
 The UI helps verify:
+
 - ✅ All queries extracted (35+ expected)
 - ✅ Schema validation passing
 - ✅ Transformations reviewed

@@ -58,8 +58,8 @@ async function runJointTesting(): Promise<void> {
     enableRealApi: true,
     endpoints: {
       productGraph: process.env.APOLLO_PG_ENDPOINT || 'https://pg.api.godaddy.com/v1/gql/customer',
-      offerGraph: process.env.APOLLO_OG_ENDPOINT || 'https://og.api.godaddy.com/'
-    }
+      offerGraph: process.env.APOLLO_OG_ENDPOINT || 'https://og.api.godaddy.com/',
+    },
   };
 
   const metrics: Partial<PipelineMetrics> = {};
@@ -74,16 +74,16 @@ async function runJointTesting(): Promise<void> {
       features: {
         enableTemplateResolution: true,
         enableVariantGeneration: true,
-        preserveSourceAST: true
-      }
+        preserveSourceAST: true,
+      },
     });
 
     const extractionResult = await extractor.extract();
-    
+
     metrics.extraction = {
       total: extractionResult.queries.length,
       successful: extractionResult.queries.length - extractionResult.errors.length,
-      errors: extractionResult.errors.map(e => e.message)
+      errors: extractionResult.errors.map((e) => e.message),
     };
 
     console.log(`✅ Extracted ${metrics.extraction.total} queries`);
@@ -92,12 +92,12 @@ async function runJointTesting(): Promise<void> {
 
     // Step 2: Classification
     console.log('\n🔍 Step 2: Classifying endpoints...');
-    const pgQueries = extractionResult.queries.filter(q => q.endpoint === 'productGraph');
-    const ogQueries = extractionResult.queries.filter(q => q.endpoint === 'offerGraph');
-    
+    const pgQueries = extractionResult.queries.filter((q) => q.endpoint === 'productGraph');
+    const ogQueries = extractionResult.queries.filter((q) => q.endpoint === 'offerGraph');
+
     metrics.classification = {
       productGraph: pgQueries.length,
-      offerGraph: ogQueries.length
+      offerGraph: ogQueries.length,
     };
 
     console.log(`✅ Product Graph: ${metrics.classification.productGraph} queries`);
@@ -108,22 +108,22 @@ async function runJointTesting(): Promise<void> {
     const validationService = new ResponseValidationService({
       endpoints: {
         baseline: { url: config.endpoints.productGraph },
-        transformed: { url: config.endpoints.offerGraph }
+        transformed: { url: config.endpoints.offerGraph },
       },
       comparison: {
         strict: true,
         ignorePaths: [],
-        customComparators: {}
+        customComparators: {},
       },
       capture: {
         maxConcurrency: 5,
         timeout: 30000,
-        variableGeneration: 'smart'
+        variableGeneration: 'smart',
       },
       storage: {
         type: 'file',
-        path: path.join(config.outputDir, 'validations')
-      }
+        path: path.join(config.outputDir, 'validations'),
+      },
     });
 
     let validCount = 0;
@@ -133,7 +133,7 @@ async function runJointTesting(): Promise<void> {
     for (const query of extractionResult.queries.slice(0, 10)) {
       const validation = await validationService.validateAgainstSchema(
         query.content,
-        query.endpoint || 'productGraph'
+        query.endpoint || 'productGraph',
       );
 
       if (validation.valid) {
@@ -141,7 +141,7 @@ async function runJointTesting(): Promise<void> {
       } else {
         invalidCount++;
         // Check for nullability errors
-        if (validation.errors.some(e => e.includes('null') || e.includes('NonNull'))) {
+        if (validation.errors.some((e) => e.includes('null') || e.includes('NonNull'))) {
           nullabilityErrors++;
         }
       }
@@ -150,7 +150,7 @@ async function runJointTesting(): Promise<void> {
     metrics.validation = {
       valid: validCount,
       invalid: invalidCount,
-      nullabilityErrors
+      nullabilityErrors,
     };
 
     console.log(`✅ Valid: ${validCount}, Invalid: ${invalidCount}`);
@@ -164,7 +164,7 @@ async function runJointTesting(): Promise<void> {
     if (config.enableRealApi && process.env.auth_idp) {
       const client = new GraphQLClient({
         endpoint: config.endpoints.productGraph,
-        baselineDir: path.join(config.outputDir, 'baselines')
+        baselineDir: path.join(config.outputDir, 'baselines'),
       });
 
       // Test first 5 queries
@@ -177,13 +177,13 @@ async function runJointTesting(): Promise<void> {
 
           console.log(`   Testing: ${query.name || 'unnamed'}...`);
           const response = await client.query(query.content, variables);
-          
+
           if (response) {
             const baselineName = `${query.name || `query-${testedCount}`}.json`;
             await fs.mkdir(path.join(config.outputDir, 'baselines'), { recursive: true });
             await fs.writeFile(
               path.join(config.outputDir, 'baselines', baselineName),
-              JSON.stringify({ query: query.content, variables, response }, null, 2)
+              JSON.stringify({ query: query.content, variables, response }, null, 2),
             );
             realApiResults.push(baselineName);
             testedCount++;
@@ -191,7 +191,7 @@ async function runJointTesting(): Promise<void> {
           }
 
           // Rate limiting
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         } catch (error: any) {
           console.log(`   ❌ API error: ${error.message}`);
         }
@@ -200,7 +200,7 @@ async function runJointTesting(): Promise<void> {
 
     metrics.realApi = {
       tested: testedCount,
-      baselines: realApiResults
+      baselines: realApiResults,
     };
 
     // Step 5: Transformation with A/B utils
@@ -211,15 +211,15 @@ async function runJointTesting(): Promise<void> {
         fieldName: 'profilePicture',
         reason: 'Moved to profile.logoUrl',
         replacementField: 'profile.logoUrl',
-        transformationType: 'nested-replacement' as const
+        transformationType: 'nested-replacement' as const,
       },
       {
         objectType: 'Venture',
         fieldName: 'logoImage',
         reason: 'Renamed to logoUrl',
         replacementField: 'logoUrl',
-        transformationType: 'field-rename' as const
-      }
+        transformationType: 'field-rename' as const,
+      },
     ]);
 
     let transformedCount = 0;
@@ -229,14 +229,14 @@ async function runJointTesting(): Promise<void> {
       const result = await transformer.transform(query.content);
       if (result.changes.length > 0) {
         transformedCount++;
-        
+
         // Generate util with A/B flag
         const util = transformer.generateMappingUtil(
           { old: 'structure' },
           { new: 'structure' },
-          query.name || 'unnamed'
+          query.name || 'unnamed',
         );
-        
+
         if (util.includes('hivemind.flag')) {
           utilsGenerated++;
         }
@@ -245,7 +245,7 @@ async function runJointTesting(): Promise<void> {
 
     metrics.transformation = {
       transformed: transformedCount,
-      utilsGenerated
+      utilsGenerated,
     };
 
     console.log(`✅ Transformed: ${transformedCount} queries`);
@@ -253,10 +253,9 @@ async function runJointTesting(): Promise<void> {
 
     // Generate comprehensive report
     await generateReport(config, metrics as PipelineMetrics);
-    
+
     console.log('\n🎉 Joint testing completed successfully!');
     console.log('📊 Results saved to:', config.outputDir);
-
   } catch (error) {
     console.error('❌ Joint testing failed:', error);
     process.exit(1);
@@ -289,7 +288,7 @@ async function generateReport(config: PipelineConfig, metrics: PipelineMetrics):
 ### Real API Testing
 - Tested: ${metrics.realApi.tested}
 - Baselines Saved: ${metrics.realApi.baselines.length}
-${metrics.realApi.baselines.map(b => `  - ${b}`).join('\n')}
+${metrics.realApi.baselines.map((b) => `  - ${b}`).join('\n')}
 
 ### Transformation
 - Transformed: ${metrics.transformation.transformed}

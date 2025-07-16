@@ -1,7 +1,13 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { logger } from '../../utils/logger.js';
-import { execGit, execGH, validateBranchName, validateFilePath, gitCommitSecure } from '../../utils/secureCommand.js';
+import {
+  execGit,
+  execGH,
+  validateBranchName,
+  validateFilePath,
+  gitCommitSecure,
+} from '../../utils/secureCommand.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -55,9 +61,9 @@ export class GitHubService {
   async validateGitHub(): Promise<boolean> {
     try {
       const result = await execGH(['auth', 'status'], {
-        cwd: this.workingDirectory
+        cwd: this.workingDirectory,
       });
-      
+
       if (result.exitCode !== 0) {
         throw new Error('GitHub CLI not authenticated');
       }
@@ -78,9 +84,9 @@ export class GitHubService {
     try {
       // Check if it's a git repository
       const result = await execGit(['rev-parse', '--git-dir'], {
-        cwd: this.workingDirectory
+        cwd: this.workingDirectory,
       });
-      
+
       if (result.exitCode !== 0) {
         throw new Error('Not a git repository');
       }
@@ -88,14 +94,14 @@ export class GitHubService {
 
       // Get current branch
       const branchResult = await execGit(['branch', '--show-current'], {
-        cwd: this.workingDirectory
+        cwd: this.workingDirectory,
       });
       const branch = branchResult.stdout;
       status.currentBranch = branch.trim();
 
       // Check for uncommitted changes
       const statusResult = await execGit(['status', '--porcelain'], {
-        cwd: this.workingDirectory
+        cwd: this.workingDirectory,
       });
       const gitStatus = statusResult.stdout;
       status.hasUncommittedChanges = gitStatus.trim().length > 0;
@@ -103,7 +109,7 @@ export class GitHubService {
       // Get remote URL
       try {
         const remoteResult = await execGit(['remote', 'get-url', 'origin'], {
-          cwd: this.workingDirectory
+          cwd: this.workingDirectory,
         });
         const remote = remoteResult.stdout;
         status.remoteUrl = remote.trim();
@@ -138,11 +144,11 @@ export class GitHubService {
       if (!validateBranchName(branchName)) {
         throw new Error('Invalid branch name: contains unsafe characters');
       }
-      
+
       const result = await execGit(['checkout', '-b', branchName], {
-        cwd: this.workingDirectory
+        cwd: this.workingDirectory,
       });
-      
+
       if (result.exitCode !== 0) {
         throw new Error(`Failed to create branch: ${result.stderr}`);
       }
@@ -171,11 +177,11 @@ export class GitHubService {
         if (!validateFilePath(filePath, this.workingDirectory)) {
           throw new Error(`Invalid file path: ${filePath}`);
         }
-        
+
         const result = await execGit(['add', filePath], {
-          cwd: this.workingDirectory
+          cwd: this.workingDirectory,
         });
-        
+
         if (result.exitCode !== 0) {
           throw new Error(`Failed to stage file: ${result.stderr}`);
         }
@@ -193,20 +199,18 @@ export class GitHubService {
    * Creates a commit with a descriptive message
    */
   async createCommit(message: string, description?: string): Promise<string> {
-    const fullMessage = description
-      ? `${message}\n\n${description}`
-      : message;
+    const fullMessage = description ? `${message}\n\n${description}` : message;
 
     try {
       // Use secure commit with message via stdin
       const result = await gitCommitSecure(fullMessage, {
-        cwd: this.workingDirectory
+        cwd: this.workingDirectory,
       });
-      
+
       if (result.exitCode !== 0) {
         throw new Error(`Commit failed: ${result.stderr}`);
       }
-      
+
       const { stdout } = result;
 
       // Extract commit hash
@@ -238,11 +242,11 @@ export class GitHubService {
       if (!validateBranchName(branch)) {
         throw new Error('Invalid branch name for push');
       }
-      
+
       const pushResult = await execGit(['push', '-u', 'origin', branch], {
-        cwd: this.workingDirectory
+        cwd: this.workingDirectory,
       });
-      
+
       if (pushResult.exitCode !== 0) {
         throw new Error(`Push failed: ${pushResult.stderr}`);
       }
@@ -254,11 +258,11 @@ export class GitHubService {
         if (!validateBranchName(branch)) {
           throw new Error('Invalid branch name for push');
         }
-        
+
         const pushResult = await execGit(['push', '--set-upstream', 'origin', branch], {
-          cwd: this.workingDirectory
+          cwd: this.workingDirectory,
         });
-        
+
         if (pushResult.exitCode !== 0) {
           throw new Error(`Push failed: ${pushResult.stderr}`);
         }
@@ -325,11 +329,11 @@ export class GitHubService {
 
     try {
       const result = await execGH(args, { cwd: this.workingDirectory });
-      
+
       if (result.exitCode !== 0) {
         throw new Error(`PR creation failed: ${result.stderr}`);
       }
-      
+
       const { stdout } = result;
       logger.info(`Pull request created: ${stdout.trim()}`);
 
@@ -342,15 +346,15 @@ export class GitHubService {
       }
 
       // Fetch PR details using gh api
-      const detailsResult = await execGH([
-        'pr', 'view', prNumber,
-        '--json', 'number,url,title,body,baseRefName,headRefName'
-      ], { cwd: this.workingDirectory });
-      
+      const detailsResult = await execGH(
+        ['pr', 'view', prNumber, '--json', 'number,url,title,body,baseRefName,headRefName'],
+        { cwd: this.workingDirectory },
+      );
+
       if (detailsResult.exitCode !== 0) {
         throw new Error(`Failed to fetch PR details: ${detailsResult.stderr}`);
       }
-      
+
       const prDetails = JSON.parse(detailsResult.stdout);
 
       return prDetails;
@@ -383,7 +387,7 @@ export class GitHubService {
     // Modified files
     if (summary.filesModified.length > 0) {
       sections.push('### Modified Files');
-      summary.filesModified.forEach(file => {
+      summary.filesModified.forEach((file) => {
         sections.push(`- \`${file}\``);
       });
       sections.push('');
@@ -391,9 +395,10 @@ export class GitHubService {
 
     // Validation status
     sections.push('### Validation');
-    sections.push(summary.validationPassed
-      ? '✅ All transformations validated successfully'
-      : '⚠️ Some validations require manual review'
+    sections.push(
+      summary.validationPassed
+        ? '✅ All transformations validated successfully'
+        : '⚠️ Some validations require manual review',
     );
     sections.push('');
 

@@ -7,6 +7,7 @@ Welcome to the pg-migration-620 project! This guide will help you get up to spee
 pg-migration-620 is a production-grade GraphQL migration tool that automatically transforms deprecated queries based on GraphQL schema deprecation directives. It's designed for enterprise environments with safety guarantees, rollback support, and progressive migration capabilities.
 
 ### Key Capabilities
+
 - **Schema-aware transformations** - Reads deprecation directives from your schema
 - **Safe progressive rollout** - Start at 1% traffic, monitor, and gradually increase
 - **100% scriptable** - Works with Python, Bash, and other automation tools
@@ -15,6 +16,7 @@ pg-migration-620 is a production-grade GraphQL migration tool that automatically
 ## 🚀 Quick Start
 
 ### 1. Environment Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/pg-migration-620.git
@@ -31,6 +33,7 @@ pnpm test
 ```
 
 ### 2. Your First Migration
+
 ```bash
 # Extract queries from a sample project
 pnpm extract data/sample_data
@@ -46,6 +49,7 @@ pnpm apply -i transformed/transformed-queries.json --backup
 ## 🏗️ Architecture Overview
 
 ### Module Structure
+
 ```
 src/
 ├── core/                    # Core business logic
@@ -62,13 +66,17 @@ src/
 ### Key Concepts
 
 #### 1. Unified Architecture
+
 We're transitioning to a unified module system. When in doubt:
+
 - Use `UnifiedExtractor` instead of older extractors
 - Use `OptimizedSchemaTransformer` for transformations
 - Check `DEPRECATED_MODULES_AUDIT.md` for module status
 
 #### 2. Pattern-Based Migration
+
 Instead of normalizing dynamic query names, we track patterns:
+
 ```typescript
 // We preserve this:
 const query = gql`query ${queryNames.byIdV1} { ... }`;
@@ -77,7 +85,9 @@ const query = gql`query ${queryNames.byIdV1} { ... }`;
 ```
 
 #### 3. Progressive Safety
+
 Every migration goes through confidence scoring and gradual rollout:
+
 - Automatic (>90% confidence): Apply immediately
 - Semi-automatic (70-90%): Require review
 - Manual (<70%): Always manual review
@@ -85,6 +95,7 @@ Every migration goes through confidence scoring and gradual rollout:
 ## 🧪 Development Workflow
 
 ### 1. Making Changes
+
 ```bash
 # Create a feature branch
 git checkout -b feature/your-feature
@@ -103,6 +114,7 @@ pnpm build
 ```
 
 ### 2. Testing Your Changes
+
 ```bash
 # Unit tests
 pnpm test
@@ -115,6 +127,7 @@ pnpm test:integration
 ```
 
 ### 3. Debugging Tips
+
 ```bash
 # Enable debug logging
 LOG_LEVEL=debug pnpm extract ./src
@@ -129,18 +142,21 @@ PROFILE=true pnpm transform
 ## 📋 Common Tasks
 
 ### Adding a New Extraction Strategy
+
 1. Create strategy in `src/core/extraction/strategies/`
 2. Implement `ExtractionStrategy` interface
 3. Register in `UnifiedExtractor`
 4. Add tests in `src/test/extraction/`
 
 ### Adding a New CLI Command
+
 1. Add command in `src/cli/main-cli.ts`
 2. Implement handler in appropriate CLI file
 3. Update `CLI_OUTPUT_FORMATS.md` with output spec
 4. Add compatibility tests
 
 ### Fixing a Bug
+
 1. Write a failing test that reproduces the bug
 2. Fix the bug
 3. Verify test passes
@@ -149,17 +165,20 @@ PROFILE=true pnpm transform
 ## ⚠️ Important Notes
 
 ### Current State (as of writing)
+
 - **Test Coverage**: ~70% passing - some areas need work
 - **Module Migration**: In progress - check deprecation warnings
 - **Documentation**: Being updated - verify with actual code
 
 ### Gotchas to Avoid
+
 1. **Don't use deprecated modules** - Check `DEPRECATED_MODULES_AUDIT.md`
 2. **Preserve CLI compatibility** - Output formats are contracts
 3. **Test with real schemas** - Unit tests use simplified schemas
 4. **Handle async properly** - Most operations are async
 
 ### Where to Get Help
+
 1. Check existing documentation in `docs/`
 2. Look at test files for usage examples
 3. Search codebase for similar patterns
@@ -168,17 +187,20 @@ PROFILE=true pnpm transform
 ## 🎓 Learning Resources
 
 ### Essential Reading
+
 1. [Architecture Overview](./UNIFIED_ARCHITECTURE.md)
 2. [Pattern-Based Migration](../PATTERN-BASED-MIGRATION.md)
 3. [CLI Output Formats](./CLI_OUTPUT_FORMATS.md)
 4. [Contributing Guide](../CONTRIBUTING.md)
 
 ### Code Examples
+
 - `examples/` directory has sample migrations
 - Test files show API usage patterns
 - CLI files demonstrate command structure
 
 ### Understanding the Domain
+
 - GraphQL deprecation directives
 - AST manipulation with Babel
 - Progressive rollout strategies
@@ -187,6 +209,7 @@ PROFILE=true pnpm transform
 ## 🔧 Tooling
 
 ### Development Tools
+
 - **Vitest**: Test runner (not Jest!)
 - **TypeScript**: Strict mode enabled
 - **pnpm**: Package manager
@@ -194,6 +217,7 @@ PROFILE=true pnpm transform
 - **Prettier**: Code formatting
 
 ### Useful Scripts
+
 ```bash
 # Development
 pnpm dev              # Run in development mode
@@ -210,6 +234,7 @@ pnpm test:coverage    # Generate coverage report
 ## 🚦 Ready Checklist
 
 Before you start contributing:
+
 - [ ] Environment setup complete
 - [ ] Tests passing locally
 - [ ] Read CONTRIBUTING.md
@@ -220,6 +245,7 @@ Before you start contributing:
 ## 🎉 Welcome Aboard!
 
 You're now ready to contribute to pg-migration-620. Remember:
+
 - Ask questions when unsure
 - Write tests for new features
 - Keep backward compatibility in mind

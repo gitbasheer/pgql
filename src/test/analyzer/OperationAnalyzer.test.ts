@@ -43,7 +43,7 @@ describe('OperationAnalyzer', () => {
 
       expect(groups.size).toBe(1);
       expect(groups.has('GetUser')).toBe(true);
-      
+
       const group = groups.get('GetUser')!;
       expect(group.type).toBe('query');
       expect(group.variants).toHaveLength(2);
@@ -65,7 +65,8 @@ describe('OperationAnalyzer', () => {
         {
           id: '2',
           filePath: '/src/queries2.ts',
-          content: 'query GetUser($id: ID!, $includeEmail: Boolean!) { user(id: $id) { id name email @include(if: $includeEmail) } }',
+          content:
+            'query GetUser($id: ID!, $includeEmail: Boolean!) { user(id: $id) { id name email @include(if: $includeEmail) } }',
           name: 'GetUser',
           type: 'query',
         },
@@ -104,18 +105,18 @@ describe('OperationAnalyzer', () => {
       const groups = analyzer.analyzeOperations(queries);
 
       expect(groups.size).toBe(2);
-      
+
       // Should have grouped the similar user queries
-      const userGroup = Array.from(groups.values()).find(g => 
-        g.commonSelections.includes('user')
+      const userGroup = Array.from(groups.values()).find((g) =>
+        g.commonSelections.includes('user'),
       );
       expect(userGroup).toBeDefined();
       expect(userGroup!.variants).toHaveLength(2);
       expect(userGroup!.canonicalName).toMatch(/^unnamed_query_\d+$/);
 
       // Posts query should be in its own group
-      const postsGroup = Array.from(groups.values()).find(g => 
-        g.commonSelections.includes('posts')
+      const postsGroup = Array.from(groups.values()).find((g) =>
+        g.commonSelections.includes('posts'),
       );
       expect(postsGroup).toBeDefined();
       expect(postsGroup!.variants).toHaveLength(1);
@@ -159,7 +160,7 @@ describe('OperationAnalyzer', () => {
 
       expect(group.commonSelections).toContain('...UserFields');
       expect(group.differingSelections).toContain('...ProfileFields');
-      
+
       expect(group.variants[0].signature.fragments).toEqual(['UserFields']);
       expect(group.variants[1].signature.fragments).toEqual(['ProfileFields', 'UserFields']);
     });
@@ -172,7 +173,9 @@ describe('OperationAnalyzer', () => {
           content: 'mutation CreateUser($input: UserInput!) { createUser(input: $input) { id } }',
           name: 'CreateUser',
           type: 'mutation',
-          ast: parse('mutation CreateUser($input: UserInput!) { createUser(input: $input) { id } }'),
+          ast: parse(
+            'mutation CreateUser($input: UserInput!) { createUser(input: $input) { id } }',
+          ),
         },
         {
           id: '2',
@@ -210,10 +213,7 @@ describe('OperationAnalyzer', () => {
 
       const groups = analyzer.analyzeOperations(queries);
 
-      expect(logger.warn).toHaveBeenCalledWith(
-        'Failed to analyze operation 1:',
-        expect.any(Error)
-      );
+      expect(logger.warn).toHaveBeenCalledWith('Failed to analyze operation 1:', expect.any(Error));
       expect(groups.size).toBe(1);
       expect(groups.has('Valid')).toBe(true);
     });
@@ -353,7 +353,7 @@ describe('OperationAnalyzer', () => {
       const suggestions = analyzer.getSuggestedNames();
 
       expect(suggestions.size).toBe(2);
-      
+
       // Should suggest based on main selections
       const values = Array.from(suggestions.values());
       expect(values).toContain('GetUserPosts');

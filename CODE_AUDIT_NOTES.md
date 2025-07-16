@@ -1,9 +1,11 @@
 # Code Audit: Developer Notes Analysis
 
 ## Overview
+
 This document compiles all `// NOTE:` comments found in the codebase with their context, provides deep analysis, and includes critical feedback and recommendations.
 
 **Total NOTE Comments Found:** 23 across 4 files
+
 - UnifiedExtractor.ts: 2 NOTE comments (plus 1 additional developer question)
 - ASTStrategy.test.ts: 6 NOTE comments
 - PluckStrategy.test.ts: 9 NOTE comments
@@ -14,7 +16,9 @@ This document compiles all `// NOTE:` comments found in the codebase with their 
 ### 1. UnifiedExtractor.ts (Core Extraction Engine)
 
 #### NOTE 1: What does context present?
+
 **Location:** `src/core/extraction/engine/UnifiedExtractor.ts:20`
+
 ```typescript
 export class UnifiedExtractor {
   // NOTE:what does context present?
@@ -22,68 +26,86 @@ export class UnifiedExtractor {
   // pipeline for what? all items its an entry point to?
   private pipeline: ExtractionPipeline;
 ```
+
 **Context:** This is asking about the ExtractionContext class and its purpose.
 **Additional Question (line 22):** There's also a non-NOTE comment asking about the pipeline's purpose
 
 #### NOTE 2: Only 2 potential strategies? How do they get selected? Per query per file?
+
 **Location:** `src/core/extraction/engine/UnifiedExtractor.ts:40`
+
 ```typescript
 private initializeStrategies(): Map<string, BaseStrategy> {
   const strategies = new Map<string, BaseStrategy>();
-  
+
   // Always initialize both strategies
   strategies.set('pluck', new PluckStrategy(this.context));
   strategies.set('ast', new ASTStrategy(this.context));
-  
+
   // NOTE: only 2 potential strategies? how do they get selected? per query per file?
   return strategies;
 }
 ```
+
 **Context:** Questions about strategy selection and scope.
 
 ### 2. ASTStrategy.test.ts
 
 #### NOTE 3: Should preserve if query uses a variable and what is the variable?
+
 **Location:** `src/test/extraction/ASTStrategy.test.ts:35`
+
 ```typescript
 // NOTE: shoul preserve if query uses a variable and what is the variable?
 expect(query.sourceAST).toBeDefined();
 ```
+
 **Context:** Testing variable preservation in GraphQL queries.
 **Note:** Contains typo: "shoul" should be "should"
 
 #### NOTE 4: We should define additionalFields and resolve it in the query
+
 **Location:** `src/test/extraction/ASTStrategy.test.ts:76`
+
 ```typescript
 // NOTE: we should define additionalFields and resolve it in the query
 const additionalFields = 'email, phone';
 ```
+
 **Context:** About resolving dynamic fields in queries.
 **Note:** The comment seems outdated - `additionalFields` IS actually defined on the next line (line 77)
 
 #### NOTE 5: Let's add a test to check if we're preserving the fragment variable name/resolution value?
+
 **Location:** `src/test/extraction/ASTStrategy.test.ts:105`
+
 ```typescript
 // NOTE:lets add a test to check if we're preserving the fragment variable name/resolution value?
 ```
+
 **Context:** Testing fragment variable preservation.
 
 #### NOTE 6: What does interpolations exactly mean? Do we have any code that classifies what interpolations are and assigns them proper field names?
+
 **Location:** `src/test/extraction/ASTStrategy.test.ts:211`
+
 ```typescript
 // NOTE:what does interpolations exactly mean? do we have any code that classifies what interpolations are and assigns them proper field names?
 // Verify interpolation types
-const types = interpolations.map(i => i.type);
+const types = interpolations.map((i) => i.type);
 expect(types).toContain('queryName'); // queryNames.dynamicName
 expect(types).toContain('functionCall'); // getUserFields()
 expect(types).toContain('conditional'); // ternary expression
 ```
+
 **Context:** Understanding interpolation classification system.
 
 ### 3. PluckStrategy.test.ts
 
 #### NOTE 7-9: What does sourceAST properties represent?
+
 **Location:** `src/test/extraction/PluckStrategy.test.ts:32-36`
+
 ```typescript
 // NOTE: what does sourceAST.node represent? is it the AST node of the query?
 expect(query.sourceAST?.node).toBeDefined();
@@ -92,113 +114,155 @@ expect(query.sourceAST?.start).toBeGreaterThanOrEqual(0);
 // NOTE: what does sourceAST.end represent? is it the end position of the query in the file?
 expect(query.sourceAST?.end).toBeGreaterThan(query.sourceAST?.start || 0);
 ```
+
 **Context:** Understanding sourceAST structure and properties.
 
 #### NOTE 10: When do we exactly decide to disable source AST preservation?
+
 **Location:** `src/test/extraction/PluckStrategy.test.ts:42`
+
 ```typescript
 // NOTE:when do we exactly decide to disable source AST preservation?
-preserveSourceAST: false
+preserveSourceAST: false;
 ```
+
 **Context:** Decision logic for AST preservation.
 
 #### NOTE 11: What are templateLiteral? What are they in this example?
+
 **Location:** `src/test/extraction/PluckStrategy.test.ts:85`
+
 ```typescript
 // NOTE:what are templateLiteral? what are they in this example?
 expect(query.sourceAST?.templateLiteral).toBeDefined();
 ```
+
 **Context:** Understanding template literal structure.
 
 #### NOTE 12: Why do extract from @apollo/client?
+
 **Location:** `src/test/extraction/PluckStrategy.test.ts:96`
+
 ```typescript
 it('should extract from @apollo/client imports', async () => { // NOTE: why do extrat from @apollo/client?
 ```
+
 **Context:** Understanding library support rationale.
 **Note:** Contains typo: "extrat" should be "extract"
 
 #### NOTE 13: Do we have any examples of react-relay queries in gdcorp?
+
 **Location:** `src/test/extraction/PluckStrategy.test.ts:119`
+
 ```typescript
 // NOTE: do we have any examples of react-relay queries in gdcorp?
 ```
+
 **Context:** Question about real-world usage patterns.
 
 #### NOTE 14: What's the determining factor for complex interpolations?
+
 **Location:** `src/test/extraction/PluckStrategy.test.ts:153`
+
 ```typescript
 // NOTE: what's the determining factor for complex interpolations?
 ```
+
 **Context:** Understanding complexity classification.
 
 #### NOTE 15-16: Can we capture the source AST for each query?
+
 **Location:** `src/test/extraction/PluckStrategy.test.ts:183,194`
+
 ```typescript
 // NOTE: can we capture the source AST for each query? and test the value for each?
 // NOTE: can we capture the astNodes for each query? and test the value for each?
 ```
+
 **Context:** Testing individual AST capture.
 
 #### NOTE 17: Explain the source mapper statistics and provide examples
+
 **Location:** `src/test/extraction/PluckStrategy.test.ts:240`
+
 ```typescript
 // NOTE: explain the source mapper statistics and provide examples
 ```
+
 **Context:** Understanding monitoring and statistics.
 
 ### 4. VariantAnalyzer.test.ts
 
 #### NOTE 18: Can we classify patterns by type?
+
 **Location:** `src/test/extraction/analyzers/VariantAnalyzer.test.ts:80`
+
 ```typescript
 // NOTE: can we classify patterns by type?
 pattern: '${includeEmail ? "email" : ""}',
 ```
+
 **Context:** Pattern classification system.
 
 #### NOTE 19: Can we split between deciding variables and fragment variables?
+
 **Location:** `src/test/extraction/analyzers/VariantAnalyzer.test.ts:82`
+
 ```typescript
 // NOTE: can we split between deciding variables (in this case includeEmail) and fragment variables (in this case either email or null) have the variables be exactly logically defined? in this case it's either email or nothing. so 2 variants. var
 ```
+
 **Context:** Variable type differentiation.
 **Note:** The comment appears to be cut off at the end with "var"
 
 #### NOTE 20: Should we make the default value 1?
+
 **Location:** `src/test/extraction/analyzers/VariantAnalyzer.test.ts:152`
+
 ```typescript
 expect(result.possibleVariants).toBe(0); // NOTE: should we make the default value 1?
 ```
+
 **Context:** Default variant count for static queries.
 
 #### NOTE 21: Do we have to add more tests to check if the file content is parsed correctly?
+
 **Location:** `src/test/extraction/analyzers/VariantAnalyzer.test.ts:190`
+
 ```typescript
 // NOTE: do we have to add more tests to check if the file content is parsed correctly?
 ```
+
 **Context:** Test coverage assessment.
 
 #### NOTE 22: Is this intended? Should we specify the location?
+
 **Location:** `src/test/extraction/analyzers/VariantAnalyzer.test.ts:259`
+
 ```typescript
 location: 'fragment', // NOTE: is this intended? should we specify the location?
 ```
+
 **Context:** Location specification accuracy.
 
 #### NOTE 23: We should test for the nested patterns, number of variants, etc.
+
 **Location:** `src/test/extraction/analyzers/VariantAnalyzer.test.ts:424`
+
 ```typescript
 // NOTE: we should test for the nested patterns, number of variants, etc.
 ```
+
 **Context:** Complex pattern testing.
 
 ## Deep Analysis and Answers
 
 ### 1. ExtractionContext Analysis
+
 **Question:** What does context present?
 
 **Answer:** The ExtractionContext is a comprehensive state management class that contains:
+
 - **Normalized Options**: All extraction configuration options
 - **Project Root**: Working directory for relative path resolution
 - **In-Memory Cache**: Performance optimization for file/query results
@@ -211,17 +275,20 @@ location: 'fragment', // NOTE: is this intended? should we specify the location?
 
 **Additional: What is the pipeline for?**
 The ExtractionPipeline orchestrates the multi-stage processing of extracted queries through:
+
 1. Fragment resolution
 2. Variable analysis
 3. Variant generation
 4. Query transformation
 5. Validation
-Each stage can be configured independently, making it the central processing engine for all extracted queries.
+   Each stage can be configured independently, making it the central processing engine for all extracted queries.
 
 ### 2. Strategy System Analysis
+
 **Question:** Only 2 potential strategies? How do they get selected? Per query per file?
 
-**Answer:** 
+**Answer:**
+
 - Yes, there are currently only 2 strategies: `PluckStrategy` and `ASTStrategy`
 - Selection occurs per file, not per query
 - The selection logic in `extractFromFile`:
@@ -231,9 +298,11 @@ Each stage can be configured independently, making it the central processing eng
   - Default is 'hybrid' mode for best results
 
 ### 3. Source AST Structure
+
 **Questions:** What do sourceAST properties represent?
 
 **Answer:**
+
 - `sourceAST.node`: The actual Babel AST node representing the GraphQL template literal or function call
 - `sourceAST.start`: Character position where the GraphQL query starts in the source file
 - `sourceAST.end`: Character position where the GraphQL query ends in the source file
@@ -241,9 +310,11 @@ Each stage can be configured independently, making it the central processing eng
 - `sourceAST.templateLiteral`: The template literal AST node containing quasis and expressions
 
 ### 4. AST Preservation Decision Logic
+
 **Question:** When do we exactly decide to disable source AST preservation?
 
 **Answer:** AST preservation is controlled by the `preserveSourceAST` option in ExtractionOptions. It should be disabled when:
+
 - Memory constraints exist (AST objects can be 10-50x larger than source text)
 - Only query content is needed without source mapping
 - Performance is critical (AST preservation adds ~20-30% overhead)
@@ -254,17 +325,21 @@ Each stage can be configured independently, making it the central processing eng
 Recommended: Enable for development/migration, disable for production runtime.
 
 ### 5. Template Literals
+
 **Question:** What are templateLiterals?
 
 **Answer:** Template literals in this context are ES6 template strings (backtick strings) that contain:
+
 - `quasis`: Static string parts
 - `expressions`: Dynamic interpolated values
-Example: `` `query ${name} { field }` `` has one quasi before ${name} and one after
+  Example: `` `query ${name} { field }` `` has one quasi before ${name} and one after
 
 ### 6. Library Support Rationale
+
 **Question:** Why extract from @apollo/client?
 
 **Answer:** Multiple GraphQL client libraries are supported because:
+
 - **@apollo/client**: Modern Apollo Client (v3+), most popular in React ecosystem
 - **graphql-tag**: Original library, still used in legacy codebases
 - **react-relay**: Facebook's opinionated GraphQL client with different patterns
@@ -276,9 +351,11 @@ Example: `` `query ${name} { field }` `` has one quasi before ${name} and one af
 Note: Based on the question about react-relay in GoDaddy, it's worth checking actual usage patterns in the organization's codebases.
 
 ### 7. Interpolation Classification
+
 **Question:** What does interpolations exactly mean?
 
 **Answer:** Interpolations are dynamic JavaScript expressions embedded in GraphQL template literals. The SourceMapper class classifies them as:
+
 - `queryName`: Member access on queryNames object (e.g., `${queryNames.getUserDetails}`)
 - `memberAccess`: General property access (e.g., `${config.fields}`)
 - `functionCall`: Function invocations (e.g., `${getUserFields()}`)
@@ -289,31 +366,38 @@ Note: Based on the question about react-relay in GoDaddy, it's worth checking ac
 These interpolations are tracked per query to understand dynamic behavior and generate appropriate variants.
 
 ### 8. Pattern Classification
+
 **Question:** Can we classify patterns by type?
 
 **Answer:** Yes, patterns are classified as:
+
 - `ternary`: Conditional patterns with true/false branches
 - `fragment`: Dynamic fragment spreads
 - `field`: Dynamic field inclusions
 - `variable`: Variable interpolations
 
 ### 9. Variable Types
+
 **Question:** Can we split between deciding variables and fragment variables?
 
 **Answer:** This is suggesting a two-tier variable system:
+
 - **Deciding variables**: Boolean conditions (e.g., `includeEmail`)
 - **Fragment variables**: The actual content inserted (e.g., `"email"` or `""`)
-This would enable better variant analysis and optimization.
+  This would enable better variant analysis and optimization.
 
 ### 10. Default Variant Count
+
 **Question:** Should we make the default value 1?
 
 **Answer:** Yes, static queries should have `possibleVariants = 1` instead of 0, as they represent exactly one variant (the static version).
 
 ### 11. Source Mapper Statistics
+
 **Question:** Explain the source mapper statistics.
 
 **Answer:** The SourceMapper maintains comprehensive statistics:
+
 - `totalQueries`: Total number of queries with preserved AST
 - `queriesWithInterpolations`: Count of queries containing dynamic expressions
 - `interpolationTypes`: Breakdown by type (queryName, conditional, functionCall, etc.)
@@ -336,52 +420,61 @@ This would enable better variant analysis and optimization.
 ## Critical Feedback/Suggestions/Recommendations
 
 ### 1. **Architecture Issues**
+
 - **Limited Strategy Options**: Only 2 strategies limits flexibility. Consider adding:
   - RegexStrategy for simple cases
   - TypeScriptCompilerStrategy for deeper analysis
   - CustomStrategy interface for project-specific needs
 
 ### 2. **Testing Gaps**
+
 - Missing tests for error scenarios in interpolation parsing
 - No tests for memory/performance limits
 - Insufficient coverage of nested template literals
 - Need tests for concurrent file processing
 
 ### 3. **Code Smells**
+
 - **Magic Numbers**: Variant threshold (16) for strategy selection should be configurable
 - **Inconsistent Naming**: `possibleVariants` should be 1 for static queries, not 0
 - **Limited Error Context**: Errors don't include enough debugging information
 
 ### 4. **Performance Concerns**
+
 - No streaming support for large files
 - AST caching could be more aggressive
 - Parallel processing could be better optimized with worker threads
 
 ### 5. **Missing Features**
+
 - No support for GraphQL imports from .graphql files
 - Limited fragment resolution across files
 - No support for schema-aware transformations
 - Missing variant deduplication
 
 ### 6. **Documentation Needs**
+
 - Strategy selection criteria undocumented
 - Interpolation type definitions missing
 - Performance tuning guidelines needed
 - Migration path from old to new API unclear
 
 ### 7. **Sustainability Issues**
+
 - Hard-coded library names will break with new GraphQL clients
 - No plugin system for extending functionality
 - Tight coupling between analyzer and extractor
 - No versioning strategy for extracted queries
 
 ### 8. **Security Considerations**
+
 - No validation of interpolated values
 - Potential for code injection through dynamic queries
 - Missing sanitization of file paths
 - No rate limiting for file system operations
 
 ### 9. **Recommended Improvements**
+
 1. Implement a plugin architecture for strategies
 2. Add comprehensive error recovery and reporting
 3. Create a schema-aware validation layer
@@ -394,8 +487,9 @@ This would enable better variant analysis and optimization.
 10. Document all architectural decisions
 
 ### 10. **Priority Fixes**
+
 1. **HIGH**: Fix `possibleVariants` to be 1 for static queries
-2. **HIGH**: Add error boundary for AST parsing failures  
+2. **HIGH**: Add error boundary for AST parsing failures
 3. **HIGH**: Implement proper variable classification (deciding vs fragment variables)
 4. **MEDIUM**: Implement configurable thresholds
 5. **MEDIUM**: Add missing test coverage for nested patterns
@@ -404,6 +498,7 @@ This would enable better variant analysis and optimization.
 8. **LOW**: Add support for more GraphQL client libraries
 
 ### 11. **Additional Observations**
+
 1. **Variant Explosion**: Queries with many conditionals can create exponential variants (2^n)
 2. **Fragment Resolution**: Cross-file fragment resolution appears incomplete
 3. **Memory Leaks**: No clear cache eviction strategy for long-running processes
@@ -416,7 +511,7 @@ This would enable better variant analysis and optimization.
 flowchart TB
     %% Title
     title[<b>GraphQL Migration Tool - Complete Architecture</b><br/>Total Components: 95+ | Duplicate Components: 11 | Critical Issues: 47]
-    
+
     %% Core Orchestration Layer
     subgraph ORCH["🎯 Orchestration Layer"]
         MO[MigrationOrchestrator<br/>❌ Command injection<br/>❌ No error boundaries]
@@ -432,14 +527,14 @@ flowchart TB
             EC[ExtractionContext<br/>🔴 NO CACHE EVICTION<br/>🔴 MEMORY LEAK]
             EP[ExtractionPipeline<br/>9 stages<br/>❌ No transactions]
         end
-        
+
         subgraph STRATEGIES["Strategies (4 total)"]
             PS[PluckStrategy<br/>❌ @ts-nocheck]
             AS[ASTStrategy<br/>❌ @ts-nocheck]
             PAS[PatternAwareASTStrategy<br/>❌ @ts-nocheck]
             BS[BaseStrategy<br/>❌ No plugins]
         end
-        
+
         subgraph SCANNERS["Scanner Duplicates (6 EXTRACTORS!)"]
             DGE[DynamicGraphQLExtractor<br/>⚠️ Security tests only]
             SVE[SmartVariantExtractor<br/>💀 DEAD CODE]
@@ -459,14 +554,14 @@ flowchart TB
             RC[ResponseComparator<br/>❌ O(n²) complexity<br/>❌ JSON.stringify arrays]
             SemV[SemanticValidator<br/>❌ String matching]
         end
-        
+
         subgraph UNTESTED["Untested Components"]
             ABT[ABTestingFramework<br/>🔴 0% TEST COVERAGE<br/>❌ Weak hashing]
             SQC[SmartQueryClassifier<br/>🔴 0% TEST COVERAGE]
         end
     end
 
-    %% Transformation System with Duplicates  
+    %% Transformation System with Duplicates
     subgraph TRANS["🔄 Transformation System (5 TRANSFORMERS!)"]
         OST[OptimizedSchemaTransformer<br/>✓ USED IN PROD<br/>✓ Has caching]
         PST[ProductionSchemaTransformer<br/>💀 DUPLICATE]
@@ -525,7 +620,7 @@ flowchart TB
     EP --> ANALYZE
     EP --> VALID
     EP --> TRANS
-    
+
     %% Critical Issues Connections
     EC -.->|"🔴 MEMORY LEAK"| EC
     ESA -.->|"🔴 COMMAND INJECTION"| ESA
@@ -591,6 +686,7 @@ flowchart TB
 **Total Components Analyzed**: 95+ files across 15 major subsystems
 
 **Critical Statistics**:
+
 - **Duplicate/Dead Code**: 11 components (~5,000 lines)
 - **Critical Security Issues**: 12 vulnerabilities
 - **Memory Leaks**: 4 confirmed leaks
@@ -612,11 +708,13 @@ flowchart TB
 ### The Duplication Disaster
 
 **Scanner Components**:
+
 - 6 different variant extractors
 - Only UnifiedVariantExtractor is used
 - 5 are complete dead code
 
 **Transformer Components**:
+
 - 5 different transformers
 - Only OptimizedSchemaTransformer is used
 - 4 are dead code
@@ -635,6 +733,7 @@ flowchart TB
 ### What This Means
 
 This architecture diagram reveals a system that:
+
 - Started as a prototype and grew without cleanup
 - Has multiple abandoned implementation attempts
 - Lacks basic production requirements (persistence, security, monitoring)
@@ -648,6 +747,7 @@ This architecture diagram reveals a system that:
 **OVERALL GRADE: F (FAILING)**
 
 This codebase is **ABSOLUTELY NOT READY** for production deployment. It represents a significant risk to:
+
 - **System Stability**: Will crash under load
 - **Data Integrity**: No transaction support
 - **Security**: Multiple critical vulnerabilities
@@ -657,6 +757,7 @@ This codebase is **ABSOLUTELY NOT READY** for production deployment. It represen
 **The Hard Truth**: This system was built by developers who understood the GraphQL extraction problem but lacked the engineering discipline to build production-grade software. The extensive use of `@ts-nocheck`, fake test methods, and missing error handling suggests a rushed development process without proper code reviews or architectural oversight.
 
 **Immediate Actions Required**:
+
 1. **DO NOT DEPLOY TO PRODUCTION** under any circumstances
 2. Assign senior engineers to address critical issues
 3. Conduct comprehensive security audit
@@ -674,6 +775,7 @@ After exhaustive analysis of the entire codebase, here's the complete architectu
 ### 1. **Massive Code Duplication Crisis**
 
 **Scanner Components - 6 Variant Extractors:**
+
 - `DynamicGraphQLExtractor` - Base implementation
 - `SmartVariantExtractor` - Unused duplicate
 - `UnifiedVariantExtractor` - Primary implementation
@@ -684,6 +786,7 @@ After exhaustive analysis of the entire codebase, here's the complete architectu
 **Only ONE is actually used in production!** The rest are dead code consuming maintenance effort.
 
 **Transformer Components - 5 Different Transformers:**
+
 - `OptimizedSchemaTransformer` - Production version
 - `ProductionSchemaTransformer` - Experimental duplicate
 - `SchemaAwareTransformer` - Basic duplicate
@@ -695,6 +798,7 @@ After exhaustive analysis of the entire codebase, here's the complete architectu
 ### 2. **Critical Production Safety Issues**
 
 **In-Memory State Management (CRITICAL):**
+
 - **HealthCheck**: All metrics lost on restart
 - **ProgressiveMigration**: Feature flags lost on restart
 - **Rollback**: Checkpoints lost on restart
@@ -702,6 +806,7 @@ After exhaustive analysis of the entire codebase, here's the complete architectu
 This means **ANY RESTART LOSES ALL SAFETY STATE** - completely unacceptable for production!
 
 **No Distributed System Support:**
+
 - No coordination between instances
 - No shared state management
 - No distributed locking
@@ -710,6 +815,7 @@ This means **ANY RESTART LOSES ALL SAFETY STATE** - completely unacceptable for 
 ### 3. **Security Vulnerabilities Discovered**
 
 **Command Injection (CRITICAL):**
+
 ```typescript
 // In ExistingScriptsAdapter.ts
 await execAsync(`node ${extractScript} --source ${source}`);
@@ -717,18 +823,21 @@ await execAsync(`node ${extractScript} --source ${source}`);
 ```
 
 **Logging Sensitive Data:**
+
 - Logger outputs raw metadata without filtering
 - Passwords, tokens, and API keys logged in plain text
 - Full stack traces exposed in production
 - File paths exposing system structure
 
 **Authentication Issues:**
+
 - SSO credentials potentially logged
 - No CSRF protection
 - Hardcoded test tokens in code
 - No rate limiting on auth endpoints
 
 **Regular Expression DoS:**
+
 - User-provided regex patterns compiled without validation
 - Could cause catastrophic backtracking
 - No timeout protection
@@ -736,18 +845,21 @@ await execAsync(`node ${extractScript} --source ${source}`);
 ### 4. **Performance Bottlenecks**
 
 **Memory Leaks Confirmed:**
+
 - ExtractionContext has NO cache eviction
 - ResponseComparator uses JSON.stringify for large arrays
 - All validators load entire responses into memory
 - Performance monitor keeps unlimited history
 
 **Sequential Processing:**
+
 - No parallel query processing
 - File-by-file processing without batching
 - Sequential schema validation
 - No streaming for large files
 
 **Inefficient Algorithms:**
+
 - O(n²) array comparisons in ResponseComparator
 - Repeated AST parsing without caching
 - String-based structural comparisons
@@ -756,18 +868,21 @@ await execAsync(`node ${extractScript} --source ${source}`);
 ### 5. **Architectural Design Flaws**
 
 **No Dependency Injection:**
+
 - Hard-coded dependencies throughout
 - Impossible to unit test in isolation
 - No ability to swap implementations
 - Tight coupling everywhere
 
 **No Plugin Architecture:**
+
 - Strategies hard-coded
 - No extension points
 - Cannot add custom validators
 - Fixed pipeline stages
 
 **Inconsistent Error Handling:**
+
 - Some components throw, others return null
 - Some log errors, others silent fail
 - No consistent error types
@@ -776,18 +891,21 @@ await execAsync(`node ${extractScript} --source ${source}`);
 ### 6. **Configuration and Utilities Issues**
 
 **ConfigLoader Problems:**
+
 - Doesn't use ConfigValidator schemas
 - No environment-specific handling
 - Logs sensitive configuration paths
 - No configuration hot-reloading
 
 **Logger Security:**
+
 - No sensitive data filtering
 - No log rotation
 - File permissions not set
 - Could enable log injection attacks
 
 **Missing Production Features:**
+
 - No APM integration
 - No distributed tracing
 - No metrics aggregation
@@ -798,6 +916,7 @@ await execAsync(`node ${extractScript} --source ${source}`);
 ### 7. **Test Coverage Reality Check**
 
 **Actual Coverage Analysis:**
+
 - **Unit Tests**: ~45% (happy path only)
 - **Integration Tests**: ~5%
 - **Error Scenarios**: ~0%
@@ -806,6 +925,7 @@ await execAsync(`node ${extractScript} --source ${source}`);
 - **Load Tests**: 0%
 
 **Critical Untested Components:**
+
 - ABTestingFramework (0% coverage)
 - SmartQueryClassifier (0% coverage)
 - All scanner duplicates (0% coverage)
@@ -815,6 +935,7 @@ await execAsync(`node ${extractScript} --source ${source}`);
 ### 8. **The Duplication Disaster**
 
 **Impact of Code Duplication:**
+
 - **6 variant extractors** × average 500 lines = 3,000 lines of duplicate code
 - **5 transformers** × average 400 lines = 2,000 lines of duplicate code
 - **Total**: ~5,000 lines of unnecessary code
@@ -825,6 +946,7 @@ await execAsync(`node ${extractScript} --source ${source}`);
 ### 9. **Production Deployment Risks**
 
 **What WILL Happen in Production:**
+
 1. **Memory exhaustion** within hours/days due to cache leaks
 2. **Complete state loss** on any restart (migrations, rollbacks, health)
 3. **Security breaches** through command injection or log exposure
@@ -835,6 +957,7 @@ await execAsync(`node ${extractScript} --source ${source}`);
 ### 10. **Required Investment for Production**
 
 **Immediate (1-2 weeks):**
+
 - Fix command injection vulnerability
 - Add cache eviction
 - Fix variant count bug
@@ -842,6 +965,7 @@ await execAsync(`node ${extractScript} --source ${source}`);
 - Add basic error boundaries
 
 **Short-term (1-2 months):**
+
 - Remove all duplicate components
 - Add Redis for state persistence
 - Implement proper security
@@ -849,6 +973,7 @@ await execAsync(`node ${extractScript} --source ${source}`);
 - Create integration tests
 
 **Medium-term (3-6 months):**
+
 - Implement dependency injection
 - Add plugin architecture
 - Create distributed system support
@@ -862,6 +987,7 @@ await execAsync(`node ${extractScript} --source ${source}`);
 **Current State**: CATASTROPHIC FAILURE WAITING TO HAPPEN
 
 This codebase shows signs of:
+
 - Rushed development without cleanup
 - Multiple failed architectural attempts
 - No production experience applied
@@ -875,6 +1001,7 @@ This codebase shows signs of:
 ## Diagram Explanation
 
 ### Architecture Overview
+
 The diagram illustrates the complete GraphQL extraction system with the following layers:
 
 1. **Core Extraction System** (Top)
@@ -898,6 +1025,7 @@ The diagram illustrates the complete GraphQL extraction system with the followin
    - Variants grow exponentially with conditionals
 
 ### Critical Issues (Red - High Priority)
+
 1. **Variant Count Bug**: Static queries show 0 variants instead of 1
 2. **Memory Leaks**: No cache eviction strategy
 3. **Error Handling**: Missing AST parsing error boundaries
@@ -905,6 +1033,7 @@ The diagram illustrates the complete GraphQL extraction system with the followin
 5. **Architecture**: Limited to 2 hard-coded strategies
 
 ### Important Issues (Orange - Medium Priority)
+
 1. **Test Coverage**: Missing tests for nested patterns and error scenarios
 2. **Location Accuracy**: Variant location always shows 'fragment'
 3. **Fragment Resolution**: Cross-file resolution incomplete
@@ -912,6 +1041,7 @@ The diagram illustrates the complete GraphQL extraction system with the followin
 5. **Interpolation Types**: Limited classification system
 
 ### Missing Features
+
 - No .graphql file support
 - No schema-aware transformations
 - No variant deduplication
@@ -920,6 +1050,7 @@ The diagram illustrates the complete GraphQL extraction system with the followin
 - No APM/monitoring integration
 
 ### Performance Concerns
+
 - AST objects are 10-50x larger than source text
 - No cache eviction leads to memory growth
 - Batch processing could use worker threads
@@ -932,20 +1063,24 @@ This comprehensive view shows that while the core architecture is sound, there a
 ### NOTE Questions with Deep Analysis
 
 #### 1. What does context present? (UnifiedExtractor.ts:20)
+
 **Deep Answer:** The ExtractionContext is a sophisticated state management system that encapsulates:
+
 - **Normalized Options**: Takes raw ExtractionOptions and applies defaults (patterns: `['**/*.{js,jsx,ts,tsx}']`, ignore: node_modules, etc.)
 - **Project Root**: Stores absolute path for all relative path resolution
 - **Multi-tier State**: Fragments Map, Query Names Record, Errors Array, Statistics Object
 - **In-Memory Cache**: Simple Map-based cache with no eviction (MEMORY LEAK RISK)
 - **QueryNamingService**: Modern pattern-based service replacing unsafe eval approach
-- **Methods**: 
+- **Methods**:
   - `getCached<T>(type, key)` / `setCached(type, key, value)` for performance
   - `addError(file, message, line?, column?)` for error tracking
   - `incrementStat(key)` for metrics
   - `finalizeStats()` returns comprehensive metrics with duration
 
 #### 2. What is the pipeline for? (UnifiedExtractor.ts:22)
+
 **Deep Answer:** The ExtractionPipeline orchestrates a 9-stage processing flow:
+
 1. **Pattern-Aware Analysis**: Initialize naming patterns
 2. **Template Resolution**: Resolve `${interpolations}` using TemplateResolver
 3. **Context Analysis**: Analyze surrounding code context (optional)
@@ -959,7 +1094,9 @@ This comprehensive view shows that while the core architecture is sound, there a
 Each stage is conditionally executed based on options and can be independently configured.
 
 #### 3. Only 2 potential strategies? How do they get selected? Per query per file? (UnifiedExtractor.ts:40)
-**Deep Answer:** 
+
+**Deep Answer:**
+
 - **Yes, only 2 strategies**: PluckStrategy (using graphql-tag-pluck) and ASTStrategy (using Babel)
 - **Selection is per-file, NOT per-query**: The `extractFromFile` method determines strategy
 - **Selection logic**:
@@ -974,7 +1111,9 @@ Each stage is conditionally executed based on options and can be independently c
 - **ARCHITECTURAL FLAW**: No plugin system, hard-coded strategies limit extensibility
 
 #### 4. Should preserve if query uses a variable and what is the variable? (ASTStrategy.test.ts:35)
-**Deep Answer:** 
+
+**Deep Answer:**
+
 - **Yes, it DOES preserve variables** in the sourceAST structure
 - **Variables are preserved in**:
   - `sourceAST.templateLiteral.expressions` array (the actual interpolated expressions)
@@ -986,7 +1125,9 @@ Each stage is conditionally executed based on options and can be independently c
 - **The test is checking** that sourceAST exists, which implicitly confirms variable preservation
 
 #### 5. We should define additionalFields and resolve it in the query (ASTStrategy.test.ts:76)
-**Deep Answer:** 
+
+**Deep Answer:**
+
 - **This comment is OUTDATED** - `additionalFields` IS defined on line 77
 - **How it works**:
   - `additionalFields = 'email, phone'` is a local variable
@@ -996,7 +1137,9 @@ Each stage is conditionally executed based on options and can be independently c
 - **The test demonstrates** template literal interpolation with local variables
 
 #### 6. Let's add a test to check if we're preserving the fragment variable name/resolution value? (ASTStrategy.test.ts:105)
+
 **Deep Answer:**
+
 - **Current state**: The test checks interpolation count but not specific fragment preservation
 - **What's missing**:
   ```typescript
@@ -1009,10 +1152,12 @@ Each stage is conditionally executed based on options and can be independently c
 - **Fragment variables** are captured but resolution testing is incomplete
 
 #### 7. What does interpolations exactly mean? (ASTStrategy.test.ts:211)
-**Deep Answer:** 
+
+**Deep Answer:**
 Interpolations are JavaScript expressions embedded in GraphQL template literals that get evaluated at runtime:
 
 **Classification System (from SourceMapper)**:
+
 1. **queryName**: `${queryNames.xyz}` - Dynamic query naming
 2. **memberAccess**: `${config.fields}` - Object property access
 3. **functionCall**: `${getFields()}` - Function execution results
@@ -1021,21 +1166,26 @@ Interpolations are JavaScript expressions embedded in GraphQL template literals 
 6. **other**: Any unclassified expression
 
 **Processing Flow**:
+
 - Extracted during parsing as AST nodes
 - Classified by SourceMapper.classifyInterpolation()
 - Stored with location, type, and expression
 - Later resolved by TemplateResolver using context
 
 #### 8-10. What do sourceAST properties represent? (PluckStrategy.test.ts:32-36)
+
 **Deep Answer:**
+
 - **sourceAST.node**: The actual Babel AST node (TaggedTemplateExpression or CallExpression)
 - **sourceAST.start**: Byte offset in file where GraphQL query begins (0-indexed)
 - **sourceAST.end**: Byte offset where query ends
 - **Purpose**: Enables source mapping, error reporting with exact locations, and code transformations
 
 #### 11. When do we exactly decide to disable source AST preservation? (PluckStrategy.test.ts:42)
+
 **Deep Answer:**
 **Disable when**:
+
 - Production runtime (AST not needed)
 - Memory constrained (AST = 10-50x source size)
 - Large codebases (>10k files)
@@ -1043,6 +1193,7 @@ Interpolations are JavaScript expressions embedded in GraphQL template literals 
 - CI/CD where only validation needed
 
 **Keep enabled when**:
+
 - Development/debugging
 - Migration scenarios
 - Need exact error locations
@@ -1050,19 +1201,25 @@ Interpolations are JavaScript expressions embedded in GraphQL template literals 
 - Analyzing interpolation patterns
 
 #### 12. What are templateLiterals? (PluckStrategy.test.ts:85)
+
 **Deep Answer:**
 Template literals are ES6 backtick strings with embedded expressions:
+
 ```javascript
-`query ${name} { field }` // Template literal
+`query ${name} { field }`; // Template literal
 ```
+
 **Structure**:
+
 - **quasis**: Static parts [`"query "`, `" { field }"`]
 - **expressions**: Dynamic parts [`name`]
 - Alternates between quasis[0], expressions[0], quasis[1], etc.
 
 #### 13. Why extract from @apollo/client? (PluckStrategy.test.ts:96)
+
 **Deep Answer:**
 Multiple libraries supported for compatibility:
+
 - **@apollo/client**: Modern Apollo v3+ (most popular)
 - **graphql-tag**: Legacy/original library
 - **react-relay**: Facebook's opinionated client
@@ -1071,11 +1228,14 @@ Multiple libraries supported for compatibility:
 **Business Reason**: GoDaddy has multiple teams using different libraries across various projects and migrations
 
 #### 14. Do we have any examples of react-relay queries in gdcorp? (PluckStrategy.test.ts:119)
+
 **Deep Answer:** Based on the codebase analysis, there's no evidence of react-relay usage. The test exists for completeness but may be unnecessary overhead. Recommendation: Survey actual GoDaddy repositories to determine if relay support is needed.
 
 #### 15. What's the determining factor for complex interpolations? (PluckStrategy.test.ts:153)
+
 **Deep Answer:**
 **Complex interpolations** are those that graphql-tag-pluck cannot handle:
+
 - Nested template literals
 - Function calls returning GraphQL
 - Complex conditional logic
@@ -1084,16 +1244,20 @@ Multiple libraries supported for compatibility:
 **Detection**: If pluck fails, manual extraction using regex/AST parsing is attempted
 
 #### 16-17. Can we capture the source AST for each query? (PluckStrategy.test.ts:183,194)
-**Deep Answer:** 
+
+**Deep Answer:**
 **Yes, already implemented**:
+
 - Each ExtractedQuery has optional `sourceAST` property
 - SourceMapper maintains bidirectional mapping
 - Test should verify: `expect(query.sourceAST).toEqual(expectedAST)`
 - AST nodes are unique per query (verified by Set size check)
 
 #### 18. Explain the source mapper statistics (PluckStrategy.test.ts:240)
+
 **Deep Answer:**
 SourceMapper tracks:
+
 ```typescript
 {
   totalQueries: 45,              // Total with preserved AST
@@ -1108,11 +1272,14 @@ SourceMapper tracks:
   }
 }
 ```
+
 Used for optimization decisions and monitoring interpolation patterns.
 
 #### 19. Can we classify patterns by type? (VariantAnalyzer.test.ts:80)
-**Deep Answer:** 
+
+**Deep Answer:**
 **Yes, patterns are classified**:
+
 - **ternary**: Conditional patterns (`condition ? true : false`)
 - **fragment**: Dynamic fragment spreads (`...${name}`)
 - **field**: Dynamic field inclusion
@@ -1122,12 +1289,15 @@ Used for optimization decisions and monitoring interpolation patterns.
 Classification enables targeted variant generation strategies.
 
 #### 20. Can we split between deciding variables and fragment variables? (VariantAnalyzer.test.ts:82)
+
 **Deep Answer:**
 **Excellent architectural suggestion**:
+
 - **Deciding variables**: Boolean conditions controlling inclusion (`includeEmail`)
 - **Fragment variables**: Actual content values (`"email"` or `""`)
 
 **Benefits**:
+
 - Better variant calculation (2^n for n deciding variables)
 - Clearer semantic model
 - Optimization opportunities
@@ -1135,12 +1305,15 @@ Classification enables targeted variant generation strategies.
 **Implementation needed**: Refactor VariantAnalyzer to track both types separately.
 
 #### 21. Should we make the default value 1? (VariantAnalyzer.test.ts:152)
-**Deep Answer:** 
+
+**Deep Answer:**
 **YES, absolutely**. Static queries represent exactly 1 variant. Current `possibleVariants = 0` is semantically incorrect and breaks variant counting logic. This is a **CRITICAL BUG** that affects metrics and optimization decisions.
 
 #### 22. Do we have to add more tests? (VariantAnalyzer.test.ts:190)
+
 **Deep Answer:**
 **Yes, missing critical test coverage**:
+
 - AST parsing error recovery
 - Malformed JavaScript handling
 - Unicode/special character support
@@ -1149,8 +1322,10 @@ Classification enables targeted variant generation strategies.
 - Fragment circular dependencies
 
 #### 23. Is location 'fragment' intended? (VariantAnalyzer.test.ts:259)
+
 **Deep Answer:**
 **No, this is incorrect**. The location should specify where in the query the pattern appears:
+
 - `query` - in main query body
 - `fragment` - in fragment definition
 - `variable` - in variable definitions
@@ -1159,8 +1334,10 @@ Classification enables targeted variant generation strategies.
 Current implementation always uses 'fragment' which is misleading.
 
 #### 24. Should test nested patterns? (VariantAnalyzer.test.ts:424)
+
 **Deep Answer:**
 **Yes, critical gap**. Nested patterns like:
+
 ```graphql
 ${isAuth ? `
   user {
@@ -1168,18 +1345,23 @@ ${isAuth ? `
   }
 ` : ''}
 ```
+
 Can cause exponential complexity and need careful testing.
 
 ### Additional Non-NOTE Questions Answered
 
 #### What are "patterns" in file discovery?
+
 **Answer:** Glob patterns for file matching:
+
 - Default: `['**/*.{js,jsx,ts,tsx}']`
 - Supports: wildcards, braces, negation
 - Processed by `fast-glob` library
 
 #### How does fragment resolution work across files?
+
 **Answer:** FragmentResolver:
+
 1. Discovers all `.graphql` and JS/TS files
 2. Extracts fragment definitions
 3. Builds dependency graph
@@ -1188,14 +1370,18 @@ Can cause exponential complexity and need careful testing.
 6. Can inline or keep as references
 
 #### What's the hybrid strategy?
+
 **Answer:** Runs BOTH PluckStrategy and ASTStrategy:
+
 - Pluck for broad compatibility
 - AST for better context
 - Merges results, preferring AST
 - Provides fallback if one fails
 
 #### How does caching work?
+
 **Answer:** Two-tier system:
+
 - **Memory**: LRU cache (1000 items default)
 - **Persistent**: LevelDB (optional)
 - **Key generation**: SHA256 of content
@@ -1229,6 +1415,7 @@ As a senior developer deeply concerned with maintainability, I must provide a co
 **Security Concerns**: While there's path validation in FragmentResolver, the TemplateResolver's interpolation resolution could potentially execute arbitrary code if not carefully sandboxed. The current implementation seems safe but needs security review.
 
 **Maintenance Nightmare Scenarios**:
+
 - Adding a new GraphQL client library requires modifying core code
 - The 0 vs 1 variant count bug indicates poor semantic modeling
 - Test coverage gaps mean refactoring is risky
@@ -1236,6 +1423,7 @@ As a senior developer deeply concerned with maintainability, I must provide a co
 - Complex interdependencies between stages make changes cascade
 
 **Recommendations for Sustainability**:
+
 1. Implement proper cache eviction immediately (LRU or TTL based)
 2. Add variant count limits with configurable thresholds
 3. Create plugin architecture for strategies and pipeline stages
@@ -1260,6 +1448,7 @@ As the lead engineer, I've conducted an extensive analysis of additional test fi
 **File:** `src/test/extraction/analyzers/QueryNameAnalyzer.test.ts`
 
 **Critical Issues Found:**
+
 1. **Placeholder Methods**: The `validateOperation` and `analyzeOperation` methods are fake - they ALWAYS return true/valid. This is production code masquerading as functional!
 2. **Deprecated but Active**: The analyzer is marked deprecated yet still actively used throughout the codebase
 3. **No Error Testing**: Zero tests for error scenarios, malformed queries, or edge cases
@@ -1267,6 +1456,7 @@ As the lead engineer, I've conducted an extensive analysis of additional test fi
 5. **No Integration Tests**: No tests verify interaction with real QueryNamingService
 
 **Untested Scenarios:**
+
 - Concurrent query processing
 - Memory limits with thousands of queries
 - Malformed GraphQL syntax handling
@@ -1279,6 +1469,7 @@ As the lead engineer, I've conducted an extensive analysis of additional test fi
 **File:** `extracted-queries-fixtures.json`
 
 **Insights from Production Data:**
+
 1. **40 Real Queries** from GoDaddy's actual codebase reveal:
    - Heavy use of fragments (19 fragments for 40 queries)
    - Complex nested structures with conditional fields
@@ -1302,6 +1493,7 @@ As the lead engineer, I've conducted an extensive analysis of additional test fi
 **File:** `src/test/core/extraction/PatternBasedExtraction.test.ts`
 
 **Severe Implementation Issues:**
+
 1. **TypeScript Disabled**: All related files use `@ts-nocheck` - TYPE SAFETY IS OFF!
 2. **Hardcoded Data**: Pattern registry is hardcoded, not configurable
 3. **No Error Handling**: Missing try-catch blocks in critical paths
@@ -1309,6 +1501,7 @@ As the lead engineer, I've conducted an extensive analysis of additional test fi
 5. **Security Gaps**: No validation of pattern expressions (potential ReDoS)
 
 **Architectural Problems:**
+
 - **Tight Coupling**: QueryMigrator knows internal details of QueryPatternService
 - **No Abstraction**: Direct manipulation of AST nodes without abstraction layer
 - **Missing Interfaces**: No clear contracts between components
@@ -1318,24 +1511,28 @@ As the lead engineer, I've conducted an extensive analysis of additional test fi
 ### Missing Test Categories
 
 **1. Performance Tests:**
+
 - No benchmarks for extraction speed
 - No memory usage tests
 - No stress tests with large codebases
 - No tests for cache effectiveness
 
 **2. Security Tests:**
+
 - No input sanitization tests
 - No path traversal prevention tests
 - No tests for malicious GraphQL patterns
 - No rate limiting tests
 
 **3. Integration Tests:**
+
 - No end-to-end extraction tests
 - No cross-component interaction tests
 - No real filesystem tests
 - No database integration tests
 
 **4. Error Recovery Tests:**
+
 - No tests for partial failures
 - No rollback scenario tests
 - No corruption recovery tests
@@ -1344,6 +1541,7 @@ As the lead engineer, I've conducted an extensive analysis of additional test fi
 ### Code Quality Metrics
 
 **Based on analysis:**
+
 - **Type Safety**: 30% (most critical files have TypeScript disabled)
 - **Test Coverage**: 45% (happy path only)
 - **Error Handling**: 20% (minimal try-catch blocks)
@@ -1354,6 +1552,7 @@ As the lead engineer, I've conducted an extensive analysis of additional test fi
 ### Critical Security Vulnerabilities
 
 **AuthHelper.ts Analysis:**
+
 ```typescript
 // SECURITY RISK: Hardcoded credentials
 const testToken = 'test-sso-token-12345';
@@ -1366,6 +1565,7 @@ const response = await fetch(ssoUrl, { body: JSON.stringify({ username, password
 ### Immediate Action Items
 
 **CRITICAL (Do within 24 hours):**
+
 1. Remove ALL `@ts-nocheck` directives
 2. Implement proper error handling in extractors
 3. Add input validation to all public methods
@@ -1373,6 +1573,7 @@ const response = await fetch(ssoUrl, { body: JSON.stringify({ username, password
 5. Add memory limits to prevent OOM
 
 **HIGH (Do within 1 week):**
+
 1. Create comprehensive error recovery tests
 2. Implement proper logging without sensitive data
 3. Add performance benchmarks
@@ -1380,6 +1581,7 @@ const response = await fetch(ssoUrl, { body: JSON.stringify({ username, password
 5. Refactor deprecated components
 
 **MEDIUM (Do within 1 month):**
+
 1. Implement dependency injection
 2. Create abstraction layers
 3. Add integration test suite
@@ -1389,6 +1591,7 @@ const response = await fetch(ssoUrl, { body: JSON.stringify({ username, password
 ### Sustainability Assessment
 
 **Current State**: The codebase is NOT production-ready
+
 - **Reliability**: Low - Will crash on edge cases
 - **Security**: Critical - Multiple vulnerabilities
 - **Performance**: Unknown - No benchmarks
@@ -1396,6 +1599,7 @@ const response = await fetch(ssoUrl, { body: JSON.stringify({ username, password
 - **Scalability**: Limited - Memory leaks, no streaming
 
 **Required for World-Class Code:**
+
 1. 100% TypeScript coverage (no @ts-nocheck)
 2. 80%+ test coverage including edge cases
 3. Comprehensive error handling
@@ -1407,7 +1611,8 @@ const response = await fetch(ssoUrl, { body: JSON.stringify({ username, password
 9. Migration tooling
 10. Operational runbooks
 
-**Risk Assessment**: 
+**Risk Assessment**:
+
 - **Production Deployment Risk**: EXTREME
 - **Data Loss Risk**: HIGH (no transactions)
 - **Security Breach Risk**: HIGH (multiple vulnerabilities)

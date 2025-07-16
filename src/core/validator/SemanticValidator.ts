@@ -1,4 +1,13 @@
-import { DocumentNode, GraphQLSchema, TypeInfo, visit, visitWithTypeInfo, ValidationContext, validate, parse } from 'graphql';
+import {
+  DocumentNode,
+  GraphQLSchema,
+  TypeInfo,
+  visit,
+  visitWithTypeInfo,
+  ValidationContext,
+  validate,
+  parse,
+} from 'graphql';
 import { TransformationResult } from '../transformer/QueryTransformer.js';
 import { logger } from '../../utils/logger.js';
 
@@ -37,7 +46,7 @@ export class SemanticValidator {
   async validateTransformation(
     original: DocumentNode,
     transformed: DocumentNode,
-    transformation: TransformationResult
+    transformation: TransformationResult,
   ): Promise<SemanticValidationResult> {
     const errors: SemanticError[] = [];
     const warnings: SemanticWarning[] = [];
@@ -51,13 +60,13 @@ export class SemanticValidator {
       if (transformedErrors.length > 0 && originalErrors.length === 0) {
         errors.push({
           message: 'Transformation introduced validation errors',
-          severity: 'critical'
+          severity: 'critical',
         });
-        transformedErrors.forEach(err => {
+        transformedErrors.forEach((err) => {
           errors.push({
             message: err.message,
             path: err.path?.join('.'),
-            severity: 'error'
+            severity: 'error',
           });
         });
       }
@@ -76,24 +85,24 @@ export class SemanticValidator {
       if (!shapeCheck.compatible) {
         errors.push({
           message: 'Transformation changes response shape incompatibly',
-          severity: 'critical'
+          severity: 'critical',
         });
         warnings.push(...shapeCheck.warnings);
       }
-
     } catch (error) {
       logger.error('Semantic validation error:', error);
       errors.push({
         message: `Validation failed: ${error instanceof Error ? error.message : String(error)}`,
-        severity: 'critical'
+        severity: 'critical',
       });
     }
 
     return {
-      isValid: errors.length === 0 && breakingChanges.filter(bc => bc.impact === 'high').length === 0,
+      isValid:
+        errors.length === 0 && breakingChanges.filter((bc) => bc.impact === 'high').length === 0,
       errors,
       warnings,
-      breakingChanges
+      breakingChanges,
     };
   }
 
@@ -102,7 +111,7 @@ export class SemanticValidator {
    */
   async validateAgainstMultipleSchemas(
     query: DocumentNode,
-    schemas: Map<string, GraphQLSchema>
+    schemas: Map<string, GraphQLSchema>,
   ): Promise<Map<string, SemanticValidationResult>> {
     const results = new Map<string, SemanticValidationResult>();
 
@@ -111,13 +120,13 @@ export class SemanticValidator {
 
       const result: SemanticValidationResult = {
         isValid: validationErrors.length === 0,
-        errors: validationErrors.map(err => ({
+        errors: validationErrors.map((err) => ({
           message: err.message,
           path: err.path?.join('.'),
-          severity: 'error' as const
+          severity: 'error' as const,
         })),
         warnings: [],
-        breakingChanges: []
+        breakingChanges: [],
       };
 
       results.set(schemaName, result);
@@ -128,8 +137,8 @@ export class SemanticValidator {
 
   private async checkSemanticPreservation(
     original: DocumentNode,
-    transformed: DocumentNode
-  ): Promise<{ errors: SemanticError[], warnings: SemanticWarning[] }> {
+    transformed: DocumentNode,
+  ): Promise<{ errors: SemanticError[]; warnings: SemanticWarning[] }> {
     const errors: SemanticError[] = [];
     const warnings: SemanticWarning[] = [];
 
@@ -145,12 +154,12 @@ export class SemanticValidator {
         if (possibleRename) {
           warnings.push({
             message: `Field '${field}' appears to be renamed to '${possibleRename}'`,
-            suggestion: 'Verify this rename is intentional'
+            suggestion: 'Verify this rename is intentional',
           });
         } else {
           errors.push({
             message: `Field '${field}' is missing in transformed query`,
-            severity: 'error'
+            severity: 'error',
           });
         }
       }
@@ -161,7 +170,7 @@ export class SemanticValidator {
       if (!originalFields.has(field)) {
         warnings.push({
           message: `Field '${field}' added in transformation`,
-          suggestion: 'Verify this addition is necessary'
+          suggestion: 'Verify this addition is necessary',
         });
       }
     }
@@ -172,7 +181,7 @@ export class SemanticValidator {
   private async detectBreakingChanges(
     original: DocumentNode,
     transformed: DocumentNode,
-    transformation: TransformationResult
+    transformation: TransformationResult,
   ): Promise<BreakingChange[]> {
     const breakingChanges: BreakingChange[] = [];
 
@@ -185,7 +194,7 @@ export class SemanticValidator {
             type: 'field-removal',
             field: rule.from,
             description: `Field '${rule.from}' renamed to '${rule.to}'`,
-            impact: 'low'
+            impact: 'low',
           });
           break;
 
@@ -194,7 +203,7 @@ export class SemanticValidator {
             type: 'type-change',
             field: rule.from,
             description: `Type changed from '${rule.from}' to '${rule.to}'`,
-            impact: 'high'
+            impact: 'high',
           });
           break;
 
@@ -204,7 +213,7 @@ export class SemanticValidator {
             type: 'schema-mismatch',
             field: rule.from,
             description: `Structure changed from '${rule.from}' to '${rule.to}'`,
-            impact: 'medium'
+            impact: 'medium',
           });
           break;
       }
@@ -214,31 +223,34 @@ export class SemanticValidator {
     const typeInfo = new TypeInfo(this.schema);
     const self = this;
 
-    visit(transformed, visitWithTypeInfo(typeInfo, {
-      Field(node) {
-        const fieldDef = typeInfo.getFieldDef();
-        if (fieldDef && fieldDef.args.some(arg => arg.type.toString().includes('!'))) {
-          // Check if original had this required argument
-          const originalHasArg = self.checkOriginalHasArgument(original, node.name.value);
-          if (!originalHasArg) {
-            breakingChanges.push({
-              type: 'required-argument',
-              field: node.name.value,
-              description: `Field '${node.name.value}' now requires arguments`,
-              impact: 'high'
-            });
+    visit(
+      transformed,
+      visitWithTypeInfo(typeInfo, {
+        Field(node) {
+          const fieldDef = typeInfo.getFieldDef();
+          if (fieldDef && fieldDef.args.some((arg) => arg.type.toString().includes('!'))) {
+            // Check if original had this required argument
+            const originalHasArg = self.checkOriginalHasArgument(original, node.name.value);
+            if (!originalHasArg) {
+              breakingChanges.push({
+                type: 'required-argument',
+                field: node.name.value,
+                description: `Field '${node.name.value}' now requires arguments`,
+                impact: 'high',
+              });
+            }
           }
-        }
-      }
-    }));
+        },
+      }),
+    );
 
     return breakingChanges;
   }
 
   private async validateResponseShapeCompatibility(
     original: DocumentNode,
-    transformed: DocumentNode
-  ): Promise<{ compatible: boolean, warnings: SemanticWarning[] }> {
+    transformed: DocumentNode,
+  ): Promise<{ compatible: boolean; warnings: SemanticWarning[] }> {
     const warnings: SemanticWarning[] = [];
     let compatible = true;
 
@@ -250,17 +262,17 @@ export class SemanticValidator {
       compatible = false;
       warnings.push({
         message: 'Transformed query has shallower selection depth',
-        suggestion: 'Some nested data may be missing'
+        suggestion: 'Some nested data may be missing',
       });
     }
 
     // Check for array to single value conversions
     const structuralChanges = this.detectStructuralChanges(original, transformed);
     if (structuralChanges.length > 0) {
-      structuralChanges.forEach(change => {
+      structuralChanges.forEach((change) => {
         warnings.push({
           message: `Structural change detected: ${change}`,
-          suggestion: 'Update client code to handle new structure'
+          suggestion: 'Update client code to handle new structure',
         });
       });
     }
@@ -274,7 +286,7 @@ export class SemanticValidator {
     visit(doc, {
       Field(node) {
         fields.add(node.name.value);
-      }
+      },
     });
 
     return fields;
@@ -288,9 +300,11 @@ export class SemanticValidator {
       const normalizedField = field.toLowerCase();
 
       // Check for common rename patterns
-      if (normalizedField === normalizedOriginal ||
-          normalizedField.includes(normalizedOriginal) ||
-          normalizedOriginal.includes(normalizedField)) {
+      if (
+        normalizedField === normalizedOriginal ||
+        normalizedField.includes(normalizedOriginal) ||
+        normalizedOriginal.includes(normalizedField)
+      ) {
         return field;
       }
     }
@@ -306,7 +320,7 @@ export class SemanticValidator {
         if (node.name.value === fieldName && node.arguments && node.arguments.length > 0) {
           hasArgument = true;
         }
-      }
+      },
     });
 
     return hasArgument;
@@ -324,8 +338,8 @@ export class SemanticValidator {
         },
         leave() {
           currentDepth--;
-        }
-      }
+        },
+      },
     });
 
     return maxDepth;
@@ -356,7 +370,7 @@ export class SemanticValidator {
     originalQuery: string,
     transformedQuery: string,
     schema?: GraphQLSchema,
-    testMode: boolean = true // Default to test mode for semantic equivalence testing
+    testMode: boolean = true, // Default to test mode for semantic equivalence testing
   ): Promise<any> {
     const schemaToUse = schema || this.schema;
 
@@ -372,53 +386,50 @@ export class SemanticValidator {
         // But still detect basic syntax and structural issues
         try {
           // Basic validation to catch syntax errors
-          const basicValidation = await this.validateTransformation(
-            originalAst,
-            transformedAst,
-            {
-              original: originalQuery,
-              transformed: transformedQuery,
-              ast: transformedAst,
-              changes: [],
-              rules: []
-            }
-          );
+          const basicValidation = await this.validateTransformation(originalAst, transformedAst, {
+            original: originalQuery,
+            transformed: transformedQuery,
+            ast: transformedAst,
+            changes: [],
+            rules: [],
+          });
 
           // In test mode, allow schema validation failures but keep syntax errors
-          const criticalErrors = basicValidation.errors.filter(e => e.severity === 'critical');
+          const criticalErrors = basicValidation.errors.filter((e) => e.severity === 'critical');
           const isValidSyntax = criticalErrors.length === 0;
 
           result = {
             isValid: isValidSyntax,
             errors: criticalErrors,
             warnings: basicValidation.warnings,
-            breakingChanges: []
+            breakingChanges: [],
           };
         } catch (validationError) {
           // If validation completely fails, it's likely a syntax error
           result = {
             isValid: false,
-            errors: [{
-              message: validationError instanceof Error ? validationError.message : String(validationError),
-              severity: 'critical'
-            }],
+            errors: [
+              {
+                message:
+                  validationError instanceof Error
+                    ? validationError.message
+                    : String(validationError),
+                severity: 'critical',
+              },
+            ],
             warnings: [],
-            breakingChanges: []
+            breakingChanges: [],
           };
         }
       } else {
         // Normal validation for production use
-        result = await this.validateTransformation(
-          originalAst,
-          transformedAst,
-          {
-            original: originalQuery,
-            transformed: transformedQuery,
-            ast: transformedAst,
-            changes: [],
-            rules: []
-          }
-        );
+        result = await this.validateTransformation(originalAst, transformedAst, {
+          original: originalQuery,
+          transformed: transformedQuery,
+          ast: transformedAst,
+          changes: [],
+          rules: [],
+        });
       }
 
       // Extract field selections with their paths
@@ -517,23 +528,28 @@ export class SemanticValidator {
         directivesPreserved: this.checkDirectivesPreserved(originalAst, transformedAst),
         operationType: this.getOperationType(originalAst),
         variableChanges,
-        breakingChanges: missingFields.length > 0 ? ['missing-field'] : result.breakingChanges.map(bc => bc.type),
+        breakingChanges:
+          missingFields.length > 0
+            ? ['missing-field']
+            : result.breakingChanges.map((bc) => bc.type),
         fieldRenames: Object.fromEntries(fieldRenames), // Add field renames for debugging
-        testMode // Indicate which mode was used
+        testMode, // Indicate which mode was used
       };
     } catch (error) {
       // Parse errors should be caught here for truly malformed queries
       return {
         isEquivalent: false,
         isValid: false,
-        errors: [{
-          message: error instanceof Error ? error.message : String(error),
-          severity: 'error'
-        }],
+        errors: [
+          {
+            message: error instanceof Error ? error.message : String(error),
+            severity: 'error',
+          },
+        ],
         confidence: 0,
         structuralChanges: [],
         breakingChanges: [],
-        testMode
+        testMode,
       };
     }
   }
@@ -560,8 +576,8 @@ export class SemanticValidator {
         },
         leave() {
           path.pop();
-        }
-      }
+        },
+      },
     });
 
     return fields;
@@ -573,13 +589,13 @@ export class SemanticValidator {
     visit(doc, {
       VariableDefinition(node) {
         variables.add(node.variable.name.value);
-      }
+      },
     });
 
     return variables;
   }
 
-    private isSamePath(path1: string, path2: string): boolean {
+  private isSamePath(path1: string, path2: string): boolean {
     // Handle contextual paths (with ':' separator)
     const cleanPath1 = path1.includes(':') ? path1.split(':')[0] : path1;
     const cleanPath2 = path2.includes(':') ? path2.split(':')[0] : path2;
@@ -615,7 +631,12 @@ export class SemanticValidator {
     return true;
   }
 
-  private isSameStructuralPosition(path1: string, path2: string, field1: string, field2: string): boolean {
+  private isSameStructuralPosition(
+    path1: string,
+    path2: string,
+    field1: string,
+    field2: string,
+  ): boolean {
     // Handle contextual paths (with ':' separator)
     const cleanPath1 = path1.includes(':') ? path1.split(':')[0] : path1;
     const cleanPath2 = path2.includes(':') ? path2.split(':')[0] : path2;
@@ -708,14 +729,25 @@ export class SemanticValidator {
     // Check if one contains the other (but not exact match)
     if (transLower.includes(origLower) || origLower.includes(transLower)) {
       // Additional validation to avoid false positives
-      const lengthRatio = Math.min(origLower.length, transLower.length) / Math.max(origLower.length, transLower.length);
-      if (lengthRatio > 0.5) { // At least 50% similarity
+      const lengthRatio =
+        Math.min(origLower.length, transLower.length) /
+        Math.max(origLower.length, transLower.length);
+      if (lengthRatio > 0.5) {
+        // At least 50% similarity
         return true;
       }
     }
 
     // Check for common prefix/suffix patterns - enhanced
-    const commonPrefixes = ['user', 'post', 'project', 'profile', 'contact', 'collaborator', 'access'];
+    const commonPrefixes = [
+      'user',
+      'post',
+      'project',
+      'profile',
+      'contact',
+      'collaborator',
+      'access',
+    ];
     const commonSuffixes = ['name', 'address', 'url', 'info', 'data', 'details', 'title', 'image'];
 
     for (const prefix of commonPrefixes) {
@@ -747,8 +779,10 @@ export class SemanticValidator {
     ];
 
     for (const [term1, term2] of semanticEquivalents) {
-      if ((origLower === term1 && transLower === term2) ||
-          (origLower === term2 && transLower === term1)) {
+      if (
+        (origLower === term1 && transLower === term2) ||
+        (origLower === term2 && transLower === term1)
+      ) {
         return true;
       }
     }
@@ -758,7 +792,11 @@ export class SemanticValidator {
     if (origLower.length >= 3 && transLower.startsWith(origLower)) {
       const remainder = transLower.substring(origLower.length);
       // Check if remainder is a common suffix or extension
-      if (['graphy', 'url', 'address', 'name', 'info', 'title', 'image'].some(ext => remainder === ext)) {
+      if (
+        ['graphy', 'url', 'address', 'name', 'info', 'title', 'image'].some(
+          (ext) => remainder === ext,
+        )
+      ) {
         return true;
       }
     }
@@ -780,7 +818,10 @@ export class SemanticValidator {
 
       // Remove common suffixes and check base
       for (const suffix of commonSuffixes) {
-        if (transLower.endsWith(suffix) && origLower === transLower.substring(0, transLower.length - suffix.length)) {
+        if (
+          transLower.endsWith(suffix) &&
+          origLower === transLower.substring(0, transLower.length - suffix.length)
+        ) {
           return true;
         }
       }
@@ -796,13 +837,13 @@ export class SemanticValidator {
     visit(original, {
       Directive(node) {
         originalDirectives.add(node.name.value);
-      }
+      },
     });
 
     visit(transformed, {
       Directive(node) {
         transformedDirectives.add(node.name.value);
-      }
+      },
     });
 
     // Check if all original directives are present in transformed
@@ -821,7 +862,7 @@ export class SemanticValidator {
     visit(doc, {
       OperationDefinition(node) {
         operationType = node.operation;
-      }
+      },
     });
 
     return operationType;

@@ -4,62 +4,62 @@ import { MigrationConfig } from '../../types/index.js';
 import * as fs from 'fs/promises';
 // Mock modules
 vi.mock('graphql', () => ({
-  parse: vi.fn().mockReturnValue({ kind: 'Document' })
-}))
+  parse: vi.fn().mockReturnValue({ kind: 'Document' }),
+}));
 vi.mock('../../core/extraction/engine/UnifiedExtractor', () => ({
   UnifiedExtractor: vi.fn(() => {
     mockExtractor = createMockExtractor();
     return mockExtractor;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/validator/SchemaValidator', () => ({
   SchemaValidator: vi.fn(() => {
     mockValidator = createMockValidator();
     return mockValidator;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/analyzer/SchemaDeprecationAnalyzer', () => ({
   SchemaDeprecationAnalyzer: vi.fn(() => {
     mockDeprecationAnalyzer = createMockDeprecationAnalyzer();
     return mockDeprecationAnalyzer;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/analyzer/ConfidenceScorer', () => ({
   ConfidenceScorer: vi.fn(() => {
     mockConfidenceScorer = createMockConfidenceScorer();
     return mockConfidenceScorer;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/safety/ProgressiveMigration', () => ({
   ProgressiveMigration: vi.fn(() => {
     mockProgressiveMigration = createMockProgressiveMigration();
     return mockProgressiveMigration;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/safety/HealthCheck', () => ({
   HealthCheckSystem: vi.fn(() => {
     mockHealthCheck = createMockHealthCheck();
     return mockHealthCheck;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/safety/Rollback', () => ({
   RollbackSystem: vi.fn(() => {
     mockRollbackSystem = createMockRollbackSystem();
     return mockRollbackSystem;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/applicator/ASTCodeApplicator', () => ({
   ASTCodeApplicator: vi.fn(() => {
     mockApplicator = createMockApplicator();
     return mockApplicator;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/extraction/utils/SourceMapper', () => ({
   SourceMapper: vi.fn(() => {
     mockSourceMapper = createMockSourceMapper();
     return mockSourceMapper;
-  })
-}))
+  }),
+}));
 vi.mock('../../core/transformer/QueryTransformer', () => ({
   QueryTransformer: vi.fn(() => ({
     transform: vi.fn().mockReturnValue({
@@ -67,52 +67,41 @@ vi.mock('../../core/transformer/QueryTransformer', () => ({
       transformed: 'query TestQuery { newTest }',
       ast: { kind: 'Document' },
       changes: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
-      rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }]
-    })
-  }))
+      rules: [{ type: 'field-rename', from: 'test', to: 'newTest' }],
+    }),
+  })),
 
-// Mock modules
-
-
-
-
-
-
-
-
-
-
-
+  // Mock modules
 }));
 
 // Create factory functions for mock instances
 const createMockExtractor = () => ({
-  extract: vi.fn()
+  extract: vi.fn(),
 });
 const createMockValidator = () => ({
   loadSchema: vi.fn(),
-  validateOperation: vi.fn()
+  validateOperation: vi.fn(),
 });
 const createMockDeprecationAnalyzer = () => ({
-  analyzeOperation: vi.fn()
+  analyzeOperation: vi.fn(),
 });
 const createMockConfidenceScorer = () => ({
-  scoreTransformation: vi.fn()
+  scoreTransformation: vi.fn(),
 });
 const createMockProgressiveMigration = () => ({
   createFeatureFlag: vi.fn(),
-  startRollout: vi.fn()
+  startRollout: vi.fn(),
 });
 const createMockHealthCheck = () => ({});
 const createMockRollbackSystem = () => ({
-  createRollbackPlan: vi.fn()
+  createRollbackPlan: vi.fn(),
 });
 const createMockApplicator = () => ({
-  applyTransformation: vi.fn()
+  applyTransformation: vi.fn(),
 });
 const createMockSourceMapper = () => ({
   register: vi.fn(),
-  getMapping: vi.fn()
+  getMapping: vi.fn(),
 });
 
 // Store current mock instances
@@ -141,24 +130,24 @@ describe.sequential('UnifiedMigrationPipeline - Extraction', () => {
     mockConfig = {
       source: {
         include: ['./src'],
-        exclude: []
+        exclude: [],
       },
       confidence: {
         automatic: 90,
         semiAutomatic: 70,
-        manual: 0
+        manual: 0,
       },
       rollout: {
         initial: 1,
         increment: 10,
         interval: '1h',
-        maxErrors: 5
+        maxErrors: 5,
       },
       safety: {
         requireApproval: false,
         autoRollback: true,
-        healthCheckInterval: 60
-      }
+        healthCheckInterval: 60,
+      },
     };
 
     mockOptions = {
@@ -166,7 +155,7 @@ describe.sequential('UnifiedMigrationPipeline - Extraction', () => {
       dryRun: false,
       interactive: false,
       enableSafety: true,
-      rolloutPercentage: 1
+      rolloutPercentage: 1,
     };
 
     // Mock file system
@@ -190,14 +179,14 @@ describe.sequential('UnifiedMigrationPipeline - Extraction', () => {
             filePath: 'test.ts',
             sourceAST: { node: {}, start: 0, end: 10 },
             location: { line: 1, column: 1 },
-            fragments: []
-          }
+            fragments: [],
+          },
         ],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
+        stats: {},
       });
       mockSourceMapper.getMapping.mockReturnValue({ node: {}, start: 0, end: 10 });
 
@@ -211,8 +200,8 @@ describe.sequential('UnifiedMigrationPipeline - Extraction', () => {
         summary: {
           queries: 1,
           mutations: 0,
-          subscriptions: 0
-        }
+          subscriptions: 0,
+        },
       });
     });
 
@@ -227,14 +216,14 @@ describe.sequential('UnifiedMigrationPipeline - Extraction', () => {
             name: 'TestQuery',
             type: 'query',
             content: 'query TestQuery { test }',
-            filePath: 'test.ts'
-          }
+            filePath: 'test.ts',
+          },
         ],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
+        stats: {},
       });
 
       await pipeline.extract();
@@ -250,13 +239,13 @@ describe.sequential('UnifiedMigrationPipeline - Extraction', () => {
         queries: [
           { id: 'q1', type: 'query', filePath: 'file1.ts' },
           { id: 'm1', type: 'mutation', filePath: 'file2.ts' },
-          { id: 's1', type: 'subscription', filePath: 'file3.ts' }
+          { id: 's1', type: 'subscription', filePath: 'file3.ts' },
         ],
         variants: [],
         fragments: new Map(),
         switches: new Map(),
         errors: [],
-        stats: {}
+        stats: {},
       });
 
       const result = await pipeline.extract();
@@ -264,7 +253,7 @@ describe.sequential('UnifiedMigrationPipeline - Extraction', () => {
       expect(result.summary).toEqual({
         queries: 1,
         mutations: 1,
-        subscriptions: 1
+        subscriptions: 1,
       });
     });
   });

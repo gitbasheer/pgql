@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { getRealApiTestResults, triggerRealApiTests } from '../services/api';
@@ -15,14 +15,22 @@ interface AuthConfig {
   appKey: string;
 }
 
-export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingProps) {
-  const [authConfig, setAuthConfig] = useState<AuthConfig>({
+export default function RealApiTesting({
+  pipelineId,
+  isActive,
+}: RealApiTestingProps) {
+  // Use refs to store auth data to avoid exposing in React DevTools
+  const authConfigRef = useRef<AuthConfig>({
     cookies: '',
     appKey: '',
   });
   const [showAuthForm, setShowAuthForm] = useState(false);
 
-  const { data: testResults, isLoading, refetch } = useQuery({
+  const {
+    data: testResults,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['real-api-tests', pipelineId],
     queryFn: () => getRealApiTestResults(pipelineId!),
     enabled: !!pipelineId && isActive,
@@ -30,7 +38,7 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
   });
 
   const triggerTests = useMutation({
-    mutationFn: () => triggerRealApiTests(pipelineId!, authConfig),
+    mutationFn: () => triggerRealApiTests(pipelineId!, authConfigRef.current),
     onSuccess: () => {
       toast.success('Real API tests triggered successfully!');
       setShowAuthForm(false);
@@ -43,10 +51,19 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!authConfig.cookies || !authConfig.appKey) {
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+
+    const cookies = formData.get('cookies') as string;
+    const appKey = formData.get('appKey') as string;
+
+    if (!cookies || !appKey) {
       toast.error('Both cookies and app key are required');
       return;
     }
+
+    // Store in ref to avoid React DevTools exposure
+    authConfigRef.current = { cookies, appKey };
     triggerTests.mutate();
   };
 
@@ -70,7 +87,7 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
         <h3>Real API Testing</h3>
         <div className="test-actions">
           {!showAuthForm ? (
-            <button 
+            <button
               onClick={() => setShowAuthForm(true)}
               className="trigger-tests-btn"
               disabled={triggerTests.isPending}
@@ -78,22 +95,26 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
               Test Against Real API
             </button>
           ) : (
-            <form onSubmit={handleAuthSubmit} className="auth-form" aria-label="Authentication form for real API testing">
+            <form
+              onSubmit={handleAuthSubmit}
+              className="auth-form"
+              aria-label="Authentication form for real API testing"
+            >
               <div className="auth-inputs">
                 <input
                   type="password"
+                  name="cookies"
                   placeholder="Cookies (session data)"
                   aria-label="Authentication cookies"
-                  value={authConfig.cookies}
-                  onChange={(e) => setAuthConfig(prev => ({ ...prev, cookies: e.target.value }))}
+                  autoComplete="off"
                   required
                 />
                 <input
-                  type="text"
+                  type="password"
+                  name="appKey"
                   placeholder="App Key"
                   aria-label="Application key"
-                  value={authConfig.appKey}
-                  onChange={(e) => setAuthConfig(prev => ({ ...prev, appKey: e.target.value }))}
+                  autoComplete="off"
                   required
                 />
               </div>
@@ -142,7 +163,11 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
                 <div className="test-info">
                   <span className="query-name">{result.queryName}</span>
                   <div className="test-badges">
-                    <span className={`status-badge ${result.status}`} role="status" aria-label={`Test status: ${result.status}`}>
+                    <span
+                      className={`status-badge ${result.status}`}
+                      role="status"
+                      aria-label={`Test status: ${result.status}`}
+                    >
                       {result.status}
                     </span>
                     {result.baselineExists && (
@@ -150,22 +175,27 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
                     )}
                   </div>
                 </div>
-                
+
                 {result.comparisonResult && (
                   <div className="comparison-details">
                     {result.comparisonResult.matches ? (
-                      <span className="comparison-success">✓ Matches baseline</span>
+                      <span className="comparison-success">
+                        ✓ Matches baseline
+                      </span>
                     ) : (
                       <details className="comparison-differences">
                         <summary className="comparison-warning">
-                          ⚠ {result.comparisonResult.differences?.length || 0} differences found
+                          ⚠ {result.comparisonResult.differences?.length || 0}{' '}
+                          differences found
                         </summary>
                         <div className="differences-list">
-                          {result.comparisonResult.differences?.map((diff: DifferenceDetail, i: number) => (
-                            <div key={i} className="difference-item">
-                              <strong>{diff.path}:</strong> {diff.description}
-                            </div>
-                          ))}
+                          {result.comparisonResult.differences?.map(
+                            (diff: DifferenceDetail, i: number) => (
+                              <div key={i} className="difference-item">
+                                <strong>{diff.path}:</strong> {diff.description}
+                              </div>
+                            )
+                          )}
                         </div>
                       </details>
                     )}
@@ -177,7 +207,9 @@ export default function RealApiTesting({ pipelineId, isActive }: RealApiTestingP
         </div>
       ) : (
         <div className="empty-state">
-          <p>No test results available. Trigger tests to see real API validation.</p>
+          <p>
+            No test results available. Trigger tests to see real API validation.
+          </p>
         </div>
       )}
     </div>

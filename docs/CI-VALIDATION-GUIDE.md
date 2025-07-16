@@ -5,6 +5,7 @@ This guide explains how to integrate the GraphQL migration validation tools into
 ## Overview
 
 The validation tools are designed to be CI-friendly with:
+
 - Clear exit codes (0 = success, 1 = error, 2 = warning)
 - Machine-readable output formats (JSON, JUnit XML)
 - Actionable error messages with diffs
@@ -29,6 +30,7 @@ pg-cli validate schema --pipeline --report validation-report.json
 ```
 
 **CI Example (GitHub Actions):**
+
 ```yaml
 - name: Validate Extracted Queries
   run: |
@@ -64,6 +66,7 @@ pg-cli validate-migration \
 ```
 
 **CI Example:**
+
 ```yaml
 - name: Validate Transformation
   id: validate-transform
@@ -109,6 +112,7 @@ pg-cli validate responses \
 ```
 
 **CI Example with Configuration:**
+
 ```yaml
 - name: Validate Response Compatibility
   env:
@@ -140,26 +144,26 @@ validation:
   # Ignore patterns for fields that are expected to differ
   ignorePatterns:
     # Timestamps always differ
-    - path: "data.*.timestamp"
-      reason: "Timestamps vary between calls"
-      type: "value"
+    - path: 'data.*.timestamp'
+      reason: 'Timestamps vary between calls'
+      type: 'value'
 
     # Debug fields only in development
-    - path: "data.*.debug"
-      reason: "Debug fields not in production"
-      type: "all"
+    - path: 'data.*.debug'
+      reason: 'Debug fields not in production'
+      type: 'all'
 
     # Order may vary in search results
-    - path: "data.search.results"
-      reason: "Search ordering not guaranteed"
-      type: "array-order"
+    - path: 'data.search.results'
+      reason: 'Search ordering not guaranteed'
+      type: 'array-order'
 
   # Expected schema changes
   expectedDifferences:
-    - path: "data.user.name"
+    - path: 'data.user.name'
       expectedChange:
-        type: "missing-field"
-      reason: "Field renamed to displayName in v2"
+        type: 'missing-field'
+      reason: 'Field renamed to displayName in v2'
 ```
 
 ## Error Reporting
@@ -251,96 +255,96 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    - name: Install Dependencies
-      run: npm ci
+      - name: Install Dependencies
+        run: npm ci
 
-    - name: Extract Queries
-      run: |
-        npm run cli extract queries ./src \
-          --output ./extracted-queries.json
+      - name: Extract Queries
+        run: |
+          npm run cli extract queries ./src \
+            --output ./extracted-queries.json
 
-    - name: Validate Extracted Queries
-      run: |
-        npm run cli validate schema \
-          --queries ./extracted-queries.json \
-          --schema ./schema.graphql \
-          --pipeline \
-          --report ./reports/extraction.json
+      - name: Validate Extracted Queries
+        run: |
+          npm run cli validate schema \
+            --queries ./extracted-queries.json \
+            --schema ./schema.graphql \
+            --pipeline \
+            --report ./reports/extraction.json
 
-    - name: Transform Queries
-      run: |
-        npm run cli transform queries \
-          --input ./extracted-queries.json \
-          --schema ./new-schema.graphql \
-          --output ./transformed/
+      - name: Transform Queries
+        run: |
+          npm run cli transform queries \
+            --input ./extracted-queries.json \
+            --schema ./new-schema.graphql \
+            --output ./transformed/
 
-    - name: Validate Transformation
-      id: validate-transform
-      run: |
-        npm run cli validate-migration \
-          --before ./extracted-queries.json \
-          --after ./transformed/transformed-queries.json \
-          --output ./reports/migration.json
-      continue-on-error: true
+      - name: Validate Transformation
+        id: validate-transform
+        run: |
+          npm run cli validate-migration \
+            --before ./extracted-queries.json \
+            --after ./transformed/transformed-queries.json \
+            --output ./reports/migration.json
+        continue-on-error: true
 
-    - name: Validate Response Compatibility
-      if: steps.validate-transform.outcome == 'success'
-      env:
-        GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_ENDPOINT }}
-        API_TOKEN: ${{ secrets.API_TOKEN }}
-      run: |
-        npm run cli validate responses \
-          --compare \
-          --baseline ./test-data/baseline-responses.json \
-          --transformed ./transformed/transformed-queries.json \
-          --config ./validation-config.yaml \
-          --format junit \
-          --output ./test-results/
+      - name: Validate Response Compatibility
+        if: steps.validate-transform.outcome == 'success'
+        env:
+          GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_ENDPOINT }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+        run: |
+          npm run cli validate responses \
+            --compare \
+            --baseline ./test-data/baseline-responses.json \
+            --transformed ./transformed/transformed-queries.json \
+            --config ./validation-config.yaml \
+            --format junit \
+            --output ./test-results/
 
-    - name: Upload Test Results
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: validation-reports
-        path: |
-          ./reports/
-          ./test-results/
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: validation-reports
+          path: |
+            ./reports/
+            ./test-results/
 
-    - name: Comment PR
-      if: failure()
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const fs = require('fs');
-          const report = JSON.parse(
-            fs.readFileSync('./reports/migration.json', 'utf8')
-          );
+      - name: Comment PR
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const report = JSON.parse(
+              fs.readFileSync('./reports/migration.json', 'utf8')
+            );
 
-          const comment = `
-          ## ❌ GraphQL Migration Validation Failed
+            const comment = `
+            ## ❌ GraphQL Migration Validation Failed
 
-          **Summary:**
-          - Total Queries: ${report.summary.totalQueries}
-          - Missing: ${report.summary.missingQueries}
-          - Modified: ${report.summary.modifiedQueries}
-          - Breaking Changes: ${report.issues.filter(i => i.severity === 'error').length}
+            **Summary:**
+            - Total Queries: ${report.summary.totalQueries}
+            - Missing: ${report.summary.missingQueries}
+            - Modified: ${report.summary.modifiedQueries}
+            - Breaking Changes: ${report.issues.filter(i => i.severity === 'error').length}
 
-          See the [full report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}) for details.
-          `;
+            See the [full report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}) for details.
+            `;
 
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: comment
-          });
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
 ```
 
 ## Best Practices
@@ -384,18 +388,18 @@ For large codebases:
 
 ## Exit Code Reference
 
-| Tool | Success | Warnings | Errors |
-|------|---------|----------|---------|
-| validate schema | 0 | 0 (warnings don't fail) | 1 |
-| validate-migration | 0 | 2 | 1 |
-| validate responses | 0 | 0 (configurable) | 1 |
+| Tool               | Success | Warnings                | Errors |
+| ------------------ | ------- | ----------------------- | ------ |
+| validate schema    | 0       | 0 (warnings don't fail) | 1      |
+| validate-migration | 0       | 2                       | 1      |
+| validate responses | 0       | 0 (configurable)        | 1      |
 
 You can configure exit codes in your validation config:
 
 ```yaml
 reporting:
   ci:
-    failOnWarnings: true  # Make warnings fail the build
+    failOnWarnings: true # Make warnings fail the build
     exitCodes:
       success: 0
       warnings: 2

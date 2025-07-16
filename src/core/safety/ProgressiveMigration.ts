@@ -7,28 +7,28 @@ export class ProgressiveMigration {
 
   createFeatureFlag(operation: GraphQLOperation): FeatureFlag {
     const flagName = `migration.${operation.name}`;
-    
+
     const flag: FeatureFlag = {
       name: flagName,
       operation: operation.id,
       enabled: false,
       rolloutPercentage: 0,
       enabledSegments: [],
-      fallbackBehavior: 'old'
+      fallbackBehavior: 'old',
     };
 
     this.featureFlags.set(flagName, flag);
     logger.info(`Created feature flag: ${flagName}`);
-    
+
     return flag;
   }
 
   shouldUseMigratedQuery(
-    operationId: string, 
-    context: { userId?: string; segment?: string }
+    operationId: string,
+    context: { userId?: string; segment?: string },
   ): boolean {
     const flag = this.getFlag(operationId);
-    
+
     if (!flag || !flag.enabled) {
       return false;
     }
@@ -51,9 +51,9 @@ export class ProgressiveMigration {
     if (initialPercentage < 0 || initialPercentage > 100) {
       throw new Error(`Invalid rollout percentage: ${initialPercentage}`);
     }
-    
+
     const flag = this.getFlag(operationId);
-    
+
     if (!flag) {
       throw new Error(`Feature flag not found: ${operationId}`);
     }
@@ -67,14 +67,14 @@ export class ProgressiveMigration {
 
   async increaseRollout(operationId: string, increment: number = 10): Promise<void> {
     const flag = this.getFlag(operationId);
-    
+
     if (!flag) {
       throw new Error(`Feature flag not found: ${operationId}`);
     }
 
     const currentPercentage = flag.rolloutPercentage;
     const newPercentage = Math.min(100, currentPercentage + increment);
-    
+
     flag.rolloutPercentage = newPercentage;
     this.rolloutState.set(operationId, newPercentage);
 
@@ -83,20 +83,20 @@ export class ProgressiveMigration {
 
   async pauseRollout(operationId: string): Promise<void> {
     const flag = this.getFlag(operationId);
-    
+
     if (!flag) {
       throw new Error(`Feature flag not found: ${operationId}`);
     }
 
     const previousPercentage = flag.rolloutPercentage;
     flag.enabled = false;
-    
+
     logger.warn(`Paused rollout for ${operationId} at ${previousPercentage}%`);
   }
 
   async rollbackOperation(operationId: string): Promise<void> {
     const flag = this.getFlag(operationId);
-    
+
     if (!flag) {
       throw new Error(`Feature flag not found: ${operationId}`);
     }
@@ -110,14 +110,14 @@ export class ProgressiveMigration {
 
   enableForSegments(operationId: string, segments: string[]): void {
     const flag = this.getFlag(operationId);
-    
+
     if (!flag) {
       throw new Error(`Feature flag not found: ${operationId}`);
     }
 
     flag.enabledSegments = segments;
     flag.enabled = true;
-    
+
     logger.info(`Enabled ${operationId} for segments: ${segments.join(', ')}`);
   }
 
@@ -127,7 +127,7 @@ export class ProgressiveMigration {
     segments: string[];
   } | null {
     const flag = this.getFlag(operationId);
-    
+
     if (!flag) {
       return null;
     }
@@ -135,7 +135,7 @@ export class ProgressiveMigration {
     return {
       enabled: flag.enabled,
       percentage: flag.rolloutPercentage,
-      segments: flag.enabledSegments
+      segments: flag.enabledSegments,
     };
   }
 
@@ -163,7 +163,7 @@ export class ProgressiveMigration {
     // Consistent assignment based on user ID
     const hash = this.hashUserId(userId, operationId);
     const percentage = (hash % 100) + 1;
-    
+
     return percentage <= (this.rolloutState.get(operationId) || 0);
   }
 
@@ -171,13 +171,13 @@ export class ProgressiveMigration {
     // Simple hash function for consistent assignment
     const str = userId + salt;
     let hash = 0;
-    
+
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
-    
+
     return Math.abs(hash);
   }
 }

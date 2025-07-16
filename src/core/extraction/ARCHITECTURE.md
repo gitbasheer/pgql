@@ -1,9 +1,11 @@
 # Unified GraphQL Extraction Pipeline Architecture
 
 ## Overview
+
 The unified extraction pipeline combines all existing extraction capabilities into a single, modular system with clear separation of concerns.
 
 ## Directory Structure
+
 ```
 src/core/extraction/
 ├── index.ts                    # Main exports
@@ -50,33 +52,39 @@ src/core/extraction/
 ## Core Components
 
 ### 1. UnifiedExtractor
+
 - Main entry point for all extractions
 - Configurable via options
 - Manages the extraction pipeline
 - Handles caching and optimization
 
 ### 2. ExtractionPipeline
+
 - Orchestrates the extraction process
 - Applies strategies in order
 - Manages transformers and analyzers
 - Produces final results
 
 ### 3. Strategies
+
 - **PluckStrategy**: Uses graphql-tag-pluck for basic extraction
 - **ASTStrategy**: Uses Babel for advanced analysis
 - Both strategies can work together
 
 ### 4. Analyzers
+
 - **VariantAnalyzer**: Detects conditional patterns
 - **ContextAnalyzer**: Extracts surrounding context
 - **QueryNameAnalyzer**: Resolves names from various sources
 
 ### 5. Transformers
+
 - Applied post-extraction
 - Can be chained
 - Each transformer is independent
 
 ## Extraction Flow
+
 1. **Discovery**: Find files to process
 2. **Extraction**: Apply strategies to extract raw queries
 3. **Analysis**: Analyze queries for variants, names, etc.
@@ -85,30 +93,31 @@ src/core/extraction/
 6. **Reporting**: Generate requested output formats
 
 ## Configuration
+
 ```typescript
 interface ExtractionOptions {
   // Source options
   directory: string;
   patterns?: string[];
   ignore?: string[];
-  
+
   // Strategy options
   strategies?: ('pluck' | 'ast')[];
-  
+
   // Analysis options
   detectVariants?: boolean;
   analyzeContext?: boolean;
   resolveNames?: boolean;
-  
+
   // Resolution options
   resolveFragments?: boolean;
   resolveImports?: boolean;
-  
+
   // Transformation options
   normalizeNames?: boolean;
   generateVariants?: boolean;
   inlineFragments?: boolean;
-  
+
   // Output options
   reporters?: ('json' | 'html' | 'files')[];
   outputDir?: string;
@@ -116,6 +125,7 @@ interface ExtractionOptions {
 ```
 
 ## Benefits
+
 1. **Unified Interface**: Single API for all extraction needs
 2. **Modular**: Each component has a single responsibility
 3. **Extensible**: Easy to add new strategies, analyzers, or transformers

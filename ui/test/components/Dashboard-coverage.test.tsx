@@ -16,8 +16,8 @@ vi.mock('react-toastify', () => ({
 
 vi.mock('../../src/hooks/useSocket', () => ({
   useSocket: () => ({
-    socket: { 
-      on: vi.fn(), 
+    socket: {
+      on: vi.fn(),
       off: vi.fn(),
       emit: vi.fn(),
     },
@@ -44,7 +44,8 @@ describe('Dashboard Additional Coverage', () => {
     });
     vi.clearAllMocks();
     global.fetch = vi.fn();
-    process.env.REACT_APP_APOLLO_PG_ENDPOINT = 'https://test-pg.example.com/graphql';
+    process.env.REACT_APP_APOLLO_PG_ENDPOINT =
+      'https://test-pg.example.com/graphql';
     process.env.REACT_APP_TEST_API_URL = 'https://test-api.example.com';
     process.env.REACT_APP_AUTH_IDP = 'test-auth-token';
     process.env.REACT_APP_CUST_IDP = 'test-customer-token';
@@ -62,57 +63,65 @@ describe('Dashboard Additional Coverage', () => {
 
   it('should handle vnext test extraction failure', async () => {
     const user = userEvent.setup();
-    
+
     (global.fetch as any).mockResolvedValueOnce({
       ok: false,
-      json: async () => ({ 
-        message: 'Repository not found: data/sample_data/vnext-dashboard'
+      json: async () => ({
+        message: 'Repository not found: data/sample_data/vnext-dashboard',
       }),
     });
 
     renderDashboard();
 
-    const vnextButton = screen.getByRole('button', { name: /Test vnext Sample/i });
+    const vnextButton = screen.getByRole('button', {
+      name: /Test vnext Sample/i,
+    });
     await user.click(vnextButton);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('vnext testing failed: Repository not found: data/sample_data/vnext-dashboard');
+      expect(toast.error).toHaveBeenCalledWith(
+        'vnext testing failed: Repository not found: data/sample_data/vnext-dashboard'
+      );
     });
   });
 
   it('should handle vnext test real API failure', async () => {
     const user = userEvent.setup();
-    
+
     // Mock successful extraction but failed real API test
     (global.fetch as any)
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ 
+        json: async () => ({
           pipelineId: 'vnext-test-456',
-          extractionId: 'extract-789'
+          extractionId: 'extract-789',
         }),
       })
       .mockResolvedValueOnce({
         ok: false,
-        json: async () => ({ 
+        json: async () => ({
           message: 'Real API authentication failed',
-          details: 'Invalid auth cookies for vnext testing'
+          details: 'Invalid auth cookies for vnext testing',
         }),
       });
 
     renderDashboard();
 
-    const vnextButton = screen.getByRole('button', { name: /Test vnext Sample/i });
+    const vnextButton = screen.getByRole('button', {
+      name: /Test vnext Sample/i,
+    });
     await user.click(vnextButton);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('vnext testing failed: Real API authentication failed');
+      expect(toast.error).toHaveBeenCalledWith(
+        'vnext testing failed: Real API authentication failed'
+      );
     });
   });
 
   it('should handle environment variable authentication setup', async () => {
     const user = userEvent.setup();
-    
+
     (global.fetch as any)
       .mockResolvedValueOnce({
         ok: true,
@@ -125,7 +134,9 @@ describe('Dashboard Additional Coverage', () => {
 
     renderDashboard();
 
-    const vnextButton = screen.getByRole('button', { name: /Test vnext Sample/i });
+    const vnextButton = screen.getByRole('button', {
+      name: /Test vnext Sample/i,
+    });
     await user.click(vnextButton);
 
     await waitFor(() => {
@@ -133,7 +144,7 @@ describe('Dashboard Additional Coverage', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer bearer-test-token',
+          Authorization: 'Bearer bearer-test-token',
         },
         body: JSON.stringify({
           pipelineId: 'vnext-auth-test',
@@ -150,7 +161,7 @@ describe('Dashboard Additional Coverage', () => {
 
   it('should handle form submission with optional fields', async () => {
     const user = userEvent.setup();
-    
+
     (global.fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ pipelineId: 'optional-fields-test' }),
@@ -159,14 +170,28 @@ describe('Dashboard Additional Coverage', () => {
     renderDashboard();
 
     // Fill required fields
-    await user.type(screen.getByLabelText(/Repository Path/), '/test/custom/repo');
-    await user.type(screen.getByLabelText(/Schema Endpoint/), 'https://custom.api.com/graphql');
-    
-    // Fill optional fields
-    await user.type(screen.getByLabelText(/Test API URL/), 'https://custom-test.api.com');
-    await user.type(screen.getByLabelText(/Test Account ID/), 'custom-account-789');
+    await user.type(
+      screen.getByLabelText(/Repository Path/),
+      '/test/custom/repo'
+    );
+    await user.type(
+      screen.getByLabelText(/Schema Endpoint/),
+      'https://custom.api.com/graphql'
+    );
 
-    const submitButton = screen.getByRole('button', { name: /Start Pipeline/i });
+    // Fill optional fields
+    await user.type(
+      screen.getByLabelText(/Test API URL/),
+      'https://custom-test.api.com'
+    );
+    await user.type(
+      screen.getByLabelText(/Test Account ID/),
+      'custom-account-789'
+    );
+
+    const submitButton = screen.getByRole('button', {
+      name: /Start Pipeline/i,
+    });
     await user.click(submitButton);
 
     await waitFor(() => {
@@ -190,11 +215,16 @@ describe('Dashboard Additional Coverage', () => {
     renderDashboard();
 
     // Verify GitHub integration is rendered
-    const cloneButton = screen.getByRole('button', { name: /Clone from GitHub/i });
+    const cloneButton = screen.getByRole('button', {
+      name: /Clone from GitHub/i,
+    });
     expect(cloneButton).toBeInTheDocument();
 
     // The component should be able to receive cloned repo path
     const repoInput = screen.getByLabelText(/Repository Path/);
-    expect(repoInput).toHaveAttribute('placeholder', 'Enter local path or GitHub URL');
+    expect(repoInput).toHaveAttribute(
+      'placeholder',
+      'Enter local path or GitHub URL'
+    );
   });
 });

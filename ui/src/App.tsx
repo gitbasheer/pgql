@@ -1,11 +1,20 @@
-import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  createHttpLink,
+  ApolloLink,
+} from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import { onError } from '@apollo/client/link/error';
 import { ToastContainer } from 'react-toastify';
 import ErrorBoundary from './components/ErrorBoundary';
 import Dashboard from './components/Dashboard';
 
 // Create GraphQL client with configurable endpoint
-const createApolloClient = (uri: string = 'https://api.example.com/graphql') => {
+const createApolloClient = (
+  uri: string = 'http://localhost:5173/api/graphql'
+) => {
   const httpLink = createHttpLink({ uri });
 
   const authLink = setContext((_, { headers }) => {
@@ -19,8 +28,22 @@ const createApolloClient = (uri: string = 'https://api.example.com/graphql') => 
     };
   });
 
+  // Error handling link
+  const errorLink = onError(({ graphQLErrors, networkError }) => {
+    if (graphQLErrors) {
+      graphQLErrors.forEach(({ message, locations, path }) =>
+        console.warn(
+          `GraphQL error: Message: ${message}, Location: ${locations}, Path: ${path}`
+        )
+      );
+    }
+    if (networkError) {
+      console.warn(`Network error: ${networkError}`);
+    }
+  });
+
   return new ApolloClient({
-    link: authLink.concat(httpLink),
+    link: ApolloLink.from([errorLink, authLink, httpLink]),
     cache: new InMemoryCache(),
     // Enable query validation for migration testing
     defaultOptions: {

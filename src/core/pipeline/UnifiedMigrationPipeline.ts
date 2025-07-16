@@ -11,11 +11,11 @@ import { HealthCheckSystem } from '../safety/HealthCheck.js';
 import { RollbackSystem } from '../safety/Rollback.js';
 import { ASTCodeApplicator } from '../applicator/ASTCodeApplicator.js';
 import { SourceMapper } from '../extraction/utils/SourceMapper.js';
-import { 
-  ResponseValidationService, 
+import {
+  ResponseValidationService,
   ResponseValidationConfig,
   ValidationReport as ResponseValidationReport,
-  EndpointConfig 
+  EndpointConfig,
 } from '../validator/index.js';
 import { logger } from '../../utils/logger.js';
 import * as fs from 'fs/promises';
@@ -103,7 +103,7 @@ export class UnifiedMigrationPipeline {
   private applicator: ASTCodeApplicator;
   private sourceMapper: SourceMapper;
   private responseValidator?: ResponseValidationService;
-  
+
   private extractedOperations: ExtractedQuery[] = [];
   private transformations: Map<string, TransformationData> = new Map();
   private applicationResults: Map<string, any> = new Map();
@@ -111,7 +111,7 @@ export class UnifiedMigrationPipeline {
 
   constructor(
     private config: MigrationConfig,
-    private options: PipelineOptions
+    private options: PipelineOptions,
   ) {
     // Initialize all components
     this.extractor = new UnifiedExtractor({
@@ -121,7 +121,7 @@ export class UnifiedMigrationPipeline {
       resolveFragments: true,
       resolveNames: true,
       detectVariants: true,
-      cache: this.options.cache !== false  // Default to true if not specified
+      cache: this.options.cache !== false, // Default to true if not specified
     });
     this.validator = new SchemaValidator();
     this.deprecationAnalyzer = new SchemaDeprecationAnalyzer();
@@ -134,7 +134,7 @@ export class UnifiedMigrationPipeline {
 
   async extract(): Promise<ExtractionResult> {
     logger.info('Starting extraction phase...');
-    
+
     const results = await this.extractor.extract();
 
     // Handle case where extractor returns undefined or malformed results
@@ -144,7 +144,7 @@ export class UnifiedMigrationPipeline {
     }
 
     this.extractedOperations = results.queries;
-    
+
     // Build source mapping
     for (const operation of results.queries) {
       if (operation.sourceAST) {
@@ -155,29 +155,32 @@ export class UnifiedMigrationPipeline {
     const summary = {
       queries: results.queries.filter((op: ExtractedQuery) => op.type === 'query').length,
       mutations: results.queries.filter((op: ExtractedQuery) => op.type === 'mutation').length,
-      subscriptions: results.queries.filter((op: ExtractedQuery) => op.type === 'subscription').length
+      subscriptions: results.queries.filter((op: ExtractedQuery) => op.type === 'subscription')
+        .length,
     };
 
     logger.info(`Extraction complete: ${results.queries.length} operations found`);
-    
+
     // Get unique files
     const files = [...new Set(results.queries.map((q: ExtractedQuery) => q.filePath))];
-    
+
     return {
       operations: results.queries,
       files,
-      summary
+      summary,
     };
   }
 
   async validate(): Promise<ValidationResult> {
     logger.info('Starting validation phase...');
-    
+
     const errors: ValidationResult['errors'] = [];
     const warnings: ValidationResult['warnings'] = [];
-    
+
     // Load schema
-    const schemaPath = ('schemaPath' in this.config ? (this.config as any).schemaPath : undefined) || './schema.graphql';
+    const schemaPath =
+      ('schemaPath' in this.config ? (this.config as any).schemaPath : undefined) ||
+      './schema.graphql';
     const schemaContent = await fs.readFile(schemaPath, 'utf-8');
     const schema = await this.validator.loadSchema(schemaContent);
 
@@ -186,13 +189,13 @@ export class UnifiedMigrationPipeline {
       try {
         const ast = parse(operation.content);
         const validationErrors = await this.validator.validateOperation(ast, schema);
-        
+
         if (validationErrors.length > 0) {
-          validationErrors.forEach(error => {
+          validationErrors.forEach((error) => {
             errors.push({
               operation: operation.name || operation.id,
               message: error.message,
-              severity: 'error'
+              severity: 'error',
             });
           });
         }
@@ -200,10 +203,10 @@ export class UnifiedMigrationPipeline {
         // Check for deprecations
         const deprecations = await this.deprecationAnalyzer.analyzeOperation(ast, schema);
         if (deprecations.length > 0) {
-          deprecations.forEach(dep => {
+          deprecations.forEach((dep) => {
             warnings.push({
               operation: operation.name || operation.id,
-              message: `Using deprecated field: ${dep.field} - ${dep.reason}`
+              message: `Using deprecated field: ${dep.field} - ${dep.reason}`,
             });
           });
         }
@@ -211,35 +214,35 @@ export class UnifiedMigrationPipeline {
         errors.push({
           operation: operation.name || operation.id,
           message: `Failed to parse operation: ${error instanceof Error ? error.message : String(error)}`,
-          severity: 'error'
+          severity: 'error',
         });
       }
     }
 
     logger.info(`Validation complete: ${errors.length} errors, ${warnings.length} warnings`);
-    
+
     return {
       hasErrors: errors.length > 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
   async transform(): Promise<TransformationResult> {
     logger.info('Starting transformation phase...');
-    
+
     const results: TransformationResult = {
       transformed: [],
       automatic: 0,
       semiAutomatic: 0,
       manual: 0,
-      skipped: 0
+      skipped: 0,
     };
 
     // Load transformation rules from deprecations
     const deprecationPath = './deprecations.json';
     let transformationRules: TransformationRule[] = [];
-    
+
     try {
       const deprecationContent = await fs.readFile(deprecationPath, 'utf-8');
       const deprecations = JSON.parse(deprecationContent);
@@ -253,7 +256,7 @@ export class UnifiedMigrationPipeline {
       try {
         const transformer = new QueryTransformer(transformationRules);
         const transformResult = transformer.transform(operation.content);
-        
+
         // Only process if there are actual changes
         if (transformResult.original !== transformResult.transformed) {
           // Score the transformation
@@ -263,20 +266,20 @@ export class UnifiedMigrationPipeline {
             pattern: this.detectPattern(transformResult.rules),
             oldQuery: transformResult.original,
             newQuery: transformResult.transformed,
-            transformations: transformResult.rules.map(rule => ({
-              type: rule.type === 'argument-change' ? 'custom' as const : rule.type,
+            transformations: transformResult.rules.map((rule) => ({
+              type: rule.type === 'argument-change' ? ('custom' as const) : rule.type,
               description: `${rule.type}: ${rule.from} → ${rule.to}`,
               from: rule.from,
               to: rule.to,
-              automated: true
-            }))
+              automated: true,
+            })),
           });
 
           // Store transformation
           this.transformations.set(operation.id, {
             operation,
             result: transformResult,
-            confidence
+            confidence,
           });
 
           // Categorize based on confidence
@@ -284,7 +287,7 @@ export class UnifiedMigrationPipeline {
             results.transformed.push({
               operation,
               transformation: transformResult,
-              confidence: confidence.score
+              confidence: confidence.score,
             });
             results.automatic++;
           } else if (confidence.score >= 70) {
@@ -293,7 +296,7 @@ export class UnifiedMigrationPipeline {
               results.transformed.push({
                 operation,
                 transformation: transformResult,
-                confidence: confidence.score
+                confidence: confidence.score,
               });
             }
           } else {
@@ -307,13 +310,13 @@ export class UnifiedMigrationPipeline {
     }
 
     logger.info(`Transformation complete: ${results.transformed.length} operations transformed`);
-    
+
     return results;
   }
 
   async apply(): Promise<ApplicationResult> {
     logger.info('Starting application phase...');
-    
+
     const modifiedFiles = new Set<string>();
     let operationsUpdated = 0;
     let totalLinesAdded = 0;
@@ -321,10 +324,10 @@ export class UnifiedMigrationPipeline {
 
     // Group transformations by file
     const transformationsByFile = new Map<string, TransformationsByFile[]>();
-    
+
     for (const [operationId, transformation] of this.transformations) {
       const { operation, result, confidence } = transformation;
-      
+
       // Skip low confidence transformations unless in interactive mode
       if (confidence.score < this.options.minConfidence && !this.options.interactive) {
         continue;
@@ -333,12 +336,12 @@ export class UnifiedMigrationPipeline {
       if (!transformationsByFile.has(operation.filePath)) {
         transformationsByFile.set(operation.filePath, []);
       }
-      
+
       transformationsByFile.get(operation.filePath)!.push({
         operationId,
         operation,
         result,
-        confidence
+        confidence,
       });
     }
 
@@ -359,12 +362,12 @@ export class UnifiedMigrationPipeline {
         // Apply each transformation
         for (const transformation of transformations) {
           const sourceMapping = this.sourceMapper.getMapping(transformation.operationId);
-          
+
           if (sourceMapping) {
             const change = await this.applicator.applyTransformation(
               filePath,
               sourceMapping,
-              transformation.result
+              transformation.result,
             );
 
             if (change) {
@@ -373,7 +376,7 @@ export class UnifiedMigrationPipeline {
               operationsUpdated++;
               totalLinesAdded += change.linesAdded || 0;
               totalLinesRemoved += change.linesRemoved || 0;
-              
+
               this.applicationResults.set(transformation.operationId, change);
             }
           }
@@ -390,12 +393,12 @@ export class UnifiedMigrationPipeline {
     }
 
     logger.info(`Application complete: ${modifiedFiles.size} files modified`);
-    
+
     return {
       modifiedFiles: Array.from(modifiedFiles),
       operationsUpdated,
       linesAdded: totalLinesAdded,
-      linesRemoved: totalLinesRemoved
+      linesRemoved: totalLinesRemoved,
     };
   }
 
@@ -405,39 +408,36 @@ export class UnifiedMigrationPipeline {
     }
 
     logger.info('Setting up progressive rollout...');
-    
+
     const operations: string[] = [];
-    
+
     // Create rollback plan
-    const graphqlOperations = this.extractedOperations.map(op => 
-      this.convertToGraphQLOperation(op)
+    const graphqlOperations = this.extractedOperations.map((op) =>
+      this.convertToGraphQLOperation(op),
     );
     await this.rollbackSystem.createRollbackPlan(graphqlOperations);
 
     // Setup feature flags for each transformed operation
     for (const [operationId, transformation] of this.transformations) {
       const operation = this.convertToGraphQLOperation(transformation.operation);
-      
+
       // Create feature flag
       this.progressiveMigration.createFeatureFlag(operation);
-      
+
       // Start rollout at configured percentage
-      await this.progressiveMigration.startRollout(
-        operation.id,
-        this.options.rolloutPercentage
-      );
-      
+      await this.progressiveMigration.startRollout(operation.id, this.options.rolloutPercentage);
+
       operations.push(operation.id);
     }
 
     logger.info(`Progressive rollout configured for ${operations.length} operations`);
-    
+
     return { operations };
   }
 
   generatePRDescription(): string {
     const summary = this.getSummary();
-    
+
     return `## GraphQL Migration Summary
 
 This PR contains automated GraphQL migration changes based on schema deprecations.
@@ -469,35 +469,34 @@ Generated by pg-migration-620
     const totalOperations = this.extractedOperations.length;
     const successfulTransformations = this.transformations.size;
     const filesModified = new Set(
-      Array.from(this.transformations.values()).map(t => t.operation.filePath)
+      Array.from(this.transformations.values()).map((t) => t.operation.filePath),
     ).size;
-    
+
     let totalConfidence = 0;
     const risks: string[] = [];
-    
+
     for (const transformation of this.transformations.values()) {
       totalConfidence += transformation.confidence.score;
       if (transformation.confidence.risks) {
         risks.push(...transformation.confidence.risks);
       }
     }
-    
-    const averageConfidence = successfulTransformations > 0 
-      ? totalConfidence / successfulTransformations 
-      : 0;
+
+    const averageConfidence =
+      successfulTransformations > 0 ? totalConfidence / successfulTransformations : 0;
 
     return {
       totalOperations,
       successfulTransformations,
       filesModified,
       averageConfidence,
-      risks: [...new Set(risks)] // Unique risks
+      risks: [...new Set(risks)], // Unique risks
     };
   }
 
   private convertDeprecationsToRules(deprecations: any): TransformationRule[] {
     const rules: TransformationRule[] = [];
-    
+
     for (const [type, fields] of Object.entries(deprecations)) {
       for (const field of fields as any[]) {
         if (field.deprecationReason?.includes('Use')) {
@@ -509,13 +508,13 @@ Generated by pg-migration-620
               to: match[1],
               parent: type !== 'Query' ? type : undefined,
               description: field.deprecationReason,
-              automated: true
+              automated: true,
             } as any);
           }
         }
       }
     }
-    
+
     return rules;
   }
 
@@ -530,34 +529,36 @@ Generated by pg-migration-620
       line: extracted.location?.line || 0,
       column: extracted.location?.column || 0,
       variables: [],
-      fragments: (extracted.fragments || []).map(f => ({
+      fragments: (extracted.fragments || []).map((f) => ({
         name: f,
         type: 'fragment',
-        file: extracted.filePath
+        file: extracted.filePath,
       })),
-      directives: []
+      directives: [],
     };
   }
 
   private detectPattern(rules: TransformationRule[]): string {
     if (rules.length === 0) return 'no-change';
-    if (rules.every(r => r.type === 'field-rename')) return 'simple-field-rename';
-    if (rules.some(r => r.type === 'structure-change')) return 'structure-change';
+    if (rules.every((r) => r.type === 'field-rename')) return 'simple-field-rename';
+    if (rules.some((r) => r.type === 'structure-change')) return 'structure-change';
     return 'mixed';
   }
 
   private generateChangesList(): string {
     const changes: string[] = [];
-    
+
     for (const transformation of this.transformations.values()) {
       const { operation, result } = transformation;
-      changes.push(`- **${operation.name || operation.id}** in \`${path.basename(operation.filePath)}\``);
-      
+      changes.push(
+        `- **${operation.name || operation.id}** in \`${path.basename(operation.filePath)}\``,
+      );
+
       for (const rule of result.rules) {
         changes.push(`  - ${rule.type}: \`${rule.from}\` → \`${rule.to}\``);
       }
     }
-    
+
     return changes.join('\n');
   }
 
@@ -573,10 +574,12 @@ Generated by pg-migration-620
     if (!this.responseValidator) {
       const endpoint: EndpointConfig = {
         url: this.options.responseValidation.endpoint,
-        headers: this.options.responseValidation.authToken ? {
-          Authorization: `Bearer ${this.options.responseValidation.authToken}`
-        } : undefined,
-        timeout: 30000
+        headers: this.options.responseValidation.authToken
+          ? {
+              Authorization: `Bearer ${this.options.responseValidation.authToken}`,
+            }
+          : undefined,
+        timeout: 30000,
       };
 
       const validationConfig: ResponseValidationConfig = {
@@ -585,20 +588,20 @@ Generated by pg-migration-620
           parallel: true,
           maxConcurrency: 10,
           timeout: 30000,
-          variableGeneration: 'auto'
+          variableGeneration: 'auto',
         },
         comparison: {
-          strict: false
+          strict: false,
         },
         alignment: {
           strict: false,
           preserveNulls: true,
-          preserveOrder: false
+          preserveOrder: false,
         },
         storage: {
           type: 'file',
-          path: './validation-storage'
-        }
+          path: './validation-storage',
+        },
       };
 
       this.responseValidator = new ResponseValidationService(validationConfig);
@@ -606,19 +609,19 @@ Generated by pg-migration-620
 
     try {
       // Get baseline and transformed queries
-      const baselineQueries = this.extractedOperations.map(op => ({
+      const baselineQueries = this.extractedOperations.map((op) => ({
         ...op,
         resolvedContent: op.content,
         resolvedFragments: [],
-        allDependencies: []
+        allDependencies: [],
       })) as any[];
 
-      const transformedQueries = Array.from(this.transformations.values()).map(t => ({
+      const transformedQueries = Array.from(this.transformations.values()).map((t) => ({
         ...t.operation,
         content: t.result.transformed,
         resolvedContent: t.result.transformed,
         resolvedFragments: [],
-        allDependencies: []
+        allDependencies: [],
       })) as any[];
 
       // Validate transformations
@@ -627,14 +630,14 @@ Generated by pg-migration-620
         transformedQueries,
         {
           generateAlignments: this.options.responseValidation.generateAlignments,
-          setupABTest: this.options.responseValidation.setupABTest
-        }
+          setupABTest: this.options.responseValidation.setupABTest,
+        },
       );
 
       this.responseValidationReport = report;
 
       logger.info(`Response validation complete. Safe to migrate: ${report.summary.safeToMigrate}`);
-      
+
       if (!report.summary.safeToMigrate) {
         logger.warn(`${report.summary.breakingChanges} breaking changes detected in responses`);
       }
@@ -650,7 +653,7 @@ Generated by pg-migration-620
     if (!this.responseValidationReport) return null;
 
     const { summary } = this.responseValidationReport;
-    
+
     return `
 ### Response Validation Results
 - **Safe to Migrate**: ${summary.safeToMigrate ? '✅ Yes' : '❌ No'}
@@ -658,7 +661,10 @@ Generated by pg-migration-620
 - **Average Similarity**: ${(summary.averageSimilarity * 100).toFixed(1)}%
 - **Risk Level**: ${summary.estimatedRisk.toUpperCase()}
 
-${this.responseValidationReport.recommendations.slice(0, 3).map(r => `- ${r}`).join('\n')}
+${this.responseValidationReport.recommendations
+  .slice(0, 3)
+  .map((r) => `- ${r}`)
+  .join('\n')}
 `;
   }
 
@@ -667,4 +673,4 @@ ${this.responseValidationReport.recommendations.slice(0, 3).map(r => `- ${r}`).j
       await this.responseValidator.destroy();
     }
   }
-} 
+}

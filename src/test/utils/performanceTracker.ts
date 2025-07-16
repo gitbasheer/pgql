@@ -76,9 +76,10 @@ class TestPerformanceTracker {
     }
 
     // Log memory intensive tests
-    if (metrics.memory.delta > 10 * 1024 * 1024) { // 10MB
+    if (metrics.memory.delta > 10 * 1024 * 1024) {
+      // 10MB
       console.warn(
-        `⚠️  Memory intensive test: ${metrics.name} used ${(metrics.memory.delta / 1024 / 1024).toFixed(2)}MB`
+        `⚠️  Memory intensive test: ${metrics.name} used ${(metrics.memory.delta / 1024 / 1024).toFixed(2)}MB`,
       );
     }
   }
@@ -105,19 +106,17 @@ class TestPerformanceTracker {
     const totalDuration = this.metrics.reduce((sum, m) => sum + m.duration, 0);
     const averageDuration = totalDuration / this.metrics.length;
 
-    const slowestTests = [...this.metrics]
-      .sort((a, b) => b.duration - a.duration)
-      .slice(0, 10);
+    const slowestTests = [...this.metrics].sort((a, b) => b.duration - a.duration).slice(0, 10);
 
     const memoryLeaks = [...this.metrics]
-      .filter(m => m.memory.delta > 5 * 1024 * 1024) // Tests using > 5MB
+      .filter((m) => m.memory.delta > 5 * 1024 * 1024) // Tests using > 5MB
       .sort((a, b) => b.memory.delta - a.memory.delta);
 
     const summary = {
       totalTests: this.metrics.length,
-      fastTests: this.metrics.filter(m => m.duration < 50).length,
-      slowTests: this.metrics.filter(m => m.duration > 100).length,
-      memoryIntensive: this.metrics.filter(m => m.memory.delta > 10 * 1024 * 1024).length,
+      fastTests: this.metrics.filter((m) => m.duration < 50).length,
+      slowTests: this.metrics.filter((m) => m.duration > 100).length,
+      memoryIntensive: this.metrics.filter((m) => m.memory.delta > 10 * 1024 * 1024).length,
     };
 
     return {
@@ -182,13 +181,13 @@ export function trackPerformance(target: any, propertyKey: string, descriptor: P
 
     try {
       const result = await originalMethod.apply(this, args);
-      
+
       const duration = performance.now() - start;
       const memoryDelta = process.memoryUsage().heapUsed - startMemory;
 
       if (process.env.DEBUG_PERFORMANCE === 'true') {
         console.log(
-          `[Performance] ${propertyKey}: ${duration.toFixed(2)}ms, Memory: ${(memoryDelta / 1024).toFixed(2)}KB`
+          `[Performance] ${propertyKey}: ${duration.toFixed(2)}ms, Memory: ${(memoryDelta / 1024).toFixed(2)}KB`,
         );
       }
 
@@ -206,7 +205,7 @@ export function trackPerformance(target: any, propertyKey: string, descriptor: P
  */
 export async function measurePerformance<T>(
   name: string,
-  operation: () => Promise<T>
+  operation: () => Promise<T>,
 ): Promise<{ result: T; duration: number; memory: number }> {
   const start = performance.now();
   const startMemory = process.memoryUsage().heapUsed;
@@ -239,7 +238,7 @@ export function generateBenchmarkReport(metrics: TestMetrics[]): string {
     '',
     '## Slowest Tests',
     ...report.slowestTests.map(
-      (test, i) => `${i + 1}. ${test.name}: ${test.duration.toFixed(2)}ms`
+      (test, i) => `${i + 1}. ${test.name}: ${test.duration.toFixed(2)}ms`,
     ),
   ];
 
@@ -248,11 +247,10 @@ export function generateBenchmarkReport(metrics: TestMetrics[]): string {
       '',
       '## Memory Intensive Tests',
       ...report.memoryLeaks.map(
-        (test, i) =>
-          `${i + 1}. ${test.name}: ${(test.memory.delta / 1024 / 1024).toFixed(2)}MB`
-      )
+        (test, i) => `${i + 1}. ${test.name}: ${(test.memory.delta / 1024 / 1024).toFixed(2)}MB`,
+      ),
     );
   }
 
   return lines.join('\n');
-} 
+}

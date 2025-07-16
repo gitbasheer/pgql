@@ -1,19 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock modules before any imports that might use them
-;
-
 // Mock graphql validate
-vi.mock('graphql', async importOriginal => {
+vi.mock('graphql', async (importOriginal) => {
   const actual = await importOriginal<typeof import('graphql')>();
   return {
     ...actual,
-    validate: vi.fn(() => [])
+    validate: vi.fn(() => []),
   };
 });
 
 // Now import modules after mocks are set up
-import { DocumentNode, GraphQLSchema, buildSchema, parse, GraphQLError, validate as graphqlValidate, visit } from 'graphql';
+import {
+  DocumentNode,
+  GraphQLSchema,
+  buildSchema,
+  parse,
+  GraphQLError,
+  validate as graphqlValidate,
+  visit,
+} from 'graphql';
 import { SemanticValidator } from '../../core/validator/SemanticValidator.js';
 import type { TransformationResult } from '../../../types/pgql.types.js';
 // Mock modules
@@ -23,12 +29,17 @@ vi.mock('@utils/logger', () => ({
     error: vi.fn(),
     warn: vi.fn(),
     debug: vi.fn(),
-    child: vi.fn().mockImplementation(() => ({ info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn(), child: vi.fn() }))
-  }
-}))
+    child: vi.fn().mockImplementation(() => ({
+      info: vi.fn(),
+      error: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+      child: vi.fn(),
+    })),
+  },
+}));
 
 // Mock modules
-
 
 describe('SemanticValidator', () => {
   let validator: SemanticValidator;
@@ -38,9 +49,9 @@ describe('SemanticValidator', () => {
     vi.clearAllMocks();
 
     // Build test
-// Mock modules
+    // Mock modules
 
- schema
+    schema;
     schema = buildSchema(`
       type Query {
         user(id: ID!): User
@@ -73,7 +84,7 @@ describe('SemanticValidator', () => {
         transformed: 'query { users { id name email } }',
         ast: transformed,
         changes: [],
-        rules: []
+        rules: [],
       };
       const result = await validator.validateTransformation(original, transformed, transformation);
       expect(result.isValid).toBe(true);
@@ -89,20 +100,24 @@ describe('SemanticValidator', () => {
         transformed: 'query { users { id name invalidField } }',
         ast: transformed,
         changes: [],
-        rules: []
+        rules: [],
       };
 
       // Mock validation to return errors for transformed query
-      vi.mocked(graphqlValidate).mockReturnValueOnce([]) // Original query is valid
-      .mockReturnValueOnce([
-      // Transformed query has errors
-      new GraphQLError('Cannot query field "invalidField" on type "User"')]);
+      vi.mocked(graphqlValidate)
+        .mockReturnValueOnce([]) // Original query is valid
+        .mockReturnValueOnce([
+          // Transformed query has errors
+          new GraphQLError('Cannot query field "invalidField" on type "User"'),
+        ]);
       const result = await validator.validateTransformation(original, transformed, transformation);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContainEqual(expect.objectContaining({
-        message: 'Transformation introduced validation errors',
-        severity: 'critical'
-      }));
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          message: 'Transformation introduced validation errors',
+          severity: 'critical',
+        }),
+      );
     });
     it('should handle field renames in breaking changes', async () => {
       const original = parse(`query { users { id name } }`);
@@ -112,18 +127,20 @@ describe('SemanticValidator', () => {
         transformed: 'query { users { id fullName } }',
         ast: transformed,
         changes: [],
-        rules: [{
-          type: 'field-rename',
-          from: 'name',
-          to: 'fullName'
-        }]
+        rules: [
+          {
+            type: 'field-rename',
+            from: 'name',
+            to: 'fullName',
+          },
+        ],
       };
       const result = await validator.validateTransformation(original, transformed, transformation);
       expect(result.breakingChanges).toContainEqual({
         type: 'field-removal',
         field: 'name',
         description: "Field 'name' renamed to 'fullName'",
-        impact: 'low'
+        impact: 'low',
       });
     });
     it('should handle type changes as high impact', async () => {
@@ -134,18 +151,20 @@ describe('SemanticValidator', () => {
         transformed: 'query { newUsers { id } }',
         ast: transformed,
         changes: [],
-        rules: [{
-          type: 'type-change',
-          from: 'users',
-          to: 'newUsers'
-        }]
+        rules: [
+          {
+            type: 'type-change',
+            from: 'users',
+            to: 'newUsers',
+          },
+        ],
       };
       const result = await validator.validateTransformation(original, transformed, transformation);
       expect(result.breakingChanges).toContainEqual({
         type: 'type-change',
         field: 'users',
         description: "Type changed from 'users' to 'newUsers'",
-        impact: 'high'
+        impact: 'high',
       });
       expect(result.isValid).toBe(false); // High impact changes make it invalid
     });
@@ -157,18 +176,20 @@ describe('SemanticValidator', () => {
         transformed: 'query { users { nodes { id } } }',
         ast: transformed,
         changes: [],
-        rules: [{
-          type: 'structure-change',
-          from: 'edges',
-          to: 'nodes'
-        }]
+        rules: [
+          {
+            type: 'structure-change',
+            from: 'edges',
+            to: 'nodes',
+          },
+        ],
       };
       const result = await validator.validateTransformation(original, transformed, transformation);
       expect(result.breakingChanges).toContainEqual({
         type: 'schema-mismatch',
         field: 'edges',
         description: "Structure changed from 'edges' to 'nodes'",
-        impact: 'medium'
+        impact: 'medium',
       });
     });
     it('should detect missing fields', async () => {
@@ -179,17 +200,21 @@ describe('SemanticValidator', () => {
         transformed: 'query { users { id } }',
         ast: transformed,
         changes: [],
-        rules: []
+        rules: [],
       };
       const result = await validator.validateTransformation(original, transformed, transformation);
-      expect(result.errors).toContainEqual(expect.objectContaining({
-        message: "Field 'name' is missing in transformed query",
-        severity: 'error'
-      }));
-      expect(result.errors).toContainEqual(expect.objectContaining({
-        message: "Field 'email' is missing in transformed query",
-        severity: 'error'
-      }));
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          message: "Field 'name' is missing in transformed query",
+          severity: 'error',
+        }),
+      );
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          message: "Field 'email' is missing in transformed query",
+          severity: 'error',
+        }),
+      );
     });
     it('should suggest renamed fields', async () => {
       const original = parse(`query { users { id email } }`);
@@ -199,13 +224,15 @@ describe('SemanticValidator', () => {
         transformed: 'query { users { id emailAddress } }',
         ast: transformed,
         changes: [],
-        rules: []
+        rules: [],
       };
       const result = await validator.validateTransformation(original, transformed, transformation);
-      expect(result.warnings).toContainEqual(expect.objectContaining({
-        message: "Field 'email' appears to be renamed to 'emailAddress'",
-        suggestion: 'Verify this rename is intentional'
-      }));
+      expect(result.warnings).toContainEqual(
+        expect.objectContaining({
+          message: "Field 'email' appears to be renamed to 'emailAddress'",
+          suggestion: 'Verify this rename is intentional',
+        }),
+      );
     });
     it('should detect incompatible response shape changes', async () => {
       const original = parse(`
@@ -232,13 +259,15 @@ describe('SemanticValidator', () => {
         transformed: 'shallow query',
         ast: transformed,
         changes: [],
-        rules: []
+        rules: [],
       };
       const result = await validator.validateTransformation(original, transformed, transformation);
-      expect(result.errors).toContainEqual(expect.objectContaining({
-        message: 'Transformation changes response shape incompatibly',
-        severity: 'critical'
-      }));
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          message: 'Transformation changes response shape incompatibly',
+          severity: 'critical',
+        }),
+      );
     });
     it('should detect required argument additions', async () => {
       // Test the scenario where a transformation adds required arguments to an existing field
@@ -249,7 +278,7 @@ describe('SemanticValidator', () => {
         transformed: 'query { user(id: "123") { id name } }',
         ast: parse(`query { user(id: "123") { id name } }`),
         changes: [],
-        rules: []
+        rules: [],
       };
       const result = await validator.validateTransformation(original, transformed, transformation);
 
@@ -258,11 +287,17 @@ describe('SemanticValidator', () => {
 
       // If there are no errors, the transformation might be considered valid
       // which is fine - the important thing is that the test runs without crashing
-      if ((result.errors && result.errors.length) === 0 && (result.warnings && result.warnings.length) === 0) {
+      if (
+        (result.errors && result.errors.length) === 0 &&
+        (result.warnings && result.warnings.length) === 0
+      ) {
         expect(result.isValid).toBe(true);
       } else {
         // Otherwise check that something was detected
-        const totalIssues = (result.errors && result.errors.length) + result.warnings.length + result.breakingChanges.length;
+        const totalIssues =
+          (result.errors && result.errors.length) +
+          result.warnings.length +
+          result.breakingChanges.length;
         expect(totalIssues).toBeGreaterThan(0);
       }
     });
@@ -274,7 +309,7 @@ describe('SemanticValidator', () => {
         transformed: 'query',
         ast: transformed,
         changes: [],
-        rules: []
+        rules: [],
       };
 
       // Force an error by mocking graphql validate to throw
@@ -284,10 +319,12 @@ describe('SemanticValidator', () => {
       });
       const result = await validator.validateTransformation(original, transformed, transformation);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContainEqual(expect.objectContaining({
-        message: 'Validation failed: Validation error',
-        severity: 'critical'
-      }));
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          message: 'Validation failed: Validation error',
+          severity: 'critical',
+        }),
+      );
 
       // Restore original mock
       originalValidate.mockImplementation(() => []);
@@ -300,13 +337,15 @@ describe('SemanticValidator', () => {
         transformed: 'query { users { nodes { id } } }',
         ast: transformed,
         changes: [],
-        rules: []
+        rules: [],
       };
       const result = await validator.validateTransformation(original, transformed, transformation);
-      expect(result.warnings).toContainEqual(expect.objectContaining({
-        message: 'Structural change detected: Connection pattern (edges/node) removed',
-        suggestion: 'Update client code to handle new structure'
-      }));
+      expect(result.warnings).toContainEqual(
+        expect.objectContaining({
+          message: 'Structural change detected: Connection pattern (edges/node) removed',
+          suggestion: 'Update client code to handle new structure',
+        }),
+      );
     });
     it('should handle edge cases in field detection', async () => {
       // Test with inline fragments
@@ -317,12 +356,14 @@ describe('SemanticValidator', () => {
         transformed: '',
         ast: transformed,
         changes: [],
-        rules: []
+        rules: [],
       };
       const result = await validator.validateTransformation(original, transformed, transformation);
-      expect(result.errors).toContainEqual(expect.objectContaining({
-        message: "Field 'name' is missing in transformed query"
-      }));
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          message: "Field 'name' is missing in transformed query",
+        }),
+      );
     });
     it('should handle complex argument checking', async () => {
       const original = parse(`query { users { id } }`);
@@ -338,7 +379,7 @@ describe('SemanticValidator', () => {
         transformed: '',
         ast: transformed,
         changes: [],
-        rules: []
+        rules: [],
       };
       const result = await validator.validateTransformation(original, transformed, transformation);
 
@@ -355,17 +396,21 @@ describe('SemanticValidator', () => {
         transformed: '',
         ast: transformed,
         changes: [],
-        rules: []
+        rules: [],
       };
       const result = await validator.validateTransformation(original, transformed, transformation);
 
       // Based on actual output, the implementation detects field changes
-      expect(result.warnings).toContainEqual(expect.objectContaining({
-        message: "Field 'nodes' appears to be renamed to 'node'"
-      }));
-      expect(result.warnings).toContainEqual(expect.objectContaining({
-        message: "Field 'edges' added in transformation"
-      }));
+      expect(result.warnings).toContainEqual(
+        expect.objectContaining({
+          message: "Field 'nodes' appears to be renamed to 'node'",
+        }),
+      );
+      expect(result.warnings).toContainEqual(
+        expect.objectContaining({
+          message: "Field 'edges' added in transformation",
+        }),
+      );
     });
   });
   describe('validateAgainstMultipleSchemas', () => {
@@ -387,7 +432,10 @@ describe('SemanticValidator', () => {
           title: String!
         }
       `);
-      const schemas = new Map([['v1', schema], ['v2', schema2]]);
+      const schemas = new Map([
+        ['v1', schema],
+        ['v2', schema2],
+      ]);
       const results = await validator.validateAgainstMultipleSchemas(query, schemas);
       expect(results.size).toBe(2);
       expect(results.get('v1')?.isValid).toBe(true);
@@ -405,11 +453,14 @@ describe('SemanticValidator', () => {
           name: String!
         }
       `);
-      const schemas = new Map([['v1', schema],
-      // Has no products field
-      ['v2', schema2] // Also has no products field
+      const schemas = new Map([
+        ['v1', schema],
+        // Has no products field
+        ['v2', schema2], // Also has no products field
       ]);
-      vi.mocked(graphqlValidate).mockReturnValueOnce([new GraphQLError('Cannot query field "products"')]).mockReturnValueOnce([new GraphQLError('Cannot query field "products"')]);
+      vi.mocked(graphqlValidate)
+        .mockReturnValueOnce([new GraphQLError('Cannot query field "products"')])
+        .mockReturnValueOnce([new GraphQLError('Cannot query field "products"')]);
       const results = await validator.validateAgainstMultipleSchemas(query, schemas);
       expect(results.get('v1')?.isValid).toBe(false);
       expect(results.get('v1')?.errors).toHaveLength(1);
@@ -426,12 +477,18 @@ describe('SemanticValidator', () => {
         transformed: '',
         ast: transformed1,
         changes: [],
-        rules: []
+        rules: [],
       };
-      const result1 = await validator.validateTransformation(original1, transformed1, transformation1);
-      expect(result1.warnings).toContainEqual(expect.objectContaining({
-        message: "Field 'UserName' appears to be renamed to 'username'"
-      }));
+      const result1 = await validator.validateTransformation(
+        original1,
+        transformed1,
+        transformation1,
+      );
+      expect(result1.warnings).toContainEqual(
+        expect.objectContaining({
+          message: "Field 'UserName' appears to be renamed to 'username'",
+        }),
+      );
 
       // Test substring matching
       const original2 = parse(`query { email { value } }`);
@@ -441,12 +498,18 @@ describe('SemanticValidator', () => {
         transformed: '',
         ast: transformed2,
         changes: [],
-        rules: []
+        rules: [],
       };
-      const result2 = await validator.validateTransformation(original2, transformed2, transformation2);
-      expect(result2.warnings).toContainEqual(expect.objectContaining({
-        message: "Field 'email' appears to be renamed to 'userEmail'"
-      }));
+      const result2 = await validator.validateTransformation(
+        original2,
+        transformed2,
+        transformation2,
+      );
+      expect(result2.warnings).toContainEqual(
+        expect.objectContaining({
+          message: "Field 'email' appears to be renamed to 'userEmail'",
+        }),
+      );
     });
     it('should calculate query depth correctly', async () => {
       const shallowQuery = parse(`query { users { id } }`);
@@ -472,18 +535,30 @@ describe('SemanticValidator', () => {
         transformed: '',
         ast: shallowQuery,
         changes: [],
-        rules: []
+        rules: [],
       };
 
       // Deep to shallow should be incompatible
-      const result = await validator.validateTransformation(deepQuery, shallowQuery, transformation);
-      expect(result.errors).toContainEqual(expect.objectContaining({
-        message: 'Transformation changes response shape incompatibly'
-      }));
+      const result = await validator.validateTransformation(
+        deepQuery,
+        shallowQuery,
+        transformation,
+      );
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          message: 'Transformation changes response shape incompatibly',
+        }),
+      );
 
       // Shallow to deep should be compatible
-      const result2 = await validator.validateTransformation(shallowQuery, deepQuery, transformation);
-      const shapeError = result2.errors.find(e => e.message === 'Transformation changes response shape incompatibly');
+      const result2 = await validator.validateTransformation(
+        shallowQuery,
+        deepQuery,
+        transformation,
+      );
+      const shapeError = result2.errors.find(
+        (e) => e.message === 'Transformation changes response shape incompatibly',
+      );
       expect(shapeError).toBeUndefined();
     });
   });

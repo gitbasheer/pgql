@@ -6,7 +6,7 @@ import {
   AlignmentTest,
   AlignmentOptions,
   Difference,
-  DifferenceType
+  DifferenceType,
 } from './types.js';
 
 export class AlignmentGenerator {
@@ -14,14 +14,11 @@ export class AlignmentGenerator {
     private options: AlignmentOptions = {
       strict: false,
       preserveNulls: true,
-      preserveOrder: false
-    }
+      preserveOrder: false,
+    },
   ) {}
 
-  generateAlignmentFunction(
-    queryId: string,
-    differences: Difference[]
-  ): AlignmentFunction {
+  generateAlignmentFunction(queryId: string, differences: Difference[]): AlignmentFunction {
     const id = nanoid();
     const transformations = this.analyzeTransformations(differences);
     const code = this.generateCode(transformations);
@@ -34,7 +31,7 @@ export class AlignmentGenerator {
       differences,
       transform,
       code,
-      tests
+      tests,
     };
   }
 
@@ -53,25 +50,19 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
 `.trim();
   }
 
-  validateAlignment(
-    data: any,
-    alignment: AlignmentFunction
-  ): boolean {
+  validateAlignment(data: any, alignment: AlignmentFunction): boolean {
     try {
       const aligned = alignment.transform(data);
-      
+
       // Run validation tests
       for (const test of alignment.tests) {
-        const result = this.deepCompare(
-          alignment.transform(test.input),
-          test.expected
-        );
+        const result = this.deepCompare(alignment.transform(test.input), test.expected);
         if (!result) {
           logger.error(`Alignment test failed: ${test.description}`);
           return false;
         }
       }
-      
+
       return true;
     } catch (error) {
       logger.error('Alignment validation failed:', error);
@@ -102,14 +93,14 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
           type: 'add-field',
           path: diff.path,
           value: diff.baseline,
-          description: `Add missing field '${diff.path.join('.')}'`
+          description: `Add missing field '${diff.path.join('.')}'`,
         };
 
       case 'extra-field':
         return {
           type: 'remove-field',
           path: diff.path,
-          description: `Remove extra field '${diff.path.join('.')}'`
+          description: `Remove extra field '${diff.path.join('.')}'`,
         };
 
       case 'type-mismatch':
@@ -118,7 +109,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
           path: diff.path,
           fromType: typeof diff.transformed,
           toType: typeof diff.baseline,
-          description: `Convert type at '${diff.path.join('.')}'`
+          description: `Convert type at '${diff.path.join('.')}'`,
         };
 
       case 'value-change':
@@ -127,7 +118,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
             type: 'map-value',
             path: diff.path,
             mapping: { [diff.transformed]: diff.baseline },
-            description: `Map value at '${diff.path.join('.')}'`
+            description: `Map value at '${diff.path.join('.')}'`,
           };
         }
         return null;
@@ -137,14 +128,14 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
           type: 'handle-null',
           path: diff.path,
           defaultValue: diff.baseline,
-          description: `Handle null at '${diff.path.join('.')}'`
+          description: `Handle null at '${diff.path.join('.')}'`,
         };
 
       case 'array-order':
         return {
           type: 'reorder-array',
           path: diff.path,
-          description: `Reorder array at '${diff.path.join('.')}'`
+          description: `Reorder array at '${diff.path.join('.')}'`,
         };
 
       case 'array-length':
@@ -152,7 +143,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
           type: 'adjust-array',
           path: diff.path,
           targetLength: diff.baseline,
-          description: `Adjust array length at '${diff.path.join('.')}'`
+          description: `Adjust array length at '${diff.path.join('.')}'`,
         };
 
       default:
@@ -161,10 +152,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
   }
 
   private generateCode(transformations: Transformation[]): string {
-    const lines: string[] = [
-      '  const result = JSON.parse(JSON.stringify(response));',
-      ''
-    ];
+    const lines: string[] = ['  const result = JSON.parse(JSON.stringify(response));', ''];
 
     for (const transformation of transformations) {
       const codeLines = this.generateTransformationCode(transformation);
@@ -182,20 +170,17 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
       case 'add-field':
         return [
           `  // ${transformation.description}`,
-          `  ${pathCode} = ${JSON.stringify(transformation.value)};`
+          `  ${pathCode} = ${JSON.stringify(transformation.value)};`,
         ];
 
       case 'remove-field':
-        return [
-          `  // ${transformation.description}`,
-          `  delete ${pathCode};`
-        ];
+        return [`  // ${transformation.description}`, `  delete ${pathCode};`];
 
       case 'convert-type':
         return this.generateTypeConversionCode(
           transformation.path,
           transformation.fromType!,
-          transformation.toType!
+          transformation.toType!,
         );
 
       case 'map-value':
@@ -204,7 +189,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
           `  const mapping = ${JSON.stringify(transformation.mapping)};`,
           `  if (${pathCode} in mapping) {`,
           `    ${pathCode} = mapping[${pathCode}];`,
-          `  }`
+          `  }`,
         ];
 
       case 'handle-null':
@@ -212,13 +197,13 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
           `  // ${transformation.description}`,
           `  if (${pathCode} === null || ${pathCode} === undefined) {`,
           `    ${pathCode} = ${JSON.stringify(transformation.defaultValue)};`,
-          `  }`
+          `  }`,
         ];
 
       case 'reorder-array':
         return [
           `  // ${transformation.description}`,
-          `  // Array reordering handled by response comparator`
+          `  // Array reordering handled by response comparator`,
         ];
 
       case 'adjust-array':
@@ -226,7 +211,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
           `  // ${transformation.description}`,
           `  if (Array.isArray(${pathCode})) {`,
           `    ${pathCode}.length = ${transformation.targetLength};`,
-          `  }`
+          `  }`,
         ];
 
       default:
@@ -234,11 +219,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
     }
   }
 
-  private generateTypeConversionCode(
-    path: string[],
-    fromType: string,
-    toType: string
-  ): string[] {
+  private generateTypeConversionCode(path: string[], fromType: string, toType: string): string[] {
     const pathCode = this.generatePathCode(path);
     const lines = [`  // Convert ${fromType} to ${toType} at '${path.join('.')}'`];
 
@@ -246,19 +227,19 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
       lines.push(
         `  if (typeof ${pathCode} === 'string') {`,
         `    ${pathCode} = Number(${pathCode});`,
-        `  }`
+        `  }`,
       );
     } else if (fromType === 'number' && toType === 'string') {
       lines.push(
         `  if (typeof ${pathCode} === 'number') {`,
         `    ${pathCode} = String(${pathCode});`,
-        `  }`
+        `  }`,
       );
     } else if (fromType === 'string' && toType === 'boolean') {
       lines.push(
         `  if (typeof ${pathCode} === 'string') {`,
         `    ${pathCode} = ${pathCode} === 'true';`,
-        `  }`
+        `  }`,
       );
     } else {
       lines.push(`  // Complex type conversion needed`);
@@ -317,10 +298,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
 
       case 'convert-type':
         if (key in target.parent) {
-          target.parent[key] = this.convertType(
-            target.parent[key],
-            transformation.toType!
-          );
+          target.parent[key] = this.convertType(target.parent[key], transformation.toType!);
         }
         break;
 
@@ -375,7 +353,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
 
   private generateTests(
     differences: Difference[],
-    transform: (response: any) => any
+    transform: (response: any) => any,
   ): AlignmentTest[] {
     const tests: AlignmentTest[] = [];
 
@@ -387,7 +365,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
       tests.push({
         input: input.data,
         expected,
-        description: input.description
+        description: input.description,
       });
     }
 
@@ -419,7 +397,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
 
   private generateTestInputForType(
     type: DifferenceType,
-    differences: Difference[]
+    differences: Difference[],
   ): TestInput | null {
     const testData: any = {};
 
@@ -431,7 +409,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
         }
         return {
           data: testData,
-          description: 'Test adding missing fields'
+          description: 'Test adding missing fields',
         };
 
       case 'extra-field':
@@ -441,7 +419,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
         }
         return {
           data: testData,
-          description: 'Test removing extra fields'
+          description: 'Test removing extra fields',
         };
 
       case 'type-mismatch':
@@ -451,7 +429,7 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
         }
         return {
           data: testData,
-          description: 'Test type conversions'
+          description: 'Test type conversions',
         };
 
       default:
@@ -490,16 +468,16 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
 
     if (typeof a === 'object') {
       if (Array.isArray(a) !== Array.isArray(b)) return false;
-      
+
       const keysA = Object.keys(a);
       const keysB = Object.keys(b);
-      
+
       if (keysA.length !== keysB.length) return false;
-      
+
       for (const key of keysA) {
         if (!this.deepCompare(a[key], b[key])) return false;
       }
-      
+
       return true;
     }
 
@@ -508,8 +486,14 @@ export const testCases = ${JSON.stringify(alignment.tests, null, 2)};
 }
 
 interface Transformation {
-  type: 'add-field' | 'remove-field' | 'convert-type' | 'map-value' | 
-        'handle-null' | 'reorder-array' | 'adjust-array';
+  type:
+    | 'add-field'
+    | 'remove-field'
+    | 'convert-type'
+    | 'map-value'
+    | 'handle-null'
+    | 'reorder-array'
+    | 'adjust-array';
   path: string[];
   description: string;
   value?: any;
@@ -523,4 +507,4 @@ interface Transformation {
 interface TestInput {
   data: any;
   description: string;
-} 
+}

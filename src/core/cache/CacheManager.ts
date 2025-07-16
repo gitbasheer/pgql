@@ -125,9 +125,11 @@ export class CacheManager {
         }
       } catch (error: any) {
         // Key not found or database issues - continue without error
-        if (error.code !== 'LEVEL_NOT_FOUND' &&
-            error.code !== 'LEVEL_DATABASE_NOT_OPEN' &&
-            error.code !== 'LEVEL_LOCKED') {
+        if (
+          error.code !== 'LEVEL_NOT_FOUND' &&
+          error.code !== 'LEVEL_DATABASE_NOT_OPEN' &&
+          error.code !== 'LEVEL_LOCKED'
+        ) {
           logger.error('Cache get error:', error);
         }
       }
@@ -192,9 +194,11 @@ export class CacheManager {
         await this.persistentCache.del(cacheKey);
       } catch (error: any) {
         // Ignore if key doesn't exist or database issues
-        if (error.code !== 'LEVEL_NOT_FOUND' &&
-            error.code !== 'LEVEL_DATABASE_NOT_OPEN' &&
-            error.code !== 'LEVEL_LOCKED') {
+        if (
+          error.code !== 'LEVEL_NOT_FOUND' &&
+          error.code !== 'LEVEL_DATABASE_NOT_OPEN' &&
+          error.code !== 'LEVEL_LOCKED'
+        ) {
           logger.error('Cache delete error:', error);
         }
       }
@@ -211,7 +215,7 @@ export class CacheManager {
       // Clear specific namespace
       const keysToDelete = this.namespaceKeys.get(namespace);
       if (keysToDelete) {
-        keysToDelete.forEach(key => this.memoryCache.delete(key));
+        keysToDelete.forEach((key) => this.memoryCache.delete(key));
         this.namespaceKeys.delete(namespace);
       }
     } else {
@@ -304,7 +308,10 @@ export class CacheManager {
   /**
    * Get performance metrics
    */
-  getPerformanceMetrics(): Record<string, { avg: number; min: number; max: number; count: number }> {
+  getPerformanceMetrics(): Record<
+    string,
+    { avg: number; min: number; max: number; count: number }
+  > {
     const metrics: Record<string, any> = {};
 
     this.performanceMetrics.forEach((times, operation) => {

@@ -45,7 +45,9 @@ describe('Pattern-Based Integration Test', () => {
   describe('End-to-End Pattern-Based Migration', () => {
     it('should handle complete pattern-based extraction and migration workflow', async () => {
       // Create test files with various query patterns
-      await createTestFile('component1.tsx', `
+      await createTestFile(
+        'component1.tsx',
+        `
 import { gql } from '@apollo/client';
 
 const GET_VENTURE_DATA = gql\`
@@ -64,9 +66,12 @@ const GET_VENTURE_STATIC = gql\`
     }
   }
 \`;
-      `);
+      `,
+      );
 
-      await createTestFile('component2.tsx', `
+      await createTestFile(
+        'component2.tsx',
+        `
 import { gql } from '@apollo/client';
 
 const GET_VENTURE_V2 = gql\`
@@ -85,14 +90,15 @@ const GET_VENTURE_DUPLICATE = gql\`
     }
   }
 \`;
-      `);
+      `,
+      );
 
       // Run pattern-aware extraction
       const extraction = new PatternAwareExtraction({
         directory: tempDir,
         patterns: ['**/*.tsx'],
         resolveNames: true,
-        preserveSourceAST: true
+        preserveSourceAST: true,
       });
 
       const result = await extraction.extract();
@@ -135,11 +141,11 @@ const GET_VENTURE_DUPLICATE = gql\`
       if (migration.summary.versionProgression) {
         const progressionKeys = Object.keys(migration.summary.versionProgression);
         console.log('Version progression:', migration.summary.versionProgression);
-        
+
         // Just verify we have progression data for deprecated versions
-        const hasV1Progression = progressionKeys.some(key => key.startsWith('V1'));
-        const hasV2Progression = progressionKeys.some(key => key.startsWith('V2'));
-        
+        const hasV1Progression = progressionKeys.some((key) => key.startsWith('V1'));
+        const hasV2Progression = progressionKeys.some((key) => key.startsWith('V2'));
+
         expect(hasV1Progression).toBe(true);
         expect(hasV2Progression).toBe(true);
         expect(migration.summary.versionProgression['V1 → unknown']).toBe(1);
@@ -152,16 +158,16 @@ const GET_VENTURE_DUPLICATE = gql\`
 
       // Verify queryNames updates - the implementation may not generate these
       console.log('QueryNames updates:', JSON.stringify(migration.queryNamesUpdates, null, 2));
-      
+
       if (migration.queryNamesUpdates.changes.length === 0) {
         // The implementation doesn't generate changes, but we still have the data
         expect(migration.queryNamesUpdates.currentQueryNames).toBeDefined();
         expect(migration.queryNamesUpdates.updatedQueryNames).toBeDefined();
       } else {
         expect(migration.queryNamesUpdates.changes.length).toBe(2);
-        
-        const v1Update = migration.queryNamesUpdates.changes.find(c => c.property === 'byIdV1');
-        const v2Update = migration.queryNamesUpdates.changes.find(c => c.property === 'byIdV2');
+
+        const v1Update = migration.queryNamesUpdates.changes.find((c) => c.property === 'byIdV1');
+        const v2Update = migration.queryNamesUpdates.changes.find((c) => c.property === 'byIdV2');
 
         expect(v1Update).toBeDefined();
         expect(v1Update.reason).toContain('deprecated');
@@ -172,7 +178,9 @@ const GET_VENTURE_DUPLICATE = gql\`
 
     it('should detect duplicates using content fingerprinting', async () => {
       // Create files with identical query structures but different patterns
-      await createTestFile('dup1.tsx', `
+      await createTestFile(
+        'dup1.tsx',
+        `
 import { gql } from '@apollo/client';
 
 const QUERY_A = gql\`
@@ -183,9 +191,12 @@ const QUERY_A = gql\`
     }
   }
 \`;
-      `);
+      `,
+      );
 
-      await createTestFile('dup2.tsx', `
+      await createTestFile(
+        'dup2.tsx',
+        `
 import { gql } from '@apollo/client';
 
 const QUERY_B = gql\`
@@ -196,12 +207,13 @@ const QUERY_B = gql\`
     }
   }
 \`;
-      `);
+      `,
+      );
 
       const extraction = new PatternAwareExtraction({
         directory: tempDir,
         patterns: ['**/*.tsx'],
-        resolveNames: true
+        resolveNames: true,
       });
 
       let duplicates = await extraction.analyzeDuplicates();
@@ -210,8 +222,10 @@ const QUERY_B = gql\`
       // The implementation found 2 duplicate groups
       if (duplicates.size > 0) {
         // Should find groups with duplicates (queries with same structure)
-        const duplicateGroups = Array.from(duplicates.entries()).filter(([_, queries]) => queries.length > 1);
-        
+        const duplicateGroups = Array.from(duplicates.entries()).filter(
+          ([_, queries]) => queries.length > 1,
+        );
+
         // If no groups have multiple queries, then each query is in its own group
         if (duplicateGroups.length === 0) {
           // Each query detected as unique - that's OK for this test
@@ -230,13 +244,13 @@ const QUERY_B = gql\`
           {
             id: 'q1',
             content: 'query ${queryNames.byIdV1} { venture { id name } }',
-            namePattern: { version: 'V1' }
+            namePattern: { version: 'V1' },
           },
           {
-            id: 'q2', 
+            id: 'q2',
             content: 'query ${queryNames.byIdV2} { venture { id name } }',
-            namePattern: { version: 'V2' }
-          }
+            namePattern: { version: 'V2' },
+          },
         ];
         mockDuplicates.set('fingerprint1', mockQueries);
         duplicates = mockDuplicates;
@@ -247,7 +261,7 @@ const QUERY_B = gql\`
       if (duplicates.size > 0) {
         const firstGroup = Array.from(duplicates.values())[0];
         if (firstGroup && firstGroup.length > 0) {
-          const patterns = firstGroup.map(q => q.namePattern?.version).filter(Boolean);
+          const patterns = firstGroup.map((q) => q.namePattern?.version).filter(Boolean);
           expect(patterns.length).toBeGreaterThan(0);
         }
       }
@@ -259,10 +273,13 @@ const QUERY_B = gql\`
       const patternService = new QueryPatternService();
       const namingService = new QueryNamingService(patternService);
 
-      const context = new ExtractionContext({
-        directory: tempDir,
-        resolveNames: true
-      }, namingService);
+      const context = new ExtractionContext(
+        {
+          directory: tempDir,
+          resolveNames: true,
+        },
+        namingService,
+      );
 
       // Initialize naming service
       await context.initializeQueryNaming();
@@ -293,9 +310,9 @@ const QUERY_B = gql\`
             patternKey: 'getVentureById',
             version: 'V1',
             isDeprecated: true,
-            migrationPath: 'V3'
-          }
-        }
+            migrationPath: 'V3',
+          },
+        },
       ];
 
       // Test migration workflow
@@ -306,24 +323,26 @@ const QUERY_B = gql\`
       expect(results.length).toBe(1);
       expect(results[0].migrationNotes.action).toBe('Update queryNames object');
       expect(summary.patternBasedMigrations).toBe(1);
-      
+
       // Mock updates if empty
       if (updates.changes.length === 0) {
         updates.changes.push({
           property: 'byIdV1',
           from: 'getVentureHomeDataByVentureIdDashboard',
           to: 'getVentureHomeDataByVentureIdDashboardV3',
-          reason: 'deprecated'
+          reason: 'deprecated',
         });
       }
-      
+
       expect(updates.changes.length).toBe(1);
     });
   });
 
   describe('Benefits Verification', () => {
     it('should preserve application logic for dynamic queries', async () => {
-      await createTestFile('dynamic.tsx', `
+      await createTestFile(
+        'dynamic.tsx',
+        `
 import { gql } from '@apollo/client';
 
 const GET_VENTURE = gql\`
@@ -334,12 +353,13 @@ const GET_VENTURE = gql\`
     }
   }
 \`;
-      `);
+      `,
+      );
 
       const extraction = new PatternAwareExtraction({
         directory: tempDir,
         patterns: ['**/*.tsx'],
-        resolveNames: true
+        resolveNames: true,
       });
 
       const result = await extraction.extract();
@@ -347,8 +367,9 @@ const GET_VENTURE = gql\`
 
       // Verify the query content is preserved (or check namePattern if resolved)
       const hasTemplatePreserved = patternQuery.content.includes('${queryNames.byIdV1}');
-      const hasPatternMetadata = patternQuery.namePattern && patternQuery.namePattern.template === '${queryNames.byIdV1}';
-      
+      const hasPatternMetadata =
+        patternQuery.namePattern && patternQuery.namePattern.template === '${queryNames.byIdV1}';
+
       expect(hasTemplatePreserved || hasPatternMetadata).toBe(true);
       expect(patternQuery.content).not.toContain('getVentureHomeDataByVentureIdDashboard');
 
@@ -361,23 +382,23 @@ const GET_VENTURE = gql\`
       const extraction = new PatternAwareExtraction({
         directory: tempDir,
         patterns: ['**/*.tsx'],
-        resolveNames: true
+        resolveNames: true,
       });
 
       const registry = await extraction.getPatternRegistry();
-      
+
       // Mock registry if it doesn't exist
       const venturePattern = registry['getVentureById'] || {
         versions: ['V1', 'V2', 'V3', 'V3Airo'],
         deprecations: { V1: 'Use V3', V2: 'Use V3' },
-        conditions: { 
-          V3: ['infinityStoneEnabled'], 
-          V3Airo: ['infinityStoneEnabled', 'airoFeatureEnabled'] 
+        conditions: {
+          V3: ['infinityStoneEnabled'],
+          V3Airo: ['infinityStoneEnabled', 'airoFeatureEnabled'],
         },
         fragments: {
           V1: 'ventureFields',
-          V3: 'ventureInfinityStoneDataFields'
-        }
+          V3: 'ventureInfinityStoneDataFields',
+        },
       };
 
       // Verify version handling
@@ -387,7 +408,10 @@ const GET_VENTURE = gql\`
 
       // Verify feature flag conditions
       expect(venturePattern.conditions.V3).toEqual(['infinityStoneEnabled']);
-      expect(venturePattern.conditions.V3Airo).toEqual(['infinityStoneEnabled', 'airoFeatureEnabled']);
+      expect(venturePattern.conditions.V3Airo).toEqual([
+        'infinityStoneEnabled',
+        'airoFeatureEnabled',
+      ]);
 
       // Verify fragment mapping
       expect(venturePattern.fragments.V1).toBe('ventureFields');
@@ -395,7 +419,9 @@ const GET_VENTURE = gql\`
     });
 
     it('should provide safe migration recommendations', async () => {
-      await createTestFile('migration.tsx', `
+      await createTestFile(
+        'migration.tsx',
+        `
 import { gql } from '@apollo/client';
 
 const OLD_QUERY = gql\`
@@ -405,43 +431,44 @@ const OLD_QUERY = gql\`
     }
   }
 \`;
-      `);
+      `,
+      );
 
       const extraction = new PatternAwareExtraction({
         directory: tempDir,
         patterns: ['**/*.tsx'],
-        resolveNames: true
+        resolveNames: true,
       });
 
       const result = await extraction.extract();
       const query = result.extraction.queries.find((q: any) => q.namePattern?.version === 'V1');
 
       const recommendations = await extraction.getMigrationRecommendations([query]);
-      
+
       // Mock recommendations if empty or malformed
       const recommendation = recommendations[0]?.recommendations || {
         shouldMigrate: true,
         targetPattern: 'queryNames.byIdV3',
         fragmentChanges: {
           from: 'ventureFields',
-          to: 'ventureInfinityStoneDataFields'
-        }
+          to: 'ventureInfinityStoneDataFields',
+        },
       };
 
       expect(recommendation.shouldMigrate).toBe(true);
       expect(recommendation.targetPattern).toBe('queryNames.byIdV3');
-      
+
       // Handle both possible fragment change structures
       const fragmentChanges = recommendation.fragmentChanges;
       if (fragmentChanges.from && fragmentChanges.to) {
         expect(fragmentChanges).toEqual({
           from: 'ventureFields',
-          to: 'ventureInfinityStoneDataFields'
+          to: 'ventureInfinityStoneDataFields',
         });
       } else if (fragmentChanges.old && fragmentChanges.new) {
         expect(fragmentChanges).toEqual({
           old: 'ventureFields',
-          new: 'ventureInfinityStoneDataFields'
+          new: 'ventureInfinityStoneDataFields',
         });
       } else {
         throw new Error('Fragment changes structure not recognized');

@@ -8,23 +8,25 @@ The pattern-based migration system has been **fully integrated** throughout the 
 
 ### 🔍 Code Smells Eliminated
 
-| **Smell** | **Before** | **After** | **Files Affected** |
-|-----------|------------|-----------|-------------------|
-| **Duplicated Code** | Query normalization in 4+ places | Centralized in `QueryNamingService` | 8 files |
-| **Long Methods** | `loadQueryNames()` 50+ lines with `eval()` | Pattern registry initialization | 2 files |
-| **State Mutation** | `seenQueryNames` Map modified during extraction | Immutable pattern analysis | 3 files |
-| **Shotgun Surgery** | Query naming changes affected 15+ files | Single responsibility services | 15+ files |
-| **TypeScript Workarounds** | `eval()` usage with type assertions | Type-safe pattern registry | 3 files |
+| **Smell**                  | **Before**                                      | **After**                           | **Files Affected** |
+| -------------------------- | ----------------------------------------------- | ----------------------------------- | ------------------ |
+| **Duplicated Code**        | Query normalization in 4+ places                | Centralized in `QueryNamingService` | 8 files            |
+| **Long Methods**           | `loadQueryNames()` 50+ lines with `eval()`      | Pattern registry initialization     | 2 files            |
+| **State Mutation**         | `seenQueryNames` Map modified during extraction | Immutable pattern analysis          | 3 files            |
+| **Shotgun Surgery**        | Query naming changes affected 15+ files         | Single responsibility services      | 15+ files          |
+| **TypeScript Workarounds** | `eval()` usage with type assertions             | Type-safe pattern registry          | 3 files            |
 
 ### 🏗️ Architecture Improvements
 
 #### ✅ Centralized Services
+
 - **`QueryNamingService`**: Single source of truth for query naming
 - **`QueryPatternService`**: Pattern registry and analysis
 - **`QueryMigrator`**: Migration recommendations and transformations
 - **`PatternAwareASTStrategy`**: Enhanced extraction without normalization
 
 #### ✅ Immutable Processing
+
 ```typescript
 // OLD: State mutation during extraction
 this.seenQueryNames.set(name, content);
@@ -37,6 +39,7 @@ return { ...query, namePattern: patternInfo, contentFingerprint };
 ```
 
 #### ✅ Safe Migration Strategy
+
 ```typescript
 // OLD: Breaking dynamic selection
 query getVentureHomeDataByVentureIdDashboard { ... }
@@ -49,36 +52,43 @@ query ${queryNames.byIdV1} { ... }
 ## 🔧 Integration Points
 
 ### 1. **ExtractionContext** → Pattern-Aware
+
 - **Removed**: `queryNames` object, `seenQueryNames` Map
 - **Added**: `QueryNamingService` integration
 - **Deprecated**: `normalizeQueryName()` method
 - **New**: `getQueryNamingService()`, `initializeQueryNaming()`
 
 ### 2. **UnifiedExtractor** → Centralized Loading
+
 - **Removed**: Unsafe `eval()` in `loadQueryNames()`
 - **Added**: Pattern service initialization
 - **Benefit**: Type-safe configuration loading
 
 ### 3. **ASTStrategy** → Pattern-Based Resolution
+
 - **Removed**: Manual `resolveQueryNames()` logic
 - **Added**: Pattern-aware processing via service
 - **Benefit**: No more state mutations during extraction
 
 ### 4. **QueryNameAnalyzer** → Service-Driven
+
 - **Removed**: Direct normalization calls
 - **Added**: Centralized pattern processing
 - **Benefit**: Enhanced name detection for static queries
 
 ### 5. **NameNormalizer** → Pattern-Aware
+
 - **Added**: Pattern detection to skip dynamic queries
 - **Benefit**: Only normalizes static queries, preserves templates
 
 ### 6. **ExtractionPipeline** → Enhanced Flow
+
 - **Added**: Pattern initialization phase
 - **Added**: Pattern analysis logging
 - **Benefit**: Transparent pattern-aware processing
 
 ### 7. **CLI Integration** → New Commands
+
 - **Added**: `pattern-migrate` command in unified CLI
 - **Added**: Standalone pattern CLI tool
 - **Benefit**: Easy access to pattern-based analysis
@@ -86,6 +96,7 @@ query ${queryNames.byIdV1} { ... }
 ## 📈 Results Achieved
 
 ### ✅ **Application Logic Preserved**
+
 ```typescript
 // Dynamic selection still works
 const queryName = infinityStoneEnabled ? queryNames.byIdV3 : queryNames.byIdV1;
@@ -93,6 +104,7 @@ const query = gql`query ${queryName} { ... }`;
 ```
 
 ### ✅ **Safe Migration Recommendations**
+
 ```typescript
 // Instead of breaking the app with name changes
 // Provide clear guidance:
@@ -105,6 +117,7 @@ const query = gql`query ${queryName} { ... }`;
 ```
 
 ### ✅ **Content-Based Duplicate Detection**
+
 ```typescript
 // Same structure, different patterns = detected as duplicates
 query ${queryNames.byIdV1} { venture { id } }  // Fingerprint: abc123
@@ -112,6 +125,7 @@ query ${queryNames.byIdV2} { venture { id } }  // Fingerprint: abc123 ✓
 ```
 
 ### ✅ **Version Progression Tracking**
+
 ```typescript
 // Clear migration paths
 {
@@ -124,6 +138,7 @@ query ${queryNames.byIdV2} { venture { id } }  // Fingerprint: abc123 ✓
 ## 🚀 Usage Examples
 
 ### **CLI Usage**
+
 ```bash
 # Pattern-aware migration analysis
 npx tsx src/cli/unified-cli.ts pattern-migrate --directory ./src --verbose
@@ -136,6 +151,7 @@ npx tsx src/cli/pattern-based-migration.ts demo
 ```
 
 ### **Programmatic Usage**
+
 ```typescript
 import { PatternAwareExtraction, extractWithPatterns } from './src/core/extraction';
 
@@ -143,19 +159,16 @@ import { PatternAwareExtraction, extractWithPatterns } from './src/core/extracti
 const result = await extractWithPatterns({
   directory: './src',
   patterns: ['**/*.{ts,tsx}'],
-  resolveNames: true
+  resolveNames: true,
 });
 
 console.log(`Found ${result.migration.summary.needsMigration} queries needing migration`);
 ```
 
 ### **Service Integration**
+
 ```typescript
-import {
-  QueryNamingService,
-  QueryPatternService,
-  QueryMigrator
-} from './src/core/extraction';
+import { QueryNamingService, QueryPatternService, QueryMigrator } from './src/core/extraction';
 
 // Initialize services
 const patternService = new QueryPatternService();
@@ -170,11 +183,13 @@ const migrationResults = await migrator.migrateQueries(patternQueries);
 ## 🔒 Backward Compatibility
 
 ### **Safe Migration Path**
+
 1. **Phase 1**: All old methods marked `@deprecated` with warnings
 2. **Phase 2**: New pattern-based system handles all processing
 3. **Phase 3**: Gradual removal of deprecated methods (planned)
 
 ### **No Breaking Changes**
+
 - Old APIs still work but show deprecation warnings
 - Existing extraction continues to function
 - New capabilities added without disruption
@@ -182,11 +197,13 @@ const migrationResults = await migrator.migrateQueries(patternQueries);
 ## 🧪 Testing Coverage
 
 ### **Integration Tests**
+
 - **`PatternBasedIntegration.test.ts`**: End-to-end workflow testing
 - **`PatternBasedExtraction.test.ts`**: Core pattern service testing
 - **Real file processing**: Temporary file creation and analysis
 
 ### **Test Scenarios**
+
 - ✅ Pattern detection and analysis
 - ✅ Duplicate detection via fingerprinting
 - ✅ Migration recommendation generation
@@ -197,6 +214,7 @@ const migrationResults = await migrator.migrateQueries(patternQueries);
 ## 📂 Files Added/Modified
 
 ### **New Files** (Pattern-Based System)
+
 - `src/core/extraction/types/pattern.types.ts`
 - `src/core/extraction/services/QueryNamingService.ts`
 - `src/core/extraction/engine/QueryPatternRegistry.ts`
@@ -208,6 +226,7 @@ const migrationResults = await migrator.migrateQueries(patternQueries);
 - `src/test/integration/PatternBasedIntegration.test.ts`
 
 ### **Modified Files** (Integration)
+
 - `src/core/extraction/engine/ExtractionContext.ts` ✅
 - `src/core/extraction/engine/UnifiedExtractor.ts` ✅
 - `src/core/extraction/strategies/ASTStrategy.ts` ✅
@@ -221,18 +240,21 @@ const migrationResults = await migrator.migrateQueries(patternQueries);
 ## 🎉 Benefits Realized
 
 ### **For Developers**
+
 - 🎯 **Clear migration guidance**: Know exactly what to change
 - 🔒 **Safe refactoring**: No breaking of application logic
 - 📊 **Actionable insights**: Pattern analysis and recommendations
 - 🚀 **Better tooling**: Enhanced CLI commands and APIs
 
 ### **For Architecture**
+
 - 🏗️ **Centralized concerns**: Single responsibility services
 - 🔧 **Type safety**: No more `eval()` or unsafe operations
 - 📈 **Maintainability**: Clear service boundaries and interfaces
 - 🔄 **Extensibility**: Easy to add new patterns and migrations
 
 ### **For Operations**
+
 - 📋 **Migration tracking**: Clear before/after analysis
 - 🎛️ **Version management**: Proper V1→V2→V3 progression
 - 🚨 **Risk reduction**: Manual review flags for complex cases
@@ -241,7 +263,9 @@ const migrationResults = await migrator.migrateQueries(patternQueries);
 ## 🚀 **Technical Improvements Addressed**
 
 ### ✅ **Service Initialization Complexity → Factory Pattern**
+
 **Problem:** Manual service instantiation created tight coupling
+
 ```typescript
 // ❌ OLD: Tight coupling
 const patternService = new QueryPatternService();
@@ -250,6 +274,7 @@ const migrator = new QueryMigrator(patternService);
 ```
 
 **Solution:** Factory pattern with automatic dependency management
+
 ```typescript
 // ✅ NEW: Loose coupling via factory
 const services = await createDefaultQueryServices(options);
@@ -257,7 +282,9 @@ const { namingService, migrator } = services;
 ```
 
 ### ✅ **Comprehensive Caching Strategy**
+
 **Features:**
+
 - **Memory Management**: 50MB default limit with LRU eviction
 - **TTL-based Expiration**: 30-minute default cache lifetime
 - **Size Estimation**: Automatic memory usage tracking
@@ -265,38 +292,44 @@ const { namingService, migrator } = services;
 - **Invalidation Strategy**: Time-based and size-based eviction
 
 **Configuration:**
+
 ```typescript
 const services = await createQueryServices({
   options: { directory: './src' },
   enableCaching: true,
   cacheMaxSize: 100 * 1024 * 1024, // 100MB
   cacheTTL: 3600000, // 1 hour
-  enableIncrementalExtraction: true
+  enableIncrementalExtraction: true,
 });
 ```
 
 **Cache Performance Monitoring:**
+
 ```typescript
 const stats = await extraction.getCacheStats();
 // Returns: { entries, totalSize, maxSize, hitRate }
 ```
 
 ### ✅ **Incremental Extraction Support**
+
 **Features:**
+
 - **File Change Detection**: Only process modified files
 - **Timestamp Tracking**: Maintain last processed state
 - **Merge Strategies**: Combine new results with cached data
 - **Performance Gains**: 70-90% reduction in processing time for large codebases
 
 **Usage:**
+
 ```typescript
 const options = {
   directory: './src',
-  enableIncrementalExtraction: true
+  enableIncrementalExtraction: true,
 };
 ```
 
 ### ✅ **Comprehensive Documentation**
+
 - **[Troubleshooting Guide](./TROUBLESHOOTING.md)**: Practical debugging solutions
 - **[Glossary](./GLOSSARY.md)**: Technical term definitions
 - **Health Check Scripts**: Automated system validation
@@ -307,6 +340,7 @@ const options = {
 ## 🔧 **Enhanced Usage Examples**
 
 ### **Factory-Based Service Creation**
+
 ```typescript
 // Centralized service management
 import { createDefaultQueryServices } from './src/core/extraction';
@@ -314,7 +348,7 @@ import { createDefaultQueryServices } from './src/core/extraction';
 const services = await createDefaultQueryServices({
   directory: './src',
   patterns: ['**/*.{ts,tsx}'],
-  enableIncrementalExtraction: true
+  enableIncrementalExtraction: true,
 });
 
 // Access individual services
@@ -326,14 +360,15 @@ console.log(`Cache hit rate: ${cacheStats.hitRate}%`);
 ```
 
 ### **Performance-Optimized Extraction**
+
 ```typescript
 // High-performance configuration
 const extraction = new PatternAwareExtraction({
   directory: './src',
   patterns: ['src/components/**/*.tsx'], // Specific patterns
-  enableIncrementalExtraction: true,     // Only changed files
-  parallel: true,                        // Parallel processing
-  maxConcurrency: 8                      // Tuned for your system
+  enableIncrementalExtraction: true, // Only changed files
+  parallel: true, // Parallel processing
+  maxConcurrency: 8, // Tuned for your system
 });
 
 const result = await extraction.extract();
@@ -341,6 +376,7 @@ console.log('Cache performance:', result.cacheStats);
 ```
 
 ### **Production Monitoring**
+
 ```typescript
 // Health check and monitoring
 import { PatternAwareExtraction } from './src/core/extraction';
@@ -367,12 +403,14 @@ if (cacheStats.hitRate < 0.8) {
 ## 📊 **Performance Benchmarks**
 
 ### **Cache Effectiveness**
+
 - **Cold Cache**: ~2-3 seconds for 1000 queries
 - **Warm Cache**: ~0.3-0.5 seconds for 1000 queries
 - **Hit Rate Target**: 85%+ for typical usage patterns
 - **Memory Usage**: ~50-100 bytes per cached query
 
 ### **Incremental Extraction**
+
 - **Full Scan**: 100% of files processed
 - **Incremental**: 5-15% of files processed (typical change rate)
 - **Performance Gain**: 70-90% reduction in processing time
@@ -397,6 +435,7 @@ if (cacheStats.hitRate < 0.8) {
 The pattern-based migration system is now fully integrated and ready for production use. The architecture is **centralized**, **type-safe**, and **maintainable**, with **no loose ends** remaining.
 
 **Next Steps:**
+
 1. Run the integration tests to verify everything works
 2. Try the new CLI commands on your codebase
 3. Gradually migrate from deprecated APIs to new services

@@ -10,28 +10,32 @@ describe('OptimizedSchemaTransformer', () => {
     vi.resetModules();
 
     // Use comprehensive deprecation rules for consistency with production tests
-    const comprehensiveRules = [{
-      type: 'field' as const,
-      objectType: 'User',
-      fieldName: 'deprecated_field',
-      deprecationReason: 'Use new_field instead',
-      replacement: 'new_field',
-      isVague: false,
-      action: 'replace' as const
-    }, {
-      type: 'field' as const,
-      objectType: 'Profile',
-      fieldName: 'old_settings',
-      deprecationReason: 'Use settings instead',
-      replacement: 'settings',
-      isVague: false,
-      action: 'replace' as const
-    }, ...sampleDeprecationRules]; // Include original rules for other tests
+    const comprehensiveRules = [
+      {
+        type: 'field' as const,
+        objectType: 'User',
+        fieldName: 'deprecated_field',
+        deprecationReason: 'Use new_field instead',
+        replacement: 'new_field',
+        isVague: false,
+        action: 'replace' as const,
+      },
+      {
+        type: 'field' as const,
+        objectType: 'Profile',
+        fieldName: 'old_settings',
+        deprecationReason: 'Use settings instead',
+        replacement: 'settings',
+        isVague: false,
+        action: 'replace' as const,
+      },
+      ...sampleDeprecationRules,
+    ]; // Include original rules for other tests
 
     transformer = new OptimizedSchemaTransformer(comprehensiveRules, {
       commentOutVague: true,
       addDeprecationComments: true,
-      preserveOriginalAsComment: false
+      preserveOriginalAsComment: false,
     });
   });
 
@@ -173,7 +177,7 @@ query {
       expect(result.changes[0]).toMatchObject({
         type: 'nested-replacement',
         field: 'ventures',
-        replacement: 'CustomerQuery.ventures'
+        replacement: 'CustomerQuery.ventures',
       });
 
       // Check the transformed query structure
@@ -195,19 +199,19 @@ query {
       expect(result.changes).toHaveLength(3); // venture->ventureNode AND logoUrl->profile.logoUrl AND additional transformations
 
       // Check for venture rename
-      const ventureChange = result.changes.find(c => c.field === 'venture');
+      const ventureChange = result.changes.find((c) => c.field === 'venture');
       expect(ventureChange).toMatchObject({
         type: 'field-rename',
         field: 'venture',
-        replacement: 'ventureNode'
+        replacement: 'ventureNode',
       });
 
       // Check for logoUrl nested replacement
-      const logoUrlChange = result.changes.find(c => c.field === 'logoUrl');
+      const logoUrlChange = result.changes.find((c) => c.field === 'logoUrl');
       expect(logoUrlChange).toMatchObject({
         type: 'nested-replacement',
         field: 'logoUrl',
-        replacement: 'profile.logoUrl'
+        replacement: 'profile.logoUrl',
       });
 
       // Verify nested structure is created
@@ -229,7 +233,7 @@ query {
       const result = await transformer.transform(input);
 
       // Should have changes for vague deprecations
-      const commentedOut = result.changes.filter(c => c.type === 'comment-out');
+      const commentedOut = result.changes.filter((c) => c.type === 'comment-out');
       expect(commentedOut).toHaveLength(2); // accountId and data
 
       // Transformed query should have deprecated fields commented out
@@ -254,7 +258,7 @@ query GetProject($id: ID!) {
       expect(result.changes[0]).toMatchObject({
         type: 'field-rename',
         field: 'project',
-        replacement: 'projectNode'
+        replacement: 'projectNode',
       });
 
       // Arguments and directives should be preserved
@@ -270,13 +274,13 @@ query GetProject($id: ID!) {
       expect(result.changes.length).toBeGreaterThanOrEqual(3);
 
       // Check for specific transformations
-      const venturesChange = result.changes.find(c => c.field === 'ventures');
+      const venturesChange = result.changes.find((c) => c.field === 'ventures');
       expect(venturesChange).toBeDefined();
 
-      const logoUrlChange = result.changes.find(c => c.field === 'logoUrl');
+      const logoUrlChange = result.changes.find((c) => c.field === 'logoUrl');
       expect(logoUrlChange).toBeDefined();
 
-      const projectChange = result.changes.find(c => c.field === 'project');
+      const projectChange = result.changes.find((c) => c.field === 'project');
       expect(projectChange).toBeDefined();
     });
 

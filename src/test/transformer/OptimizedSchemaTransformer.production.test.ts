@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { OptimizedSchemaTransformer } from '../../core/transformer/OptimizedSchemaTransformer.js';
 import { TestSchemaLoader } from '../utils/schemaLoader.js';
 import { performanceMonitor, monitor } from '../../core/monitoring/PerformanceMonitor.js';
-import { transformCache } from 'from '../../core/cache/CacheManager.js'.js';
+import { transformCache } from '../../core/cache/CacheManager.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { parse } from 'graphql';
@@ -16,95 +16,107 @@ describe('OptimizedSchemaTransformer - Production Schema Tests', () => {
     productionSchema = await TestSchemaLoader.loadSchema(schemaPath);
 
     // Create deprecation rules for testing
-    const deprecationRules = [{
-      type: 'field' as const,
-      objectType: 'User',
-      fieldName: 'deprecated_field',
-      deprecationReason: 'Use new_field instead',
-      replacement: 'new_field',
-      isVague: false,
-      action: 'replace' as const
-    }, {
-      type: 'field' as const,
-      objectType: 'CurrentUser',
-      fieldName: 'deprecated_field',
-      deprecationReason: 'Use new_field instead',
-      replacement: 'new_field',
-      isVague: false,
-      action: 'replace' as const
-    }, {
-      type: 'field' as const,
-      objectType: 'Profile',
-      fieldName: 'old_settings',
-      deprecationReason: 'Use settings instead',
-      replacement: 'settings',
-      isVague: false,
-      action: 'replace' as const
-    }, {
-      type: 'field' as const,
-      objectType: 'Project',
-      fieldName: 'deprecated_status',
-      deprecationReason: 'Use status instead',
-      replacement: 'status',
-      isVague: false,
-      action: 'replace' as const
-    }, {
-      type: 'field' as const,
-      objectType: 'Post',
-      fieldName: 'old_content',
-      deprecationReason: 'Use content instead',
-      replacement: 'content',
-      isVague: false,
-      action: 'replace' as const
-    }, {
-      type: 'field' as const,
-      objectType: 'User',
-      fieldName: 'deprecated_role',
-      deprecationReason: 'Use role instead',
-      replacement: 'role',
-      isVague: false,
-      action: 'replace' as const
-    }, {
-      type: 'field' as const,
-      objectType: 'Comment',
-      fieldName: 'deprecated_status',
-      deprecationReason: 'Use status instead',
-      replacement: 'status',
-      isVague: false,
-      action: 'replace' as const
-    }, {
-      type: 'field' as const,
-      objectType: 'Settings',
-      fieldName: 'old_permission_model',
-      deprecationReason: 'Use permission_model instead',
-      replacement: 'permission_model',
-      isVague: false,
-      action: 'replace' as const
-    }, {
-      type: 'field' as const,
-      objectType: 'Features',
-      fieldName: 'deprecated_flag',
-      deprecationReason: 'Use flag instead',
-      replacement: 'flag',
-      isVague: false,
-      action: 'replace' as const
-    }, {
-      type: 'field' as const,
-      objectType: 'User',
-      fieldName: 'old_avatar',
-      deprecationReason: 'Use avatar instead',
-      replacement: 'avatar',
-      isVague: false,
-      action: 'replace' as const
-    }, {
-      type: 'field' as const,
-      objectType: 'SocialLink',
-      fieldName: 'deprecated_verified',
-      deprecationReason: 'Use verified instead',
-      replacement: 'verified',
-      isVague: false,
-      action: 'replace' as const
-    }];
+    const deprecationRules = [
+      {
+        type: 'field' as const,
+        objectType: 'User',
+        fieldName: 'deprecated_field',
+        deprecationReason: 'Use new_field instead',
+        replacement: 'new_field',
+        isVague: false,
+        action: 'replace' as const,
+      },
+      {
+        type: 'field' as const,
+        objectType: 'CurrentUser',
+        fieldName: 'deprecated_field',
+        deprecationReason: 'Use new_field instead',
+        replacement: 'new_field',
+        isVague: false,
+        action: 'replace' as const,
+      },
+      {
+        type: 'field' as const,
+        objectType: 'Profile',
+        fieldName: 'old_settings',
+        deprecationReason: 'Use settings instead',
+        replacement: 'settings',
+        isVague: false,
+        action: 'replace' as const,
+      },
+      {
+        type: 'field' as const,
+        objectType: 'Project',
+        fieldName: 'deprecated_status',
+        deprecationReason: 'Use status instead',
+        replacement: 'status',
+        isVague: false,
+        action: 'replace' as const,
+      },
+      {
+        type: 'field' as const,
+        objectType: 'Post',
+        fieldName: 'old_content',
+        deprecationReason: 'Use content instead',
+        replacement: 'content',
+        isVague: false,
+        action: 'replace' as const,
+      },
+      {
+        type: 'field' as const,
+        objectType: 'User',
+        fieldName: 'deprecated_role',
+        deprecationReason: 'Use role instead',
+        replacement: 'role',
+        isVague: false,
+        action: 'replace' as const,
+      },
+      {
+        type: 'field' as const,
+        objectType: 'Comment',
+        fieldName: 'deprecated_status',
+        deprecationReason: 'Use status instead',
+        replacement: 'status',
+        isVague: false,
+        action: 'replace' as const,
+      },
+      {
+        type: 'field' as const,
+        objectType: 'Settings',
+        fieldName: 'old_permission_model',
+        deprecationReason: 'Use permission_model instead',
+        replacement: 'permission_model',
+        isVague: false,
+        action: 'replace' as const,
+      },
+      {
+        type: 'field' as const,
+        objectType: 'Features',
+        fieldName: 'deprecated_flag',
+        deprecationReason: 'Use flag instead',
+        replacement: 'flag',
+        isVague: false,
+        action: 'replace' as const,
+      },
+      {
+        type: 'field' as const,
+        objectType: 'User',
+        fieldName: 'old_avatar',
+        deprecationReason: 'Use avatar instead',
+        replacement: 'avatar',
+        isVague: false,
+        action: 'replace' as const,
+      },
+      {
+        type: 'field' as const,
+        objectType: 'SocialLink',
+        fieldName: 'deprecated_verified',
+        deprecationReason: 'Use verified instead',
+        replacement: 'verified',
+        isVague: false,
+        action: 'replace' as const,
+      },
+    ];
     transformer = new OptimizedSchemaTransformer(deprecationRules);
 
     // Clear cache for accurate performance testing
@@ -252,15 +264,17 @@ describe('OptimizedSchemaTransformer - Production Schema Tests', () => {
         `query GetUser2 { user(id: "2") { id name deprecated_field profile { old_settings } } }`,
         `query GetUser3 { user(id: "3") { id profile { bio old_settings } } }`,
         `query GetUser4 { user(id: "4") { id name deprecated_field } }`,
-        `query GetUser5 { user(id: "5") { id name deprecated_field profile { bio old_settings } } }`
+        `query GetUser5 { user(id: "5") { id name deprecated_field profile { bio old_settings } } }`,
       ];
       const opId = performanceMonitor.startOperation('transform-batch');
-      const results = await Promise.all(batchQueries.map((query, index) => transformer.transform(query)));
+      const results = await Promise.all(
+        batchQueries.map((query, index) => transformer.transform(query)),
+      );
       performanceMonitor.endOperation(opId);
 
       // All should be transformed successfully
       expect(results).toHaveLength(5);
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.transformed).toBeDefined();
         expect(result.changes.length).toBeGreaterThan(0);
       });
@@ -363,26 +377,32 @@ describe('OptimizedSchemaTransformer - Production Schema Tests', () => {
   });
   describe('Performance Benchmarks', () => {
     it('should meet performance targets for various query sizes', async () => {
-      const performanceTargets = [{
-        size: 'small',
-        lines: 10,
-        maxDuration: 50
-      }, {
-        size: 'medium',
-        lines: 50,
-        maxDuration: 200
-      }, {
-        size: 'large',
-        lines: 200,
-        maxDuration: 1000
-      }];
+      const performanceTargets = [
+        {
+          size: 'small',
+          lines: 10,
+          maxDuration: 50,
+        },
+        {
+          size: 'medium',
+          lines: 50,
+          maxDuration: 200,
+        },
+        {
+          size: 'large',
+          lines: 200,
+          maxDuration: 1000,
+        },
+      ];
       for (const target of performanceTargets) {
         const query = generateQueryOfSize(target.lines);
         const opId = performanceMonitor.startOperation(`benchmark-${target.size}`);
         await transformer.transform(query);
         const metrics = performanceMonitor.endOperation(opId);
         expect(metrics?.duration).toBeLessThan(target.maxDuration);
-        logger.info(`${target.size} query (${target.lines} lines): ${metrics?.duration?.toFixed(2)}ms`);
+        logger.info(
+          `${target.size} query (${target.lines} lines): ${metrics?.duration?.toFixed(2)}ms`,
+        );
       }
     });
     it('should demonstrate cache effectiveness', async () => {
@@ -426,20 +446,24 @@ describe('OptimizedSchemaTransformer - Production Schema Tests', () => {
       expect(afterStats.hitRate).toBeGreaterThan(0.3);
 
       // Average duration of cached runs should be much lower
-      const cachedAvg = durations.slice(1).reduce((a, b) => a + b, 0) / ((durations && durations.length) - 1);
+      const cachedAvg =
+        durations.slice(1).reduce((a, b) => a + b, 0) / ((durations && durations.length) - 1);
       expect(cachedAvg).toBeLessThan(durations[0] * 0.5);
-      logger.info(`Cache performance: First run: ${durations[0].toFixed(2)}ms, Cached avg: ${cachedAvg.toFixed(2)}ms`);
+      logger.info(
+        `Cache performance: First run: ${durations[0].toFixed(2)}ms, Cached avg: ${cachedAvg.toFixed(2)}ms`,
+      );
     });
   });
   describe('Error Handling and Edge Cases', () => {
     it('should handle malformed queries gracefully', async () => {
-      const malformedQueries = ['{ user { id name deprecated_field',
-      // Missing closing braces
-      'query { user(id: $id) { name } }',
-      // Undefined variable
-      '{ ...UserFields }',
-      // Undefined fragment
-      '{ user { ...on Unknown { id } } }' // Unknown type
+      const malformedQueries = [
+        '{ user { id name deprecated_field',
+        // Missing closing braces
+        'query { user(id: $id) { name } }',
+        // Undefined variable
+        '{ ...UserFields }',
+        // Undefined fragment
+        '{ user { ...on Unknown { id } } }', // Unknown type
       ];
       for (const query of malformedQueries) {
         const opId = performanceMonitor.startOperation('transform-malformed');
@@ -467,7 +491,7 @@ function generateQueryOfSize(lines: number): string {
   let query = 'query LargeQuery {\n';
   for (let i = 0; i < lines - 2; i++) {
     const field = fields[i % fields.length];
-    const indent = '  '.repeat(i % 3 + 1);
+    const indent = '  '.repeat((i % 3) + 1);
     if (i % 5 === 0) {
       query += `${indent}user${i} {\n`;
     } else if (i % 5 === 4) {

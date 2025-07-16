@@ -39,21 +39,21 @@ describe('unified-cli migrate command', () => {
   describe('Dependencies', () => {
     it('should be able to import MigrationOrchestrator', async () => {
       const imported = await import('../../core/MigrationOrchestrator.js');
-    const { MigrationOrchestrator } = imported;
+      const { MigrationOrchestrator } = imported;
       expect(MigrationOrchestrator).toBeDefined();
       expect(typeof MigrationOrchestrator).toBe('function');
     });
 
     it('should be able to import ConfigLoader', async () => {
       const imported = await import('../../utils/ConfigLoader.js');
-    const { ConfigLoader } = imported;
+      const { ConfigLoader } = imported;
       expect(ConfigLoader).toBeDefined();
       expect(typeof ConfigLoader.load).toBe('function');
     });
 
     it('should be able to import logger', async () => {
       const imported = await import('../../utils/logger.js');
-    const { logger } = imported;
+      const { logger } = imported;
       expect(logger).toBeDefined();
       expect(typeof logger.info).toBe('function');
       expect(typeof logger.error).toBe('function');
@@ -61,7 +61,7 @@ describe('unified-cli migrate command', () => {
 
     it('should be able to import GitHubService', async () => {
       const imported = await import('../../core/integration/GitHubService.js');
-    const { GitHubService } = imported;
+      const { GitHubService } = imported;
       expect(GitHubService).toBeDefined();
       expect(typeof GitHubService).toBe('function');
     });
@@ -80,7 +80,7 @@ describe('unified-cli migrate command', () => {
 
     it('should be able to import commander', async () => {
       const imported = await import('commander');
-    const { Command } = imported;
+      const { Command } = imported;
       expect(typeof Command).toBe('function');
     });
   });
@@ -90,8 +90,8 @@ describe('unified-cli migrate command', () => {
       const mockAnalysis = {
         operations: [
           { id: '1', name: 'TestQuery', type: 'Query' },
-          { id: '2', name: 'TestMutation', type: 'Mutation' }
-        ]
+          { id: '2', name: 'TestMutation', type: 'Mutation' },
+        ],
       };
 
       expect(Array.isArray(mockAnalysis.operations)).toBe(true);
@@ -102,7 +102,7 @@ describe('unified-cli migrate command', () => {
     it('should handle validation results format', async () => {
       const mockValidation = {
         valid: true,
-        errors: []
+        errors: [],
       };
 
       expect(mockValidation).toHaveProperty('valid');
@@ -114,7 +114,7 @@ describe('unified-cli migrate command', () => {
         transformed: 2,
         automatic: 1,
         semiAutomatic: 1,
-        manual: 0
+        manual: 0,
       };
 
       expect(mockTransform).toHaveProperty('transformed');
@@ -124,7 +124,7 @@ describe('unified-cli migrate command', () => {
 
     it('should handle application results format', async () => {
       const mockApply = {
-        count: 2
+        count: 2,
       };
 
       expect(mockApply).toHaveProperty('count');
@@ -135,7 +135,7 @@ describe('unified-cli migrate command', () => {
   describe('Configuration', () => {
     it('should handle config structure', async () => {
       const mockConfig = {
-        source: { include: ['./src'] }
+        source: { include: ['./src'] },
       };
 
       expect(mockConfig).toHaveProperty('source');
@@ -158,7 +158,7 @@ describe('unified-cli migrate command', () => {
         title: 'GraphQL Migration: 2 operations updated',
         body: 'Migration summary body',
         base: 'develop',
-        draft: false
+        draft: false,
       };
 
       expect(prOptions).toHaveProperty('title');
@@ -171,7 +171,7 @@ describe('unified-cli migrate command', () => {
       const mockPR = {
         url: 'https://github.com/test/repo/pull/123',
         number: 123,
-        state: 'open'
+        state: 'open',
       };
 
       expect(mockPR).toHaveProperty('url');
@@ -204,7 +204,7 @@ describe('unified-cli migrate command', () => {
       const transformOptions = {
         source: './src',
         minConfidence: 90,
-        dryRun: true
+        dryRun: true,
       };
 
       expect(transformOptions).toHaveProperty('dryRun');
@@ -225,7 +225,7 @@ describe('unified-cli migrate command', () => {
     it('should handle rollout percentages', async () => {
       const rolloutOptions = [1, 5, 10, 25, 50, 100];
 
-      rolloutOptions.forEach(percentage => {
+      rolloutOptions.forEach((percentage) => {
         expect(typeof percentage).toBe('number');
         expect(percentage).toBeGreaterThan(0);
         expect(percentage).toBeLessThanOrEqual(100);

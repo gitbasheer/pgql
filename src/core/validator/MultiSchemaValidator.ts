@@ -36,7 +36,7 @@ export class MultiSchemaValidator {
 
   async initialize(): Promise<void> {
     logger.info('Initializing multi-schema validator...');
-    
+
     for (const [schemaName, schemaConfig] of Object.entries(this.config.schemas)) {
       try {
         const validator = new SchemaValidator();
@@ -51,14 +51,14 @@ export class MultiSchemaValidator {
 
   async validateQuery(
     query: { id: string; name: string; content: string },
-    forceSchema?: string
+    forceSchema?: string,
   ): Promise<MultiSchemaValidationResult> {
     // Classify the query to determine which schema to use
     const classification = QuerySchemaClassifier.classifyQuery(query.id, query.name, query.content);
-    
+
     // Determine which schema to use
     let schemaToUse = forceSchema || classification.detectedSchema;
-    
+
     // Fallback to default if unknown
     if (schemaToUse === 'unknown' || !this.validators.has(schemaToUse)) {
       schemaToUse = this.config.defaultSchema;
@@ -66,7 +66,7 @@ export class MultiSchemaValidator {
 
     // Get the appropriate validator
     const validator = this.validators.get(schemaToUse);
-    
+
     if (!validator) {
       return {
         queryId: query.id,
@@ -74,16 +74,18 @@ export class MultiSchemaValidator {
         schema: schemaToUse,
         validationResult: {
           valid: false,
-          errors: [{
-            message: `No validator available for schema: ${schemaToUse}`,
-            type: 'schema'
-          }],
-          warnings: []
+          errors: [
+            {
+              message: `No validator available for schema: ${schemaToUse}`,
+              type: 'schema',
+            },
+          ],
+          warnings: [],
         },
         classification: {
           detectedSchema: classification.detectedSchema,
-          confidence: classification.confidence
-        }
+          confidence: classification.confidence,
+        },
       };
     }
 
@@ -97,13 +99,13 @@ export class MultiSchemaValidator {
       validationResult,
       classification: {
         detectedSchema: classification.detectedSchema,
-        confidence: classification.confidence
-      }
+        confidence: classification.confidence,
+      },
     };
   }
 
   async validateQueries(
-    queries: Array<{ id: string; name: string; content: string }>
+    queries: Array<{ id: string; name: string; content: string }>,
   ): Promise<Map<string, MultiSchemaValidationResult>> {
     const results = new Map<string, MultiSchemaValidationResult>();
 
@@ -122,26 +124,26 @@ export class MultiSchemaValidator {
       summary: {
         valid: 0,
         invalid: 0,
-        warnings: 0
-      }
+        warnings: 0,
+      },
     };
 
     // Group results by schema
     for (const [queryId, result] of results.entries()) {
       const schema = result.schema;
-      
+
       if (!report.bySchema[schema]) {
         report.bySchema[schema] = {
           total: 0,
           valid: 0,
           invalid: 0,
           warnings: 0,
-          queries: []
+          queries: [],
         };
       }
 
       report.bySchema[schema].total++;
-      
+
       if (result.validationResult.valid) {
         report.bySchema[schema].valid++;
         report.summary.valid++;
@@ -161,7 +163,7 @@ export class MultiSchemaValidator {
         valid: result.validationResult.valid,
         errors: result.validationResult.errors.length,
         warnings: result.validationResult.warnings.length,
-        classification: result.classification
+        classification: result.classification,
       });
     }
 
@@ -182,10 +184,10 @@ export class MultiSchemaValidator {
           customer: {
             path: './data/schema.graphql',
             endpoint: 'https://pg.api.godaddy.com/v1/gql/customer',
-            description: 'Customer API schema'
-          }
+            description: 'Customer API schema',
+          },
         },
-        defaultSchema: 'customer'
+        defaultSchema: 'customer',
       };
     }
   }

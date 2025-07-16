@@ -35,14 +35,14 @@ export class GoDaddyEndpointConfig {
         maxRetries: 3,
         initialDelay: 1000,
         maxDelay: 10000,
-        backoffMultiplier: 2
+        backoffMultiplier: 2,
       },
       headers: {
         'User-Agent': 'pg-migration-620/1.0.0',
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        'x-app-key': 'vnext-dashboard'
-      }
+        'x-app-key': 'vnext-dashboard',
+      },
     };
 
     // Configure authentication
@@ -55,11 +55,11 @@ export class GoDaddyEndpointConfig {
             auth_idp: sso.authIdp,
             cust_idp: sso.custIdp,
             info_cust_idp: sso.infoCustIdp,
-            info_idp: sso.infoIdp
+            info_idp: sso.infoIdp,
           },
           secure: true,
-          sameSite: 'none'
-        }
+          sameSite: 'none',
+        },
       };
     } else if (autoSSO && ssoCredentials) {
       // SSO with auto-login
@@ -69,8 +69,8 @@ export class GoDaddyEndpointConfig {
           provider: 'godaddy',
           credentials: ssoCredentials,
           requiredCookies: this.REQUIRED_COOKIES,
-          tokenRefreshInterval: 3600000 // 1 hour
-        }
+          tokenRefreshInterval: 3600000, // 1 hour
+        },
       };
     } else {
       logger.warn('No authentication configured for GoDaddy endpoint');
@@ -84,7 +84,7 @@ export class GoDaddyEndpointConfig {
    */
   static createEndpoints(apis: string[], options: GoDaddyEndpointOptions = {}): EndpointConfig[] {
     // For future use when multiple endpoints are needed
-    return apis.map(api => {
+    return apis.map((api) => {
       const config = this.createEndpoint(options);
       config.url = `https://pg.api.godaddy.com/v1/gql/${api}`;
       config.name = `godaddy-pg-api-${api}`;
@@ -96,7 +96,7 @@ export class GoDaddyEndpointConfig {
    * Validate that all required cookies are present
    */
   static validateCookies(cookies: Record<string, string>): boolean {
-    return this.REQUIRED_COOKIES.every(name => name in cookies && cookies[name]);
+    return this.REQUIRED_COOKIES.every((name) => name in cookies && cookies[name]);
   }
 
   /**
@@ -104,12 +104,15 @@ export class GoDaddyEndpointConfig {
    */
   static parseCookieString(cookieString: string): Record<string, string> {
     const cookies: Record<string, string> = {};
-    cookieString.split(';').forEach(cookie => {
-      const [name, value] = cookie.trim().split('=').map(s => s?.trim());
+    cookieString.split(';').forEach((cookie) => {
+      const [name, value] = cookie
+        .trim()
+        .split('=')
+        .map((s) => s?.trim());
       if (name && value) {
         cookies[name] = value;
       }
     });
     return cookies;
   }
-} 
+}

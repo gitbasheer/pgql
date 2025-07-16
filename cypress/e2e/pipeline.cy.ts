@@ -1,6 +1,8 @@
 describe('Full pipeline on mock vnext-dashboard', () => {
   it('runs extraction to PR gen', () => {
-    cy.exec('node dist/cli/main-cli.js --repo-url mock-vnext --schema productGraph --test-account test-user');
+    cy.exec(
+      'node dist/cli/main-cli.js --repo-url mock-vnext --schema productGraph --test-account test-user',
+    );
     // Assert logs, no errors, PR file generated
     cy.readFile('output/pr-content.md').should('exist');
     cy.readFile('output/migration-report.json').then((report) => {
@@ -11,7 +13,9 @@ describe('Full pipeline on mock vnext-dashboard', () => {
   });
 
   it('validates transformed queries against schema', () => {
-    cy.exec('node dist/cli/main-cli.js validate --schema productGraph --queries output/transformed-queries.json');
+    cy.exec(
+      'node dist/cli/main-cli.js validate --schema productGraph --queries output/transformed-queries.json',
+    );
     cy.readFile('output/validation-report.json').then((report) => {
       expect(report.errors).to.have.length(0);
       expect(report.warnings).to.be.an('array');

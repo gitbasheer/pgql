@@ -23,7 +23,10 @@ describe('usePipelineLogs', () => {
     renderHook(() => usePipelineLogs(mockSocket as any));
 
     expect(mockSocket.on).toHaveBeenCalledWith('log', expect.any(Function));
-    expect(mockSocket.on).toHaveBeenCalledWith('pipeline:log', expect.any(Function));
+    expect(mockSocket.on).toHaveBeenCalledWith(
+      'pipeline:log',
+      expect.any(Function)
+    );
   });
 
   it('should not set up listeners when socket is null', () => {
@@ -37,7 +40,7 @@ describe('usePipelineLogs', () => {
 
     // Get the log handler
     const logHandler = mockSocket.on.mock.calls.find(
-      call => call[0] === 'log'
+      (call) => call[0] === 'log'
     )?.[1];
 
     expect(logHandler).toBeDefined();
@@ -64,7 +67,7 @@ describe('usePipelineLogs', () => {
 
     // Get the pipeline log handler
     const pipelineLogHandler = mockSocket.on.mock.calls.find(
-      call => call[0] === 'pipeline:log'
+      (call) => call[0] === 'pipeline:log'
     )?.[1];
 
     expect(pipelineLogHandler).toBeDefined();
@@ -92,7 +95,7 @@ describe('usePipelineLogs', () => {
 
     // Add some logs first
     const logHandler = mockSocket.on.mock.calls.find(
-      call => call[0] === 'log'
+      (call) => call[0] === 'log'
     )?.[1];
 
     act(() => {
@@ -116,7 +119,10 @@ describe('usePipelineLogs', () => {
     unmount();
 
     expect(mockSocket.off).toHaveBeenCalledWith('log', expect.any(Function));
-    expect(mockSocket.off).toHaveBeenCalledWith('pipeline:log', expect.any(Function));
+    expect(mockSocket.off).toHaveBeenCalledWith(
+      'pipeline:log',
+      expect.any(Function)
+    );
   });
 
   it('should handle socket change gracefully', () => {
@@ -139,14 +145,26 @@ describe('usePipelineLogs', () => {
     const { result } = renderHook(() => usePipelineLogs(mockSocket as any));
 
     const logHandler = mockSocket.on.mock.calls.find(
-      call => call[0] === 'log'
+      (call) => call[0] === 'log'
     )?.[1];
 
     // Add logs in sequence
     act(() => {
-      logHandler?.({ level: 'info', message: 'First log', timestamp: '2024-01-01T00:00:00Z' });
-      logHandler?.({ level: 'warn', message: 'Second log', timestamp: '2024-01-01T00:01:00Z' });
-      logHandler?.({ level: 'error', message: 'Third log', timestamp: '2024-01-01T00:02:00Z' });
+      logHandler?.({
+        level: 'info',
+        message: 'First log',
+        timestamp: '2024-01-01T00:00:00Z',
+      });
+      logHandler?.({
+        level: 'warn',
+        message: 'Second log',
+        timestamp: '2024-01-01T00:01:00Z',
+      });
+      logHandler?.({
+        level: 'error',
+        message: 'Third log',
+        timestamp: '2024-01-01T00:02:00Z',
+      });
     });
 
     expect(result.current.logs).toHaveLength(3);
@@ -164,7 +182,7 @@ describe('usePipelineLogs', () => {
     });
 
     const logHandler = mockSocket.on.mock.calls.find(
-      call => call[0] === 'log'
+      (call) => call[0] === 'log'
     )?.[1];
 
     // Send malformed log data

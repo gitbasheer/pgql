@@ -15,8 +15,8 @@ describe('Transformation and util/PR generation', () => {
         deprecationReason: 'Use profile.logoUrl',
         replacement: 'profile.logoUrl',
         isVague: false,
-        action: 'replace'
-      }
+        action: 'replace',
+      },
     ];
     transformer = new OptimizedSchemaTransformer(deprecationRules);
   });
@@ -46,7 +46,7 @@ describe('Transformation and util/PR generation', () => {
         deprecationReason: 'Use profile.description',
         replacement: 'profile.description',
         isVague: false,
-        action: 'replace'
+        action: 'replace',
       },
       {
         type: 'field',
@@ -55,8 +55,8 @@ describe('Transformation and util/PR generation', () => {
         deprecationReason: 'Use contact.email',
         replacement: 'contact.email',
         isVague: false,
-        action: 'replace'
-      }
+        action: 'replace',
+      },
     ];
     const complexTransformer = new OptimizedSchemaTransformer(moreRules);
     const oldQuery = `
@@ -74,9 +74,9 @@ describe('Transformation and util/PR generation', () => {
     const deprecations = [
       { field: 'logoUrl', replacement: 'profile.logoUrl' },
       { field: 'description', replacement: 'profile.description' },
-      { field: 'owner.email', replacement: 'owner.contact.email' }
+      { field: 'owner.email', replacement: 'owner.contact.email' },
     ];
-    
+
     const result = await complexTransformer.transform(oldQuery);
     expect(result.transformed).toContain('profile');
     expect(result.transformed).toContain('logoUrl');
@@ -87,17 +87,17 @@ describe('Transformation and util/PR generation', () => {
       venture: {
         id: '123',
         logoUrl: 'logo.png',
-        owner: { email: 'test@example.com' }
-      }
+        owner: { email: 'test@example.com' },
+      },
     };
     const newResponse = {
       venture: {
         id: '123',
         profile: { logoUrl: 'logo.png' },
-        owner: { contact: { email: 'test@example.com' } }
-      }
+        owner: { contact: { email: 'test@example.com' } },
+      },
     };
-    
+
     const mapper = transformer.generateResponseMapper('GetVenture', oldResponse, newResponse);
     expect(mapper).toContain('mapGetVentureResponse');
     expect(mapper).toContain('// Maps new API response to old format for backward compatibility');
@@ -111,10 +111,10 @@ describe('Transformation and util/PR generation', () => {
         file: 'src/queries/venture.js',
         oldContent: 'query { venture { logoUrl } }',
         newContent: 'query { venture { profile { logoUrl } } }',
-        utilGenerated: true
-      }
+        utilGenerated: true,
+      },
     ];
-    
+
     const prContent = transformer.generatePRContent(changes);
     expect(prContent).toContain('## GraphQL Schema Migration');
     expect(prContent).toContain('### Files Changed');

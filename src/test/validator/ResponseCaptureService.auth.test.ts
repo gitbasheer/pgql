@@ -24,9 +24,9 @@ describe('ResponseCaptureService - Authentication Configuration', () => {
       post: vi.fn<any, any>(),
       interceptors: {
         response: {
-          use: vi.fn()
-        }
-      } as any
+          use: vi.fn(),
+        },
+      } as any,
     };
 
     // Setup axios mocks
@@ -50,7 +50,7 @@ describe('ResponseCaptureService - Authentication Configuration', () => {
   it('should configure bearer token authentication', async () => {
     const bearerEndpoint: EndpointConfig = {
       url: 'https://api.example.com/graphql',
-      authentication: { type: 'bearer', token: 'my-token' }
+      authentication: { type: 'bearer', token: 'my-token' },
     };
 
     service = new ResponseCaptureService([bearerEndpoint]);
@@ -58,9 +58,9 @@ describe('ResponseCaptureService - Authentication Configuration', () => {
     expect(mockedAxios.create).toHaveBeenCalledWith(
       expect.objectContaining({
         headers: expect.objectContaining({
-          'Authorization': 'Bearer my-token'
-        })
-      })
+          Authorization: 'Bearer my-token',
+        }),
+      }),
     );
   });
 
@@ -70,8 +70,8 @@ describe('ResponseCaptureService - Authentication Configuration', () => {
       authentication: {
         type: 'api-key',
         token: 'api-key-123',
-        header: 'X-Custom-Key'
-      }
+        header: 'X-Custom-Key',
+      },
     };
 
     service = new ResponseCaptureService([apiKeyEndpoint]);
@@ -79,9 +79,9 @@ describe('ResponseCaptureService - Authentication Configuration', () => {
     expect(mockedAxios.create).toHaveBeenCalledWith(
       expect.objectContaining({
         headers: expect.objectContaining({
-          'X-Custom-Key': 'api-key-123'
-        })
-      })
+          'X-Custom-Key': 'api-key-123',
+        }),
+      }),
     );
   });
 
@@ -93,10 +93,10 @@ describe('ResponseCaptureService - Authentication Configuration', () => {
         cookies: {
           cookies: {
             session: 'abc123',
-            auth: 'xyz789'
-          }
-        }
-      }
+            auth: 'xyz789',
+          },
+        },
+      },
     };
 
     service = new ResponseCaptureService([cookieEndpoint]);
@@ -104,16 +104,16 @@ describe('ResponseCaptureService - Authentication Configuration', () => {
     expect(mockedAxios.create).toHaveBeenCalledWith(
       expect.objectContaining({
         headers: expect.objectContaining({
-          'Cookie': 'session=abc123; auth=xyz789'
+          Cookie: 'session=abc123; auth=xyz789',
         }),
-        withCredentials: true
-      })
+        withCredentials: true,
+      }),
     );
   });
 
   it('should handle no authentication', async () => {
     const noAuthEndpoint: EndpointConfig = {
-      url: 'https://api.example.com/graphql'
+      url: 'https://api.example.com/graphql',
     };
 
     service = new ResponseCaptureService([noAuthEndpoint]);
@@ -121,9 +121,9 @@ describe('ResponseCaptureService - Authentication Configuration', () => {
     expect(mockedAxios.create).toHaveBeenCalledWith(
       expect.objectContaining({
         headers: {
-          'Content-Type': 'application/json'
-        }
-      })
+          'Content-Type': 'application/json',
+        },
+      }),
     );
   });
 
@@ -134,9 +134,9 @@ describe('ResponseCaptureService - Authentication Configuration', () => {
         type: 'sso',
         ssoConfig: {
           provider: 'godaddy',
-          loginEndpoint: 'https://sso.godaddy.com/login'
-        }
-      }
+          loginEndpoint: 'https://sso.godaddy.com/login',
+        },
+      },
     };
 
     service = new ResponseCaptureService([ssoEndpoint]);
@@ -150,8 +150,8 @@ describe('ResponseCaptureService - Authentication Configuration', () => {
       url: 'https://api.example.com/graphql',
       authentication: {
         type: 'api-key',
-        token: 'api-key-456'
-      }
+        token: 'api-key-456',
+      },
     };
 
     service = new ResponseCaptureService([apiKeyEndpoint]);
@@ -159,9 +159,9 @@ describe('ResponseCaptureService - Authentication Configuration', () => {
     expect(mockedAxios.create).toHaveBeenCalledWith(
       expect.objectContaining({
         headers: expect.objectContaining({
-          'X-API-Key': 'api-key-456'
-        })
-      })
+          'X-API-Key': 'api-key-456',
+        }),
+      }),
     );
   });
 
@@ -173,8 +173,8 @@ describe('ResponseCaptureService - Authentication Configuration', () => {
         customAuth: async (request) => {
           request.headers = { ...request.headers, 'X-Custom-Auth': 'custom-value' };
           return request;
-        }
-      }
+        },
+      },
     };
 
     service = new ResponseCaptureService([customAuthEndpoint]);

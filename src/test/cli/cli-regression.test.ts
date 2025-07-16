@@ -10,7 +10,7 @@ vi.mock('process.env', () => ({
   auth_idp: 'mock-auth-idp-token',
   cust_idp: 'mock-cust-idp-token',
   info_cust_idp: 'mock-info-cust-idp-token',
-  info_idp: 'mock-info-idp-token'
+  info_idp: 'mock-info-idp-token',
 }));
 
 describe('CLI Regression Test Suite', () => {
@@ -34,17 +34,17 @@ describe('CLI Regression Test Suite', () => {
   describe('Backward Compatibility Tests', () => {
     it('should maintain v0.9 output format when legacy flag is used', async () => {
       const result = await executeCommand([
-        'tsx', 
-        'src/cli/main-cli.ts', 
-        'extract', 
+        'tsx',
+        'src/cli/main-cli.ts',
+        'extract',
         'queries',
         '--legacy-format',
-        '--json'
+        '--json',
       ]);
 
       if (result.exitCode === 0) {
         const output = JSON.parse(result.stdout);
-        
+
         // Legacy format expectations
         expect(output).toHaveProperty('queries');
         expect(output).toHaveProperty('total');
@@ -55,7 +55,7 @@ describe('CLI Regression Test Suite', () => {
 
     it('should produce stable output across multiple runs', async () => {
       const runs = [];
-      
+
       // Run the same command 3 times
       for (let i = 0; i < 3; i++) {
         const result = await executeCommand([
@@ -64,9 +64,10 @@ describe('CLI Regression Test Suite', () => {
           'extract',
           'queries',
           '--json',
-          '--output-version', '1.0'
+          '--output-version',
+          '1.0',
         ]);
-        
+
         if (result.exitCode === 0) {
           const output = JSON.parse(result.stdout);
           // Remove timestamp for comparison
@@ -89,20 +90,20 @@ describe('CLI Regression Test Suite', () => {
         command: 'extract',
         oldArgs: ['-d', './src', '-p', '**/*.ts'],
         newArgs: ['--directory', './src', '--pattern', '**/*.ts'],
-        description: 'short vs long form arguments'
+        description: 'short vs long form arguments',
       },
       {
         command: 'transform',
         oldArgs: ['-s', './src', '--dry-run'],
         newArgs: ['--source', './src', '--dry-run'],
-        description: 'mixed argument styles'
+        description: 'mixed argument styles',
       },
       {
         command: 'validate',
         oldArgs: ['-s', 'schema.graphql'],
         newArgs: ['--schema', 'schema.graphql'],
-        description: 'schema path argument'
-      }
+        description: 'schema path argument',
+      },
     ];
 
     argumentTests.forEach(({ command, oldArgs, newArgs, description }) => {
@@ -113,7 +114,7 @@ describe('CLI Regression Test Suite', () => {
           'src/cli/main-cli.ts',
           command,
           ...oldArgs,
-          '--json'
+          '--json',
         ]);
 
         // Test new style arguments
@@ -122,7 +123,7 @@ describe('CLI Regression Test Suite', () => {
           'src/cli/main-cli.ts',
           command,
           ...newArgs,
-          '--json'
+          '--json',
         ]);
 
         // Both should succeed or fail the same way
@@ -136,27 +137,23 @@ describe('CLI Regression Test Suite', () => {
       {
         args: ['extract', 'queries', 'nonexistent-dir'],
         errorPattern: /directory.*not.*found|no such file|ENOENT/i,
-        description: 'missing directory'
+        description: 'missing directory',
       },
       {
         args: ['validate', 'queries', '-s', 'missing-schema.graphql'],
         errorPattern: /schema.*not.*found|cannot.*read|ENOENT/i,
-        description: 'missing schema file'
+        description: 'missing schema file',
       },
       {
         args: ['transform', 'queries', '--confidence', '101'],
         errorPattern: /invalid.*confidence|must.*be.*between|out of range/i,
-        description: 'invalid confidence value'
-      }
+        description: 'invalid confidence value',
+      },
     ];
 
     errorScenarios.forEach(({ args, errorPattern, description }) => {
       it(`should provide consistent error for ${description}`, async () => {
-        const result = await executeCommand([
-          'tsx',
-          'src/cli/main-cli.ts',
-          ...args
-        ]);
+        const result = await executeCommand(['tsx', 'src/cli/main-cli.ts', ...args]);
 
         expect(result.exitCode).toBeGreaterThan(0);
         expect(result.stderr).toMatch(errorPattern);
@@ -169,24 +166,22 @@ describe('CLI Regression Test Suite', () => {
       { var: 'PG_CLI_OUTPUT_VERSION', value: '0.9', expectedBehavior: 'legacy output format' },
       { var: 'PG_CLI_NO_PROGRESS', value: '1', expectedBehavior: 'no progress indicators' },
       { var: 'PG_CLI_JSON_STDOUT', value: '1', expectedBehavior: 'JSON to stdout' },
-      { var: 'FORCE_COLOR', value: '0', expectedBehavior: 'no colored output' }
+      { var: 'FORCE_COLOR', value: '0', expectedBehavior: 'no colored output' },
     ];
 
     envVarTests.forEach(({ var: envVar, value, expectedBehavior }) => {
       it(`should respect ${envVar} for ${expectedBehavior}`, async () => {
         const env = { ...process.env, [envVar]: value };
-        
-        const result = await executeCommand([
-          'tsx',
-          'src/cli/main-cli.ts',
-          'extract',
-          'queries'
-        ], { env });
+
+        const result = await executeCommand(['tsx', 'src/cli/main-cli.ts', 'extract', 'queries'], {
+          env,
+        });
 
         // Verify environment variable was respected
         if (envVar === 'PG_CLI_NO_PROGRESS' && value === '1') {
           // Check that progress indicators are not present
-          const hasProgressIndicators = /Processing|Extracting|Analyzing|\\u28|⠋|⠙|⠹|⠸|⠼|⠴|⠦|⠧|⠇|⠏/.test(result.stdout);
+          const hasProgressIndicators =
+            /Processing|Extracting|Analyzing|\\u28|⠋|⠙|⠹|⠸|⠼|⠴|⠦|⠧|⠇|⠏/.test(result.stdout);
           expect(hasProgressIndicators).toBe(false);
         }
       });
@@ -196,25 +191,28 @@ describe('CLI Regression Test Suite', () => {
   describe('Output File Generation', () => {
     it('should generate consistent output files', async () => {
       const outputFile = path.join(outputDir, 'extraction-results.json');
-      
+
       const result = await executeCommand([
         'tsx',
         'src/cli/main-cli.ts',
         'extract',
         'queries',
         '-o',
-        outputFile
+        outputFile,
       ]);
 
       if (result.exitCode === 0) {
         // Verify file was created
-        const fileExists = await fs.access(outputFile).then(() => true).catch(() => false);
+        const fileExists = await fs
+          .access(outputFile)
+          .then(() => true)
+          .catch(() => false);
         expect(fileExists).toBe(true);
 
         // Verify file contains valid JSON
         const content = await fs.readFile(outputFile, 'utf-8');
         const data = JSON.parse(content);
-        
+
         expect(data).toHaveProperty('timestamp');
         expect(data).toHaveProperty('queries');
       }
@@ -222,22 +220,31 @@ describe('CLI Regression Test Suite', () => {
 
     it('should support different output formats', async () => {
       const formats = ['json', 'typescript', 'markdown'];
-      
+
       for (const format of formats) {
-        const outputFile = path.join(outputDir, `results.${format === 'typescript' ? 'ts' : format}`);
-        
+        const outputFile = path.join(
+          outputDir,
+          `results.${format === 'typescript' ? 'ts' : format}`,
+        );
+
         const result = await executeCommand([
           'tsx',
           'src/cli/main-cli.ts',
           'validate',
-          '-s', 'schema.graphql',
-          '-f', format,
-          '-o', outputFile
+          '-s',
+          'schema.graphql',
+          '-f',
+          format,
+          '-o',
+          outputFile,
         ]);
 
         // File should be created regardless of validation success
-        const fileExists = await fs.access(outputFile).then(() => true).catch(() => false);
-        
+        const fileExists = await fs
+          .access(outputFile)
+          .then(() => true)
+          .catch(() => false);
+
         if (result.exitCode === 0 || format !== 'json') {
           expect(fileExists).toBe(true);
         }
@@ -254,14 +261,14 @@ describe('CLI Regression Test Suite', () => {
         'extract',
         'queries',
         '--json',
-        '--quiet'
+        '--quiet',
       ]);
 
       if (result.exitCode === 0) {
         // Output should be valid JSON that can be piped
         const data = JSON.parse(result.stdout);
         expect(data).toHaveProperty('queries');
-        
+
         // No progress indicators should appear
         expect(result.stderr).not.toContain('Processing');
       }
@@ -271,20 +278,20 @@ describe('CLI Regression Test Suite', () => {
   describe('Performance Regression', () => {
     it('should complete extraction within reasonable time', async () => {
       const startTime = Date.now();
-      
+
       const result = await executeCommand([
         'tsx',
         'src/cli/main-cli.ts',
         'extract',
         'queries',
-        '--json'
+        '--json',
       ]);
-      
+
       const duration = Date.now() - startTime;
-      
+
       // Should complete within 5 seconds for small codebases
       expect(duration).toBeLessThan(5000);
-      
+
       if (result.exitCode === 0) {
         const data = JSON.parse(result.stdout);
         expect(data).toHaveProperty('stats.extractionTime');
@@ -296,7 +303,7 @@ describe('CLI Regression Test Suite', () => {
   describe('Security Tests', () => {
     it('should validate branch names with safe regex pattern', async () => {
       const safeBranchRegex = /^[a-zA-Z0-9/_-]+$/;
-      
+
       const testBranches = [
         { name: 'feature/add-auth', valid: true },
         { name: 'fix-123_bug', valid: true },
@@ -305,9 +312,9 @@ describe('CLI Regression Test Suite', () => {
         { name: 'branch; rm -rf /', valid: false },
         { name: 'branch$(whoami)', valid: false },
         { name: 'branch`ls`', valid: false },
-        { name: 'branch&&echo', valid: false }
+        { name: 'branch&&echo', valid: false },
       ];
-      
+
       testBranches.forEach(({ name, valid }) => {
         const isValid = safeBranchRegex.test(name);
         expect(isValid).toBe(valid);
@@ -321,18 +328,18 @@ describe('CLI Regression Test Suite', () => {
         'file; rm -rf /',
         'file$(whoami)',
         'file`ls`',
-        'file&&echo'
+        'file&&echo',
       ];
-      
+
       for (const path of maliciousPaths) {
         const result = await executeCommand([
           'tsx',
           'src/cli/main-cli.ts',
           'extract',
           'queries',
-          path
+          path,
         ]);
-        
+
         expect(result.exitCode).toBeGreaterThan(0);
         expect(result.stderr).toMatch(/invalid|security|forbidden/i);
       }
@@ -344,9 +351,9 @@ describe('CLI Regression Test Suite', () => {
         './../../../etc/shadow',
         '....//....//....//etc',
         '%2e%2e%2f%2e%2e%2f',
-        '..\\..\\..\\windows\\system32'
+        '..\\..\\..\\windows\\system32',
       ];
-      
+
       for (const path of traversalPaths) {
         const result = await executeCommand([
           'tsx',
@@ -354,9 +361,9 @@ describe('CLI Regression Test Suite', () => {
           'validate',
           'queries',
           '-s',
-          path
+          path,
         ]);
-        
+
         expect(result.exitCode).toBeGreaterThan(0);
       }
     });
@@ -364,17 +371,13 @@ describe('CLI Regression Test Suite', () => {
 
   describe('Help Text Stability', () => {
     it('should maintain stable help text format', async () => {
-      const result = await executeCommand([
-        'tsx',
-        'src/cli/main-cli.ts',
-        '--help'
-      ]);
+      const result = await executeCommand(['tsx', 'src/cli/main-cli.ts', '--help']);
 
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('GraphQL Migration Tool');
       expect(result.stdout).toContain('Commands:');
       expect(result.stdout).toContain('Options:');
-      
+
       // Core commands should be listed
       expect(result.stdout).toContain('extract');
       expect(result.stdout).toContain('transform');
@@ -383,14 +386,9 @@ describe('CLI Regression Test Suite', () => {
 
     it('should show command-specific help', async () => {
       const commands = ['extract', 'transform', 'validate'];
-      
+
       for (const command of commands) {
-        const result = await executeCommand([
-          'tsx',
-          'src/cli/main-cli.ts',
-          command,
-          '--help'
-        ]);
+        const result = await executeCommand(['tsx', 'src/cli/main-cli.ts', command, '--help']);
 
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain(command);

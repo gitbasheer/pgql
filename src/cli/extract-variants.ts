@@ -21,7 +21,7 @@ program
   .option('--save-queries', 'Save individual query files', false)
   .action(async (directory: string, options: any) => {
     const spinner = ora('Extracting GraphQL query variants...').start();
-    
+
     try {
       // Configure for variant extraction
       const extractionOptions: ExtractionOptions = {
@@ -31,25 +31,27 @@ program
         generateVariants: true,
         analyzeContext: true,
         reporters: options.saveQueries ? ['json', 'html', 'files'] : ['json', 'html'],
-        outputDir: options.output
+        outputDir: options.output,
       };
-      
+
       const extractor = new UnifiedExtractor(extractionOptions);
       const result = await extractor.extract();
-      
+
       spinner.succeed(`Extraction complete`);
-      
+
       // Display summary
       console.log(chalk.blue('\n📊 Extraction Summary:\n'));
       console.log(`  Original queries: ${result.stats.totalQueries}`);
       console.log(`  Generated variants: ${result.stats.totalVariants}`);
       console.log(`  Condition switches: ${result.switches.size}`);
-      console.log(`  Queries with variants: ${result.variants.length > 0 ? new Set(result.variants.map(v => v.originalQueryId)).size : 0}`);
-      
+      console.log(
+        `  Queries with variants: ${result.variants.length > 0 ? new Set(result.variants.map((v) => v.originalQueryId)).size : 0}`,
+      );
+
       // Display switches
       if (result.switches.size > 0) {
         console.log(chalk.yellow('\n🔀 Detected Switches:\n'));
-        
+
         for (const [name, switchConfig] of result.switches) {
           console.log(`  ${chalk.bold(name)}`);
           console.log(`    Type: ${switchConfig.type}`);
@@ -57,7 +59,7 @@ program
           console.log(`    Location: ${switchConfig.location}`);
         }
       }
-      
+
       // Display variants by query
       const variantsByQuery = new Map<string, typeof result.variants>();
       for (const variant of result.variants) {
@@ -66,13 +68,13 @@ program
         }
         variantsByQuery.get(variant.originalQueryId)!.push(variant);
       }
-      
+
       if (variantsByQuery.size > 0) {
         console.log(chalk.green('\n✨ Generated Variants:\n'));
-        
+
         for (const [queryId, variants] of variantsByQuery) {
           console.log(`  ${chalk.bold(queryId)}`);
-          
+
           for (const variant of variants) {
             const conditionStr = Object.entries(variant.conditions)
               .map(([k, v]) => `${k}=${v}`)
@@ -82,10 +84,10 @@ program
           }
         }
       }
-      
+
       // Create output directory
       await fs.mkdir(options.output, { recursive: true });
-      
+
       // Save detailed report
       const report = {
         timestamp: new Date().toISOString(),
@@ -94,70 +96,91 @@ program
           totalOriginalQueries: result.stats.totalQueries,
           totalVariants: result.stats.totalVariants,
           totalSwitches: result.switches.size,
-          queriesWithVariants: result.variants.length > 0 ? Array.from(new Set(result.variants.map(v => v.originalQueryId))) : []
+          queriesWithVariants:
+            result.variants.length > 0
+              ? Array.from(new Set(result.variants.map((v) => v.originalQueryId)))
+              : [],
         },
         switches: Array.from(result.switches.entries()).map(([name, config]) => ({
           name,
-          ...config
+          ...config,
         })),
-        variants: result.variants.map(v => ({
+        variants: result.variants.map((v) => ({
           id: v.id,
           originalQueryId: v.originalQueryId,
           queryName: v.queryName,
           conditions: v.conditions,
           usedFragments: v.usedFragments,
-          filePath: v.filePath
+          filePath: v.filePath,
         })),
-        queries: result.queries.map(q => ({
+        queries: result.queries.map((q) => ({
           id: q.id,
           name: q.name,
           type: q.type,
-          filePath: q.filePath
-        }))
+          filePath: q.filePath,
+        })),
       };
-      
+
       const reportPath = path.join(options.output, 'variant-extraction-report.json');
       await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
-      
+
       // Save all variants with full content
       const variantsPath = path.join(options.output, 'all-variants.json');
-      await fs.writeFile(variantsPath, JSON.stringify({
-        timestamp: new Date().toISOString(),
-        totalVariants: result.variants.length,
-        variants: result.variants.map(v => ({
-          id: v.id,
-          queryName: v.queryName,
-          conditions: v.conditions,
-          usedFragments: v.usedFragments,
-          content: v.content
-        }))
-      }, null, 2));
-      
+      await fs.writeFile(
+        variantsPath,
+        JSON.stringify(
+          {
+            timestamp: new Date().toISOString(),
+            totalVariants: result.variants.length,
+            variants: result.variants.map((v) => ({
+              id: v.id,
+              queryName: v.queryName,
+              conditions: v.conditions,
+              usedFragments: v.usedFragments,
+              content: v.content,
+            })),
+          },
+          null,
+          2,
+        ),
+      );
+
       // Individual query files are already saved if saveQueries option was true
       if (options.saveQueries) {
-        console.log(chalk.dim(`\n📁 Individual query files saved to ${options.output}/extracted-queries`));
+        console.log(
+          chalk.dim(`\n📁 Individual query files saved to ${options.output}/extracted-queries`),
+        );
       }
-      
+
       // Generate comparison HTML
       const htmlReport = generateComparisonHTML(result);
       const htmlPath = path.join(options.output, 'variant-comparison.html');
       await fs.writeFile(htmlPath, htmlReport);
-      
+
       console.log(chalk.green(`\n✅ Extraction complete!`));
       console.log(chalk.dim(`Reports saved to ${options.output}`));
-      
+
       // Show example of how variants differ
       if (result.variants.length >= 2) {
         const example = variantsByQuery.values().next().value;
         if (example && example.length >= 2) {
           console.log(chalk.cyan('\n📝 Example Variant Difference:\n'));
-          console.log(chalk.bold('Variant 1:'), Object.entries(example[0].conditions).map(([k,v]) => `${k}=${v}`).join(', '));
+          console.log(
+            chalk.bold('Variant 1:'),
+            Object.entries(example[0].conditions)
+              .map(([k, v]) => `${k}=${v}`)
+              .join(', '),
+          );
           console.log('Uses fragments:', example[0].usedFragments.join(', '));
-          console.log(chalk.bold('\nVariant 2:'), Object.entries(example[1].conditions).map(([k,v]) => `${k}=${v}`).join(', '));
+          console.log(
+            chalk.bold('\nVariant 2:'),
+            Object.entries(example[1].conditions)
+              .map(([k, v]) => `${k}=${v}`)
+              .join(', '),
+          );
           console.log('Uses fragments:', example[1].usedFragments.join(', '));
         }
       }
-      
     } catch (error) {
       spinner.fail('Extraction failed');
       logger.error('Error:', error);
@@ -173,7 +196,7 @@ function generateComparisonHTML(result: any): string {
     }
     variantsByQuery.get(variant.originalQueryId)!.push(variant);
   }
-  
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -309,9 +332,10 @@ function generateComparisonHTML(result: any): string {
     <h2>🔀 Detected Condition Switches</h2>
     ${(() => {
       const entries = Array.from(result.switches.entries());
-      return entries.map((entry: any) => {
-        const [name, config] = entry;
-        return `
+      return entries
+        .map((entry: any) => {
+          const [name, config] = entry;
+          return `
           <div class="switch-item">
             <h3>${name}</h3>
             <div>Type: <strong>${config.type}</strong></div>
@@ -319,22 +343,29 @@ function generateComparisonHTML(result: any): string {
             <div>Used in: ${config.location} spreads</div>
           </div>
         `;
-      }).join('');
+        })
+        .join('');
     })()}
   </div>
 
-  ${Array.from(variantsByQuery.entries()).map(([queryId, variants]) => `
+  ${Array.from(variantsByQuery.entries())
+    .map(
+      ([queryId, variants]) => `
     <div class="query-group">
       <h2>📄 ${queryId}</h2>
       <div>Variants: ${variants.length}</div>
       
       <div class="variant-grid">
-        ${variants.map((variant: any) => `
+        ${variants
+          .map(
+            (variant: any) => `
           <div class="variant-card">
             <h3>${variant.queryName}</h3>
             
             <div class="variant-conditions">
-              Conditions: ${Object.entries(variant.conditions).map(([k, v]) => `${k}=${v}`).join(', ')}
+              Conditions: ${Object.entries(variant.conditions)
+                .map(([k, v]) => `${k}=${v}`)
+                .join(', ')}
             </div>
             
             <div class="variant-fragments">
@@ -343,10 +374,14 @@ function generateComparisonHTML(result: any): string {
             
             <div class="variant-content">${escapeHtml(variant.content)}</div>
           </div>
-        `).join('')}
+        `,
+          )
+          .join('')}
       </div>
     </div>
-  `).join('')}
+  `,
+    )
+    .join('')}
 </body>
 </html>`;
 }
@@ -357,10 +392,10 @@ function escapeHtml(text: string): string {
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;',
-    "'": '&#039;'
+    "'": '&#039;',
   };
-  
-  return text.replace(/[&<>"']/g, m => map[m]);
+
+  return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
 program.parse();

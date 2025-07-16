@@ -1,9 +1,4 @@
-import {
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLFieldMap,
-  GraphQLField
-} from 'graphql';
+import { GraphQLSchema, GraphQLObjectType, GraphQLFieldMap, GraphQLField } from 'graphql';
 
 export interface DeprecatedField {
   typeName: string;
@@ -21,7 +16,7 @@ export interface MigrationRule {
 export interface FieldReference {
   type: string;
   field: string;
-  path: string[];  // Nested field path
+  path: string[]; // Nested field path
 }
 
 export class SchemaAnalyzer {
@@ -38,11 +33,12 @@ export class SchemaAnalyzer {
 
         Object.entries(fields).forEach(([fieldName, field]) => {
           const deprecatedDirective = field.astNode?.directives?.find(
-            d => d.name.value === 'deprecated'
+            (d) => d.name.value === 'deprecated',
           );
 
           if (deprecatedDirective || field.deprecationReason) {
-            const reason = field.deprecationReason || this.extractDeprecationReason(deprecatedDirective);
+            const reason =
+              field.deprecationReason || this.extractDeprecationReason(deprecatedDirective);
 
             if (reason) {
               const existing = deprecatedFields.get(typeName) || [];
@@ -52,8 +48,8 @@ export class SchemaAnalyzer {
                   typeName,
                   fieldName,
                   deprecationReason: reason,
-                  suggestedReplacement: this.extractReplacement(reason)
-                }
+                  suggestedReplacement: this.extractReplacement(reason),
+                },
               ]);
             }
           }
@@ -67,9 +63,7 @@ export class SchemaAnalyzer {
   private extractDeprecationReason(directive: any): string | null {
     if (!directive) return null;
 
-    const reason = directive.arguments?.find(
-      (arg: any) => arg.name.value === 'reason'
-    )?.value;
+    const reason = directive.arguments?.find((arg: any) => arg.name.value === 'reason')?.value;
 
     if (reason && 'value' in reason) {
       return reason.value;
@@ -89,19 +83,19 @@ export class SchemaAnalyzer {
     const rules: MigrationRule[] = [];
 
     deprecatedFields.forEach((fields, typeName) => {
-      fields.forEach(field => {
+      fields.forEach((field) => {
         if (field.suggestedReplacement) {
           rules.push({
             from: {
               type: typeName,
               field: field.fieldName,
-              path: [typeName, field.fieldName]
+              path: [typeName, field.fieldName],
             },
             to: {
               type: typeName,
               field: field.suggestedReplacement,
-              path: [typeName, field.suggestedReplacement]
-            }
+              path: [typeName, field.suggestedReplacement],
+            },
           });
         }
       });
@@ -118,12 +112,12 @@ export class SchemaAnalyzer {
     const newTypes = this.schema.getTypeMap();
 
     // Find removed types
-    Object.keys(oldTypes).forEach(typeName => {
+    Object.keys(oldTypes).forEach((typeName) => {
       if (!newTypes[typeName] && !typeName.startsWith('__')) {
         changes.push({
           type: 'TYPE_REMOVED',
           typeName,
-          message: `Type ${typeName} was removed`
+          message: `Type ${typeName} was removed`,
         });
       }
     });
@@ -136,13 +130,13 @@ export class SchemaAnalyzer {
           const oldFields = oldType.getFields();
           const newFields = type.getFields();
 
-          Object.keys(oldFields).forEach(fieldName => {
+          Object.keys(oldFields).forEach((fieldName) => {
             if (!newFields[fieldName]) {
               changes.push({
                 type: 'FIELD_REMOVED',
                 typeName,
                 fieldName,
-                message: `Field ${typeName}.${fieldName} was removed`
+                message: `Field ${typeName}.${fieldName} was removed`,
               });
             }
           });

@@ -32,7 +32,7 @@ export class ComparatorRegistry {
     ['array-unordered', createArrayUnorderedComparator],
     ['ignore-whitespace', createIgnoreWhitespaceComparator],
     ['type-coercion', createTypeCoercionComparator],
-    ['deep-partial', createDeepPartialComparator]
+    ['deep-partial', createDeepPartialComparator],
   ]);
 
   /**
@@ -101,7 +101,10 @@ function createCaseInsensitiveComparator(): ComparatorFunction {
  * - tolerance: absolute or relative tolerance (default: 0.01)
  * - relative: if true, tolerance is percentage (default: false)
  */
-function createNumericToleranceComparator(options?: { tolerance?: number; relative?: boolean }): ComparatorFunction {
+function createNumericToleranceComparator(options?: {
+  tolerance?: number;
+  relative?: boolean;
+}): ComparatorFunction {
   const tolerance = options?.tolerance || 0.01;
   const relative = options?.relative || false;
 
@@ -179,10 +182,16 @@ function createTypeCoercionComparator(): ComparatorFunction {
 
     // String to boolean
     if (typeof baseline === 'string' && typeof transformed === 'boolean') {
-      return (baseline === 'true' && transformed === true) || (baseline === 'false' && transformed === false);
+      return (
+        (baseline === 'true' && transformed === true) ||
+        (baseline === 'false' && transformed === false)
+      );
     }
     if (typeof baseline === 'boolean' && typeof transformed === 'string') {
-      return (baseline === true && transformed === 'true') || (baseline === false && transformed === 'false');
+      return (
+        (baseline === true && transformed === 'true') ||
+        (baseline === false && transformed === 'false')
+      );
     }
 
     // Default to false for other type mismatches

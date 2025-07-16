@@ -6,31 +6,31 @@ export interface ExtractionOptions {
   directory: string;
   patterns?: string[];
   ignore?: string[];
-  
+
   // Strategy options
   strategies?: ExtractionStrategy[];
-  
+
   // Analysis options
   detectVariants?: boolean;
   analyzeContext?: boolean;
   resolveNames?: boolean;
   preserveSourceAST?: boolean;
-  
+
   // Resolution options
   resolveFragments?: boolean;
   resolveImports?: boolean;
   fragmentsDirectory?: string;
-  
+
   // Transformation options
   normalizeNames?: boolean;
   generateVariants?: boolean;
   inlineFragments?: boolean;
   namingConvention?: 'pascalCase' | 'camelCase' | 'preserve';
-  
+
   // Output options
   reporters?: ReporterType[];
   outputDir?: string;
-  
+
   // Performance options
   cache?: boolean;
   parallel?: boolean;

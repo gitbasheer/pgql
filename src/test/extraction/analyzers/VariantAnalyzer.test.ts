@@ -128,7 +128,7 @@ describe('VariantAnalyzer', () => {
       // The analyzer might detect multiple patterns
       expect(result.patterns.length).toBeGreaterThanOrEqual(1);
       // Find the pattern for the fragment
-      const fragmentPattern = result.patterns.find(p => p.pattern.includes('fragmentName'));
+      const fragmentPattern = result.patterns.find((p) => p.pattern.includes('fragmentName'));
       expect(fragmentPattern).toBeDefined();
       expect(fragmentPattern).toMatchObject({
         type: expect.any(String), // Could be 'ternary' or 'template'
@@ -153,7 +153,7 @@ describe('VariantAnalyzer', () => {
 
       expect(result.isVariant).toBe(false);
       expect(result.patterns).toHaveLength(0);
-      expect(result.possibleVariants).toBe(0); // NOTE: should we make the default value 1? 
+      expect(result.possibleVariants).toBe(0); // NOTE: should we make the default value 1?
     });
   });
 
@@ -213,7 +213,7 @@ describe('VariantAnalyzer', () => {
       expect(result.isVariant).toBe(false);
       expect(logger.debug).toHaveBeenCalledWith(
         'Could not analyze source file /src/missing.ts:',
-        expect.any(Error)
+        expect.any(Error),
       );
     });
 
@@ -232,10 +232,10 @@ describe('VariantAnalyzer', () => {
       };
 
       const results = await analyzer.analyze([query]);
-      
+
       expect(logger.debug).toHaveBeenCalledWith(
         'Could not analyze source file /src/invalid.ts:',
-        expect.any(Error)
+        expect.any(Error),
       );
     });
   });
@@ -382,10 +382,10 @@ line4`;
 
       const results = await analyzer.analyze([query]);
       const result = results[0];
-      
+
       expect(result.patterns).toBeDefined();
       expect(result.patterns.length).toBeGreaterThan(0);
-      
+
       const pattern = result.patterns[0];
       // The pattern might not have location info - check if it exists
       if (pattern.location) {
@@ -397,7 +397,8 @@ line4`;
     });
   });
 
-  describe('validateOperation and analyzeOperation', () => { // Note: based on what? should we test for invalid?  
+  describe('validateOperation and analyzeOperation', () => {
+    // Note: based on what? should we test for invalid?
     it('should validate operations', () => {
       const operation = { query: 'test' };
       expect(analyzer.validateOperation(operation)).toBe(true);
@@ -466,7 +467,7 @@ line4`;
       // The analyzer might detect multiple patterns when there are multiple fragments
       expect(result.patterns.length).toBeGreaterThanOrEqual(1);
       // Find the dynamic fragment pattern
-      const dynamicPattern = result.patterns.find(p => p.pattern.includes('dynamicFragment'));
+      const dynamicPattern = result.patterns.find((p) => p.pattern.includes('dynamicFragment'));
       expect(dynamicPattern).toBeDefined();
       expect(dynamicPattern?.pattern).toContain('dynamicFragment');
     });

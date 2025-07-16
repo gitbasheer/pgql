@@ -37,6 +37,7 @@ The system includes a comprehensive performance monitoring system (`src/core/mon
 #### Key Features:
 
 1. **Real-time Event Emission**
+
    ```typescript
    // Events emitted:
    - 'operation:start' - When an operation begins
@@ -64,7 +65,7 @@ The system includes a comprehensive performance monitoring system (`src/core/mon
 // Example integration endpoint
 app.get('/metrics', (req, res) => {
   const metrics = performanceMonitor.getDashboardData();
-  
+
   // Convert to Prometheus format
   const promMetrics = `
 # HELP pg_migration_operations_total Total operations processed
@@ -81,7 +82,7 @@ pg_migration_cache_hit_rate{cache="ast"} ${metrics.cache.ast.hitRate}
 pg_migration_cache_hit_rate{cache="validation"} ${metrics.cache.validation.hitRate}
 pg_migration_cache_hit_rate{cache="transform"} ${metrics.cache.transform.hitRate}
 `;
-  
+
   res.set('Content-Type', 'text/plain');
   res.send(promMetrics);
 });
@@ -96,15 +97,19 @@ const dogstatsd = new StatsD();
 
 performanceMonitor.on('operation:end', ({ operationId, metrics }) => {
   // Send metrics to DataDog
-  dogstatsd.histogram('pg_migration.operation.duration', metrics.duration, [`operation:${metrics.name}`]);
-  dogstatsd.gauge('pg_migration.operation.memory', metrics.memory.delta, [`operation:${metrics.name}`]);
+  dogstatsd.histogram('pg_migration.operation.duration', metrics.duration, [
+    `operation:${metrics.name}`,
+  ]);
+  dogstatsd.gauge('pg_migration.operation.memory', metrics.memory.delta, [
+    `operation:${metrics.name}`,
+  ]);
 });
 
 performanceMonitor.on('threshold:exceeded', ({ type, level, metrics }) => {
   // Alert on threshold violations
   dogstatsd.event(`Performance threshold exceeded: ${metrics.name}`, {
     alert_type: level,
-    tags: [`type:${type}`, `operation:${metrics.name}`]
+    tags: [`type:${type}`, `operation:${metrics.name}`],
   });
 });
 ```
@@ -116,14 +121,15 @@ performanceMonitor.on('threshold:exceeded', ({ type, level, metrics }) => {
 The system includes a UI server (`ui-server.js`) that provides:
 
 1. **Server-Sent Events (SSE) for Real-time Updates**
+
    ```javascript
-   POST /api/execute
+   POST / api / execute;
    // Streams real-time command execution output
    ```
 
 2. **Results API**
    ```javascript
-   GET /api/results/{filename}
+   GET / api / results / { filename };
    // Retrieves migration results
    ```
 
@@ -140,10 +146,12 @@ const wss = new WebSocket.Server({ port: 8080 });
 performanceMonitor.on('operation:end', (data) => {
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({
-        type: 'performance-update',
-        data: performanceMonitor.getDashboardData()
-      }));
+      client.send(
+        JSON.stringify({
+          type: 'performance-update',
+          data: performanceMonitor.getDashboardData(),
+        }),
+      );
     }
   });
 });
@@ -168,7 +176,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Run Migration Pipeline
         run: |
           npm run migrate -- \
@@ -176,11 +184,11 @@ jobs:
             --schema schema.graphql \
             --auto-apply \
             --confidence-threshold 90
-      
+
       - name: Export Performance Metrics
         run: |
           npm run export-metrics
-          
+
       - name: Upload Metrics to Dashboard
         run: |
           curl -X POST https://your-dashboard.com/api/metrics \
@@ -194,12 +202,12 @@ jobs:
 ```groovy
 pipeline {
     agent any
-    
+
     triggers {
         // Trigger on schema changes
         pollSCM('H/5 * * * *')
     }
-    
+
     stages {
         stage('Migration Check') {
             steps {
@@ -208,7 +216,7 @@ pipeline {
                         script: 'npm run assess-impact',
                         returnStdout: true
                     )
-                    
+
                     // Send to monitoring dashboard
                     httpRequest(
                         url: "${DASHBOARD_URL}/api/migration-assessment",
@@ -236,7 +244,7 @@ class WebhookNotifier {
     this.webhookUrl = webhookUrl;
     this.setupListeners();
   }
-  
+
   setupListeners() {
     // Notify on migration completion
     performanceMonitor.on('operation:end', async (data) => {
@@ -246,28 +254,28 @@ class WebhookNotifier {
           data: {
             duration: data.metrics.duration,
             status: data.metrics.status,
-            summary: performanceMonitor.getDashboardData()
-          }
+            summary: performanceMonitor.getDashboardData(),
+          },
         });
       }
     });
-    
+
     // Notify on performance issues
     performanceMonitor.on('threshold:exceeded', async (data) => {
       await this.notify({
         event: 'performance.threshold.exceeded',
         severity: data.level,
-        details: data
+        details: data,
       });
     });
   }
-  
+
   async notify(payload) {
     try {
       await axios.post(this.webhookUrl, {
         timestamp: new Date().toISOString(),
         source: 'pg-migration-620',
-        ...payload
+        ...payload,
       });
     } catch (error) {
       console.error('Webhook notification failed:', error);
@@ -289,21 +297,21 @@ class SchemaWatcher {
   constructor(schemaPath) {
     this.watcher = chokidar.watch(schemaPath, {
       persistent: true,
-      ignoreInitial: true
+      ignoreInitial: true,
     });
-    
+
     this.setupWatcher();
   }
-  
+
   setupWatcher() {
     this.watcher.on('change', async (path) => {
       console.log(`Schema changed: ${path}`);
-      
+
       // Assess migration impact
       exec('npm run assess-impact', (error, stdout) => {
         if (!error) {
           const impact = JSON.parse(stdout);
-          
+
           // Auto-trigger migration if low risk
           if (impact.risk === 'low' && impact.confidence > 90) {
             exec('npm run migrate -- --auto-apply', (error) => {
@@ -318,13 +326,13 @@ class SchemaWatcher {
       });
     });
   }
-  
+
   notifyDashboard(event, data) {
     // Send to monitoring dashboard
     fetch(`${process.env.DASHBOARD_URL}/api/events`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event, data, timestamp: new Date() })
+      body: JSON.stringify({ event, data, timestamp: new Date() }),
     });
   }
 }
@@ -339,10 +347,10 @@ class SchemaWatcher {
 # Check if schema files changed
 if git diff HEAD^ HEAD --name-only | grep -q "schema.graphql"; then
   echo "Schema changes detected, running migration assessment..."
-  
+
   # Run assessment
   npm run assess-impact > migration-assessment.json
-  
+
   # Send to monitoring dashboard
   curl -X POST "${DASHBOARD_URL}/api/schema-change" \
     -H "Content-Type: application/json" \
@@ -364,13 +372,19 @@ performanceMonitor.on('operation:end', async (data) => {
     await slack.chat.postMessage({
       channel: '#migrations',
       text: `Migration completed in ${data.metrics.duration}ms`,
-      attachments: [{
-        color: data.metrics.status === 'completed' ? 'good' : 'danger',
-        fields: [
-          { title: 'Duration', value: `${data.metrics.duration}ms`, short: true },
-          { title: 'Memory Used', value: `${(data.metrics.memory.delta / 1024 / 1024).toFixed(2)}MB`, short: true }
-        ]
-      }]
+      attachments: [
+        {
+          color: data.metrics.status === 'completed' ? 'good' : 'danger',
+          fields: [
+            { title: 'Duration', value: `${data.metrics.duration}ms`, short: true },
+            {
+              title: 'Memory Used',
+              value: `${(data.metrics.memory.delta / 1024 / 1024).toFixed(2)}MB`,
+              short: true,
+            },
+          ],
+        },
+      ],
     });
   }
 });
@@ -392,9 +406,9 @@ performanceMonitor.on('threshold:exceeded', async ({ type, level, metrics }) => 
         urgency: 'high',
         body: {
           type: 'incident_body',
-          details: JSON.stringify({ type, metrics })
-        }
-      }
+          details: JSON.stringify({ type, metrics }),
+        },
+      },
     });
   }
 });
@@ -418,17 +432,17 @@ app.get('/api/migration/status', (req, res) => {
   res.json({
     running: performanceMonitor.getDashboardData().operations.running > 0,
     lastRun: getLastMigrationRun(),
-    stats: getMigrationStats()
+    stats: getMigrationStats(),
   });
 });
 
 // Trigger migration endpoint
 app.post('/api/migration/trigger', async (req, res) => {
   const { source, schema, dryRun } = req.body;
-  
+
   // Start migration with monitoring
   const operationId = performanceMonitor.startOperation('api-migration', { source, schema });
-  
+
   try {
     const result = await runMigration({ source, schema, dryRun });
     performanceMonitor.endOperation(operationId);
@@ -442,9 +456,10 @@ app.post('/api/migration/trigger', async (req, res) => {
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   const metrics = performanceMonitor.getDashboardData();
-  const healthy = metrics.operations.running < 10 && // Not overloaded
-                 metrics.cache.ast.hitRate > 0.5;     // Cache working
-  
+  const healthy =
+    metrics.operations.running < 10 && // Not overloaded
+    metrics.cache.ast.hitRate > 0.5; // Cache working
+
   res.status(healthy ? 200 : 503).json({
     status: healthy ? 'healthy' : 'degraded',
     metrics: {
@@ -452,9 +467,9 @@ app.get('/api/health', (req, res) => {
       cacheHitRates: {
         ast: metrics.cache.ast.hitRate,
         validation: metrics.cache.validation.hitRate,
-        transform: metrics.cache.transform.hitRate
-      }
-    }
+        transform: metrics.cache.transform.hitRate,
+      },
+    },
   });
 });
 ```
@@ -502,12 +517,12 @@ class MonitoringDashboardIntegration {
     this.app = express();
     this.wss = new WebSocket.Server({ port: 8080 });
     this.performanceMonitor = new PerformanceMonitor();
-    
+
     this.setupAPI();
     this.setupWebSocket();
     this.setupEventHandlers();
   }
-  
+
   setupAPI() {
     // Metrics endpoint for Prometheus
     this.app.get('/metrics', (req, res) => {
@@ -515,30 +530,34 @@ class MonitoringDashboardIntegration {
       res.set('Content-Type', 'text/plain');
       res.send(this.formatPrometheusMetrics(metrics));
     });
-    
+
     // JSON API for custom dashboards
     this.app.get('/api/dashboard', (req, res) => {
       res.json({
         metrics: this.performanceMonitor.getDashboardData(),
         trends: Array.from(this.performanceMonitor.calculateTrends().values()),
-        report: this.performanceMonitor.generateReport()
+        report: this.performanceMonitor.generateReport(),
       });
     });
   }
-  
+
   setupWebSocket() {
     this.wss.on('connection', (ws) => {
       // Send initial state
-      ws.send(JSON.stringify({
-        type: 'initial',
-        data: this.performanceMonitor.getDashboardData()
-      }));
-      
+      ws.send(
+        JSON.stringify({
+          type: 'initial',
+          data: this.performanceMonitor.getDashboardData(),
+        }),
+      );
+
       // Setup ping/pong for connection health
       ws.isAlive = true;
-      ws.on('pong', () => { ws.isAlive = true; });
+      ws.on('pong', () => {
+        ws.isAlive = true;
+      });
     });
-    
+
     // Health check interval
     setInterval(() => {
       this.wss.clients.forEach((ws) => {
@@ -548,7 +567,7 @@ class MonitoringDashboardIntegration {
       });
     }, 30000);
   }
-  
+
   setupEventHandlers() {
     // Real-time updates via WebSocket
     this.performanceMonitor.on('operation:end', (data) => {
@@ -557,24 +576,24 @@ class MonitoringDashboardIntegration {
         data: {
           operation: data.metrics.name,
           duration: data.metrics.duration,
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       });
     });
-    
+
     // Alert on threshold violations
     this.performanceMonitor.on('threshold:exceeded', (data) => {
       this.broadcast({
         type: 'alert',
         severity: data.level,
-        data: data
+        data: data,
       });
-      
+
       // Also send to external alerting
       this.sendAlert(data);
     });
   }
-  
+
   broadcast(message) {
     this.wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
@@ -582,7 +601,7 @@ class MonitoringDashboardIntegration {
       }
     });
   }
-  
+
   formatPrometheusMetrics(metrics) {
     // Convert to Prometheus exposition format
     return `
@@ -601,13 +620,13 @@ pg_migration_cache_hit_rate{type="validation"} ${metrics.cache.validation.hitRat
 pg_migration_cache_hit_rate{type="transform"} ${metrics.cache.transform.hitRate}
 `;
   }
-  
+
   async sendAlert(alertData) {
     // Send to multiple alert channels
     await Promise.all([
       this.sendToSlack(alertData),
       this.sendToPagerDuty(alertData),
-      this.sendToWebhook(alertData)
+      this.sendToWebhook(alertData),
     ]).catch(console.error);
   }
 }

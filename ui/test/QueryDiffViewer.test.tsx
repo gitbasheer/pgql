@@ -8,7 +8,7 @@ import type { ExtractedQuery, TransformationResult } from '@types/pgql.types';
 
 // Mock react-modal
 vi.mock('react-modal', () => {
-  const Modal = ({ isOpen, children, onRequestClose }: any) => 
+  const Modal = ({ isOpen, children, onRequestClose }: any) =>
     isOpen ? (
       <div role="dialog" onClick={onRequestClose}>
         <div onClick={(e) => e.stopPropagation()}>{children}</div>
@@ -101,7 +101,9 @@ describe('QueryDiffViewer', () => {
   it('should disable View Diff button for queries without transformation', () => {
     renderComponent();
 
-    const buttons = screen.getAllByRole('button', { name: /View Diff|Processing/ });
+    const buttons = screen.getAllByRole('button', {
+      name: /View Diff|Processing/,
+    });
     expect(buttons[0]).toBeEnabled(); // First query has transformation
     expect(buttons[1]).toBeDisabled(); // Second query doesn't
     expect(buttons[1]).toHaveTextContent('Processing...');
@@ -111,7 +113,9 @@ describe('QueryDiffViewer', () => {
     const user = userEvent.setup();
     renderComponent();
 
-    const viewDiffButton = screen.getAllByRole('button', { name: 'View Diff' })[0];
+    const viewDiffButton = screen.getAllByRole('button', {
+      name: 'View Diff',
+    })[0];
     await user.click(viewDiffButton);
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -139,12 +143,14 @@ describe('QueryDiffViewer', () => {
     await user.click(screen.getAllByRole('button', { name: 'View Diff' })[0]);
 
     expect(screen.getByText('Warnings:')).toBeInTheDocument();
-    expect(screen.getByText('Field renamed: name -> fullName')).toBeInTheDocument();
+    expect(
+      screen.getByText('Field renamed: name -> fullName')
+    ).toBeInTheDocument();
   });
 
   it('should switch to baseline comparison tab', async () => {
     const user = userEvent.setup();
-    
+
     (getBaselineComparisons as any).mockResolvedValue([
       {
         baseline: { user: { id: '1', name: 'John' } },
@@ -159,7 +165,9 @@ describe('QueryDiffViewer', () => {
     renderComponent();
 
     await user.click(screen.getAllByRole('button', { name: 'View Diff' })[0]);
-    await user.click(screen.getByRole('button', { name: 'Baseline Comparison' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Baseline Comparison' })
+    );
 
     await waitFor(() => {
       expect(getBaselineComparisons).toHaveBeenCalledWith('GetUser');
@@ -170,7 +178,7 @@ describe('QueryDiffViewer', () => {
 
   it('should show differences when baseline does not match', async () => {
     const user = userEvent.setup();
-    
+
     (getBaselineComparisons as any).mockResolvedValue([
       {
         baseline: { user: { id: '1', name: 'John' } },
@@ -178,7 +186,10 @@ describe('QueryDiffViewer', () => {
         comparison: {
           matches: false,
           differences: [
-            { path: 'user.name', description: 'Value changed from "John" to "Jane"' },
+            {
+              path: 'user.name',
+              description: 'Value changed from "John" to "Jane"',
+            },
           ],
         },
       },
@@ -187,7 +198,9 @@ describe('QueryDiffViewer', () => {
     renderComponent();
 
     await user.click(screen.getAllByRole('button', { name: 'View Diff' })[0]);
-    await user.click(screen.getByRole('button', { name: 'Baseline Comparison' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Baseline Comparison' })
+    );
 
     await waitFor(() => {
       expect(screen.getByText('⚠ Differences found')).toBeInTheDocument();
@@ -196,17 +209,23 @@ describe('QueryDiffViewer', () => {
 
   it('should show message when no baselines available', async () => {
     const user = userEvent.setup();
-    
+
     (getBaselineComparisons as any).mockResolvedValue([]);
 
     renderComponent();
 
     await user.click(screen.getAllByRole('button', { name: 'View Diff' })[0]);
-    await user.click(screen.getByRole('button', { name: 'Baseline Comparison' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Baseline Comparison' })
+    );
 
     await waitFor(() => {
-      expect(screen.getByText('No baseline comparisons available for this query.')).toBeInTheDocument();
-      expect(screen.getByText('Run real API tests to generate baselines.')).toBeInTheDocument();
+      expect(
+        screen.getByText('No baseline comparisons available for this query.')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Run real API tests to generate baselines.')
+      ).toBeInTheDocument();
     });
   });
 
@@ -266,21 +285,25 @@ describe('QueryDiffViewer', () => {
 
   it('should reset active tab when modal is closed', async () => {
     const user = userEvent.setup();
-    
+
     (getBaselineComparisons as any).mockResolvedValue([]);
 
     renderComponent();
 
     // Open modal and switch to baseline tab
     await user.click(screen.getAllByRole('button', { name: 'View Diff' })[0]);
-    await user.click(screen.getByRole('button', { name: 'Baseline Comparison' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Baseline Comparison' })
+    );
 
     // Close and reopen modal
     await user.click(screen.getByRole('button', { name: '×' }));
     await user.click(screen.getAllByRole('button', { name: 'View Diff' })[0]);
 
     // Should be back on transformation tab
-    expect(screen.getByRole('button', { name: 'Transformation' })).toHaveClass('active');
+    expect(screen.getByRole('button', { name: 'Transformation' })).toHaveClass(
+      'active'
+    );
   });
 
   it('should show validation tab', async () => {
@@ -288,10 +311,16 @@ describe('QueryDiffViewer', () => {
     renderComponent();
 
     await user.click(screen.getAllByRole('button', { name: 'View Diff' })[0]);
-    await user.click(screen.getByRole('button', { name: 'GraphQL Validation' }));
+    await user.click(
+      screen.getByRole('button', { name: 'GraphQL Validation' })
+    );
 
     expect(screen.getByText('GraphQL Query Validation')).toBeInTheDocument();
-    expect(screen.getByText('Test query syntax and execution against the GraphQL schema using Apollo Client.')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Test query syntax and execution against the GraphQL schema using Apollo Client.'
+      )
+    ).toBeInTheDocument();
   });
 
   it('should handle validation tab content', async () => {
@@ -300,11 +329,12 @@ describe('QueryDiffViewer', () => {
     renderComponent();
 
     await user.click(screen.getAllByRole('button', { name: 'View Diff' })[0]);
-    await user.click(screen.getByRole('button', { name: 'GraphQL Validation' }));
+    await user.click(
+      screen.getByRole('button', { name: 'GraphQL Validation' })
+    );
 
     // Check that validation content is present
     expect(screen.getByText('GraphQL Query Validation')).toBeInTheDocument();
     expect(screen.getByText('Query Source:')).toBeInTheDocument();
   });
-
 });

@@ -82,7 +82,7 @@ program
         transformedQueries: 0,
         deprecationsFixed: 0,
         filesModified: [],
-        validationPassed: false
+        validationPassed: false,
       };
 
       if (options.summaryFile) {
@@ -99,7 +99,7 @@ program
         const defaultSummaryPaths = [
           './migration-summary.json',
           './extraction-results.json',
-          './test-pipeline/migration-summary.json'
+          './test-pipeline/migration-summary.json',
         ];
 
         let summaryLoaded = false;
@@ -121,7 +121,7 @@ program
                 transformedQueries: data.extractedQueries.filter((q: any) => q.transformed).length,
                 deprecationsFixed: data.deprecationsFound || 0,
                 filesModified: Array.from(filePathSet),
-                validationPassed: data.validationStatus === 'passed'
+                validationPassed: data.validationStatus === 'passed',
               };
             } else {
               summary = data;
@@ -144,22 +144,26 @@ program
             transformedQueries: 0,
             deprecationsFixed: 0,
             filesModified: [],
-            validationPassed: false
+            validationPassed: false,
           };
         }
       }
 
       // Check for modified files if not in summary
       if (summary.filesModified.length === 0 && gitStatus.hasUncommittedChanges) {
-        const { stdout } = await import('child_process').then(cp =>
-          new Promise<{ stdout: string }>((resolve, reject) => {
-            cp.exec('git diff --name-only', (error, stdout) => {
-              if (error) reject(error);
-              else resolve({ stdout });
-            });
-          })
+        const { stdout } = await import('child_process').then(
+          (cp) =>
+            new Promise<{ stdout: string }>((resolve, reject) => {
+              cp.exec('git diff --name-only', (error, stdout) => {
+                if (error) reject(error);
+                else resolve({ stdout });
+              });
+            }),
         );
-        summary.filesModified = stdout.trim().split('\n').filter(f => f);
+        summary.filesModified = stdout
+          .trim()
+          .split('\n')
+          .filter((f) => f);
       }
 
       if (summary.filesModified.length === 0) {
@@ -177,13 +181,14 @@ program
         if (error.message.includes('already exists')) {
           logger.warn(`Branch ${branchName} already exists. Using existing branch.`);
           // Checkout the existing branch
-          await import('child_process').then(cp =>
-            new Promise<void>((resolve, reject) => {
-              cp.exec(`git checkout ${branchName}`, (error) => {
-                if (error) reject(error);
-                else resolve();
-              });
-            })
+          await import('child_process').then(
+            (cp) =>
+              new Promise<void>((resolve, reject) => {
+                cp.exec(`git checkout ${branchName}`, (error) => {
+                  if (error) reject(error);
+                  else resolve();
+                });
+              }),
           );
         } else {
           throw error;
@@ -203,7 +208,7 @@ program
 
           const commitHash = await githubService.createCommit(
             'feat: Apply GraphQL schema migration',
-            commitMessage
+            commitMessage,
           );
           logger.info(`Created commit: ${commitHash}`);
         } catch (error: any) {
@@ -221,25 +226,26 @@ program
       }
 
       // Generate PR title and body
-      let prTitle = options.title ||
-        `GraphQL Schema Migration: ${summary.transformedQueries} queries updated`;
-      
+      let prTitle =
+        options.title || `GraphQL Schema Migration: ${summary.transformedQueries} queries updated`;
+
       // Add A/B test indicator to title if enabled
       if (options.abTest) {
         prTitle += ` [A/B: ${options.abVariant}@${options.abPercentage}%]`;
       }
 
       let prBody = githubService.generatePRBody(summary);
-      
+
       // Add A/B test information to PR body
       if (options.abTest) {
-        let abTestSection = `\n\n## A/B Test Configuration\n` +
+        let abTestSection =
+          `\n\n## A/B Test Configuration\n` +
           `- **Enabled**: ✅\n` +
           `- **Variant**: ${options.abVariant}\n` +
           `- **Traffic Percentage**: ${options.abPercentage}%\n` +
           `- **Test Duration**: 14 days (recommended)\n` +
           `- **Success Metrics**: Error rate, latency, user feedback\n`;
-        
+
         if (options.abMetadata) {
           try {
             const metadata = JSON.parse(options.abMetadata);
@@ -248,20 +254,30 @@ program
             logger.warn('Invalid A/B metadata JSON, skipping');
           }
         }
-        
+
         prBody += abTestSection;
       }
 
       // Parse optional parameters
-      let labels = options.labels?.split(',').map(l => l.trim()).filter(l => l) || [];
-      
+      const labels =
+        options.labels
+          ?.split(',')
+          .map((l) => l.trim())
+          .filter((l) => l) || [];
+
       // Add A/B test labels if enabled
       if (options.abTest) {
         labels.push('a/b-test', `variant:${options.abVariant}`, 'experimental');
       }
-      
-      const assignees = options.assignees?.split(',').map(a => a.trim()).filter(a => a);
-      const reviewers = options.reviewers?.split(',').map(r => r.trim()).filter(r => r);
+
+      const assignees = options.assignees
+        ?.split(',')
+        .map((a) => a.trim())
+        .filter((a) => a);
+      const reviewers = options.reviewers
+        ?.split(',')
+        .map((r) => r.trim())
+        .filter((r) => r);
 
       // Create pull request
       const pr = await githubService.createPR({
@@ -271,7 +287,7 @@ program
         draft: options.draft,
         labels,
         assignees,
-        reviewers
+        reviewers,
       });
 
       // Log success
@@ -295,11 +311,11 @@ program
           totalQueries: summary.totalQueries,
           transformedQueries: summary.transformedQueries,
           deprecationsFixed: summary.deprecationsFixed,
-          validationPassed: summary.validationPassed
+          validationPassed: summary.validationPassed,
         },
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      
+
       // Add A/B test configuration to PR info
       if (options.abTest) {
         prInfo.abTest = {
@@ -308,16 +324,12 @@ program
           percentage: parseInt(String(options.abPercentage || '10')),
           metadata: options.abMetadata ? JSON.parse(options.abMetadata) : null,
           startDate: new Date().toISOString(),
-          endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() // 14 days
+          endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days
         };
       }
 
-      await fs.writeFile(
-        'pr-info.json',
-        JSON.stringify(prInfo, null, 2)
-      );
+      await fs.writeFile('pr-info.json', JSON.stringify(prInfo, null, 2));
       logger.info('PR information saved to pr-info.json');
-
     } catch (error) {
       logger.error('Failed to generate PR:', error);
       process.exit(1);
@@ -325,7 +337,11 @@ program
   });
 
 // Only parse if this file is being run directly
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('generate-pr.ts') || process.argv[1]?.endsWith('generate-pr.js')) {
+if (
+  import.meta.url === `file://${process.argv[1]}` ||
+  process.argv[1]?.endsWith('generate-pr.ts') ||
+  process.argv[1]?.endsWith('generate-pr.js')
+) {
   program.parse(process.argv);
 
   // Show help if no arguments provided

@@ -3,6 +3,7 @@
 Welcome to the GraphQL Migration Tool project! This guide will walk you through everything you need to know about our codebase, architecture, and how to test every feature.
 
 ## Table of Contents
+
 1. [Project Overview](#project-overview)
 2. [System Requirements](#system-requirements)
 3. [Environment Setup](#environment-setup)
@@ -16,15 +17,18 @@ Welcome to the GraphQL Migration Tool project! This guide will walk you through 
 ## Project Overview
 
 ### What is this project?
+
 An automated pipeline that migrates GraphQL queries from deprecated schema fields to new ones. It turns weeks of manual work into a 5-minute automated process.
 
 ### Problem it solves
+
 - GraphQL APIs deprecate fields over time
 - Manual migration is error-prone and time-consuming
 - Our queries use complex templates making them hard to find
 - Need zero breaking changes in production
 
 ### Key Features
+
 - Automatic query discovery from JavaScript/TypeScript files
 - Schema-driven field transformation
 - Response compatibility layer
@@ -36,6 +40,7 @@ An automated pipeline that migrates GraphQL queries from deprecated schema field
 ## System Requirements
 
 ### Required Software
+
 ```bash
 # Check these are installed:
 node --version          # Need v18+ (we use v24.2.0)
@@ -44,6 +49,7 @@ git --version          # Any recent version
 ```
 
 ### Install if missing:
+
 - **Node.js**: Download from https://nodejs.org/
 - **Git**: Download from https://git-scm.com/
 - **Code Editor**: VS Code recommended (https://code.visualstudio.com/)
@@ -53,28 +59,34 @@ git --version          # Any recent version
 ## Environment Setup
 
 ### Step 1: Clone the Repository
+
 ```bash
 git clone <repository-url>
 cd pg-migration-620
 ```
 
 ### Step 2: Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### Step 3: Build the Project
+
 ```bash
 npm run build
 ```
 
 ### Step 4: Create Environment File
+
 ```bash
 cp .env.example .env
 ```
 
 ### Step 5: Configure Authentication
+
 Edit `.env` and add your SSO cookies:
+
 ```env
 # These are required for API access
 auth_idp=<your-auth-cookie>
@@ -84,6 +96,7 @@ info_idp=<your-info-idp-cookie>
 ```
 
 **How to get cookies:**
+
 1. Log into the production app
 2. Open DevTools → Application → Cookies
 3. Copy the 4 cookie values
@@ -111,6 +124,7 @@ info_idp=<your-info-idp-cookie>
 ```
 
 ### Directory Structure
+
 ```
 pg-migration-620/
 ├── src/                    # Source code
@@ -136,94 +150,114 @@ pg-migration-620/
 ## Core Components
 
 ### 1. Query Extraction (`src/core/extraction/`)
+
 **Purpose**: Find all GraphQL queries in your codebase
 
 **Key Classes**:
+
 - `UnifiedExtractor`: Main extraction engine
 - `TemplateResolver`: Resolves template variables
 - `FragmentResolver`: Handles GraphQL fragments
 
 **How it works**:
+
 1. Scans JS/TS files for GraphQL queries
 2. Resolves template literals like `${queryNames.userDetails}`
 3. Substitutes fragment references
 4. Outputs complete query definitions
 
 ### 2. Query Transformation (`src/core/transformation/`)
+
 **Purpose**: Update queries to use new schema fields
 
 **Key Classes**:
 // testing fixtures from what to what does this step do?
+
 - `QueryTransformer`: Applies field transformations
-// MigrationEngine orchestrates?
+  // MigrationEngine orchestrates?
 - `MigrationEngine`: Orchestrates transformations
-// based on what? how determined?
+  // based on what? how determined?
 - `TransformationRules`: Defines field mappings
 
-// NEED TO FIX THIS SECTION? Lets undestand the code behind transformations 
-**Transformations**: 
+// NEED TO FIX THIS SECTION? Lets undestand the code behind transformations
+**Transformations**:
+
 - `displayName` → `name`
 - `ventures` → `ventures(first: 10)`
 - Adds `__typename` fields
 - Handles nested field changes
 
 ### 3. Schema Validation (`src/core/validator/`)
+
 **Purpose**: Ensure queries work with GraphQL schemas
 uses? libraries?
 
 // which comes first?
-**Key Classes**: 
+**Key Classes**:
+
 - `SchemaValidator`: Single schema validation
 - `MultiSchemaValidator`: Routes to correct schema
 - `QuerySchemaClassifier`: Detects which API a query uses
 
 **Features**:
+
 - Validates against multiple schemas
 - Provides detailed error messages
 - Suggests fixes for common issues
 
 ### 4. Response Mapping (`src/core/mapping/`)
+
 **Purpose**: Transform new API responses to old format
 
 **Key Classes**:
+
 - `ResponseMapper`: Field-level transformations
 - `ResponseComparator`: Detects differences
 - `AlignmentGenerator`: Creates transform functions
 
 **Ensures**:
+
 - Zero breaking changes
 - Backward compatibility
 - Seamless migration
 
 ### 5. UI Dashboard (`pg-migration-ui.html`)
+
 **Purpose**: Visual monitoring and control
 
 **Features**:
+
 - Real-time pipeline output
 - Auth testing
 - Query viewer (before/after)
 - One-click operations
 
 ### 6. Additional Services
-**Authentication**: 
+
+**Authentication**:
+
 - `AuthHelper`: SSO/Apollo token management
 - `SSOService`: SSO authentication service
 
 **Caching & Performance**:
+
 - `CacheManager`: Query and schema caching
 - `PerformanceMonitor`: Performance tracking
 
 **GitHub Integration**:
+
 - `GitHubService`: PR creation and management
 - PR generation via `generate-pr` command
 
 **Advanced Features**:
+
 - `MigrationOrchestrator`: Orchestrates full migration flow
 - `ResponseCaptureService`: Captures API responses for validation
 - Variant extraction for complex query patterns
 - Pattern-based migration for bulk updates
 
 **MCP Server**:
+
 - Model Context Protocol server for IDE integration
 - Enables AI-assisted code understanding
 - Located in `src/mcp/server.ts`
@@ -233,6 +267,7 @@ uses? libraries?
 ## Manual Testing Guide
 
 ### Prerequisites Check
+
 ```bash
 # Verify installation
 node --version  # Should be 18+
@@ -247,6 +282,7 @@ ls -la dist/  # Should see compiled files
 ```
 
 ### Test 1: Basic Pipeline Test
+
 **Purpose**: Verify core functionality works
 
 ```bash
@@ -274,6 +310,7 @@ npm run validate
 ```
 
 ### Test 2: UI Dashboard Test
+
 **Purpose**: Verify UI monitoring works
 
 ```bash
@@ -297,6 +334,7 @@ npm run validate
 ```
 
 ### Test 3: Multi-Schema Validation Test
+
 **Purpose**: Verify billing vs customer schema routing
 
 ```bash
@@ -316,6 +354,7 @@ npx tsx validate-multi-schema.ts
 ```
 
 ### Test 4: PR Generation Test
+
 **Purpose**: Verify production-ready output
 
 ```bash
@@ -337,6 +376,7 @@ diff pr-first/original/queries.js pr-first/migrated/queries.js
 ```
 
 ### Test 5: Fragment Resolution Test
+
 **Purpose**: Verify fragment handling
 
 ```bash
@@ -352,6 +392,7 @@ cat extracted-queries-with-fragments.json | grep "fragment ventureFields"
 ```
 
 ### Test 6: Response Mapping Test
+
 **Purpose**: Verify backward compatibility
 
 ```bash
@@ -367,6 +408,7 @@ console.log(JSON.stringify(newResponse, null, 2));
 ```
 
 ### Test 7: Performance Test
+
 **Purpose**: Verify speed and efficiency
 
 ```bash
@@ -382,6 +424,7 @@ npm run extract -- --debug
 ```
 
 ### Test 8: Error Handling Test
+
 **Purpose**: Verify graceful failures
 
 ```bash
@@ -404,6 +447,7 @@ mv .env.backup .env
 ```
 
 ### Test 9: Variant Extraction Test
+
 **Purpose**: Test complex query pattern handling
 
 ```bash
@@ -421,6 +465,7 @@ npm run validate-variants
 ```
 
 ### Test 10: Pattern-Based Migration Test
+
 **Purpose**: Test bulk pattern updates
 
 ```bash
@@ -436,6 +481,7 @@ npx tsx pattern-based-migration.ts apply --dry-run
 ```
 
 ### Test 11: MCP Server Test
+
 **Purpose**: Test IDE integration capability
 
 ```bash
@@ -449,6 +495,7 @@ npm run test:mcp
 ```
 
 ### Test 12: End-to-End Flow Test
+
 **Purpose**: Complete production simulation
 
 ```bash
@@ -463,13 +510,13 @@ npm run pipeline
 
 # 4. In UI, click through:
 #    - Test Auth ✓
-#    - Extract ✓  
+#    - Extract ✓
 #    - Transform ✓
 #    - Validate ✓
 
 # 5. Generate PR (choose one)
 node generate-realistic-pr.js  # Sample PR
-# OR  
+# OR
 npm run generate-pr           # CLI PR generator
 
 # 6. Review output
@@ -483,13 +530,15 @@ cat pr-first/MIGRATION_SUMMARY.md
 ### Common Issues
 
 #### 1. "Module not found" errors
+
 ```bash
 # Solution:
 npm install
 npm run build
 ```
 
-#### 2. "Auth not configured" 
+#### 2. "Auth not configured"
+
 ```bash
 # Check .env file has all 4 cookies:
 cat .env | grep idp
@@ -499,6 +548,7 @@ curl -X POST http://localhost:3456/api/test-auth
 ```
 
 #### 3. "Cannot find schema"
+
 ```bash
 # Verify schema files exist:
 ls -la data/*.graphql
@@ -507,6 +557,7 @@ ls -la data/*.graphql
 ```
 
 #### 4. UI server won't start
+
 ```bash
 # Kill existing process:
 pkill -f "node ui-server"
@@ -519,6 +570,7 @@ lsof -i :3456
 ```
 
 #### 5. Validation failures
+
 ```bash
 # This is expected! We need production schemas
 # For now, check multi-schema validation:
@@ -526,6 +578,7 @@ npx tsx validate-multi-schema.ts
 ```
 
 ### Debug Mode
+
 ```bash
 # Run any command with debug output:
 DEBUG=* npm run extract
@@ -546,7 +599,7 @@ tail -f *.log
 
 2. **Ask the team**:
    - UI issues → Fernando
-   - Validation → Jade  
+   - Validation → Jade
    - Response mapping → Beshi
    - Performance → Morgan
    - General → Senior Engineer
@@ -567,6 +620,7 @@ tail -f *.log
 5. **Shadow a team member** during their work
 
 ## Key Commands Reference
+
 ```bash
 # Development
 npm install              # Install dependencies

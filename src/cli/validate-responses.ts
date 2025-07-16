@@ -10,7 +10,7 @@ import { ConfigLoader } from '../utils/ConfigLoader.js';
 import {
   ResponseValidationService,
   ResponseValidationConfig,
-  EndpointConfig
+  EndpointConfig,
 } from '../core/validator/index.js';
 import { ResolvedQuery } from '../core/extraction/types/query.types.js';
 import { GoDaddyEndpointConfig, GoDaddySSO } from '../core/validator/GoDaddyEndpointConfig.js';
@@ -18,10 +18,7 @@ import { SSOService } from '../core/validator/SSOService.js';
 
 const program = new Command();
 
-program
-  .name('pg-validate')
-  .description('GraphQL migration response validation')
-  .version('1.0.0');
+program.name('pg-validate').description('GraphQL migration response validation').version('1.0.0');
 
 // Capture baseline responses
 program
@@ -32,7 +29,10 @@ program
   .option('--auth-token <token>', 'Authentication token')
   .option('--auth-header <header>', 'Authentication header name', 'Authorization')
   .option('--godaddy', 'Use GoDaddy endpoint configuration')
-  .option('--cookies <cookies>', 'Cookie string for authentication (format: "name1=value1; name2=value2")')
+  .option(
+    '--cookies <cookies>',
+    'Cookie string for authentication (format: "name1=value1; name2=value2")',
+  )
   .option('--auth-idp <value>', 'GoDaddy auth_idp cookie')
   .option('--cust-idp <value>', 'GoDaddy cust_idp cookie')
   .option('--info-cust-idp <value>', 'GoDaddy info_cust_idp cookie')
@@ -61,20 +61,24 @@ program
             authIdp: options.authIdp,
             custIdp: options.custIdp,
             infoCustIdp: options.infoCustIdp,
-            infoIdp: options.infoIdp
+            infoIdp: options.infoIdp,
           };
         }
         // Parse cookie string if provided
         else if (options.cookies) {
           const parsed = GoDaddyEndpointConfig.parseCookieString(options.cookies);
-          if (GoDaddyEndpointConfig.validateCookies(parsed) &&
-              'authIdp' in parsed && 'custIdp' in parsed &&
-              'infoCustIdp' in parsed && 'infoIdp' in parsed) {
+          if (
+            GoDaddyEndpointConfig.validateCookies(parsed) &&
+            'authIdp' in parsed &&
+            'custIdp' in parsed &&
+            'infoCustIdp' in parsed &&
+            'infoIdp' in parsed
+          ) {
             sso = {
               authIdp: parsed.authIdp,
               custIdp: parsed.custIdp,
               infoCustIdp: parsed.infoCustIdp,
-              infoIdp: parsed.infoIdp
+              infoIdp: parsed.infoIdp,
             };
           } else {
             spinner.fail(chalk.red('Invalid or incomplete cookies provided'));
@@ -90,9 +94,9 @@ program
             provider: 'godaddy',
             credentials: {
               username: options.ssoUsername,
-              password: options.ssoPassword
+              password: options.ssoPassword,
             },
-            requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp']
+            requiredCookies: ['auth_idp', 'cust_idp', 'info_cust_idp', 'info_idp'],
           });
 
           if (ssoResult.success && ssoResult.cookies) {
@@ -100,7 +104,9 @@ program
           } else {
             spinner.fail(chalk.red('SSO authentication failed'));
             logger.error(ssoResult.error);
-            console.log(chalk.yellow('\nPlease provide cookies manually using one of these methods:'));
+            console.log(
+              chalk.yellow('\nPlease provide cookies manually using one of these methods:'),
+            );
             console.log('1. Individual cookies: --auth-idp VALUE --cust-idp VALUE ...');
             console.log('2. Cookie string: --cookies "auth_idp=VALUE; cust_idp=VALUE; ..."');
             process.exit(1);
@@ -109,23 +115,27 @@ program
 
         endpoint = GoDaddyEndpointConfig.createEndpoint({
           sso,
-          environment: 'production'
+          environment: 'production',
         });
 
         if (!sso) {
-          console.log(chalk.yellow('\n⚠️  Warning: No authentication configured for GoDaddy endpoint'));
+          console.log(
+            chalk.yellow('\n⚠️  Warning: No authentication configured for GoDaddy endpoint'),
+          );
           console.log('The requests may fail without proper authentication.');
         }
       } else {
         // Standard endpoint configuration
         endpoint = {
           url: options.endpoint,
-          headers: options.authToken ? {
-            [options.authHeader]: options.authToken.startsWith('Bearer ')
-              ? options.authToken
-              : `Bearer ${options.authToken}`
-          } : undefined,
-          timeout: 30000
+          headers: options.authToken
+            ? {
+                [options.authHeader]: options.authToken.startsWith('Bearer ')
+                  ? options.authToken
+                  : `Bearer ${options.authToken}`,
+              }
+            : undefined,
+          timeout: 30000,
         };
       }
 
@@ -136,20 +146,20 @@ program
           parallel: true,
           maxConcurrency: 10,
           timeout: 30000,
-          variableGeneration: 'auto'
+          variableGeneration: 'auto',
         },
         comparison: {
-          strict: false
+          strict: false,
         },
         alignment: {
           strict: false,
           preserveNulls: true,
-          preserveOrder: false
+          preserveOrder: false,
         },
         storage: {
           type: 'file',
-          path: options.output
-        }
+          path: options.output,
+        },
       };
 
       // Create service and capture
@@ -218,20 +228,24 @@ program
               authIdp: options.authIdp,
               custIdp: options.custIdp,
               infoCustIdp: options.infoCustIdp,
-              infoIdp: options.infoIdp
+              infoIdp: options.infoIdp,
             };
           }
           // Parse cookie string if provided
           else if (options.cookies) {
             const parsed = GoDaddyEndpointConfig.parseCookieString(options.cookies);
-            if (GoDaddyEndpointConfig.validateCookies(parsed) &&
-                'authIdp' in parsed && 'custIdp' in parsed &&
-                'infoCustIdp' in parsed && 'infoIdp' in parsed) {
+            if (
+              GoDaddyEndpointConfig.validateCookies(parsed) &&
+              'authIdp' in parsed &&
+              'custIdp' in parsed &&
+              'infoCustIdp' in parsed &&
+              'infoIdp' in parsed
+            ) {
               sso = {
                 authIdp: parsed.authIdp,
                 custIdp: parsed.custIdp,
                 infoCustIdp: parsed.infoCustIdp,
-                infoIdp: parsed.infoIdp
+                infoIdp: parsed.infoIdp,
               };
             } else {
               spinner.fail(chalk.red('Invalid or incomplete cookies provided'));
@@ -242,23 +256,27 @@ program
 
           endpoint = GoDaddyEndpointConfig.createEndpoint({
             sso,
-            environment: 'production'
+            environment: 'production',
           });
 
           if (!sso) {
-            console.log(chalk.yellow('\n⚠️  Warning: No authentication configured for GoDaddy endpoint'));
+            console.log(
+              chalk.yellow('\n⚠️  Warning: No authentication configured for GoDaddy endpoint'),
+            );
             console.log('The requests may fail without proper authentication.');
           }
         } else {
           // Standard endpoint configuration
           endpoint = {
             url: options.endpoint,
-            headers: options.authToken ? {
-              Authorization: options.authToken.startsWith('Bearer ')
-                ? options.authToken
-                : `Bearer ${options.authToken}`
-            } : undefined,
-            timeout: 30000
+            headers: options.authToken
+              ? {
+                  Authorization: options.authToken.startsWith('Bearer ')
+                    ? options.authToken
+                    : `Bearer ${options.authToken}`,
+                }
+              : undefined,
+            timeout: 30000,
           };
         }
 
@@ -269,39 +287,35 @@ program
             parallel: true,
             maxConcurrency: 10,
             timeout: 30000,
-            variableGeneration: 'auto'
+            variableGeneration: 'auto',
           },
           comparison: {
-            strict: false
+            strict: false,
           },
           alignment: {
             strict: false,
             preserveNulls: true,
-            preserveOrder: false
+            preserveOrder: false,
           },
           storage: {
             type: 'file',
-            path: './validation-storage'
+            path: './validation-storage',
           },
           reporting: {
             formats: [options.format as any],
-            includeDiffs: true
-          }
+            includeDiffs: true,
+          },
         };
 
         service = new ResponseValidationService(config);
       }
 
       // Validate transformations
-      const report = await service.validateTransformation(
-        baselineQueries,
-        transformedQueries,
-        {
-          endpoint: options.endpoint || options.godaddy ? options.endpoint : undefined,
-          generateAlignments: options.generateAlignments,
-          setupABTest: options.setupAbTest
-        }
-      );
+      const report = await service.validateTransformation(baselineQueries, transformedQueries, {
+        endpoint: options.endpoint || options.godaddy ? options.endpoint : undefined,
+        generateAlignments: options.generateAlignments,
+        setupABTest: options.setupAbTest,
+      });
 
       spinner.succeed(chalk.green('Validation complete'));
 
@@ -312,10 +326,14 @@ program
       console.log(`Modified: ${report.summary.modifiedQueries}`);
       console.log(`Breaking Changes: ${report.summary.breakingChanges}`);
       console.log(`Average Similarity: ${(report.summary.averageSimilarity * 100).toFixed(1)}%`);
-      console.log(`Safe to Migrate: ${report.summary.safeToMigrate ? chalk.green('YES') : chalk.red('NO')}`);
+      console.log(
+        `Safe to Migrate: ${report.summary.safeToMigrate ? chalk.green('YES') : chalk.red('NO')}`,
+      );
 
       if (report.summary.breakingChanges > 0) {
-        console.log('\n' + chalk.yellow('⚠️  Breaking changes detected. Review the full report for details.'));
+        console.log(
+          '\n' + chalk.yellow('⚠️  Breaking changes detected. Review the full report for details.'),
+        );
       }
 
       // Save report
@@ -325,7 +343,7 @@ program
       // Generate CI report if requested
       if (options.format === 'junit') {
         // @ts-ignore - generateCIReport method may not exist yet
-        const ciReport = await service.generateCIReport?.(report) || { exitCode: 0 };
+        const ciReport = (await service.generateCIReport?.(report)) || { exitCode: 0 };
         process.exit(ciReport.exitCode);
       } else {
         // Exit with appropriate code
@@ -435,7 +453,7 @@ program
         capture: { parallel: true, maxConcurrency: 1, timeout: 30000, variableGeneration: 'auto' },
         comparison: { strict: false },
         alignment: { strict: false, preserveNulls: true, preserveOrder: false },
-        storage: { type: 'file', path: './validation-storage' }
+        storage: { type: 'file', path: './validation-storage' },
       };
 
       const service = new ResponseValidationService(config);
@@ -462,7 +480,7 @@ program
         capture: { parallel: true, maxConcurrency: 1, timeout: 30000, variableGeneration: 'auto' },
         comparison: { strict: false },
         alignment: { strict: false, preserveNulls: true, preserveOrder: false },
-        storage: { type: 'file', path: './validation-storage' }
+        storage: { type: 'file', path: './validation-storage' },
       };
 
       const service = new ResponseValidationService(config);

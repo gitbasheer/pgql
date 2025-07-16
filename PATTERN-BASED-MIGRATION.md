@@ -7,21 +7,25 @@ This document describes the new pattern-based migration approach that replaces t
 ## Problems with the Old Approach
 
 ### 1. Query Name Complexity was a Red Flag
+
 - Complex `queryNames.js` loading with file system traversal
 - Unsafe `eval()` usage for loading query configurations
 - Multiple fallback paths and brittle discovery logic
 
 ### 2. Enhanced Name Logic was Brittle
+
 - State mutation in `ExtractionContext.normalizeQueryName()`
 - Direct modification of query objects in `QueryNameAnalyzer.analyze()`
 - Loss of original query structure and intent
 
 ### 3. State Mutation During Extraction
+
 - `seenQueryNames` Map modified during analysis
 - Query objects mutated with `originalName` and `name` properties
 - Race conditions and unpredictable behavior
 
 ### 4. TypeScript Workarounds
+
 - `eval()` calls requiring type assertions
 - Unsafe AST traversal with missing null checks
 - Complex name resolution logic that breaks easily
@@ -35,13 +39,13 @@ Instead of normalizing `${queryNames.byIdV1}` to `getVentureHomeDataByVentureIdD
 ```typescript
 interface PatternExtractedQuery extends ExtractedQuery {
   namePattern?: {
-    template: string;        // "${queryNames.byIdV1}"
-    resolvedName: string;    // "getVentureHomeDataByVentureIdDashboard"
+    template: string; // "${queryNames.byIdV1}"
+    resolvedName: string; // "getVentureHomeDataByVentureIdDashboard"
     possibleValues: string[]; // All possible runtime values
-    patternKey: string;      // "getVentureById"
-    version: string;         // "V1"
+    patternKey: string; // "getVentureById"
+    version: string; // "V1"
     isDeprecated: boolean;
-    migrationPath?: string;  // "V3"
+    migrationPath?: string; // "V3"
   };
   contentFingerprint?: string; // Hash of normalized AST structure
 }
@@ -53,29 +57,29 @@ A registry maps dynamic patterns to all their possible values:
 
 ```typescript
 const queryRegistry = {
-  "getVentureById": {
-    versions: ["V1", "V2", "V3", "V3Airo"],
+  getVentureById: {
+    versions: ['V1', 'V2', 'V3', 'V3Airo'],
     names: {
-      V1: "getVentureHomeDataByVentureIdDashboard",
-      V2: "getVentureHomeDataByVentureIdDashboardV2",
-      V3: "getVentureHomeDataByVentureIdDashboardV3",
-      V3Airo: "getVentureHomeDataByVentureIdDashboardV3Airo"
+      V1: 'getVentureHomeDataByVentureIdDashboard',
+      V2: 'getVentureHomeDataByVentureIdDashboardV2',
+      V3: 'getVentureHomeDataByVentureIdDashboardV3',
+      V3Airo: 'getVentureHomeDataByVentureIdDashboardV3Airo',
     },
     deprecations: {
-      V1: "Use V3",
-      V2: "Use V3"
+      V1: 'Use V3',
+      V2: 'Use V3',
     },
     fragments: {
-      V1: "ventureFields",
-      V2: "ventureFields",
-      V3: "ventureInfinityStoneDataFields",
-      V3Airo: "ventureInfinityStoneDataFields"
+      V1: 'ventureFields',
+      V2: 'ventureFields',
+      V3: 'ventureInfinityStoneDataFields',
+      V3Airo: 'ventureInfinityStoneDataFields',
     },
     conditions: {
-      V3: ["infinityStoneEnabled"],
-      V3Airo: ["infinityStoneEnabled", "airoFeatureEnabled"]
-    }
-  }
+      V3: ['infinityStoneEnabled'],
+      V3Airo: ['infinityStoneEnabled', 'airoFeatureEnabled'],
+    },
+  },
 };
 ```
 
@@ -92,9 +96,9 @@ class QueryMigrator {
         ...query,
         migrationNotes: {
           currentVersion: query.namePattern.version,
-          targetVersion: "V3",
-          action: "Update queryNames object, not the query"
-        }
+          targetVersion: 'V3',
+          action: 'Update queryNames object, not the query',
+        },
       };
     }
     return this.migrateStaticQuery(query);
@@ -132,11 +136,7 @@ npx tsx src/cli/pattern-based-migration.ts analyze --output-file ./migration-res
 ### Programmatic Usage
 
 ```typescript
-import {
-  QueryPatternService,
-  QueryMigrator,
-  PatternAwareASTStrategy
-} from './src/core/extraction';
+import { QueryPatternService, QueryMigrator, PatternAwareASTStrategy } from './src/core/extraction';
 
 // Initialize services
 const patternService = new QueryPatternService();
@@ -179,31 +179,37 @@ byIdV1: getVentureHomeDataByVentureIdDashboard → getVentureHomeDataByVentureId
 ## Benefits
 
 ### ✅ Preserves Application Logic
+
 - Dynamic query selection still works
 - Feature flags and conditions respected
 - Runtime behavior unchanged
 
 ### ✅ Enables Safe Migration
+
 - Know exactly what changes where
 - Migration recommendations with context
 - Manual review flags for complex cases
 
 ### ✅ Handles Versioning
+
 - Track V1→V2→V3 progression
 - Understand deprecation paths
 - Maintain compatibility matrix
 
 ### ✅ Supports Feature Flags
+
 - Respect `infinityStoneEnabled` conditions
 - Handle `airoFeatureEnabled` logic
 - Preserve conditional query selection
 
 ### ✅ Content-Based Deduplication
+
 - Find true duplicates regardless of naming
 - AST structure comparison
 - Pattern-aware grouping
 
 ### ✅ No Brittle State Mutations
+
 - Immutable analysis approach
 - No side effects during extraction
 - Predictable behavior

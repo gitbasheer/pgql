@@ -218,36 +218,40 @@ describe('FragmentInliner', () => {
           filePath: '/src/queries.ts',
           location: { line: 1, column: 1 },
           hash: 'hash1',
-          resolvedFragments: [{
-            name: 'TestFragment',
-            content: 'fragment TestFragment on User { id name }',
-            ast: {
-              kind: 'Document',
-              definitions: [{
-                kind: 'FragmentDefinition',
-                name: { kind: 'Name', value: 'TestFragment' },
-                typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
-                selectionSet: {
-                  kind: 'SelectionSet',
-                  selections: [
-                    { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                    { kind: 'Field', name: { kind: 'Name', value: 'name' } }
-                  ]
-                }
-              }]
+          resolvedFragments: [
+            {
+              name: 'TestFragment',
+              content: 'fragment TestFragment on User { id name }',
+              ast: {
+                kind: 'Document',
+                definitions: [
+                  {
+                    kind: 'FragmentDefinition',
+                    name: { kind: 'Name', value: 'TestFragment' },
+                    typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
+                    selectionSet: {
+                      kind: 'SelectionSet',
+                      selections: [
+                        { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      ],
+                    },
+                  },
+                ],
+              },
+              filePath: '/src/fragments.ts',
+              dependencies: [],
             },
-            filePath: '/src/fragments.ts',
-            dependencies: []
-          }],
+          ],
           type: 'query',
         },
       ];
 
       const result = await inliner.transform(queries);
-      
+
       expect(logger.error).toHaveBeenCalledWith(
         'Failed to inline fragments for InvalidQuery:',
-        expect.any(Error)
+        expect.any(Error),
       );
       expect(result[0]).toEqual(queries[0]);
     });
@@ -374,14 +378,16 @@ describe('FragmentInliner', () => {
           filePath: '/src/q1.ts',
           location: { line: 1, column: 1 },
           hash: 'hash1',
-          resolvedFragments: [{
-            name: 'UserFields',
-            content: 'fragment UserFields on User { id name }',
-            ast: fragmentAst,
-            filePath: '/src/fragments.ts',
-            location: { line: 1, column: 1 },
-            hash: 'frag1',
-          }],
+          resolvedFragments: [
+            {
+              name: 'UserFields',
+              content: 'fragment UserFields on User { id name }',
+              ast: fragmentAst,
+              filePath: '/src/fragments.ts',
+              location: { line: 1, column: 1 },
+              hash: 'frag1',
+            },
+          ],
           type: 'query',
         },
         {
@@ -392,14 +398,16 @@ describe('FragmentInliner', () => {
           filePath: '/src/q2.ts',
           location: { line: 1, column: 1 },
           hash: 'hash2',
-          resolvedFragments: [{
-            name: 'UserFields',
-            content: 'fragment UserFields on User { id name }',
-            ast: fragmentAst,
-            filePath: '/src/fragments.ts',
-            location: { line: 1, column: 1 },
-            hash: 'frag1',
-          }],
+          resolvedFragments: [
+            {
+              name: 'UserFields',
+              content: 'fragment UserFields on User { id name }',
+              ast: fragmentAst,
+              filePath: '/src/fragments.ts',
+              location: { line: 1, column: 1 },
+              hash: 'frag1',
+            },
+          ],
           type: 'query',
         },
       ];

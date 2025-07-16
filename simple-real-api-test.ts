@@ -1,11 +1,11 @@
 /** @fileoverview Simple real API testing with GraphQL client */
 
 import { GraphQLClient } from './src/core/testing/GraphQLClient';
-import { 
+import {
   SAMPLE_GET_ALL_VENTURES_QUERY,
   SAMPLE_SINGLE_VENTURE_QUERY,
   SAMPLE_VENTURE_STATES_QUERY,
-  SAMPLE_VARIABLES
+  SAMPLE_VARIABLES,
 } from './test/fixtures/sample_data';
 import { writeFileSync } from 'fs';
 import dotenv from 'dotenv';
@@ -32,8 +32,8 @@ class SimpleRealAPITester {
       `auth_idp=${process.env.auth_idp}`,
       `cust_idp=${process.env.cust_idp}`,
       `info_cust_idp=${process.env.info_cust_idp}`,
-      `info_idp=${process.env.info_idp}`
-    ].filter(cookie => !cookie.includes('undefined'));
+      `info_idp=${process.env.info_idp}`,
+    ].filter((cookie) => !cookie.includes('undefined'));
 
     return cookies.join('; ');
   }
@@ -57,7 +57,7 @@ class SimpleRealAPITester {
     const client = new GraphQLClient({
       endpoint: 'https://pg.api.godaddy.com/v1/gql/customer',
       cookieString,
-      baselineDir: './test/fixtures/baselines'
+      baselineDir: './test/fixtures/baselines',
     });
 
     const testCases = [
@@ -65,49 +65,51 @@ class SimpleRealAPITester {
         name: 'GET_ALL_VENTURES',
         query: SAMPLE_GET_ALL_VENTURES_QUERY,
         variables: {},
-        endpoint: 'productGraph'
+        endpoint: 'productGraph',
       },
       {
         name: 'SINGLE_VENTURE',
         query: SAMPLE_SINGLE_VENTURE_QUERY,
         variables: SAMPLE_VARIABLES.singleVenture,
-        endpoint: 'productGraph'
+        endpoint: 'productGraph',
       },
       {
         name: 'VENTURE_STATES',
         query: SAMPLE_VENTURE_STATES_QUERY,
         variables: SAMPLE_VARIABLES.singleVenture,
-        endpoint: 'productGraph'
-      }
+        endpoint: 'productGraph',
+      },
     ];
 
     for (const testCase of testCases) {
       console.log(`🔄 Testing: ${testCase.name}`);
-      
+
       const result = await this.testSingleQuery(
         client,
         testCase.name,
         testCase.query,
         testCase.variables,
-        testCase.endpoint
+        testCase.endpoint,
       );
-      
+
       this.results.push(result);
-      
+
       const status = result.success ? '✅' : '❌';
       console.log(`${status} ${testCase.name}: ${result.timing}ms`);
-      
+
       if (result.errors.length > 0) {
         console.log(`   Errors: ${result.errors.join(', ')}`);
       }
-      
+
       if (result.dataKeys.length > 0) {
-        console.log(`   Response keys: ${result.dataKeys.slice(0, 5).join(', ')}${result.dataKeys.length > 5 ? '...' : ''}`);
+        console.log(
+          `   Response keys: ${result.dataKeys.slice(0, 5).join(', ')}${result.dataKeys.length > 5 ? '...' : ''}`,
+        );
       }
 
       // Rate limiting between requests
       console.log('   ⏱️  Waiting 2s before next request...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
     this.generateReport();
@@ -118,7 +120,7 @@ class SimpleRealAPITester {
     name: string,
     query: any,
     variables: any,
-    endpoint: string
+    endpoint: string,
   ): Promise<SimpleAPITestResult> {
     const result: SimpleAPITestResult = {
       queryName: name,
@@ -128,7 +130,7 @@ class SimpleRealAPITester {
       dataKeys: [],
       errors: [],
       timing: 0,
-      baselineSaved: false
+      baselineSaved: false,
     };
 
     const startTime = Date.now();
@@ -136,9 +138,9 @@ class SimpleRealAPITester {
     try {
       // Convert gql query to string if needed
       const queryString = query.loc?.source.body || query.toString();
-      
+
       console.log(`  📤 Sending GraphQL query...`);
-      
+
       // Use GraphQL client to make the request
       const response = await client.query(queryString, variables);
 
@@ -147,12 +149,12 @@ class SimpleRealAPITester {
       if (response && response.data) {
         result.success = true;
         result.responseReceived = true;
-        
+
         // Extract top-level data keys
         result.dataKeys = Object.keys(response.data);
-        
+
         console.log(`  ✅ Received response with data`);
-        
+
         // Save baseline
         try {
           await client.saveBaseline(queryString, response, `${name}_baseline`);
@@ -162,15 +164,15 @@ class SimpleRealAPITester {
           result.errors.push(`Baseline save failed: ${baselineError}`);
           console.log(`  ⚠️  Baseline save failed: ${baselineError}`);
         }
-        
       } else if (response && response.errors) {
-        result.errors.push(`GraphQL errors: ${response.errors.map((e: any) => e.message).join(', ')}`);
+        result.errors.push(
+          `GraphQL errors: ${response.errors.map((e: any) => e.message).join(', ')}`,
+        );
         console.log(`  ❌ GraphQL errors received`);
       } else {
         result.errors.push('No data or errors in response');
         console.log(`  ❌ Empty response received`);
       }
-
     } catch (error: any) {
       result.errors.push(`Request failed: ${error.message || error}`);
       result.timing = Date.now() - startTime;
@@ -181,7 +183,7 @@ class SimpleRealAPITester {
   }
 
   private generateReport(): void {
-    const successful = this.results.filter(r => r.success).length;
+    const successful = this.results.filter((r) => r.success).length;
     const total = this.results.length;
     const avgTiming = total > 0 ? this.results.reduce((sum, r) => sum + r.timing, 0) / total : 0;
 
@@ -193,13 +195,13 @@ class SimpleRealAPITester {
         failed: total - successful,
         successRate: total > 0 ? (successful / total) * 100 : 0,
         averageResponseTime: Math.round(avgTiming),
-        baselinesCreated: this.results.filter(r => r.baselineSaved).length
+        baselinesCreated: this.results.filter((r) => r.baselineSaved).length,
       },
       results: this.results,
       authentication: {
         cookiesConfigured: !!process.env.auth_idp,
-        cookieCount: this.buildCookieString().split(';').length
-      }
+        cookieCount: this.buildCookieString().split(';').length,
+      },
     };
 
     // Save detailed report
@@ -216,12 +218,18 @@ class SimpleRealAPITester {
     console.log(`\nDetailed results saved to: simple-real-api-results.json`);
 
     if (successful === total && total > 0) {
-      console.log('\n🎉 ALL REAL API TESTS PASSED! Authentication and GraphQL endpoint working correctly.');
+      console.log(
+        '\n🎉 ALL REAL API TESTS PASSED! Authentication and GraphQL endpoint working correctly.',
+      );
       console.log('✅ Ready for production use with live data');
     } else if (successful > 0) {
-      console.log(`\n⚠️  Partial success: ${successful}/${total} tests passed. Check failed requests.`);
+      console.log(
+        `\n⚠️  Partial success: ${successful}/${total} tests passed. Check failed requests.`,
+      );
     } else {
-      console.log('\n❌ All real API tests failed. Check authentication cookies and network connectivity.');
+      console.log(
+        '\n❌ All real API tests failed. Check authentication cookies and network connectivity.',
+      );
     }
   }
 }
@@ -229,7 +237,7 @@ class SimpleRealAPITester {
 // Run the simple real API tests
 async function main() {
   const tester = new SimpleRealAPITester();
-  
+
   try {
     await tester.runSimpleAPITests();
   } catch (error) {

@@ -47,16 +47,18 @@ describe('MCP Server Mock Tests', () => {
   describe('Response Formatting Logic', () => {
     it('should detect validation success', () => {
       const successOutput = 'All queries validated successfully';
-      const isValid = !successOutput.toLowerCase().includes('error') &&
-                     !successOutput.toLowerCase().includes('invalid');
+      const isValid =
+        !successOutput.toLowerCase().includes('error') &&
+        !successOutput.toLowerCase().includes('invalid');
 
       expect(isValid).toBe(true);
     });
 
     it('should detect validation failure', () => {
       const errorOutput = 'Error: Field not found';
-      const isValid = !errorOutput.toLowerCase().includes('error') &&
-                     !errorOutput.toLowerCase().includes('invalid');
+      const isValid =
+        !errorOutput.toLowerCase().includes('error') &&
+        !errorOutput.toLowerCase().includes('invalid');
 
       expect(isValid).toBe(false);
     });
@@ -136,7 +138,7 @@ describe('MCP Server Mock Tests', () => {
       const args = {
         directory: 'custom/src',
         schema: 'custom/schema.graphql',
-        dryRun: false
+        dryRun: false,
       };
 
       const directory = args.directory || 'src';

@@ -20,7 +20,10 @@ vi.mock('../../src/services/api', () => ({
   getBaselineComparisons: vi.fn(),
 }));
 
-import { getRealApiTestResults, triggerRealApiTests } from '../../src/services/api';
+import {
+  getRealApiTestResults,
+  triggerRealApiTests,
+} from '../../src/services/api';
 
 describe('Real API Testing Integration', () => {
   let queryClient: QueryClient;
@@ -46,9 +49,13 @@ describe('Real API Testing Integration', () => {
 
   it('should display empty state when pipeline is not active', () => {
     renderComponent('test-pipeline', false);
-    
+
     expect(screen.getByText('Real API Testing')).toBeInTheDocument();
-    expect(screen.getByText('Real API testing will be available after pipeline starts')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Real API testing will be available after pipeline starts'
+      )
+    ).toBeInTheDocument();
   });
 
   it('should show trigger button when no tests have been run', async () => {
@@ -57,7 +64,7 @@ describe('Real API Testing Integration', () => {
       tested: 0,
       passed: 0,
       failed: 0,
-      results: []
+      results: [],
     });
 
     renderComponent();
@@ -80,8 +87,8 @@ describe('Real API Testing Integration', () => {
           baselineExists: true,
           comparisonResult: {
             matches: true,
-            differences: []
-          }
+            differences: [],
+          },
         },
         {
           queryName: 'GetProjects',
@@ -90,11 +97,14 @@ describe('Real API Testing Integration', () => {
           comparisonResult: {
             matches: false,
             differences: [
-              { path: 'data.projects[0].name', description: 'Field value changed' }
-            ]
-          }
-        }
-      ]
+              {
+                path: 'data.projects[0].name',
+                description: 'Field value changed',
+              },
+            ],
+          },
+        },
+      ],
     });
 
     renderComponent();
@@ -117,13 +127,13 @@ describe('Real API Testing Integration', () => {
 
   it('should trigger real API tests with authentication', async () => {
     const user = userEvent.setup();
-    
+
     (getRealApiTestResults as any).mockResolvedValue({
       total: 0,
       tested: 0,
       passed: 0,
       failed: 0,
-      results: []
+      results: [],
     });
 
     (triggerRealApiTests as any).mockResolvedValue(undefined);
@@ -134,11 +144,14 @@ describe('Real API Testing Integration', () => {
     await waitFor(() => {
       expect(screen.getByText('Test Against Real API')).toBeInTheDocument();
     });
-    
+
     await user.click(screen.getByText('Test Against Real API'));
 
     // Fill in authentication form
-    await user.type(screen.getByPlaceholderText('Cookies (session data)'), 'test-cookies');
+    await user.type(
+      screen.getByPlaceholderText('Cookies (session data)'),
+      'test-cookies'
+    );
     await user.type(screen.getByPlaceholderText('App Key'), 'test-app-key');
 
     // Submit form
@@ -147,21 +160,23 @@ describe('Real API Testing Integration', () => {
     await waitFor(() => {
       expect(triggerRealApiTests).toHaveBeenCalledWith('test-pipeline', {
         cookies: 'test-cookies',
-        appKey: 'test-app-key'
+        appKey: 'test-app-key',
       });
-      expect(toast.success).toHaveBeenCalledWith('Real API tests triggered successfully!');
+      expect(toast.success).toHaveBeenCalledWith(
+        'Real API tests triggered successfully!'
+      );
     });
   });
 
   it('should show validation error for missing auth fields', async () => {
     const user = userEvent.setup();
-    
+
     (getRealApiTestResults as any).mockResolvedValue({
       total: 0,
       tested: 0,
       passed: 0,
       failed: 0,
-      results: []
+      results: [],
     });
 
     renderComponent();
@@ -170,12 +185,16 @@ describe('Real API Testing Integration', () => {
     await waitFor(() => {
       expect(screen.getByText('Test Against Real API')).toBeInTheDocument();
     });
-    
+
     await user.click(screen.getByText('Test Against Real API'));
 
     // Remove required attributes to allow testing our validation
-    const cookiesInput = screen.getByPlaceholderText('Cookies (session data)') as HTMLInputElement;
-    const appKeyInput = screen.getByPlaceholderText('App Key') as HTMLInputElement;
+    const cookiesInput = screen.getByPlaceholderText(
+      'Cookies (session data)'
+    ) as HTMLInputElement;
+    const appKeyInput = screen.getByPlaceholderText(
+      'App Key'
+    ) as HTMLInputElement;
     cookiesInput.removeAttribute('required');
     appKeyInput.removeAttribute('required');
 
@@ -187,23 +206,27 @@ describe('Real API Testing Integration', () => {
 
     await waitFor(() => {
       // Should trigger validation error
-      expect(toast.error).toHaveBeenCalledWith('Both cookies and app key are required');
+      expect(toast.error).toHaveBeenCalledWith(
+        'Both cookies and app key are required'
+      );
       expect(triggerRealApiTests).not.toHaveBeenCalled();
     });
   });
 
   it('should handle API errors gracefully', async () => {
     const user = userEvent.setup();
-    
+
     (getRealApiTestResults as any).mockResolvedValue({
       total: 0,
       tested: 0,
       passed: 0,
       failed: 0,
-      results: []
+      results: [],
     });
 
-    (triggerRealApiTests as any).mockRejectedValue(new Error('API connection failed'));
+    (triggerRealApiTests as any).mockRejectedValue(
+      new Error('API connection failed')
+    );
 
     renderComponent();
 
@@ -211,20 +234,25 @@ describe('Real API Testing Integration', () => {
     await waitFor(() => {
       expect(screen.getByText('Test Against Real API')).toBeInTheDocument();
     });
-    
+
     await user.click(screen.getByText('Test Against Real API'));
-    await user.type(screen.getByPlaceholderText('Cookies (session data)'), 'test-cookies');
+    await user.type(
+      screen.getByPlaceholderText('Cookies (session data)'),
+      'test-cookies'
+    );
     await user.type(screen.getByPlaceholderText('App Key'), 'test-app-key');
     await user.click(screen.getByText('Start Tests'));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Failed to trigger tests: API connection failed');
+      expect(toast.error).toHaveBeenCalledWith(
+        'Failed to trigger tests: API connection failed'
+      );
     });
   });
 
   it('should expand differences details when clicked', async () => {
     const user = userEvent.setup();
-    
+
     (getRealApiTestResults as any).mockResolvedValue({
       total: 1,
       tested: 1,
@@ -238,12 +266,15 @@ describe('Real API Testing Integration', () => {
           comparisonResult: {
             matches: false,
             differences: [
-              { path: 'data.projects[0].name', description: 'Field value changed from "old" to "new"' },
-              { path: 'data.projects[0].status', description: 'Field added' }
-            ]
-          }
-        }
-      ]
+              {
+                path: 'data.projects[0].name',
+                description: 'Field value changed from "old" to "new"',
+              },
+              { path: 'data.projects[0].status', description: 'Field added' },
+            ],
+          },
+        },
+      ],
     });
 
     renderComponent();
@@ -257,7 +288,9 @@ describe('Real API Testing Integration', () => {
 
     await waitFor(() => {
       expect(screen.getByText('data.projects[0].name:')).toBeInTheDocument();
-      expect(screen.getByText('Field value changed from "old" to "new"')).toBeInTheDocument();
+      expect(
+        screen.getByText('Field value changed from "old" to "new"')
+      ).toBeInTheDocument();
       expect(screen.getByText('data.projects[0].status:')).toBeInTheDocument();
       expect(screen.getByText('Field added')).toBeInTheDocument();
     });

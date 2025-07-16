@@ -18,11 +18,9 @@ describe('CLI Compatibility Tests', () => {
         timestamp: '2025-01-10T10:00:00Z',
         directory: './src',
         totalQueries: 5,
-        queries: [
-          { id: 'GetUser', name: 'GetUser', content: 'query GetUser { user { id } }' }
-        ],
+        queries: [{ id: 'GetUser', name: 'GetUser', content: 'query GetUser { user { id } }' }],
         fragments: [],
-        variants: []
+        variants: [],
       };
 
       const adapter = new OutputAdapter({ outputVersion: '1.0' });
@@ -50,8 +48,8 @@ describe('CLI Compatibility Tests', () => {
         timestamp: '2025-01-10T10:00:00Z',
         totalTransformed: 3,
         transformations: [
-          { query: 'GetUser', changes: [{ type: 'field', from: 'oldField', to: 'newField' }] }
-        ]
+          { query: 'GetUser', changes: [{ type: 'field', from: 'oldField', to: 'newField' }] },
+        ],
       };
 
       const adapter = new OutputAdapter({ outputVersion: '1.0' });
@@ -69,8 +67,8 @@ describe('CLI Compatibility Tests', () => {
         results: { total: 10, valid: 8, invalid: 2 },
         queries: [
           { id: 'Query1', valid: true },
-          { id: 'Query2', valid: false, errors: [{ message: 'Field not found' }] }
-        ]
+          { id: 'Query2', valid: false, errors: [{ message: 'Field not found' }] },
+        ],
       };
 
       // Test JUnit format
@@ -101,24 +99,26 @@ describe('CLI Compatibility Tests', () => {
         stderr: { on: vi.fn() },
         on: vi.fn((event, cb) => {
           if (event === 'close') cb(0);
-        })
+        }),
       };
       mockSpawn.mockReturnValue(mockProcess as any);
 
       const result = await executeCommand(['pg-cli', 'extract', './src'], {
         outputVersion: '1.0',
-        quiet: true
+        quiet: true,
       });
 
       expect(result.exitCode).toBe(0);
-      expect(mockSpawn).toHaveBeenCalledWith('pg-cli', ['extract', './src'], 
+      expect(mockSpawn).toHaveBeenCalledWith(
+        'pg-cli',
+        ['extract', './src'],
         expect.objectContaining({
           env: expect.objectContaining({
             PG_CLI_OUTPUT_VERSION: '1.0',
             PG_CLI_NO_PROGRESS: '1',
-            FORCE_COLOR: '0'
-          })
-        })
+            FORCE_COLOR: '0',
+          }),
+        }),
       );
     });
 
@@ -126,20 +126,20 @@ describe('CLI Compatibility Tests', () => {
       const mockSpawn = vi.mocked(spawn);
       const mockStdout = '{"totalQueries": 5, "queries": []}';
       const mockProcess = {
-        stdout: { 
+        stdout: {
           on: vi.fn((event, cb) => {
             if (event === 'data') cb(Buffer.from(mockStdout));
-          })
+          }),
         },
         stderr: { on: vi.fn() },
         on: vi.fn((event, cb) => {
           if (event === 'close') cb(0);
-        })
+        }),
       };
       mockSpawn.mockReturnValue(mockProcess as any);
 
       const result = await executeCommand(['pg-cli', 'extract', '--json'], {
-        json: true
+        json: true,
       });
 
       expect(result.stdout).toBe(mockStdout);
@@ -151,11 +151,11 @@ describe('CLI Compatibility Tests', () => {
     it('should respect PG_CLI_OUTPUT_VERSION environment variable', () => {
       process.env.PG_CLI_OUTPUT_VERSION = '0.9';
       const adapter = new OutputAdapter({});
-      
+
       const mockData = {
         timestamp: '2025-01-10T10:00:00Z',
         totalQueries: 5,
-        queries: []
+        queries: [],
       };
 
       const output = adapter.adaptExtractionOutput(mockData);
@@ -165,29 +165,31 @@ describe('CLI Compatibility Tests', () => {
     });
 
     it('should respect PG_CLI_NO_PROGRESS environment variable', async () => {
-      const adapter = new OutputAdapter({ 
-        quiet: process.env.PG_CLI_NO_PROGRESS === '1' 
+      const adapter = new OutputAdapter({
+        quiet: process.env.PG_CLI_NO_PROGRESS === '1',
       });
 
       process.env.PG_CLI_NO_PROGRESS = '1';
-      
+
       const mockSpawn = vi.mocked(spawn);
       mockSpawn.mockReturnValue({
         stdout: { on: vi.fn() },
         stderr: { on: vi.fn() },
         on: vi.fn((event, cb) => {
           if (event === 'close') cb(0);
-        })
+        }),
       } as any);
 
       await executeCommand(['pg-cli', 'extract']);
 
-      expect(mockSpawn).toHaveBeenCalledWith('pg-cli', ['extract'], 
+      expect(mockSpawn).toHaveBeenCalledWith(
+        'pg-cli',
+        ['extract'],
         expect.objectContaining({
           env: expect.objectContaining({
-            PG_CLI_NO_PROGRESS: '1'
-          })
-        })
+            PG_CLI_NO_PROGRESS: '1',
+          }),
+        }),
       );
 
       delete process.env.PG_CLI_NO_PROGRESS;
@@ -198,7 +200,7 @@ describe('CLI Compatibility Tests', () => {
     it('should write JSON to stdout when --json flag is used', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
       const adapter = new OutputAdapter({ json: true });
-      
+
       const data = { test: 'data' };
       await adapter.writeOutput(data);
 
@@ -209,14 +211,11 @@ describe('CLI Compatibility Tests', () => {
     it('should write to file when output path is specified', async () => {
       const mockWriteFile = vi.mocked(fs.writeFile);
       const adapter = new OutputAdapter({});
-      
+
       const data = { test: 'data' };
       await adapter.writeOutput(data, 'output.json');
 
-      expect(mockWriteFile).toHaveBeenCalledWith(
-        'output.json',
-        JSON.stringify(data, null, 2)
-      );
+      expect(mockWriteFile).toHaveBeenCalledWith('output.json', JSON.stringify(data, null, 2));
     });
   });
 
@@ -226,14 +225,14 @@ describe('CLI Compatibility Tests', () => {
       const mockStderr = 'Error: Schema file not found';
       const mockProcess = {
         stdout: { on: vi.fn() },
-        stderr: { 
+        stderr: {
           on: vi.fn((event, cb) => {
             if (event === 'data') cb(Buffer.from(mockStderr));
-          })
+          }),
         },
         on: vi.fn((event, cb) => {
           if (event === 'close') cb(1);
-        })
+        }),
       };
       mockSpawn.mockReturnValue(mockProcess as any);
 

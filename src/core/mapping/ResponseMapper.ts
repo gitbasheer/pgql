@@ -25,12 +25,16 @@ export class ResponseMapper {
   private static readonly COMMON_FIELD_MAPPINGS: FieldMapping[] = [
     { from: 'displayName', to: 'name' },
     { from: 'logoUrl', to: 'profile.logoUrl' },
-    { from: 'ventures', to: 'ventures', transform: (value) => {
-      if (Array.isArray(value)) {
-        return value.slice(0, 10);
-      }
-      return value;
-    }},
+    {
+      from: 'ventures',
+      to: 'ventures',
+      transform: (value) => {
+        if (Array.isArray(value)) {
+          return value.slice(0, 10);
+        }
+        return value;
+      },
+    },
   ];
 
   constructor(config: ResponseMappingConfig = {}) {
@@ -40,25 +44,25 @@ export class ResponseMapper {
         { path: '__typename', type: 'all' },
         { path: /.*\.pageInfo\.hasNextPage/, type: 'value' },
         { path: /.*\.pageInfo\.hasPreviousPage/, type: 'value' },
-      ]
+      ],
     });
 
     this.alignmentGenerator = new AlignmentGenerator({
       strict: false,
       preserveNulls: config.preserveTypename !== false,
-      preserveOrder: false
+      preserveOrder: false,
     });
 
     this.fieldMappings = new Map();
-    
+
     if (config.commonMappings !== false) {
-      ResponseMapper.COMMON_FIELD_MAPPINGS.forEach(mapping => {
+      ResponseMapper.COMMON_FIELD_MAPPINGS.forEach((mapping) => {
         this.fieldMappings.set(mapping.from, mapping);
       });
     }
 
     if (config.fieldMappings) {
-      config.fieldMappings.forEach(mapping => {
+      config.fieldMappings.forEach((mapping) => {
         this.fieldMappings.set(mapping.from, mapping);
       });
     }
@@ -69,7 +73,7 @@ export class ResponseMapper {
    */
   async mapResponse(
     sourceResponse: CapturedResponse,
-    targetSchema?: CapturedResponse
+    targetSchema?: CapturedResponse,
   ): Promise<any> {
     try {
       const mappedData = this.applyFieldMappings(sourceResponse.response.data);
@@ -77,13 +81,13 @@ export class ResponseMapper {
       if (targetSchema) {
         const comparison = this.comparator.compare(targetSchema, {
           ...sourceResponse,
-          response: { ...sourceResponse.response, data: mappedData }
+          response: { ...sourceResponse.response, data: mappedData },
         });
 
         if (!comparison.identical && comparison.differences.length > 0) {
           const alignment = this.alignmentGenerator.generateAlignmentFunction(
             sourceResponse.queryId,
-            comparison.differences
+            comparison.differences,
           );
 
           return alignment.transform(mappedData);
@@ -102,13 +106,13 @@ export class ResponseMapper {
    */
   generateMappingFunction(
     sourceResponse: CapturedResponse,
-    targetResponse: CapturedResponse
+    targetResponse: CapturedResponse,
   ): AlignmentFunction {
     const comparison = this.comparator.compare(targetResponse, sourceResponse);
-    
+
     const alignment = this.alignmentGenerator.generateAlignmentFunction(
       sourceResponse.queryId,
-      comparison.differences
+      comparison.differences,
     );
 
     const originalTransform = alignment.transform;
@@ -127,9 +131,9 @@ export class ResponseMapper {
     if (!data || typeof data !== 'object') return data;
 
     const result = JSON.parse(JSON.stringify(data));
-    
+
     this.applyMappingsRecursively(result, '');
-    
+
     return result;
   }
 
@@ -144,14 +148,14 @@ export class ResponseMapper {
     }
 
     const entries = Object.entries(obj);
-    
+
     for (const [key, value] of entries) {
       const fullPath = currentPath ? `${currentPath}.${key}` : key;
-      
+
       if (this.fieldMappings.has(key)) {
         const mapping = this.fieldMappings.get(key)!;
         const mappedValue = mapping.transform ? mapping.transform(value) : value;
-        
+
         if (mapping.to.includes('.')) {
           this.setNestedValue(obj, mapping.to, mappedValue);
           if (mapping.to !== key) {
@@ -172,14 +176,14 @@ export class ResponseMapper {
   private setNestedValue(obj: any, path: string, value: any): void {
     const parts = path.split('.');
     let current = obj;
-    
+
     for (let i = 0; i < parts.length - 1; i++) {
       if (!(parts[i] in current)) {
         current[parts[i]] = {};
       }
       current = current[parts[i]];
     }
-    
+
     current[parts[parts.length - 1]] = value;
   }
 
@@ -196,7 +200,7 @@ export class ResponseMapper {
   generateTypeScriptCode(alignment: AlignmentFunction): string {
     const mappingCode = this.generateFieldMappingCode();
     const alignmentCode = this.alignmentGenerator.generateTypeScriptCode(alignment);
-    
+
     return `
 ${mappingCode}
 
@@ -212,14 +216,18 @@ export function mapAndAlign_${alignment.queryId.replace(/[^a-zA-Z0-9]/g, '_')}(r
 
   private generateFieldMappingCode(): string {
     const mappings = Array.from(this.fieldMappings.entries());
-    
+
     return `
 // Field mappings configuration
-const fieldMappings = ${JSON.stringify(mappings.map(([from, mapping]) => ({
-  from,
-  to: mapping.to,
-  hasTransform: !!mapping.transform
-})), null, 2)};
+const fieldMappings = ${JSON.stringify(
+      mappings.map(([from, mapping]) => ({
+        from,
+        to: mapping.to,
+        hasTransform: !!mapping.transform,
+      })),
+      null,
+      2,
+    )};
 
 // Apply field mappings
 function applyFieldMappings(data: any): any {
@@ -271,45 +279,47 @@ function applyFieldMappings(data: any): any {
    */
   detectMappingPatterns(
     sourceResponse: CapturedResponse,
-    targetResponse: CapturedResponse
+    targetResponse: CapturedResponse,
   ): FieldMapping[] {
     const comparison = this.comparator.compare(targetResponse, sourceResponse);
     const detectedMappings: FieldMapping[] = [];
-    
+
     for (const diff of comparison.differences) {
       if (diff.type === 'missing-field' || diff.type === 'extra-field') {
-        const sourcePath = diff.type === 'missing-field' ? 
-          diff.path : this.findSimilarPath(diff.path, targetResponse.response.data);
-        
+        const sourcePath =
+          diff.type === 'missing-field'
+            ? diff.path
+            : this.findSimilarPath(diff.path, targetResponse.response.data);
+
         if (sourcePath) {
           detectedMappings.push({
             from: this.pathToString(sourcePath),
-            to: this.pathToString(diff.path)
+            to: this.pathToString(diff.path),
           });
         }
       }
     }
-    
+
     return detectedMappings;
   }
 
   private findSimilarPath(path: string | string[], data: any): string[] | null {
     const pathArray = Array.isArray(path) ? path : path.split('.');
     const fieldName = pathArray[pathArray.length - 1];
-    
+
     const candidates = [
       fieldName.replace(/([A-Z])/g, '_$1').toLowerCase(),
       fieldName.replace(/_([a-z])/g, (g) => g[1].toUpperCase()),
       `display${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`,
-      fieldName.replace(/^display/, '').toLowerCase()
+      fieldName.replace(/^display/, '').toLowerCase(),
     ];
-    
+
     for (const candidate of candidates) {
       if (this.hasPath(data, [...pathArray.slice(0, -1), candidate])) {
         return [...pathArray.slice(0, -1), candidate];
       }
     }
-    
+
     return null;
   }
 

@@ -37,8 +37,8 @@ export class PatternAwareASTStrategy extends BaseStrategy {
           'exportNamespaceFrom',
           'dynamicImport',
           'nullishCoalescingOperator',
-          'optionalChaining'
-        ]
+          'optionalChaining',
+        ],
       });
 
       // Extract queries with enhanced pattern awareness
@@ -50,14 +50,13 @@ export class PatternAwareASTStrategy extends BaseStrategy {
               queries.push(query);
             }
           }
-        }
+        },
       });
 
       // Apply pattern analysis to all extracted queries
       for (const query of queries) {
         this.patternService.analyzeQueryPattern(query);
       }
-
     } catch (error) {
       logger.error(`Failed to extract queries from ${filePath}: ${error}`);
       return [];
@@ -72,7 +71,7 @@ export class PatternAwareASTStrategy extends BaseStrategy {
   private extractPatternQuery(
     path: babel.NodePath<babel.TaggedTemplateExpression>,
     filePath: string,
-    content: string
+    content: string,
   ): PatternExtractedQuery | null {
     try {
       const { node } = path;
@@ -96,9 +95,9 @@ export class PatternAwareASTStrategy extends BaseStrategy {
         end: node.end || 0,
         templateLiteral: {
           quasis: quasi.quasis,
-          expressions: quasi.expressions
+          expressions: quasi.expressions,
         },
-        parent: path.parent
+        parent: path.parent,
       };
 
       // Create base query object
@@ -110,7 +109,7 @@ export class PatternAwareASTStrategy extends BaseStrategy {
         location: {
           line: node.loc?.start.line || 1,
           column: node.loc?.start.column || 0,
-          file: filePath
+          file: filePath,
         },
         type: this.determineOperationType(queryString),
         sourceAST,
@@ -118,8 +117,8 @@ export class PatternAwareASTStrategy extends BaseStrategy {
         metadata: {
           hasInterpolations: quasi.expressions.length > 0,
           needsResolution: this.needsResolution(quasi),
-          fileContent: content
-        }
+          fileContent: content,
+        },
       };
 
       // Convert to pattern-aware query
@@ -129,7 +128,6 @@ export class PatternAwareASTStrategy extends BaseStrategy {
       };
 
       return patternQuery;
-
     } catch (error) {
       logger.error(`Failed to extract query from AST: ${error}`);
       return null;
@@ -149,9 +147,11 @@ export class PatternAwareASTStrategy extends BaseStrategy {
         const expr = quasi.expressions[i];
 
         // Handle queryNames interpolations specially
-        if (expr.type === 'MemberExpression' &&
-            expr.object.type === 'Identifier' &&
-            expr.object.name === 'queryNames') {
+        if (
+          expr.type === 'MemberExpression' &&
+          expr.object.type === 'Identifier' &&
+          expr.object.name === 'queryNames'
+        ) {
           // Keep the interpolation as-is for pattern tracking
           queryString += `\${queryNames.${(expr.property as babel.Identifier).name}}`;
         } else {
@@ -168,11 +168,13 @@ export class PatternAwareASTStrategy extends BaseStrategy {
    * Check if template literal needs resolution
    */
   private needsResolution(quasi: babel.TemplateLiteral): boolean {
-    return quasi.expressions.some(expr => {
+    return quasi.expressions.some((expr) => {
       // QueryNames expressions need pattern tracking, not resolution
-      if (expr.type === 'MemberExpression' &&
-          expr.object.type === 'Identifier' &&
-          expr.object.name === 'queryNames') {
+      if (
+        expr.type === 'MemberExpression' &&
+        expr.object.type === 'Identifier' &&
+        expr.object.name === 'queryNames'
+      ) {
         return false;
       }
       // Other expressions might need resolution
@@ -187,22 +189,25 @@ export class PatternAwareASTStrategy extends BaseStrategy {
     const context: any = {};
 
     // Find containing function/component
-    let functionPath = path.getFunctionParent();
+    const functionPath = path.getFunctionParent();
     if (functionPath) {
       if (functionPath.node.type === 'FunctionDeclaration' && functionPath.node.id) {
         context.functionName = functionPath.node.id.name;
       } else if (functionPath.node.type === 'ArrowFunctionExpression') {
         // Look for variable declaration
-        const varPath = functionPath.findParent(p => p.isVariableDeclarator());
-        if (varPath && varPath.node.type === 'VariableDeclarator' &&
-            varPath.node.id.type === 'Identifier') {
+        const varPath = functionPath.findParent((p) => p.isVariableDeclarator());
+        if (
+          varPath &&
+          varPath.node.type === 'VariableDeclarator' &&
+          varPath.node.id.type === 'Identifier'
+        ) {
           context.functionName = varPath.node.id.name;
         }
       }
     }
 
     // Check if this is an export
-    const exportPath = path.findParent(p => p.isExportDeclaration());
+    const exportPath = path.findParent((p) => p.isExportDeclaration());
     if (exportPath) {
       context.isExported = true;
       context.isDefaultExport = exportPath.node.type === 'ExportDefaultDeclaration';
@@ -214,7 +219,9 @@ export class PatternAwareASTStrategy extends BaseStrategy {
   /**
    * Determine operation type from query string
    */
-  private determineOperationType(queryString: string): 'query' | 'mutation' | 'subscription' | 'fragment' {
+  private determineOperationType(
+    queryString: string,
+  ): 'query' | 'mutation' | 'subscription' | 'fragment' {
     const trimmed = queryString.trim();
 
     if (trimmed.startsWith('query') || trimmed.includes('${queryNames.')) {
@@ -255,14 +262,20 @@ export class PatternAwareASTStrategy extends BaseStrategy {
    * Generate unique query ID
    */
   private generateQueryId(filePath: string, position: number): string {
-    const fileName = filePath.split('/').pop()?.replace(/\.[^.]+$/, '') || 'unknown';
+    const fileName =
+      filePath
+        .split('/')
+        .pop()
+        ?.replace(/\.[^.]+$/, '') || 'unknown';
     return `${fileName}-${position}-${Date.now()}`;
   }
 
   /**
    * Group queries by content fingerprint for duplicate detection
    */
-  async groupDuplicates(queries: PatternExtractedQuery[]): Promise<Map<string, PatternExtractedQuery[]>> {
+  async groupDuplicates(
+    queries: PatternExtractedQuery[],
+  ): Promise<Map<string, PatternExtractedQuery[]>> {
     return this.patternService.groupByFingerprint(queries);
   }
 
@@ -273,9 +286,9 @@ export class PatternAwareASTStrategy extends BaseStrategy {
     query: PatternExtractedQuery;
     recommendations: ReturnType<QueryPatternService['getMigrationRecommendations']>;
   }> {
-    return queries.map(query => ({
+    return queries.map((query) => ({
       query,
-      recommendations: this.patternService.getMigrationRecommendations(query)
+      recommendations: this.patternService.getMigrationRecommendations(query),
     }));
   }
 

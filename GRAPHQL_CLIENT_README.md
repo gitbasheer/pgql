@@ -20,6 +20,7 @@ A clean, reliable, and easy-to-use GraphQL client for interacting with GoDaddy's
 ```
 
 Or manually:
+
 ```bash
 npm install @apollo/client graphql node-fetch
 ```
@@ -75,14 +76,14 @@ import { GraphQLClient } from './src/core/testing/GraphQLClient';
 
 const client = new GraphQLClient({
   cookieString: process.env.GODADDY_COOKIES,
-  baselineDir: './my-baselines'
+  baselineDir: './my-baselines',
 });
 
 // Execute query and save baseline
 const result = await client.query(
   `query GetVentures { ... }`,
   { variables },
-  true // save baseline
+  true, // save baseline
 );
 
 // Compare with baseline
@@ -92,11 +93,7 @@ const comparison = await client.compareWithBaseline(query, variables, newData);
 #### Raw Request (Exact cURL Replication)
 
 ```typescript
-const response = await client.rawRequest(
-  'operationName',
-  'query { ... }',
-  { variables }
-);
+const response = await client.rawRequest('operationName', 'query { ... }', { variables });
 ```
 
 ## API Reference
@@ -140,6 +137,7 @@ See `example-godaddy-api-usage.ts` for more usage examples.
 Baselines are automatically saved in the configured directory (default: `./baselines`). Each baseline is named with a hash of the query and variables for easy retrieval.
 
 Baseline files contain:
+
 - Timestamp
 - Original query
 - Variables used
@@ -148,6 +146,7 @@ Baseline files contain:
 ## Error Handling
 
 The client provides comprehensive error handling:
+
 - Network errors are caught and logged
 - GraphQL errors are displayed but don't throw
 - All errors include detailed messages for debugging
@@ -162,7 +161,7 @@ const client = new GraphQLClient({
   cookieString: 'custom-cookies',
   appKey: 'custom-app-key',
   clientName: 'custom-client-name',
-  baselineDir: './custom-baselines'
+  baselineDir: './custom-baselines',
 });
 ```
 

@@ -11,7 +11,7 @@ import {
   ComparisonResult,
   AlignmentFunction,
   ABTestConfig,
-  Difference
+  Difference,
 } from './types.js';
 
 export class ValidationReportGenerator {
@@ -23,14 +23,14 @@ export class ValidationReportGenerator {
     } = {
       outputDir: './validation-reports',
       formats: ['json', 'html', 'markdown'],
-      includeDiffs: true
-    }
+      includeDiffs: true,
+    },
   ) {}
 
   async generateFullReport(
     comparisons: ComparisonResult[],
     alignments: AlignmentFunction[],
-    abTestConfig?: ABTestConfig
+    abTestConfig?: ABTestConfig,
   ): Promise<ValidationReport> {
     const report: ValidationReport = {
       id: nanoid(),
@@ -39,7 +39,7 @@ export class ValidationReportGenerator {
       comparisons,
       alignments,
       abTestConfig,
-      recommendations: this.generateRecommendations(comparisons, alignments)
+      recommendations: this.generateRecommendations(comparisons, alignments),
     };
 
     // Save report in all requested formats
@@ -63,23 +63,23 @@ export class ValidationReportGenerator {
       `- **Average Similarity**: ${(summary.averageSimilarity * 100).toFixed(1)}%`,
       `- **Risk Level**: ${summary.estimatedRisk.toUpperCase()}`,
       `- **Safe to Migrate**: ${summary.safeToMigrate ? 'Yes ✅' : 'No ❌'}`,
-      ''
+      '',
     ];
 
     if (summary.breakingChanges > 0) {
       lines.push('### ⚠️ Breaking Changes Detected');
       lines.push('');
 
-      const breakingChanges = report.comparisons
-        .flatMap(c => c.breakingChanges)
-        .slice(0, 5); // Show first 5
+      const breakingChanges = report.comparisons.flatMap((c) => c.breakingChanges).slice(0, 5); // Show first 5
 
       for (const change of breakingChanges) {
         lines.push(`- **${change.type}** at \`${change.path.join('.')}\`: ${change.description}`);
       }
 
-      if (report.comparisons.flatMap(c => c.breakingChanges).length > 5) {
-        lines.push(`- ... and ${report.comparisons.flatMap(c => c.breakingChanges).length - 5} more`);
+      if (report.comparisons.flatMap((c) => c.breakingChanges).length > 5) {
+        lines.push(
+          `- ... and ${report.comparisons.flatMap((c) => c.breakingChanges).length - 5} more`,
+        );
       }
       lines.push('');
     }
@@ -87,7 +87,9 @@ export class ValidationReportGenerator {
     if (report.alignments.length > 0) {
       lines.push('### 🔧 Auto-Generated Alignments');
       lines.push('');
-      lines.push(`${report.alignments.length} alignment functions were generated to handle response differences.`);
+      lines.push(
+        `${report.alignments.length} alignment functions were generated to handle response differences.`,
+      );
       lines.push('');
     }
 
@@ -105,7 +107,9 @@ export class ValidationReportGenerator {
       lines.push('');
       lines.push(`- **Strategy**: ${report.abTestConfig.rolloutStrategy.type}`);
       lines.push(`- **Initial Split**: ${report.abTestConfig.splitPercentage}%`);
-      lines.push(`- **Auto-Rollback**: ${report.abTestConfig.autoRollback.enabled ? 'Enabled' : 'Disabled'}`);
+      lines.push(
+        `- **Auto-Rollback**: ${report.abTestConfig.autoRollback.enabled ? 'Enabled' : 'Disabled'}`,
+      );
       lines.push('');
     }
 
@@ -128,13 +132,13 @@ export class ValidationReportGenerator {
     };
   } {
     const passed = report.summary.safeToMigrate && report.summary.breakingChanges === 0;
-    const breakingChanges = report.comparisons.flatMap(c => c.breakingChanges);
+    const breakingChanges = report.comparisons.flatMap((c) => c.breakingChanges);
 
     const summary = {
       total: report.summary.totalQueries,
       passed: report.summary.identicalQueries,
       failed: report.summary.breakingChanges,
-      warnings: report.summary.modifiedQueries - report.summary.breakingChanges
+      warnings: report.summary.modifiedQueries - report.summary.breakingChanges,
     };
 
     const ciReport = {
@@ -146,13 +150,13 @@ export class ValidationReportGenerator {
       summary,
       details: {
         summary: report.summary,
-        breakingChanges: breakingChanges.map(bc => ({
+        breakingChanges: breakingChanges.map((bc) => ({
           ...bc,
-          suggestion: this.generateFixSuggestion(bc)
+          suggestion: this.generateFixSuggestion(bc),
         })),
         recommendations: report.recommendations,
-        ignoredDifferences: this.extractIgnoredDifferences(report)
-      }
+        ignoredDifferences: this.extractIgnoredDifferences(report),
+      },
     };
 
     // Generate JUnit XML if requested
@@ -165,10 +169,11 @@ export class ValidationReportGenerator {
 
   private calculateSummary(comparisons: ComparisonResult[]): ValidationSummary {
     const totalQueries = comparisons.length;
-    const identicalQueries = comparisons.filter(c => c.identical).length;
+    const identicalQueries = comparisons.filter((c) => c.identical).length;
     const modifiedQueries = totalQueries - identicalQueries;
     const breakingChanges = comparisons.reduce((sum, c) => sum + c.breakingChanges.length, 0);
-    const averageSimilarity = comparisons.reduce((sum, c) => sum + c.similarity, 0) / totalQueries || 0;
+    const averageSimilarity =
+      comparisons.reduce((sum, c) => sum + c.similarity, 0) / totalQueries || 0;
 
     const safeToMigrate = breakingChanges === 0 && averageSimilarity > 0.95;
     const estimatedRisk = this.estimateRisk(breakingChanges, averageSimilarity);
@@ -180,13 +185,13 @@ export class ValidationReportGenerator {
       breakingChanges,
       averageSimilarity,
       safeToMigrate,
-      estimatedRisk
+      estimatedRisk,
     };
   }
 
   private estimateRisk(
     breakingChanges: number,
-    averageSimilarity: number
+    averageSimilarity: number,
   ): 'low' | 'medium' | 'high' {
     if (breakingChanges > 0) return 'high';
     if (averageSimilarity < 0.9) return 'high';
@@ -196,56 +201,52 @@ export class ValidationReportGenerator {
 
   private generateRecommendations(
     comparisons: ComparisonResult[],
-    alignments: AlignmentFunction[]
+    alignments: AlignmentFunction[],
   ): string[] {
     const recommendations: string[] = [];
 
     // Check for breaking changes
-    const breakingChanges = comparisons.flatMap(c => c.breakingChanges);
+    const breakingChanges = comparisons.flatMap((c) => c.breakingChanges);
     if (breakingChanges.length > 0) {
       recommendations.push(
-        `Address ${breakingChanges.length} breaking changes before migrating to production`
+        `Address ${breakingChanges.length} breaking changes before migrating to production`,
       );
     }
 
     // Check similarity scores
-    const lowSimilarityQueries = comparisons.filter(c => c.similarity < 0.9);
+    const lowSimilarityQueries = comparisons.filter((c) => c.similarity < 0.9);
     if (lowSimilarityQueries.length > 0) {
       recommendations.push(
-        `Review ${lowSimilarityQueries.length} queries with low similarity scores (<90%)`
+        `Review ${lowSimilarityQueries.length} queries with low similarity scores (<90%)`,
       );
     }
 
     // Check performance impact
     const performanceIssues = comparisons.filter(
-      c => Math.abs(c.performanceImpact.latencyChange) > 20
+      (c) => Math.abs(c.performanceImpact.latencyChange) > 20,
     );
     if (performanceIssues.length > 0) {
       recommendations.push(
-        `Monitor performance for ${performanceIssues.length} queries with significant latency changes`
+        `Monitor performance for ${performanceIssues.length} queries with significant latency changes`,
       );
     }
 
     // Alignment recommendations
     if (alignments.length > 0) {
       recommendations.push(
-        `Test ${alignments.length} auto-generated alignment functions thoroughly before deployment`
+        `Test ${alignments.length} auto-generated alignment functions thoroughly before deployment`,
       );
     }
 
     // A/B testing recommendation
     if (breakingChanges.length === 0 && comparisons.length > 10) {
-      recommendations.push(
-        'Consider gradual rollout with A/B testing for production safety'
-      );
+      recommendations.push('Consider gradual rollout with A/B testing for production safety');
     }
 
     // Review recommendation
-    const needsReview = comparisons.filter(c => c.recommendation === 'review');
+    const needsReview = comparisons.filter((c) => c.recommendation === 'review');
     if (needsReview.length > 0) {
-      recommendations.push(
-        `Manual review recommended for ${needsReview.length} queries`
-      );
+      recommendations.push(`Manual review recommended for ${needsReview.length} queries`);
     }
 
     return recommendations;
@@ -406,16 +407,21 @@ export class ValidationReportGenerator {
   }
 
   private generateHTMLBreakingChanges(report: ValidationReport): string {
-    const breakingChanges = report.comparisons.flatMap(c => c.breakingChanges);
+    const breakingChanges = report.comparisons.flatMap((c) => c.breakingChanges);
     if (breakingChanges.length === 0) return '';
 
-    const changes = breakingChanges.slice(0, 10).map(change => `
+    const changes = breakingChanges
+      .slice(0, 10)
+      .map(
+        (change) => `
         <div class="breaking-change">
             <strong>${change.type}</strong> at <code>${change.path.join('.')}</code><br>
             ${change.description}<br>
             <small>Impact: ${change.impact} | Strategy: ${change.migrationStrategy}</small>
         </div>
-    `).join('');
+    `,
+      )
+      .join('');
 
     return `
         <h2>Breaking Changes</h2>
@@ -427,9 +433,13 @@ export class ValidationReportGenerator {
   private generateHTMLRecommendations(report: ValidationReport): string {
     if (report.recommendations.length === 0) return '';
 
-    const recs = report.recommendations.map(rec => `
+    const recs = report.recommendations
+      .map(
+        (rec) => `
         <div class="recommendation">${rec}</div>
-    `).join('');
+    `,
+      )
+      .join('');
 
     return `
         <h2>Recommendations</h2>
@@ -439,13 +449,13 @@ export class ValidationReportGenerator {
 
   private generateHTMLComparisons(report: ValidationReport): string {
     // Show first few comparisons with issues
-    const issueComparisons = report.comparisons
-      .filter(c => !c.identical)
-      .slice(0, 5);
+    const issueComparisons = report.comparisons.filter((c) => !c.identical).slice(0, 5);
 
     if (issueComparisons.length === 0) return '';
 
-    const comparisons = issueComparisons.map(comp => `
+    const comparisons = issueComparisons
+      .map(
+        (comp) => `
         <div class="comparison">
             <h3>Query: ${comp.queryId}</h3>
             <p>
@@ -454,14 +464,20 @@ export class ValidationReportGenerator {
                     ${comp.recommendation.toUpperCase()}
                 </strong>
             </p>
-            ${comp.differences.length > 0 ? `
+            ${
+              comp.differences.length > 0
+                ? `
                 <h4>Differences (${comp.differences.length})</h4>
                 <div class="diff-container">
                     <pre>${this.formatDifferences(comp.differences)}</pre>
                 </div>
-            ` : ''}
+            `
+                : ''
+            }
         </div>
-    `).join('');
+    `,
+      )
+      .join('');
 
     return `
         <h2>Query Comparisons</h2>
@@ -472,14 +488,19 @@ export class ValidationReportGenerator {
   private generateHTMLAlignments(report: ValidationReport): string {
     if (report.alignments.length === 0) return '';
 
-    const alignments = report.alignments.slice(0, 3).map(alignment => `
+    const alignments = report.alignments
+      .slice(0, 3)
+      .map(
+        (alignment) => `
         <div class="comparison">
             <h3>Alignment for Query: ${alignment.queryId}</h3>
             <div class="diff-container">
                 <pre><code>${alignment.code}</code></pre>
             </div>
         </div>
-    `).join('');
+    `,
+      )
+      .join('');
 
     return `
         <h2>Generated Alignment Functions</h2>
@@ -504,11 +525,11 @@ export class ValidationReportGenerator {
       this.generatePRSummary(report),
       '',
       '## Detailed Results',
-      ''
+      '',
     ];
 
     // Add detailed comparisons
-    const issueComparisons = report.comparisons.filter(c => !c.identical);
+    const issueComparisons = report.comparisons.filter((c) => !c.identical);
     if (issueComparisons.length > 0) {
       lines.push('### Queries with Differences');
       lines.push('');
@@ -527,13 +548,15 @@ export class ValidationReportGenerator {
 
   private async saveJSONReport(report: ValidationReport, baseFilename: string): Promise<void> {
     const filepath = path.join(this.options.outputDir!, `${baseFilename}.json`);
-    const data = this.options.formats.includes('json') ? report : {
-      id: report.id,
-      createdAt: report.createdAt,
-      summary: report.summary,
-      recommendations: report.recommendations,
-      breakingChanges: report.comparisons.flatMap(c => c.breakingChanges)
-    };
+    const data = this.options.formats.includes('json')
+      ? report
+      : {
+          id: report.id,
+          createdAt: report.createdAt,
+          summary: report.summary,
+          recommendations: report.recommendations,
+          breakingChanges: report.comparisons.flatMap((c) => c.breakingChanges),
+        };
     await fs.writeFile(filepath, JSON.stringify(data, null, 2), 'utf-8');
     logger.info(`Saved JSON report to ${filepath}`);
   }
@@ -554,10 +577,10 @@ export class ValidationReportGenerator {
       'Differences',
       'Breaking Changes',
       'Performance Impact',
-      'Recommendation'
+      'Recommendation',
     ];
 
-    const rows = report.comparisons.map(comp => [
+    const rows = report.comparisons.map((comp) => [
       comp.queryId,
       comp.operationName || '',
       comp.identical ? 'Yes' : 'No',
@@ -565,36 +588,46 @@ export class ValidationReportGenerator {
       comp.differences.length.toString(),
       comp.breakingChanges.length.toString(),
       comp.performanceImpact.latencyChange.toFixed(1) + '%',
-      comp.recommendation
+      comp.recommendation,
     ]);
 
-    return [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
+    return [headers.join(','), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join(
+      '\n',
+    );
   }
 
   private formatDifferences(differences: Difference[]): string {
-    return differences.slice(0, 5).map(diff =>
-      `${diff.severity.toUpperCase()}: ${diff.description} at ${diff.path.join('.')}`
-    ).join('\n');
+    return differences
+      .slice(0, 5)
+      .map(
+        (diff) => `${diff.severity.toUpperCase()}: ${diff.description} at ${diff.path.join('.')}`,
+      )
+      .join('\n');
   }
 
   private getRecommendationClass(recommendation: string): string {
     switch (recommendation) {
-      case 'safe': return 'status-safe';
-      case 'review': return 'status-warning';
-      case 'unsafe': return 'status-danger';
-      default: return '';
+      case 'safe':
+        return 'status-safe';
+      case 'review':
+        return 'status-warning';
+      case 'unsafe':
+        return 'status-danger';
+      default:
+        return '';
     }
   }
 
   private getStatusEmoji(risk: string): string {
     switch (risk) {
-      case 'low': return '✅';
-      case 'medium': return '⚠️';
-      case 'high': return '🚨';
-      default: return '❓';
+      case 'low':
+        return '✅';
+      case 'medium':
+        return '⚠️';
+      case 'high':
+        return '🚨';
+      default:
+        return '❓';
     }
   }
 
@@ -648,15 +681,12 @@ export class ValidationReportGenerator {
       return {
         path,
         reason: data.reason,
-        count: data.count
+        count: data.count,
       };
     });
   }
 
-  private async generateJUnitReport(
-    report: ValidationReport,
-    ciReport: any
-  ): Promise<void> {
+  private async generateJUnitReport(report: ValidationReport, ciReport: any): Promise<void> {
     const junit = this.createJUnitXML(report, ciReport);
     const outputPath = path.join(this.options.outputDir, 'validation-junit.xml');
 
@@ -667,24 +697,37 @@ export class ValidationReportGenerator {
   }
 
   private createJUnitXML(report: ValidationReport, ciReport: any): string {
-    const testCases = report.comparisons.map(comparison => {
-      const status = comparison.identical ? 'passed' :
-                    comparison.breakingChanges.length > 0 ? 'failed' : 'warning';
+    const testCases = report.comparisons
+      .map((comparison) => {
+        const status = comparison.identical
+          ? 'passed'
+          : comparison.breakingChanges.length > 0
+            ? 'failed'
+            : 'warning';
 
-      const testCase = `
+        const testCase = `
     <testcase name="${comparison.queryId}" classname="GraphQLMigration.ResponseValidation" time="0">
-      ${status === 'failed' ? `
+      ${
+        status === 'failed'
+          ? `
       <failure message="${comparison.breakingChanges.length} breaking changes detected">
-${comparison.breakingChanges.map(bc => `- ${bc.type}: ${bc.description}`).join('\n')}
-      </failure>` : ''}
-      ${status === 'warning' ? `
+${comparison.breakingChanges.map((bc) => `- ${bc.type}: ${bc.description}`).join('\n')}
+      </failure>`
+          : ''
+      }
+      ${
+        status === 'warning'
+          ? `
       <system-out>
 ${comparison.differences.length} non-breaking differences detected
-      </system-out>` : ''}
+      </system-out>`
+          : ''
+      }
     </testcase>`;
 
-      return testCase;
-    }).join('\n');
+        return testCase;
+      })
+      .join('\n');
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <testsuites name="GraphQL Migration Validation" tests="${report.summary.totalQueries}" failures="${ciReport.summary.failed}" warnings="${ciReport.summary.warnings}" time="0">
@@ -753,7 +796,7 @@ ${testCases}
     // Add breaking changes
     if (comparison.breakingChanges.length > 0) {
       sections.push('BREAKING CHANGES:');
-      comparison.breakingChanges.forEach(bc => {
+      comparison.breakingChanges.forEach((bc) => {
         sections.push(`  - ${bc.type}: ${bc.description}`);
         sections.push(`    Impact: ${bc.impact}`);
         sections.push(`    Suggestion: ${this.generateFixSuggestion(bc)}`);
@@ -763,7 +806,7 @@ ${testCases}
 
     // Add differences with visual diffs
     sections.push('DIFFERENCES:');
-    comparison.differences.forEach(diff => {
+    comparison.differences.forEach((diff) => {
       sections.push(`\nPath: ${diff.path}`);
       sections.push(`Type: ${diff.type}`);
       sections.push(`Severity: ${diff.severity}`);
@@ -782,7 +825,7 @@ ${testCases}
         baselineStr,
         transformedStr,
         'Baseline Response',
-        'Transformed Response'
+        'Transformed Response',
       );
 
       sections.push(patch);

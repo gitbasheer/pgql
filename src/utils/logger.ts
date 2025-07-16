@@ -7,13 +7,13 @@ const logFormat = winston.format.combine(
   winston.format.json(),
   winston.format.printf(({ timestamp, level, message, ...metadata }) => {
     let msg = `${timestamp} [${level.toUpperCase()}]: ${message}`;
-    
+
     if (Object.keys(metadata).length > 0) {
       msg += ` ${JSON.stringify(metadata)}`;
     }
-    
+
     return msg;
-  })
+  }),
 );
 
 export const logger = winston.createLogger({
@@ -23,21 +23,18 @@ export const logger = winston.createLogger({
   transports: [
     // Console transport with colors
     new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        logFormat
-      )
+      format: winston.format.combine(winston.format.colorize(), logFormat),
     }),
     // File transport for errors
     new winston.transports.File({
       filename: 'logs/error.log',
-      level: 'error'
+      level: 'error',
     }),
     // File transport for all logs
     new winston.transports.File({
-      filename: 'logs/combined.log'
-    })
-  ]
+      filename: 'logs/combined.log',
+    }),
+  ],
 });
 
 // Create a child logger for specific modules

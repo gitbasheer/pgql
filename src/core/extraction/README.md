@@ -46,7 +46,7 @@ const options: ExtractionOptions = {
   directory: './src',
   detectVariants: true,
   normalizeNames: true,
-  reporters: ['json', 'html']
+  reporters: ['json', 'html'],
 };
 
 const extractor = new UnifiedExtractor(options);
@@ -69,15 +69,15 @@ The pipeline follows a clear extraction flow:
 
 ## Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `directory` | string | required | Directory to scan |
-| `patterns` | string[] | `['**/*.{js,jsx,ts,tsx}']` | File patterns |
-| `strategies` | string[] | `['hybrid']` | Extraction strategies |
-| `detectVariants` | boolean | `true` | Enable variant detection |
-| `normalizeNames` | boolean | `true` | Normalize query names |
-| `namingConvention` | string | `'pascalCase'` | Naming convention |
-| `reporters` | string[] | `['json']` | Output formats |
+| Option             | Type     | Default                    | Description              |
+| ------------------ | -------- | -------------------------- | ------------------------ |
+| `directory`        | string   | required                   | Directory to scan        |
+| `patterns`         | string[] | `['**/*.{js,jsx,ts,tsx}']` | File patterns            |
+| `strategies`       | string[] | `['hybrid']`               | Extraction strategies    |
+| `detectVariants`   | boolean  | `true`                     | Enable variant detection |
+| `normalizeNames`   | boolean  | `true`                     | Normalize query names    |
+| `namingConvention` | string   | `'pascalCase'`             | Naming convention        |
+| `reporters`        | string[] | `['json']`                 | Output formats           |
 
 ## Example Output
 
@@ -91,11 +91,13 @@ The pipeline follows a clear extraction flow:
       "totalFragments": 5
     }
   },
-  "queries": [{
-    "name": "GetUserData",
-    "originalName": "getUserData",
-    "type": "query",
-    "content": "query GetUserData { ... }"
-  }]
+  "queries": [
+    {
+      "name": "GetUserData",
+      "originalName": "getUserData",
+      "type": "query",
+      "content": "query GetUserData { ... }"
+    }
+  ]
 }
 ```

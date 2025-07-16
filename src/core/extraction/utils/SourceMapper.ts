@@ -18,7 +18,11 @@ export class SourceMapper {
     this.astToQuery.set(sourceAST.node, queryId);
 
     // Track interpolations if present - only when there are actual expressions
-    if (sourceAST.templateLiteral && sourceAST.templateLiteral.expressions && sourceAST.templateLiteral.expressions.length > 0) {
+    if (
+      sourceAST.templateLiteral &&
+      sourceAST.templateLiteral.expressions &&
+      sourceAST.templateLiteral.expressions.length > 0
+    ) {
       const interpolations = this.extractInterpolations(sourceAST.templateLiteral);
       this.interpolationMap.set(queryId, interpolations);
     }
@@ -69,28 +73,36 @@ export class SourceMapper {
    * Check if a call expression is a GraphQL call
    */
   static isGraphQLCall(node: babel.Node): boolean {
-    return babel.isCallExpression(node) &&
-           babel.isIdentifier(node.callee) &&
-           ['gql', 'graphql', 'GraphQL'].includes(node.callee.name) &&
-           node.arguments.length > 0 &&
-           babel.isTemplateLiteral(node.arguments[0]);
+    return (
+      babel.isCallExpression(node) &&
+      babel.isIdentifier(node.callee) &&
+      ['gql', 'graphql', 'GraphQL'].includes(node.callee.name) &&
+      node.arguments.length > 0 &&
+      babel.isTemplateLiteral(node.arguments[0])
+    );
   }
 
   /**
    * Extract template literal structure for preservation
    */
-  static extractTemplateLiteral(node: babel.Node): { quasis: babel.TemplateElement[], expressions: babel.Expression[] } | null {
+  static extractTemplateLiteral(
+    node: babel.Node,
+  ): { quasis: babel.TemplateElement[]; expressions: babel.Expression[] } | null {
     if (babel.isTaggedTemplateExpression(node)) {
       return {
         quasis: node.quasi.quasis,
-        expressions: node.quasi.expressions as babel.Expression[]
+        expressions: node.quasi.expressions as babel.Expression[],
       };
     }
-    if (babel.isCallExpression(node) && node.arguments[0] && babel.isTemplateLiteral(node.arguments[0])) {
+    if (
+      babel.isCallExpression(node) &&
+      node.arguments[0] &&
+      babel.isTemplateLiteral(node.arguments[0])
+    ) {
       const template = node.arguments[0];
       return {
         quasis: template.quasis,
-        expressions: template.expressions as babel.Expression[]
+        expressions: template.expressions as babel.Expression[],
       };
     }
     return null;
@@ -99,7 +111,10 @@ export class SourceMapper {
   /**
    * Extract detailed interpolation information
    */
-  private extractInterpolations(template: { quasis: babel.TemplateElement[], expressions: babel.Expression[] }): InterpolationInfo[] {
+  private extractInterpolations(template: {
+    quasis: babel.TemplateElement[];
+    expressions: babel.Expression[];
+  }): InterpolationInfo[] {
     const interpolations: InterpolationInfo[] = [];
 
     for (let i = 0; i < template.expressions.length; i++) {
@@ -114,9 +129,9 @@ export class SourceMapper {
         afterText: nextQuasi?.value.raw || '',
         position: {
           start: prevQuasi.end ?? 0,
-          end: nextQuasi?.start ?? 0
+          end: nextQuasi?.start ?? 0,
         },
-        type: this.classifyExpression(expr)
+        type: this.classifyExpression(expr),
       });
     }
 
@@ -161,7 +176,7 @@ export class SourceMapper {
     return {
       totalQueries: this.queryToAst.size,
       queriesWithInterpolations: this.interpolationMap.size,
-      interpolationTypes: this.getInterpolationTypeStats()
+      interpolationTypes: this.getInterpolationTypeStats(),
     };
   }
 
@@ -172,7 +187,7 @@ export class SourceMapper {
       identifier: 0,
       functionCall: 0,
       conditional: 0,
-      other: 0
+      other: 0,
     };
 
     for (const interpolations of this.interpolationMap.values()) {
@@ -197,7 +212,13 @@ interface InterpolationInfo {
   type: InterpolationType;
 }
 
-type InterpolationType = 'queryName' | 'memberAccess' | 'identifier' | 'functionCall' | 'conditional' | 'other';
+type InterpolationType =
+  | 'queryName'
+  | 'memberAccess'
+  | 'identifier'
+  | 'functionCall'
+  | 'conditional'
+  | 'other';
 
 interface SourceMapperStats {
   totalQueries: number;

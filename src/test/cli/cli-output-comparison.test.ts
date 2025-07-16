@@ -26,11 +26,11 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
             content: 'query GetUser { user { id name } }',
             file: 'src/queries/user.ts',
             line: 10,
-            column: 5
-          }
+            column: 5,
+          },
         ],
         fragments: [],
-        errors: []
+        errors: [],
       };
 
       // Mock unified-cli.ts analyze output (equivalent to extract)
@@ -43,9 +43,9 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
             line: 10,
             column: 5,
             confidence: { score: 100 },
-            fragments: []
-          }
-        ]
+            fragments: [],
+          },
+        ],
       };
 
       // Both should provide same essential information
@@ -65,18 +65,16 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
         transformations: [
           {
             query: 'GetUser',
-            changes: [
-              { type: 'field', from: 'oldField', to: 'newField' }
-            ],
-            confidence: 95
-          }
+            changes: [{ type: 'field', from: 'oldField', to: 'newField' }],
+            confidence: 95,
+          },
         ],
         summary: {
           total: 5,
           transformed: 3,
           skipped: 2,
-          failed: 0
-        }
+          failed: 0,
+        },
       };
 
       // Mock unified-cli.ts transform output
@@ -89,9 +87,9 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
           {
             name: 'GetUser',
             changes: 1,
-            confidence: 95
-          }
-        ]
+            confidence: 95,
+          },
+        ],
       };
 
       // Key metrics should align
@@ -110,12 +108,12 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
           total: 10,
           valid: 8,
           invalid: 2,
-          warnings: 1
+          warnings: 1,
         },
         queries: [
           { id: 'GetUser', valid: true },
-          { id: 'UpdateUser', valid: false, errors: [{ message: 'Field deprecated' }] }
-        ]
+          { id: 'UpdateUser', valid: false, errors: [{ message: 'Field deprecated' }] },
+        ],
       };
 
       // Mock unified-cli.ts validate output
@@ -124,9 +122,9 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
         errors: [
           {
             operation: 'UpdateUser',
-            message: 'Field deprecated'
-          }
-        ]
+            message: 'Field deprecated',
+          },
+        ],
       };
 
       // Both indicate validation failure
@@ -139,30 +137,44 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
   describe('Command Mapping', () => {
     const commandMap = {
       // main-cli.ts -> unified-cli.ts
-      'extract': 'analyze',
-      'transform': 'transform',
-      'validate': 'validate',
-      'apply': 'apply',
-      'monitor': 'monitor',
-      'rollback': 'rollback'
+      extract: 'analyze',
+      transform: 'transform',
+      validate: 'validate',
+      apply: 'apply',
+      monitor: 'monitor',
+      rollback: 'rollback',
     };
 
     it('should map commands correctly between CLIs', () => {
       // main-cli.ts has more interactive commands
       const mainCliCommands = [
-        'analyze', 'extract', 'transform', 'validate', 'generate',
-        'interactive', 'schema', 'migrate', 'monitor', 'rollback'
+        'analyze',
+        'extract',
+        'transform',
+        'validate',
+        'generate',
+        'interactive',
+        'schema',
+        'migrate',
+        'monitor',
+        'rollback',
       ];
 
       // unified-cli.ts has production-focused commands
       const unifiedCliCommands = [
-        'analyze', 'transform', 'validate', 'apply', 
-        'monitor', 'rollback', 'migrate', 'pattern-migrate'
+        'analyze',
+        'transform',
+        'validate',
+        'apply',
+        'monitor',
+        'rollback',
+        'migrate',
+        'pattern-migrate',
       ];
 
       // Core commands should exist in both
       const coreCommands = ['transform', 'validate', 'monitor', 'rollback'];
-      coreCommands.forEach(cmd => {
+      coreCommands.forEach((cmd) => {
         expect(mainCliCommands).toContain(cmd);
         expect(unifiedCliCommands).toContain(cmd);
       });
@@ -175,7 +187,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
       { scenario: 'validation failure', exitCode: 1 },
       { scenario: 'file not found', exitCode: 1 },
       { scenario: 'invalid arguments', exitCode: 1 },
-      { scenario: 'transformation error', exitCode: 1 }
+      { scenario: 'transformation error', exitCode: 1 },
     ];
 
     testCases.forEach(({ scenario, exitCode }) => {
@@ -185,7 +197,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
           stderr: { on: vi.fn() },
           on: vi.fn((event, cb) => {
             if (event === 'close') cb(exitCode);
-          })
+          }),
         } as any);
 
         const runCommand = async (cli: string, args: string[]) => {
@@ -207,7 +219,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
   describe('Progress Output Compatibility', () => {
     it('should suppress progress indicators when --quiet is used', async () => {
       const outputs: string[] = [];
-      
+
       mockSpawn.mockImplementation((cmd, args: any) => {
         const hasQuiet = args.includes('--quiet');
         const mockProcess = {
@@ -216,12 +228,12 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
               if (event === 'data' && !hasQuiet) {
                 cb(Buffer.from('Processing...'));
               }
-            })
+            }),
           },
           stderr: { on: vi.fn() },
           on: vi.fn((event, cb) => {
             if (event === 'close') cb(0);
-          })
+          }),
         };
         return mockProcess as any;
       });
@@ -230,7 +242,9 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
       const quietResult = await new Promise<string>((resolve) => {
         const child = spawn('tsx', ['main-cli.ts', 'extract', '--quiet']);
         let output = '';
-        child.stdout?.on('data', (data) => { output += data.toString(); });
+        child.stdout?.on('data', (data) => {
+          output += data.toString();
+        });
         child.on('close', () => resolve(output));
       });
 
@@ -238,7 +252,9 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
       const verboseResult = await new Promise<string>((resolve) => {
         const child = spawn('tsx', ['main-cli.ts', 'extract']);
         let output = '';
-        child.stdout?.on('data', (data) => { output += data.toString(); });
+        child.stdout?.on('data', (data) => {
+          output += data.toString();
+        });
         child.on('close', () => resolve(output));
       });
 
@@ -251,7 +267,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
     it('should output pure JSON when --json flag is used', async () => {
       const jsonOutput = {
         totalQueries: 5,
-        queries: [{ id: 'GetUser', name: 'GetUser' }]
+        queries: [{ id: 'GetUser', name: 'GetUser' }],
       };
 
       mockSpawn.mockReturnValue({
@@ -260,18 +276,20 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
             if (event === 'data') {
               cb(Buffer.from(JSON.stringify(jsonOutput)));
             }
-          })
+          }),
         },
         stderr: { on: vi.fn() },
         on: vi.fn((event, cb) => {
           if (event === 'close') cb(0);
-        })
+        }),
       } as any);
 
       const result = await new Promise<string>((resolve) => {
         const child = spawn('tsx', ['main-cli.ts', 'extract', '--json']);
         let output = '';
-        child.stdout?.on('data', (data) => { output += data.toString(); });
+        child.stdout?.on('data', (data) => {
+          output += data.toString();
+        });
         child.on('close', () => resolve(output));
       });
 
@@ -284,11 +302,11 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
   describe('Feature Parity', () => {
     it('should verify core features exist in both CLIs', () => {
       const coreFeatures = {
-        'extraction': { mainCli: 'extract', unifiedCli: 'analyze' },
-        'transformation': { mainCli: 'transform', unifiedCli: 'transform' },
-        'validation': { mainCli: 'validate', unifiedCli: 'validate' },
-        'monitoring': { mainCli: 'monitor', unifiedCli: 'monitor' },
-        'rollback': { mainCli: 'rollback', unifiedCli: 'rollback' }
+        extraction: { mainCli: 'extract', unifiedCli: 'analyze' },
+        transformation: { mainCli: 'transform', unifiedCli: 'transform' },
+        validation: { mainCli: 'validate', unifiedCli: 'validate' },
+        monitoring: { mainCli: 'monitor', unifiedCli: 'monitor' },
+        rollback: { mainCli: 'rollback', unifiedCli: 'rollback' },
       };
 
       // All core features should be available in both CLIs

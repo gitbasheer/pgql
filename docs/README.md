@@ -6,41 +6,41 @@
 
 ### Core Documentation
 
-| Document | Description | Status |
-|----------|-------------|--------|
-| [**Technical Overview**](./TECHNICAL-OVERVIEW.md) | Complete technical architecture and capabilities | ✅ Complete |
-| [**Implementation History**](./IMPLEMENTATION-HISTORY.md) | Development timeline and phase documentation | ✅ Complete |
-| [**MCP Guide**](./MCP-GUIDE.md) | Natural language interface documentation | ✅ Complete |
-| [**Test Infrastructure**](./TEST-INFRASTRUCTURE.md) | Testing framework and guidelines | ✅ Complete |
-| [**Validation Guide**](./VALIDATION-GUIDE.md) | Query validation and response comparison | ✅ Complete |
+| Document                                                  | Description                                      | Status      |
+| --------------------------------------------------------- | ------------------------------------------------ | ----------- |
+| [**Technical Overview**](./TECHNICAL-OVERVIEW.md)         | Complete technical architecture and capabilities | ✅ Complete |
+| [**Implementation History**](./IMPLEMENTATION-HISTORY.md) | Development timeline and phase documentation     | ✅ Complete |
+| [**MCP Guide**](./MCP-GUIDE.md)                           | Natural language interface documentation         | ✅ Complete |
+| [**Test Infrastructure**](./TEST-INFRASTRUCTURE.md)       | Testing framework and guidelines                 | ✅ Complete |
+| [**Validation Guide**](./VALIDATION-GUIDE.md)             | Query validation and response comparison         | ✅ Complete |
 
 ### Quick Start Guides
 
-| Guide | Purpose |
-|-------|---------|
-| [**MCP Quick Start**](../README-MCP.md) | Get started with natural language commands |
-| [**CLI Quick Start**](../README.md#quick-start) | Traditional command-line usage |
-| [**Pattern-Based Migration**](../PATTERN-BASED-MIGRATION.md) | New approach preserving dynamic queries |
-| [**API Usage**](./TECHNICAL-OVERVIEW.md#integration-points) | Programmatic integration |
+| Guide                                                        | Purpose                                    |
+| ------------------------------------------------------------ | ------------------------------------------ |
+| [**MCP Quick Start**](../README-MCP.md)                      | Get started with natural language commands |
+| [**CLI Quick Start**](../README.md#quick-start)              | Traditional command-line usage             |
+| [**Pattern-Based Migration**](../PATTERN-BASED-MIGRATION.md) | New approach preserving dynamic queries    |
+| [**API Usage**](./TECHNICAL-OVERVIEW.md#integration-points)  | Programmatic integration                   |
 
 ### Implementation Details
 
-| Component | Documentation |
-|-----------|---------------|
-| **Query Extraction** | [Extraction Engine](./IMPLEMENTATION-HISTORY.md#phase-11-core-implementation) |
-| **AST Code Application** | [Phase 1.2 Implementation](./IMPLEMENTATION-HISTORY.md#phase-12-ast-based-code-application) |
-| **Transformation Engine** | [Transformer Docs](./TECHNICAL-OVERVIEW.md#intelligent-transformation-85-complete) |
-| **Safety Mechanisms** | [Safety & Reliability](./TECHNICAL-OVERVIEW.md#safety--reliability) |
-| **MCP Server** | [Phase 2.1.1](./IMPLEMENTATION-HISTORY.md#phase-211-mcp-server-implementation) |
+| Component                 | Documentation                                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------------- |
+| **Query Extraction**      | [Extraction Engine](./IMPLEMENTATION-HISTORY.md#phase-11-core-implementation)               |
+| **AST Code Application**  | [Phase 1.2 Implementation](./IMPLEMENTATION-HISTORY.md#phase-12-ast-based-code-application) |
+| **Transformation Engine** | [Transformer Docs](./TECHNICAL-OVERVIEW.md#intelligent-transformation-85-complete)          |
+| **Safety Mechanisms**     | [Safety & Reliability](./TECHNICAL-OVERVIEW.md#safety--reliability)                         |
+| **MCP Server**            | [Phase 2.1.1](./IMPLEMENTATION-HISTORY.md#phase-211-mcp-server-implementation)              |
 
 ### Developer Resources
 
-| Resource | Description |
-|----------|-------------|
-| [**Writing Tests**](./TEST-INFRASTRUCTURE.md#writing-tests) | Test structure and patterns |
-| [**Extending MCP**](./MCP-GUIDE.md#extending-the-server) | Adding new tools to MCP |
-| [**Performance Guide**](./TECHNICAL-OVERVIEW.md#performance-characteristics) | Optimization strategies |
-| [**Error Handling**](./VALIDATION-GUIDE.md#error-handling) | Error recovery patterns |
+| Resource                                                                     | Description                 |
+| ---------------------------------------------------------------------------- | --------------------------- |
+| [**Writing Tests**](./TEST-INFRASTRUCTURE.md#writing-tests)                  | Test structure and patterns |
+| [**Extending MCP**](./MCP-GUIDE.md#extending-the-server)                     | Adding new tools to MCP     |
+| [**Performance Guide**](./TECHNICAL-OVERVIEW.md#performance-characteristics) | Optimization strategies     |
+| [**Error Handling**](./VALIDATION-GUIDE.md#error-handling)                   | Error recovery patterns     |
 
 ---
 
@@ -53,6 +53,7 @@
    - Open Cursor and use commands like "Analyze my GraphQL operations"
 
 2. **Command Line**
+
    ```bash
    pnpm extract src         # Extract queries
    pnpm transform          # Transform queries
@@ -71,6 +72,7 @@
    - Review [Implementation History](./IMPLEMENTATION-HISTORY.md)
 
 2. **Set Up Development**
+
    ```bash
    pnpm install
    pnpm build
@@ -110,16 +112,19 @@
 ## 🗺️ Roadmap
 
 ### Immediate (This Week)
+
 - [ ] Fix remaining 58 test failures
 - [ ] Update documentation based on test fixes
 - [ ] Create migration examples
 
 ### Short Term (1 Month)
+
 - [ ] Implement GitHub PR generation
 - [ ] Add visual diff preview
 - [ ] Performance benchmarking
 
 ### Long Term (3+ Months)
+
 - [ ] Multi-language support (Python, Java)
 - [ ] VS Code extension
 - [ ] Web-based UI

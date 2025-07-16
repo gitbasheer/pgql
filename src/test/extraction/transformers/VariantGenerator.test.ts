@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VariantGenerator } from '../../../core/extraction/transformers/VariantGenerator.js';
 import { ExtractionContext } from '../../../core/extraction/engine/ExtractionContext.js';
-import { ResolvedQuery, VariantSwitch, QueryVariant } from '../../../core/extraction/types/index.js';
+import {
+  ResolvedQuery,
+  VariantSwitch,
+  QueryVariant,
+} from '../../../core/extraction/types/index.js';
 import { parse } from 'graphql';
 import { logger } from '../../../utils/logger.js';
 
@@ -64,28 +68,31 @@ describe('VariantGenerator', () => {
       ];
 
       const switches = new Map<string, VariantSwitch>([
-        ['includeEmail', {
-          variable: 'includeEmail',
-          type: 'boolean',
-          possibleValues: [true, false],
-          location: 'fragment',
-          source: '${includeEmail ? "email" : ""}',
-        }],
+        [
+          'includeEmail',
+          {
+            variable: 'includeEmail',
+            type: 'boolean',
+            possibleValues: [true, false],
+            location: 'fragment',
+            source: '${includeEmail ? "email" : ""}',
+          },
+        ],
       ]);
 
       const result = await generator.generate(queries, switches);
 
       expect(result).toHaveLength(2);
       expect(logger.info).toHaveBeenCalledWith('Generated 2 variants from 1 queries');
-      
+
       // Check true variant
-      const trueVariant = result.find(v => v.conditions.switches.includeEmail === true);
+      const trueVariant = result.find((v) => v.conditions.switches.includeEmail === true);
       expect(trueVariant).toBeDefined();
       expect(trueVariant!.content).toContain('email');
       expect(trueVariant!.content).not.toContain('${');
 
       // Check false variant
-      const falseVariant = result.find(v => v.conditions.switches.includeEmail === false);
+      const falseVariant = result.find((v) => v.conditions.switches.includeEmail === false);
       expect(falseVariant).toBeDefined();
       expect(falseVariant!.content).not.toContain('email');
       expect(falseVariant!.content).not.toContain('${');
@@ -119,20 +126,26 @@ describe('VariantGenerator', () => {
       ];
 
       const switches = new Map<string, VariantSwitch>([
-        ['includeEmail', {
-          variable: 'includeEmail',
-          type: 'boolean',
-          possibleValues: [true, false],
-          location: 'fragment',
-          source: '${includeEmail ? "email" : ""}',
-        }],
-        ['includeProfile', {
-          variable: 'includeProfile',
-          type: 'boolean',
-          possibleValues: [true, false],
-          location: 'fragment',
-          source: '${includeProfile ? "profile { name }" : ""}',
-        }],
+        [
+          'includeEmail',
+          {
+            variable: 'includeEmail',
+            type: 'boolean',
+            possibleValues: [true, false],
+            location: 'fragment',
+            source: '${includeEmail ? "email" : ""}',
+          },
+        ],
+        [
+          'includeProfile',
+          {
+            variable: 'includeProfile',
+            type: 'boolean',
+            possibleValues: [true, false],
+            location: 'fragment',
+            source: '${includeProfile ? "profile { name }" : ""}',
+          },
+        ],
       ]);
 
       const result = await generator.generate(queries, switches);
@@ -149,12 +162,13 @@ describe('VariantGenerator', () => {
       ];
 
       for (const combo of combinations) {
-        const variant = result.find(v => 
-          v.conditions.switches.includeEmail === combo.includeEmail &&
-          v.conditions.switches.includeProfile === combo.includeProfile
+        const variant = result.find(
+          (v) =>
+            v.conditions.switches.includeEmail === combo.includeEmail &&
+            v.conditions.switches.includeProfile === combo.includeProfile,
         );
         expect(variant).toBeDefined();
-        
+
         if (combo.includeEmail) {
           expect(variant!.content).toContain('email');
         } else {
@@ -186,20 +200,23 @@ describe('VariantGenerator', () => {
       ];
 
       const switches = new Map<string, VariantSwitch>([
-        ['userType', {
-          variable: 'userType',
-          type: 'enum',
-          possibleValues: ['basic', 'premium', 'admin'],
-          location: 'fragment',
-          source: '${userType}',
-        }],
+        [
+          'userType',
+          {
+            variable: 'userType',
+            type: 'enum',
+            possibleValues: ['basic', 'premium', 'admin'],
+            location: 'fragment',
+            source: '${userType}',
+          },
+        ],
       ]);
 
       const result = await generator.generate(queries, switches);
 
       expect(result).toHaveLength(3);
-      expect(result.map(v => v.conditions.switches.userType)).toEqual(
-        expect.arrayContaining(['basic', 'premium', 'admin'])
+      expect(result.map((v) => v.conditions.switches.userType)).toEqual(
+        expect.arrayContaining(['basic', 'premium', 'admin']),
       );
     });
 
@@ -219,13 +236,16 @@ describe('VariantGenerator', () => {
       ];
 
       const switches = new Map<string, VariantSwitch>([
-        ['flag', {
-          variable: 'flag',
-          type: 'boolean',
-          possibleValues: [true, false],
-          location: 'fragment',
-          source: '${flag ? "name" : ""}',
-        }],
+        [
+          'flag',
+          {
+            variable: 'flag',
+            type: 'boolean',
+            possibleValues: [true, false],
+            location: 'fragment',
+            source: '${flag ? "name" : ""}',
+          },
+        ],
       ]);
 
       const result = await generator.generate(queries, switches);
@@ -251,20 +271,23 @@ describe('VariantGenerator', () => {
       ];
 
       const switches = new Map<string, VariantSwitch>([
-        ['broken', {
-          variable: 'broken',
-          type: 'boolean',
-          possibleValues: [true, false],
-          location: 'fragment',
-          source: '${broken',
-        }],
+        [
+          'broken',
+          {
+            variable: 'broken',
+            type: 'boolean',
+            possibleValues: [true, false],
+            location: 'fragment',
+            source: '${broken',
+          },
+        ],
       ]);
 
       const result = await generator.generate(queries, switches);
 
       expect(logger.error).toHaveBeenCalledWith(
         'Failed to create variant for InvalidQuery:',
-        expect.any(Error)
+        expect.any(Error),
       );
       expect(result).toHaveLength(0);
     });
@@ -275,7 +298,8 @@ describe('VariantGenerator', () => {
           id: '1',
           name: 'QueryWithFragments',
           content: 'query QueryWithFragments { user { ...UserFields ${extra ? "extra" : ""} } }',
-          resolvedContent: 'query QueryWithFragments { user { ...UserFields ${extra ? "extra" : ""} } }',
+          resolvedContent:
+            'query QueryWithFragments { user { ...UserFields ${extra ? "extra" : ""} } }',
           filePath: '/src/queries.ts',
           location: { line: 1, column: 1 },
           hash: 'hash1',
@@ -286,19 +310,22 @@ describe('VariantGenerator', () => {
       ];
 
       const switches = new Map<string, VariantSwitch>([
-        ['extra', {
-          variable: 'extra',
-          type: 'boolean',
-          possibleValues: [true, false],
-          location: 'fragment',
-          source: '${extra ? "extra" : ""}',
-        }],
+        [
+          'extra',
+          {
+            variable: 'extra',
+            type: 'boolean',
+            possibleValues: [true, false],
+            location: 'fragment',
+            source: '${extra ? "extra" : ""}',
+          },
+        ],
       ]);
 
       const result = await generator.generate(queries, switches);
 
       expect(result).toHaveLength(2);
-      result.forEach(variant => {
+      result.forEach((variant) => {
         expect(variant.usedFragments).toEqual(['UserFields', 'BaseFields']);
       });
     });
@@ -321,22 +348,25 @@ describe('VariantGenerator', () => {
       ];
 
       const switches = new Map<string, VariantSwitch>([
-        ['isAdmin', {
-          variable: 'isAdmin',
-          type: 'boolean',
-          possibleValues: [true, false],
-          location: 'fragment',
-          source: '${isAdmin ? "admin { level }" : "basic"}',
-        }],
+        [
+          'isAdmin',
+          {
+            variable: 'isAdmin',
+            type: 'boolean',
+            possibleValues: [true, false],
+            location: 'fragment',
+            source: '${isAdmin ? "admin { level }" : "basic"}',
+          },
+        ],
       ]);
 
       const result = await generator.generate(queries, switches);
 
-      const adminVariant = result.find(v => v.conditions.switches.isAdmin === true);
+      const adminVariant = result.find((v) => v.conditions.switches.isAdmin === true);
       expect(adminVariant!.content).toContain('admin');
       expect(adminVariant!.content).toContain('level');
 
-      const basicVariant = result.find(v => v.conditions.switches.isAdmin === false);
+      const basicVariant = result.find((v) => v.conditions.switches.isAdmin === false);
       expect(basicVariant!.content).toContain('basic');
       expect(basicVariant!.content).not.toContain('admin');
     });
@@ -357,22 +387,25 @@ describe('VariantGenerator', () => {
       ];
 
       const switches = new Map<string, VariantSwitch>([
-        ['flag', {
-          variable: 'flag',
-          type: 'boolean',
-          possibleValues: [true, false],
-          location: 'fragment',
-          source: "${flag ? 'field1' : \"field2\"}",
-        }],
+        [
+          'flag',
+          {
+            variable: 'flag',
+            type: 'boolean',
+            possibleValues: [true, false],
+            location: 'fragment',
+            source: '${flag ? \'field1\' : "field2"}',
+          },
+        ],
       ]);
 
       const result = await generator.generate(queries, switches);
 
       expect(result).toHaveLength(2);
-      const trueVariant = result.find(v => v.conditions.switches.flag === true);
+      const trueVariant = result.find((v) => v.conditions.switches.flag === true);
       expect(trueVariant!.content).toContain('field1');
 
-      const falseVariant = result.find(v => v.conditions.switches.flag === false);
+      const falseVariant = result.find((v) => v.conditions.switches.flag === false);
       expect(falseVariant!.content).toContain('field2');
     });
   });
@@ -399,13 +432,16 @@ describe('VariantGenerator', () => {
 
     it('should handle empty queries array', async () => {
       const switches = new Map<string, VariantSwitch>([
-        ['flag', {
-          variable: 'flag',
-          type: 'boolean',
-          possibleValues: [true, false],
-          location: 'fragment',
-          source: '${flag}',
-        }],
+        [
+          'flag',
+          {
+            variable: 'flag',
+            type: 'boolean',
+            possibleValues: [true, false],
+            location: 'fragment',
+            source: '${flag}',
+          },
+        ],
       ]);
 
       const result = await generator.generate([], switches);
@@ -428,13 +464,16 @@ describe('VariantGenerator', () => {
       ];
 
       const switches = new Map<string, VariantSwitch>([
-        ['empty', {
-          variable: 'empty',
-          type: 'enum',
-          possibleValues: [],
-          location: 'fragment',
-          source: '${empty}',
-        }],
+        [
+          'empty',
+          {
+            variable: 'empty',
+            type: 'enum',
+            possibleValues: [],
+            location: 'fragment',
+            source: '${empty}',
+          },
+        ],
       ]);
 
       const result = await generator.generate(queries, switches);
@@ -457,33 +496,41 @@ describe('VariantGenerator', () => {
       ];
 
       const switches = new Map<string, VariantSwitch>([
-        ['a', {
-          variable: 'a',
-          type: 'boolean',
-          possibleValues: [true, false],
-          location: 'fragment',
-          source: '${a ? "a" : ""}',
-        }],
-        ['b', {
-          variable: 'b',
-          type: 'boolean',
-          possibleValues: [true, false],
-          location: 'fragment',
-          source: '${b ? "b" : ""}',
-        }],
+        [
+          'a',
+          {
+            variable: 'a',
+            type: 'boolean',
+            possibleValues: [true, false],
+            location: 'fragment',
+            source: '${a ? "a" : ""}',
+          },
+        ],
+        [
+          'b',
+          {
+            variable: 'b',
+            type: 'boolean',
+            possibleValues: [true, false],
+            location: 'fragment',
+            source: '${b ? "b" : ""}',
+          },
+        ],
       ]);
 
       const result = await generator.generate(queries, switches);
 
-      const descriptions = result.map(v => v.conditions.description);
+      const descriptions = result.map((v) => v.conditions.description);
       expect(descriptions).toHaveLength(4);
       expect(new Set(descriptions).size).toBe(4); // All unique
-      expect(descriptions).toEqual(expect.arrayContaining([
-        'a=true, b=true',
-        'a=true, b=false',
-        'a=false, b=true',
-        'a=false, b=false',
-      ]));
+      expect(descriptions).toEqual(
+        expect.arrayContaining([
+          'a=true, b=true',
+          'a=true, b=false',
+          'a=false, b=true',
+          'a=false, b=false',
+        ]),
+      );
     });
   });
 });

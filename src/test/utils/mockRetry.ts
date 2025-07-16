@@ -29,7 +29,7 @@ export function createMockPRetry() {
             message: error instanceof Error ? error.message : String(error),
             retriesLeft: maxRetries - attempt,
             name: 'MockRetryError',
-            stack: ''
+            stack: '',
           });
         }
         if (attempt === maxRetries) throw lastError;
@@ -41,6 +41,6 @@ export function createMockPRetry() {
   return {
     mockPRetry,
     setFailTimes,
-    getCallCount: () => callCount
+    getCallCount: () => callCount,
   };
 }

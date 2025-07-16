@@ -198,6 +198,7 @@
 ## Summary by Usage Frequency
 
 ### Very Common (20+ synthesizers) (6 fields)
+
 - `accountId`
 - `entitlementData`
 - `features.published`
@@ -206,6 +207,7 @@
 - `websiteType`
 
 ### Common (10-19 synthesizers) (10 fields)
+
 - `account.paymentStatus`
 - `billing.commitment`
 - `features.planType`
@@ -218,6 +220,7 @@
 - `wsbvnext.type`
 
 ### Moderate (5-9 synthesizers) (10 fields)
+
 - `appointments.serviceCount`
 - `appointments.status`
 - `commerce.productCount`
@@ -230,6 +233,7 @@
 - `wsbvnext.features`
 
 ### Uncommon (2-4 synthesizers) (30 fields)
+
 - `billing.autoRenew`
 - `billing.termType`
 - `blog`
@@ -243,6 +247,7 @@
 - _... and 20 more_
 
 ### Rare (1 synthesizer) (48 fields)
+
 - `]`
 - `account.planType`
 - `contacts`
@@ -254,4 +259,3 @@
 - `exports`
 - `features`
 - _... and 38 more_
-

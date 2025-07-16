@@ -18,24 +18,24 @@ describe('MigrationOrchestrator', () => {
   const mockConfig: MigrationConfig = {
     source: {
       include: ['**/*.{ts,tsx,js,jsx}'],
-      exclude: ['**/node_modules/**']
+      exclude: ['**/node_modules/**'],
     },
     confidence: {
       automatic: 90,
       semiAutomatic: 70,
-      manual: 0
+      manual: 0,
     },
     rollout: {
       initial: 1,
       increment: 10,
       interval: '1h',
-      maxErrors: 5
+      maxErrors: 5,
     },
     safety: {
       requireApproval: false,
       autoRollback: true,
-      healthCheckInterval: 60
-    }
+      healthCheckInterval: 60,
+    },
   };
 
   let orchestrator: MigrationOrchestrator;
@@ -50,14 +50,14 @@ describe('MigrationOrchestrator', () => {
 
     // Setup mocks
     mockConfidenceScorer = {
-      scoreTransformation: vi.fn()
+      scoreTransformation: vi.fn(),
     };
     mockProgressiveMigration = {
       createFeatureFlag: vi.fn(),
       shouldUseMigratedQuery: vi.fn(),
       startRollout: vi.fn(),
       updateRollout: vi.fn(),
-      stopRollout: vi.fn()
+      stopRollout: vi.fn(),
     };
     mockRollbackSystem = {
       canRollback: vi.fn(),
@@ -65,18 +65,18 @@ describe('MigrationOrchestrator', () => {
       createSnapshot: vi.fn(),
       createRollbackPlan: vi.fn(),
       rollbackOperation: vi.fn(),
-      executeRollback: vi.fn()
+      executeRollback: vi.fn(),
     };
     mockHealthCheck = {
       performHealthCheck: vi.fn(),
-      recordMetrics: vi.fn()
+      recordMetrics: vi.fn(),
     };
     mockScriptsAdapter = {
       extractOperations: vi.fn(),
       applyTransformations: vi.fn(),
       transformOperation: vi.fn(),
       validateOperations: vi.fn(),
-      applyChange: vi.fn()
+      applyChange: vi.fn(),
     };
 
     vi.mocked(ConfidenceScorer).mockImplementation(() => mockConfidenceScorer);
@@ -115,20 +115,21 @@ describe('MigrationOrchestrator', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
+        directives: [],
       },
       {
         id: 'op2',
         type: 'mutation',
         name: 'CreateUser',
         ast: {} as any,
-        source: 'mutation CreateUser($input: CreateUserInput!) { createUser(input: $input) { id } }',
+        source:
+          'mutation CreateUser($input: CreateUserInput!) { createUser(input: $input) { id } }',
         file: 'user.ts',
         line: 10,
         column: 1,
         variables: [{ name: 'input', type: 'CreateUserInput!' }],
         fragments: [],
-        directives: []
+        directives: [],
       },
       {
         id: 'op3',
@@ -141,8 +142,8 @@ describe('MigrationOrchestrator', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
-      }
+        directives: [],
+      },
     ];
 
     beforeEach(() => {
@@ -154,10 +155,10 @@ describe('MigrationOrchestrator', () => {
           complexity: 80,
           patternMatch: 90,
           testCoverage: 85,
-          historicalSuccess: 85
+          historicalSuccess: 85,
         },
         risks: [],
-        requiresReview: false
+        requiresReview: false,
       });
     });
 
@@ -177,7 +178,7 @@ describe('MigrationOrchestrator', () => {
 
       // The scoreTransformation is called for each operation to create a mock change
       expect(mockConfidenceScorer.scoreTransformation).toHaveBeenCalled();
-      result.operations.forEach(op => {
+      result.operations.forEach((op) => {
         expect(op.confidence).toBeDefined();
         expect(op.confidence?.score).toBe(85);
         expect(op.confidence?.category).toBe('automatic');
@@ -216,8 +217,8 @@ describe('MigrationOrchestrator', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
-      }
+        directives: [],
+      },
     ];
 
     beforeEach(() => {
@@ -229,8 +230,8 @@ describe('MigrationOrchestrator', () => {
           pattern: 'GetUser',
           oldQuery: 'query GetUser { user { id name } }',
           newQuery: 'query GetUser { user { id name email } }',
-          transformations: []
-        }
+          transformations: [],
+        },
       ]);
       mockScriptsAdapter.applyChange.mockResolvedValue(undefined);
       mockConfidenceScorer.scoreTransformation.mockReturnValue({
@@ -240,10 +241,10 @@ describe('MigrationOrchestrator', () => {
           complexity: 80,
           patternMatch: 90,
           testCoverage: 85,
-          historicalSuccess: 85
+          historicalSuccess: 85,
         },
         risks: [],
-        requiresReview: false
+        requiresReview: false,
       });
     });
 
@@ -251,7 +252,7 @@ describe('MigrationOrchestrator', () => {
       const result = await orchestrator.transform({
         source: 'src/',
         minConfidence: 70,
-        dryRun: false
+        dryRun: false,
       });
 
       expect(mockScriptsAdapter.extractOperations).toHaveBeenCalledWith('src/');
@@ -265,7 +266,7 @@ describe('MigrationOrchestrator', () => {
       const result = await orchestrator.transform({
         source: 'src/',
         minConfidence: 70,
-        dryRun: true
+        dryRun: true,
       });
 
       expect(mockScriptsAdapter.applyChange).not.toHaveBeenCalled();
@@ -281,16 +282,16 @@ describe('MigrationOrchestrator', () => {
           complexity: 50,
           patternMatch: 50,
           testCoverage: 50,
-          historicalSuccess: 50
+          historicalSuccess: 50,
         },
         risks: ['Complex transformation'],
-        requiresReview: true
+        requiresReview: true,
       });
 
       const result = await orchestrator.transform({
         source: 'src/',
         minConfidence: 70,
-        dryRun: false
+        dryRun: false,
       });
 
       expect(mockScriptsAdapter.applyChange).not.toHaveBeenCalled();
@@ -301,11 +302,13 @@ describe('MigrationOrchestrator', () => {
     it('should handle transformation errors', async () => {
       mockScriptsAdapter.transformOperation.mockRejectedValue(new Error('Transform failed'));
 
-      await expect(orchestrator.transform({
-        source: 'src/',
-        minConfidence: 70,
-        dryRun: false
-      })).rejects.toThrow('Transform failed');
+      await expect(
+        orchestrator.transform({
+          source: 'src/',
+          minConfidence: 70,
+          dryRun: false,
+        }),
+      ).rejects.toThrow('Transform failed');
     });
   });
 
@@ -313,14 +316,14 @@ describe('MigrationOrchestrator', () => {
     beforeEach(() => {
       mockScriptsAdapter.validateOperations.mockResolvedValue({
         valid: true,
-        errors: []
+        errors: [],
       });
     });
 
     it('should validate operations successfully', async () => {
       const result = await orchestrator.validate({
         source: 'src/',
-        schemaPath: 'schema.graphql'
+        schemaPath: 'schema.graphql',
       });
 
       expect(mockScriptsAdapter.validateOperations).toHaveBeenCalledWith('src/', 'schema.graphql');
@@ -331,14 +334,12 @@ describe('MigrationOrchestrator', () => {
     it('should handle validation errors', async () => {
       mockScriptsAdapter.validateOperations.mockResolvedValue({
         valid: false,
-        errors: [
-          { operation: 'GetUser', message: 'Field not found' }
-        ]
+        errors: [{ operation: 'GetUser', message: 'Field not found' }],
       });
 
       const result = await orchestrator.validate({
         source: 'src/',
-        schemaPath: 'schema.graphql'
+        schemaPath: 'schema.graphql',
       });
 
       expect(result.valid).toBe(false);
@@ -349,10 +350,12 @@ describe('MigrationOrchestrator', () => {
     it('should handle validation script errors', async () => {
       mockScriptsAdapter.validateOperations.mockRejectedValue(new Error('Validation failed'));
 
-      await expect(orchestrator.validate({
-        source: 'src/',
-        schemaPath: 'schema.graphql'
-      })).rejects.toThrow('Validation failed');
+      await expect(
+        orchestrator.validate({
+          source: 'src/',
+          schemaPath: 'schema.graphql',
+        }),
+      ).rejects.toThrow('Validation failed');
     });
   });
 
@@ -369,8 +372,8 @@ describe('MigrationOrchestrator', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
-      }
+        directives: [],
+      },
     ];
 
     beforeEach(() => {
@@ -382,7 +385,7 @@ describe('MigrationOrchestrator', () => {
         enabled: false,
         rolloutPercentage: 0,
         enabledSegments: [],
-        fallbackBehavior: 'old'
+        fallbackBehavior: 'old',
       });
       mockProgressiveMigration.startRollout.mockResolvedValue(undefined);
     });
@@ -390,7 +393,7 @@ describe('MigrationOrchestrator', () => {
     it('should apply operation successfully', async () => {
       // Make sure startRollout doesn't reject
       mockProgressiveMigration.startRollout.mockResolvedValue(undefined);
-      
+
       await orchestrator.applyOperation('GetUser', 10);
 
       expect(mockScriptsAdapter.extractOperations).toHaveBeenCalled();
@@ -400,8 +403,9 @@ describe('MigrationOrchestrator', () => {
     });
 
     it('should handle operation not found', async () => {
-      await expect(orchestrator.applyOperation('NonExistentOperation', 10))
-        .rejects.toThrow('Operation not found: NonExistentOperation');
+      await expect(orchestrator.applyOperation('NonExistentOperation', 10)).rejects.toThrow(
+        'Operation not found: NonExistentOperation',
+      );
     });
 
     it('should handle rollout errors', async () => {
@@ -424,21 +428,22 @@ describe('MigrationOrchestrator', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
+        directives: [],
       },
       {
         id: 'op2',
         type: 'mutation',
         name: 'CreateUser',
         ast: {} as any,
-        source: 'mutation CreateUser($input: CreateUserInput!) { createUser(input: $input) { id } }',
+        source:
+          'mutation CreateUser($input: CreateUserInput!) { createUser(input: $input) { id } }',
         file: 'user.ts',
         line: 10,
         column: 1,
         variables: [{ name: 'input', type: 'CreateUserInput!' }],
         fragments: [],
-        directives: []
-      }
+        directives: [],
+      },
     ];
 
     beforeEach(() => {
@@ -450,7 +455,7 @@ describe('MigrationOrchestrator', () => {
         enabled: false,
         rolloutPercentage: 0,
         enabledSegments: [],
-        fallbackBehavior: 'old'
+        fallbackBehavior: 'old',
       });
       mockProgressiveMigration.startRollout.mockResolvedValue(undefined);
     });
@@ -458,7 +463,7 @@ describe('MigrationOrchestrator', () => {
     it('should apply all operations successfully', async () => {
       // Make sure startRollout doesn't reject
       mockProgressiveMigration.startRollout.mockResolvedValue(undefined);
-      
+
       const result = await orchestrator.applyAll(5);
 
       expect(mockScriptsAdapter.extractOperations).toHaveBeenCalled();
@@ -479,7 +484,7 @@ describe('MigrationOrchestrator', () => {
     beforeEach(() => {
       mockHealthCheck.performHealthCheck.mockResolvedValue({
         status: 'healthy',
-        issues: []
+        issues: [],
       });
     });
 
@@ -489,12 +494,12 @@ describe('MigrationOrchestrator', () => {
       expect(mockHealthCheck.performHealthCheck).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'GetUser',
-          name: 'GetUser'
-        })
+          name: 'GetUser',
+        }),
       );
       expect(health).toEqual({
         status: 'healthy',
-        issues: []
+        issues: [],
       });
     });
 
@@ -511,15 +516,15 @@ describe('MigrationOrchestrator', () => {
           column: 1,
           variables: [],
           fragments: [],
-          directives: []
-        }
+          directives: [],
+        },
       ];
 
       mockScriptsAdapter.extractOperations.mockResolvedValue(mockOperations);
       // Make sure performHealthCheck returns the expected value
       mockHealthCheck.performHealthCheck.mockResolvedValue({
         status: 'healthy',
-        issues: []
+        issues: [],
       });
 
       const health = await orchestrator.getHealth();
@@ -529,8 +534,8 @@ describe('MigrationOrchestrator', () => {
       expect(health).toEqual({
         GetUser: {
           status: 'healthy',
-          issues: []
-        }
+          issues: [],
+        },
       });
     });
 
@@ -554,8 +559,8 @@ describe('MigrationOrchestrator', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
-      }
+        directives: [],
+      },
     ];
 
     beforeEach(() => {
@@ -566,7 +571,7 @@ describe('MigrationOrchestrator', () => {
     it('should rollback operation successfully', async () => {
       // Make sure rollbackOperation doesn't reject
       mockRollbackSystem.rollbackOperation.mockResolvedValue(undefined);
-      
+
       await orchestrator.rollbackOperation('GetUser', 'High error rate');
 
       expect(mockScriptsAdapter.extractOperations).toHaveBeenCalled();
@@ -574,14 +579,17 @@ describe('MigrationOrchestrator', () => {
     });
 
     it('should handle operation not found', async () => {
-      await expect(orchestrator.rollbackOperation('NonExistentOperation', 'Test reason'))
-        .rejects.toThrow('Operation not found: NonExistentOperation');
+      await expect(
+        orchestrator.rollbackOperation('NonExistentOperation', 'Test reason'),
+      ).rejects.toThrow('Operation not found: NonExistentOperation');
     });
 
     it('should handle rollback errors', async () => {
       mockRollbackSystem.rollbackOperation.mockRejectedValue(new Error('Rollback failed'));
 
-      await expect(orchestrator.rollbackOperation('GetUser', 'Test reason')).rejects.toThrow('Rollback failed');
+      await expect(orchestrator.rollbackOperation('GetUser', 'Test reason')).rejects.toThrow(
+        'Rollback failed',
+      );
     });
   });
 
@@ -598,8 +606,8 @@ describe('MigrationOrchestrator', () => {
         column: 1,
         variables: [],
         fragments: [],
-        directives: []
-      }
+        directives: [],
+      },
     ];
 
     beforeEach(() => {
@@ -611,11 +619,14 @@ describe('MigrationOrchestrator', () => {
     it('should rollback all operations successfully', async () => {
       // Make sure executeRollback doesn't reject
       mockRollbackSystem.executeRollback.mockResolvedValue(undefined);
-      
+
       const result = await orchestrator.rollbackAll('immediate', 'Emergency rollback');
 
       expect(mockScriptsAdapter.extractOperations).toHaveBeenCalled();
-      expect(mockRollbackSystem.createRollbackPlan).toHaveBeenCalledWith(mockOperations, 'immediate');
+      expect(mockRollbackSystem.createRollbackPlan).toHaveBeenCalledWith(
+        mockOperations,
+        'immediate',
+      );
       expect(mockRollbackSystem.executeRollback).toHaveBeenCalledWith('plan1');
       expect(result.count).toBe(1);
     });
@@ -623,7 +634,7 @@ describe('MigrationOrchestrator', () => {
     it('should handle gradual rollback', async () => {
       // Make sure executeRollback doesn't reject
       mockRollbackSystem.executeRollback.mockResolvedValue(undefined);
-      
+
       await orchestrator.rollbackAll('gradual', 'Gradual rollback');
 
       expect(mockRollbackSystem.createRollbackPlan).toHaveBeenCalledWith(mockOperations, 'gradual');
@@ -632,7 +643,9 @@ describe('MigrationOrchestrator', () => {
     it('should handle rollback errors', async () => {
       mockRollbackSystem.executeRollback.mockRejectedValue(new Error('Rollback failed'));
 
-      await expect(orchestrator.rollbackAll('immediate', 'Test reason')).rejects.toThrow('Rollback failed');
+      await expect(orchestrator.rollbackAll('immediate', 'Test reason')).rejects.toThrow(
+        'Rollback failed',
+      );
     });
   });
 
@@ -650,8 +663,8 @@ describe('MigrationOrchestrator', () => {
           column: 1,
           variables: [],
           fragments: [],
-          directives: []
-        }
+          directives: [],
+        },
       ];
 
       mockScriptsAdapter.extractOperations.mockResolvedValue(mockOperations);
@@ -662,10 +675,10 @@ describe('MigrationOrchestrator', () => {
           complexity: 90,
           patternMatch: 95,
           testCoverage: 95,
-          historicalSuccess: 95
+          historicalSuccess: 95,
         },
         risks: [],
-        requiresReview: false
+        requiresReview: false,
       });
       mockScriptsAdapter.transformOperation.mockResolvedValue([
         {
@@ -674,8 +687,8 @@ describe('MigrationOrchestrator', () => {
           pattern: 'GetUser',
           oldQuery: 'query GetUser { user { id name } }',
           newQuery: 'query GetUser { user { id name email } }',
-          transformations: []
-        }
+          transformations: [],
+        },
       ]);
       mockScriptsAdapter.applyChange.mockResolvedValue(undefined);
       mockProgressiveMigration.createFeatureFlag.mockReturnValue({
@@ -684,11 +697,11 @@ describe('MigrationOrchestrator', () => {
         enabled: false,
         rolloutPercentage: 0,
         enabledSegments: [],
-        fallbackBehavior: 'old'
+        fallbackBehavior: 'old',
       });
       mockHealthCheck.performHealthCheck.mockResolvedValue({
         status: 'healthy',
-        issues: []
+        issues: [],
       });
       mockRollbackSystem.createRollbackPlan.mockResolvedValue(undefined);
       mockProgressiveMigration.startRollout.mockResolvedValue(undefined);
@@ -702,7 +715,7 @@ describe('MigrationOrchestrator', () => {
       const transformResult = await orchestrator.transform({
         source: 'src/',
         minConfidence: 70,
-        dryRun: false
+        dryRun: false,
       });
       expect(transformResult.transformed).toBe(1);
       expect(transformResult.automatic).toBe(1);
@@ -715,7 +728,7 @@ describe('MigrationOrchestrator', () => {
       const healthResult = await orchestrator.getHealth('GetUser');
       expect(healthResult).toEqual({
         status: 'healthy',
-        issues: []
+        issues: [],
       });
     });
 
@@ -732,8 +745,8 @@ describe('MigrationOrchestrator', () => {
           column: 1,
           variables: [],
           fragments: [],
-          directives: []
-        }
+          directives: [],
+        },
       ];
 
       mockScriptsAdapter.extractOperations.mockResolvedValue(mockOperations);
@@ -746,7 +759,7 @@ describe('MigrationOrchestrator', () => {
         enabled: false,
         rolloutPercentage: 0,
         enabledSegments: [],
-        fallbackBehavior: 'old'
+        fallbackBehavior: 'old',
       });
       mockProgressiveMigration.startRollout.mockResolvedValue(undefined);
       mockHealthCheck.performHealthCheck.mockResolvedValue({
@@ -756,9 +769,9 @@ describe('MigrationOrchestrator', () => {
             severity: 'critical',
             message: 'Error rate too high',
             affectedOperations: ['op1'],
-            timestamp: new Date()
-          }
-        ]
+            timestamp: new Date(),
+          },
+        ],
       });
 
       // Apply operation
@@ -773,9 +786,9 @@ describe('MigrationOrchestrator', () => {
             severity: 'critical',
             message: 'Error rate too high',
             affectedOperations: ['op1'],
-            timestamp: expect.any(Date)
-          }
-        ]
+            timestamp: expect.any(Date),
+          },
+        ],
       });
 
       // Rollback due to health issues
@@ -788,13 +801,13 @@ describe('MigrationOrchestrator', () => {
         valid: false,
         errors: [
           { operation: 'GetUser', message: 'Field deprecated' },
-          { operation: 'CreateUser', message: 'Input type changed' }
-        ]
+          { operation: 'CreateUser', message: 'Input type changed' },
+        ],
       });
 
       const validationResult = await orchestrator.validate({
         source: 'src/',
-        schemaPath: 'schema.graphql'
+        schemaPath: 'schema.graphql',
       });
 
       expect(validationResult.valid).toBe(false);
@@ -816,7 +829,7 @@ describe('MigrationOrchestrator', () => {
           column: 1,
           variables: [],
           fragments: [],
-          directives: []
+          directives: [],
         },
         {
           id: 'op2',
@@ -829,8 +842,8 @@ describe('MigrationOrchestrator', () => {
           column: 1,
           variables: [],
           fragments: [],
-          directives: []
-        }
+          directives: [],
+        },
       ];
 
       mockScriptsAdapter.extractOperations.mockResolvedValue(mockOperations);
@@ -842,8 +855,8 @@ describe('MigrationOrchestrator', () => {
             pattern: 'GetUser',
             oldQuery: 'query GetUser { user { id name } }',
             newQuery: 'query GetUser { user { id name email } }',
-            transformations: []
-          }
+            transformations: [],
+          },
         ])
         .mockResolvedValueOnce([
           {
@@ -852,8 +865,8 @@ describe('MigrationOrchestrator', () => {
             pattern: 'GetPost',
             oldQuery: 'query GetPost { post { id title } }',
             newQuery: 'query GetPost { post { id title content } }',
-            transformations: []
-          }
+            transformations: [],
+          },
         ]);
       mockScriptsAdapter.applyChange.mockResolvedValue(undefined);
       mockConfidenceScorer.scoreTransformation
@@ -864,10 +877,10 @@ describe('MigrationOrchestrator', () => {
             complexity: 90,
             patternMatch: 95,
             testCoverage: 95,
-            historicalSuccess: 95
+            historicalSuccess: 95,
           },
           risks: [],
-          requiresReview: false
+          requiresReview: false,
         })
         .mockReturnValueOnce({
           score: 45,
@@ -876,16 +889,16 @@ describe('MigrationOrchestrator', () => {
             complexity: 30,
             patternMatch: 50,
             testCoverage: 40,
-            historicalSuccess: 60
+            historicalSuccess: 60,
           },
           risks: ['Complex transformation'],
-          requiresReview: true
+          requiresReview: true,
         });
 
       const transformResult = await orchestrator.transform({
         source: 'src/',
         minConfidence: 70,
-        dryRun: false
+        dryRun: false,
       });
 
       expect(transformResult.transformed).toBe(1); // Only automatic should be transformed

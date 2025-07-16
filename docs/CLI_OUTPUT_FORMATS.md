@@ -70,7 +70,7 @@ This document specifies the stable output formats for all CLI commands to ensure
   ],
   "stats": {
     "totalFiles": "integer",
-    "totalQueries": "integer", 
+    "totalQueries": "integer",
     "totalFragments": "integer",
     "totalVariants": "integer",
     "extractionTime": "integer (ms)"
@@ -79,6 +79,7 @@ This document specifies the stable output formats for all CLI commands to ensure
 ```
 
 **Console Output**:
+
 ```
 ✓ Extraction complete
 Found 42 GraphQL operations in 15 files
@@ -126,6 +127,7 @@ Found 42 GraphQL operations in 15 files
 ```
 
 **Dry Run Console Output**:
+
 ```
 ✓ Transformation complete (DRY RUN)
 Transformed 15 queries with 23 changes
@@ -162,7 +164,7 @@ Changes by type:
       "errors": [
         {
           "message": "string",
-          "locations": [{"line": "integer", "column": "integer"}],
+          "locations": [{ "line": "integer", "column": "integer" }],
           "path": ["string"],
           "extensions": {
             "code": "string",
@@ -182,6 +184,7 @@ Changes by type:
 ```
 
 **Console Output (Success)**:
+
 ```
 ✓ Validation complete
 Validated 42 queries against schema
@@ -191,13 +194,14 @@ Validated 42 queries against schema
 ```
 
 **Console Output (Failure)**:
+
 ```
 ✗ Validation failed
 2 queries have errors:
 
   query-1: Field "oldField" not found on type "User"
     Suggestion: Did you mean "newField"?
-    
+
   query-2: Variable "$id" is not defined
 ```
 
@@ -208,12 +212,13 @@ Validated 42 queries against schema
 **Output Formats**: Specified by `--format` flag
 
 **JSON Format** (default):
+
 ```json
 {
   "timestamp": "ISO-8601 datetime",
   "summary": {
     "total": "integer",
-    "passed": "integer", 
+    "passed": "integer",
     "failed": "integer",
     "mismatches": "integer"
   },
@@ -237,6 +242,7 @@ Validated 42 queries against schema
 ```
 
 **JUnit Format** (`--format junit`):
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites name="GraphQL Response Validation">
@@ -255,6 +261,7 @@ Validated 42 queries against schema
 #### `pg-cli migrate full`
 
 **Output Directory Structure**:
+
 ```
 migration-YYYYMMDDHHmmss/
 ├── analysis.json
@@ -268,6 +275,7 @@ migration-YYYYMMDDHHmmss/
 ```
 
 **Summary File** (`summary.json`):
+
 ```json
 {
   "timestamp": "ISO-8601 datetime",
@@ -300,13 +308,13 @@ migration-YYYYMMDDHHmmss/
 
 ## Exit Codes
 
-| Code | Meaning | Used By |
-|------|---------|---------|
-| 0 | Success | All commands |
-| 1 | General failure | All commands |
-| 2 | Validation warnings | validate commands |
-| 3 | Partial success | migrate commands |
-| 127 | Command not found | Shell |
+| Code | Meaning             | Used By           |
+| ---- | ------------------- | ----------------- |
+| 0    | Success             | All commands      |
+| 1    | General failure     | All commands      |
+| 2    | Validation warnings | validate commands |
+| 3    | Partial success     | migrate commands  |
+| 127  | Command not found   | Shell             |
 
 ## Environment Variables
 
@@ -324,6 +332,7 @@ export PG_CLI_OUTPUT_VERSION=1.0
 ## Backward Compatibility
 
 ### Version Detection
+
 ```bash
 # Get current output version
 pg-cli --output-version
@@ -333,6 +342,7 @@ pg-cli extract queries --output-version 1.0
 ```
 
 ### Migration Path
+
 When output format changes:
 
 1. **Minor changes** (1.0 → 1.1): Additional fields only
@@ -340,6 +350,7 @@ When output format changes:
 3. **Deprecation**: Warning in console for 3 months before removal
 
 ### Legacy Format Support
+
 ```bash
 # Use legacy format
 pg-cli extract queries --legacy-format
@@ -351,6 +362,7 @@ pg-cli migrate-output --from 1.0 --to 2.0
 ## Testing Compatibility
 
 ### Automated Tests
+
 ```bash
 # Run compatibility test suite
 npm run test:cli-compatibility
@@ -360,6 +372,7 @@ npm run test:cli-compatibility -- --version 1.0
 ```
 
 ### Manual Verification
+
 ```bash
 # Verify JSON output
 pg-cli extract queries -o out.json
@@ -375,6 +388,7 @@ pg-cli extract queries --json | jq '.totalQueries'
 ## Changelog
 
 ### Version 1.0.0 (2025-01-09)
+
 - Initial stable release
 - Defined core output formats
 - Established compatibility guarantees

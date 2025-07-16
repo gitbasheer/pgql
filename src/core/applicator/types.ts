@@ -46,4 +46,4 @@ export interface ASTApplicatorOptions {
   preserveComments: boolean;
   validateChanges: boolean;
   dryRun: boolean;
-} 
+}

@@ -8,7 +8,6 @@ import * as os from 'os';
 import * as babel from '@babel/parser';
 import traverse from '@babel/traverse';
 
-
 describe('ASTCodeApplicator', () => {
   let applicator: ASTCodeApplicator;
   let tempDir: string;
@@ -19,7 +18,7 @@ describe('ASTCodeApplicator', () => {
       preserveFormatting: true,
       preserveComments: true,
       validateChanges: true,
-      dryRun: false
+      dryRun: false,
     });
 
     // Create temp directory for test files
@@ -52,27 +51,27 @@ const query = gql\`
       const ast = babel.parse(content, {
         sourceType: 'module',
         plugins: ['typescript'],
-        ranges: true
+        ranges: true,
       });
 
       let sourceNode: any;
       traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNode = path.node;
-        }
+        },
       });
 
       const sourceAST: SourceAST = {
         node: sourceNode,
         start: sourceNode.start!,
         end: sourceNode.end!,
-        parent: ast
+        parent: ast,
       };
 
       const sourceMapping: SourceMapping = {
         astNode: sourceAST,
         filePath: testFile,
-        originalContent: content
+        originalContent: content,
       };
 
       const transformationMapping: TransformationMapping = {
@@ -83,9 +82,9 @@ const query = gql\`
           transformed: 'query GetUsers {\n    users {\n      id\n      name\n    }\n  }',
           ast: null as any,
           changes: [],
-          rules: []
+          rules: [],
         },
-        preserveInterpolations: false
+        preserveInterpolations: false,
       };
 
       const result = await applicator.applyTransformations(testFile, [transformationMapping]);
@@ -115,14 +114,14 @@ const query = gql\`
       const ast = babel.parse(content, {
         sourceType: 'module',
         plugins: ['typescript'],
-        ranges: true
+        ranges: true,
       });
 
       let sourceNode: any;
       traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNode = path.node;
-        }
+        },
       });
 
       const sourceAST: SourceAST = {
@@ -132,14 +131,14 @@ const query = gql\`
         parent: ast,
         templateLiteral: {
           quasis: sourceNode.quasi.quasis,
-          expressions: sourceNode.quasi.expressions
-        }
+          expressions: sourceNode.quasi.expressions,
+        },
       };
 
       const sourceMapping: SourceMapping = {
         astNode: sourceAST,
         filePath: testFile,
-        originalContent: content
+        originalContent: content,
       };
 
       const transformationMapping: TransformationMapping = {
@@ -147,12 +146,13 @@ const query = gql\`
         sourceMapping,
         transformation: {
           original: 'query GetUser($id: ID!) {\n    user(id: $id) {\n      ...${...}\n    }\n  }',
-          transformed: 'query GetUser($id: ID!) {\n    account(id: $id) {\n      ...${...}\n    }\n  }',
+          transformed:
+            'query GetUser($id: ID!) {\n    account(id: $id) {\n      ...${...}\n    }\n  }',
           ast: null as any,
           changes: [],
-          rules: []
+          rules: [],
         },
-        preserveInterpolations: true
+        preserveInterpolations: true,
       };
 
       const result = await applicator.applyTransformations(testFile, [transformationMapping]);
@@ -188,14 +188,14 @@ const query2 = gql\`
       const ast = babel.parse(content, {
         sourceType: 'module',
         plugins: ['typescript'],
-        ranges: true
+        ranges: true,
       });
 
       const sourceNodes: any[] = [];
       traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNodes.push(path.node);
-        }
+        },
       });
 
       const transformations: TransformationMapping[] = [
@@ -206,19 +206,19 @@ const query2 = gql\`
               node: sourceNodes[0],
               start: sourceNodes[0].start!,
               end: sourceNodes[0].end!,
-              parent: ast
+              parent: ast,
             },
             filePath: testFile,
-            originalContent: content
+            originalContent: content,
           },
           transformation: {
             original: 'query GetVentures {\n    allVentures {\n      id\n    }\n  }',
             transformed: 'query GetVentures {\n    ventures {\n      id\n    }\n  }',
             ast: null as any,
             changes: [],
-            rules: []
+            rules: [],
           },
-          preserveInterpolations: false
+          preserveInterpolations: false,
         },
         {
           queryId: 'query-2',
@@ -227,20 +227,20 @@ const query2 = gql\`
               node: sourceNodes[1],
               start: sourceNodes[1].start!,
               end: sourceNodes[1].end!,
-              parent: ast
+              parent: ast,
             },
             filePath: testFile,
-            originalContent: content
+            originalContent: content,
           },
           transformation: {
             original: 'query GetUsers {\n    allUsers {\n      id\n    }\n  }',
             transformed: 'query GetUsers {\n    users {\n      id\n    }\n  }',
             ast: null as any,
             changes: [],
-            rules: []
+            rules: [],
           },
-          preserveInterpolations: false
-        }
+          preserveInterpolations: false,
+        },
       ];
 
       const result = await applicator.applyTransformations(testFile, transformations);
@@ -271,7 +271,7 @@ const query = graphql(\`
       const ast = babel.parse(content, {
         sourceType: 'module',
         plugins: ['typescript'],
-        ranges: true
+        ranges: true,
       });
 
       let sourceNode: any;
@@ -280,20 +280,20 @@ const query = graphql(\`
           if (path.node.callee.name === 'graphql') {
             sourceNode = path.node;
           }
-        }
+        },
       });
 
       const sourceAST: SourceAST = {
         node: sourceNode,
         start: sourceNode.start!,
         end: sourceNode.end!,
-        parent: ast
+        parent: ast,
       };
 
       const sourceMapping: SourceMapping = {
         astNode: sourceAST,
         filePath: testFile,
-        originalContent: content
+        originalContent: content,
       };
 
       const transformationMapping: TransformationMapping = {
@@ -304,9 +304,9 @@ const query = graphql(\`
           transformed: 'query GetData {\n    newField {\n      id\n    }\n  }',
           ast: null as any,
           changes: [],
-          rules: []
+          rules: [],
         },
-        preserveInterpolations: false
+        preserveInterpolations: false,
       };
 
       const result = await applicator.applyTransformations(testFile, [transformationMapping]);
@@ -332,27 +332,27 @@ const query = gql\`
       const ast = babel.parse(content, {
         sourceType: 'module',
         plugins: ['typescript'],
-        ranges: true
+        ranges: true,
       });
 
       let sourceNode: any;
       traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNode = path.node;
-        }
+        },
       });
 
       const sourceAST: SourceAST = {
         node: sourceNode,
         start: sourceNode.start!,
         end: sourceNode.end!,
-        parent: ast
+        parent: ast,
       };
 
       const sourceMapping: SourceMapping = {
         astNode: sourceAST,
         filePath: testFile,
-        originalContent: content
+        originalContent: content,
       };
 
       // Create a transformation that would result in invalid JS
@@ -364,9 +364,9 @@ const query = gql\`
           transformed: 'query Test {\n    field\n  }', // Valid transformation
           ast: null as any,
           changes: [],
-          rules: []
+          rules: [],
         },
-        preserveInterpolations: false
+        preserveInterpolations: false,
       };
 
       const result = await applicator.applyTransformations(testFile, [transformationMapping]);
@@ -393,33 +393,33 @@ const query = gql\`
         preserveFormatting: true,
         preserveComments: true,
         validateChanges: false,
-        dryRun: true
+        dryRun: true,
       });
 
       const ast = babel.parse(content, {
         sourceType: 'module',
         plugins: ['typescript'],
-        ranges: true
+        ranges: true,
       });
 
       let sourceNode: any;
       traverse(ast, {
         TaggedTemplateExpression(path: any) {
           sourceNode = path.node;
-        }
+        },
       });
 
       const sourceAST: SourceAST = {
         node: sourceNode,
         start: sourceNode.start!,
         end: sourceNode.end!,
-        parent: ast
+        parent: ast,
       };
 
       const sourceMapping: SourceMapping = {
         astNode: sourceAST,
         filePath: testFile,
-        originalContent: content
+        originalContent: content,
       };
 
       const transformationMapping: TransformationMapping = {
@@ -430,9 +430,9 @@ const query = gql\`
           transformed: 'query Test {\n    newField\n  }',
           ast: null as any,
           changes: [],
-          rules: []
+          rules: [],
         },
-        preserveInterpolations: false
+        preserveInterpolations: false,
       };
 
       const result = await dryRunApplicator.applyTransformations(testFile, [transformationMapping]);
@@ -440,10 +440,10 @@ const query = gql\`
       expect(result.success).toBe(true);
       expect(result.newContent).toBe(content); // Content unchanged in dry run
       expect(result.changes).toHaveLength(1);
-      
+
       // Original file should be unchanged
       const fileContent = await fs.readFile(testFile, 'utf-8');
       expect(fileContent).toBe(content);
     });
   });
-}); 
+});

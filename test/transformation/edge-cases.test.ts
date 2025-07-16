@@ -4,7 +4,7 @@ import { DeprecationRule } from '../../src/core/analyzer/SchemaDeprecationAnalyz
 
 describe('OptimizedSchemaTransformer Edge Cases', () => {
   let transformer: OptimizedSchemaTransformer;
-  
+
   const deprecationRules: DeprecationRule[] = [
     {
       type: 'field',
@@ -13,7 +13,7 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       deprecationReason: 'Moved to profile.logoUrl',
       replacement: 'profile.logoUrl',
       isVague: false,
-      action: 'replace'
+      action: 'replace',
     },
     {
       type: 'field',
@@ -22,7 +22,7 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       deprecationReason: 'Moved to contact.email',
       replacement: 'contact.email',
       isVague: false,
-      action: 'replace'
+      action: 'replace',
     },
     {
       type: 'field',
@@ -31,8 +31,8 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       deprecationReason: 'Renamed to status',
       replacement: 'status',
       isVague: false,
-      action: 'replace'
-    }
+      action: 'replace',
+    },
   ];
 
   beforeEach(() => {
@@ -40,7 +40,7 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       commentOutVague: true,
       addDeprecationComments: true,
       preserveOriginalAsComment: false,
-      enableCache: false
+      enableCache: false,
     });
   });
 
@@ -60,11 +60,11 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       `;
 
       const result = await transformer.transform(query);
-      
+
       // Check that the transformation happened
       expect(result.changes.length).toBeGreaterThan(0);
       expect(result.transformed).toBeDefined();
-      
+
       // The actual transformation depends on how the inferParentType works
       // which depends on the field-to-type mapping
     });
@@ -82,7 +82,7 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       `;
 
       const result = await transformer.transform(query);
-      
+
       // Verify the query was transformed
       expect(result.transformed).toBeDefined();
       expect(result.transformed.length).toBeGreaterThan(0);
@@ -106,7 +106,7 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       `;
 
       const result = await transformer.transform(query);
-      
+
       expect(result.transformed).toBeDefined();
       expect(result.transformed).toContain('fragment VentureFields');
     });
@@ -129,7 +129,7 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       `;
 
       const result = await transformer.transform(query);
-      
+
       expect(result.transformed).toBeDefined();
       // Check if transformation occurred
       if (result.changes.length > 0) {
@@ -150,21 +150,21 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       `;
 
       const result = await transformer.transform(malformedQuery);
-      
+
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0]).toMatch(/Failed to (parse|transform)/i);
     });
 
     it('should handle empty queries', async () => {
       const result = await transformer.transform('');
-      
+
       expect(result.transformed).toBe('');
       expect(result.changes).toHaveLength(0);
     });
 
     it('should handle queries with only whitespace', async () => {
       const result = await transformer.transform('   \n\t  ');
-      
+
       expect(result.transformed).toBe('   \n\t  ');
       expect(result.changes).toHaveLength(0);
     });
@@ -173,13 +173,13 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
   describe('Conditional Transformations', () => {
     it('should respect confidence thresholds', async () => {
       const lowConfidenceTransformer = new OptimizedSchemaTransformer(
-        deprecationRules.map(r => ({ ...r, confidence: 50 })),
+        deprecationRules.map((r) => ({ ...r, confidence: 50 })),
         {
           commentOutVague: true,
           addDeprecationComments: true,
           preserveOriginalAsComment: false,
-          enableCache: false
-        }
+          enableCache: false,
+        },
       );
 
       const query = `
@@ -191,7 +191,7 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       `;
 
       const result = await lowConfidenceTransformer.transform(query);
-      
+
       // Check that low confidence rules are handled
       expect(result.transformed).toBeDefined();
     });
@@ -206,11 +206,9 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       `;
 
       const result = await transformer.transformWithOptions(query, {
-        deprecations: deprecationRules.filter(r => 
-          r.affectedEndpoints.includes('offerGraph')
-        )
+        deprecations: deprecationRules.filter((r) => r.affectedEndpoints.includes('offerGraph')),
       });
-      
+
       expect(result).toBeDefined();
       expect(result.length).toBeGreaterThan(0);
     });
@@ -222,7 +220,7 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
         commentOutVague: false,
         addDeprecationComments: false,
         preserveOriginalAsComment: false,
-        enableCache: true
+        enableCache: true,
       });
 
       const query = `
@@ -235,7 +233,7 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
 
       const result1 = cachedTransformer.transform(query);
       const result2 = cachedTransformer.transform(query);
-      
+
       expect(result1.transformed).toEqual(result2.transformed);
       // Second call should be cached
       expect(result2.cached).toBe(true);
@@ -244,7 +242,9 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
     it('should handle large queries efficiently', async () => {
       const largeQuery = `
         query GetEverything {
-          ${Array.from({ length: 100 }, (_, i) => `
+          ${Array.from(
+            { length: 100 },
+            (_, i) => `
             venture${i}: venture(id: "${i}") {
               id
               logoUrl
@@ -253,14 +253,15 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
                 name
               }
             }
-          `).join('\n')}
+          `,
+          ).join('\n')}
         }
       `;
 
       const start = Date.now();
       const result = await transformer.transform(largeQuery);
       const duration = Date.now() - start;
-      
+
       expect(duration).toBeLessThan(1000); // Should complete in under 1 second
       expect(result.changes.length).toBeGreaterThanOrEqual(0);
     });
@@ -278,13 +279,15 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
 
       const result = await transformer.transform(query);
       // generateMigrationSummary doesn't exist, use generatePRContent instead
-      const summary = transformer.generatePRContent([{
-        file: 'test.js',
-        oldContent: query,
-        newContent: result.transformed,
-        utilGenerated: true
-      }]);
-      
+      const summary = transformer.generatePRContent([
+        {
+          file: 'test.js',
+          oldContent: query,
+          newContent: result.transformed,
+          utilGenerated: true,
+        },
+      ]);
+
       expect(summary).toBeDefined();
       expect(summary.length).toBeGreaterThan(0);
     });
@@ -295,23 +298,25 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
           queryName: 'GetVenture',
           original: 'venture { logoUrl }',
           transformed: 'venture { profile { logoUrl } }',
-          utilGenerated: true
+          utilGenerated: true,
         },
         {
           queryName: 'GetOwner',
           original: 'owner { email }',
           transformed: 'owner { contact { email } }',
-          utilGenerated: true
-        }
+          utilGenerated: true,
+        },
       ];
 
-      const summary = transformer.generatePRContent(transformations.map(t => ({
-        file: `test-${t.queryName}.js`,
-        oldContent: t.original,
-        newContent: t.transformed,
-        utilGenerated: t.utilGenerated
-      })));
-      
+      const summary = transformer.generatePRContent(
+        transformations.map((t) => ({
+          file: `test-${t.queryName}.js`,
+          oldContent: t.original,
+          newContent: t.transformed,
+          utilGenerated: t.utilGenerated,
+        })),
+      );
+
       expect(summary).toBeDefined();
       expect(summary.length).toBeGreaterThan(0);
     });
@@ -331,7 +336,7 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       `;
 
       const result = await transformer.transform(query);
-      
+
       expect(result.transformed).toBeDefined();
       expect(result.transformed).toContain('myVenture: venture');
     });
@@ -349,7 +354,7 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       `;
 
       const result = await transformer.transform(query);
-      
+
       expect(result.transformed).toBeDefined();
       expect(result.transformed).toContain('@include(if: $includeOwner)');
     });
@@ -367,7 +372,7 @@ describe('OptimizedSchemaTransformer Edge Cases', () => {
       `;
 
       const result = await transformer.transform(query);
-      
+
       expect(result.transformed).toBeDefined();
       expect(result.transformed).toContain('logoUrl(size: LARGE)');
       expect(result.transformed).toContain('products(limit: 10)');

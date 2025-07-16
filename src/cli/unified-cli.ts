@@ -34,7 +34,7 @@ program
 
       if (options.detailed) {
         console.log(chalk.bold('\nDetailed Analysis:'));
-        results.operations.forEach(op => {
+        results.operations.forEach((op) => {
           console.log(`\n${chalk.blue(op.name)} (${op.type})`);
           console.log(`  File: ${op.file}:${op.line}:${op.column}`);
           console.log(`  Confidence: ${op.confidence?.score || 'Not analyzed'}`);
@@ -69,7 +69,7 @@ program
       const results = await orchestrator.transform({
         source: options.source,
         minConfidence,
-        dryRun: options.dryRun
+        dryRun: options.dryRun,
       });
 
       spinner.succeed(`Transformed ${results.transformed} operations`);
@@ -107,7 +107,7 @@ program
 
       const results = await orchestrator.validate({
         source: options.source,
-        schemaPath: options.schema
+        schemaPath: options.schema,
       });
 
       if (results.valid) {
@@ -116,7 +116,7 @@ program
         spinner.fail(`${results.errors.length} validation errors found`);
 
         console.log(chalk.red('\nValidation Errors:'));
-        results.errors.forEach(error => {
+        results.errors.forEach((error) => {
           console.log(`\n${chalk.red('✗')} ${error.operation}`);
           console.log(`  ${error.message}`);
         });
@@ -255,7 +255,7 @@ function displayOperationHealth(operation: string, health: any) {
   const statusIcon: Record<string, string> = {
     healthy: chalk.green('●'),
     degraded: chalk.yellow('●'),
-    unhealthy: chalk.red('●')
+    unhealthy: chalk.red('●'),
   };
 
   console.log(`\n${statusIcon[health.status]} ${chalk.bold(operation)}`);
@@ -275,7 +275,9 @@ function displayOperationHealth(operation: string, health: any) {
 // Migrate command - unified pipeline
 program
   .command('migrate')
-  .description('Run complete migration pipeline: Extract → Validate → Transform → Apply → Generate PR')
+  .description(
+    'Run complete migration pipeline: Extract → Validate → Transform → Apply → Generate PR',
+  )
   .option('-d, --directory <path>', 'Directory to scan', './src')
   .option('-s, --schema <path>', 'GraphQL schema path', './schema.graphql')
   .option('-c, --config <path>', 'Configuration file path', './migration.config.yaml')
@@ -310,13 +312,13 @@ program
       spinner.start('Validating operations...');
       const validation = await orchestrator.validate({
         source: options.directory,
-        schemaPath: options.schema
+        schemaPath: options.schema,
       });
 
       if (!validation.valid) {
         spinner.fail(`Validation failed: ${validation.errors.length} errors`);
         console.log(chalk.red('\nValidation Errors:'));
-        validation.errors.forEach(err => {
+        validation.errors.forEach((err) => {
           console.log(`  - ${err.operation}: ${err.message}`);
         });
 
@@ -332,7 +334,7 @@ program
       const transformResult = await orchestrator.transform({
         source: options.directory,
         minConfidence: parseInt(options.confidence),
-        dryRun: options.dryRun
+        dryRun: options.dryRun,
       });
       spinner.succeed(`Transformed ${transformResult.transformed} operations`);
 
@@ -362,17 +364,18 @@ program
 
           const prOptions = {
             title: `GraphQL Migration: ${transformResult.transformed} operations updated`,
-            body: `## GraphQL Migration Summary\n\n` +
-                  `- **Operations Analyzed**: ${analysis.operations.length}\n` +
-                  `- **Transformations Applied**: ${transformResult.transformed}\n` +
-                  `- **Confidence Level**: ${options.confidence}%\n` +
-                  `- **Rollout Percentage**: ${options.rollout}%\n\n` +
-                  `### Breakdown\n` +
-                  `- Automatic: ${transformResult.automatic}\n` +
-                  `- Semi-automatic: ${transformResult.semiAutomatic}\n` +
-                  `- Manual required: ${transformResult.manual}\n`,
+            body:
+              `## GraphQL Migration Summary\n\n` +
+              `- **Operations Analyzed**: ${analysis.operations.length}\n` +
+              `- **Transformations Applied**: ${transformResult.transformed}\n` +
+              `- **Confidence Level**: ${options.confidence}%\n` +
+              `- **Rollout Percentage**: ${options.rollout}%\n\n` +
+              `### Breakdown\n` +
+              `- Automatic: ${transformResult.automatic}\n` +
+              `- Semi-automatic: ${transformResult.semiAutomatic}\n` +
+              `- Manual required: ${transformResult.manual}\n`,
             base: options.prBase,
-            draft: options.interactive
+            draft: options.interactive,
           };
 
           const pr = await githubService.createPR(prOptions);
@@ -380,8 +383,7 @@ program
         }
       }
 
-            console.log(chalk.green('\n✓ Migration pipeline completed successfully'));
-
+      console.log(chalk.green('\n✓ Migration pipeline completed successfully'));
     } catch (error) {
       spinner.fail('Migration failed');
       logger.error('Migration error:', error);
@@ -408,7 +410,7 @@ program
         directory: options.directory,
         patterns: [options.pattern],
         resolveNames: true,
-        preserveSourceAST: true
+        preserveSourceAST: true,
       });
 
       spinner.text = 'Extracting queries with pattern awareness...';
@@ -462,16 +464,11 @@ program
       // Save results if requested
       if (options.output) {
         const fs = await import('fs');
-        await fs.promises.writeFile(
-          options.output,
-          JSON.stringify(result, null, 2),
-          'utf-8'
-        );
+        await fs.promises.writeFile(options.output, JSON.stringify(result, null, 2), 'utf-8');
         console.log(chalk.green(`\n💾 Results saved to: ${options.output}`));
       }
 
       console.log(chalk.green('\n✓ Pattern-aware migration analysis complete!'));
-
     } catch (error) {
       spinner.fail('Pattern-aware migration failed');
       logger.error('Pattern migration error:', error);

@@ -11,6 +11,7 @@ UnifiedExtractor is failing to discover files, resulting in 0 queries extracted 
 ## Evidence
 
 ### Test Results
+
 ```
 FAIL: src/test/extraction/integration.test.ts
 - 5/5 tests failing
@@ -21,6 +22,7 @@ FAIL: src/test/extraction/integration.test.ts
 ### Root Cause Analysis
 
 1. **File Discovery Issue**:
+
    ```
    ]: Found 0 files to process {"service":"pg-migration-620"}
    ```
@@ -40,25 +42,29 @@ FAIL: src/test/extraction/integration.test.ts
 ## Immediate Actions Needed
 
 ### 1. Check File Discovery Logic
+
 ```typescript
 // In UnifiedExtractor.discoverFiles()
 const files = await glob(filePatterns, {
   cwd: directory,
   absolute: true,
-  ignore: ignore || ['**/node_modules/**', '**/__generated__/**', '**/*.test.*']
+  ignore: ignore || ['**/node_modules/**', '**/__generated__/**', '**/*.test.*'],
 });
 ```
 
 ### 2. Verify Test File Creation
+
 The tests use this pattern:
+
 ```typescript
 await writeAndVerifyFile(testFile, content);
-await new Promise(resolve => setTimeout(resolve, 200)); // Delay added
+await new Promise((resolve) => setTimeout(resolve, 200)); // Delay added
 const extractor = new UnifiedExtractor(options);
 const result = await extractor.extract();
 ```
 
 ### 3. Debug Steps
+
 1. Add logging to show:
    - Actual working directory
    - Files that exist before extraction

@@ -13,6 +13,7 @@
 **pg-migration-620** is a production-ready GraphQL migration tool that automatically transforms deprecated GraphQL queries based on schema deprecation directives. The system provides both CLI interfaces and a natural language interface through MCP (Model Context Protocol).
 
 ### Key Statistics
+
 - **180+ files** implemented across core functionality
 - **25+ CLI commands** for various migration operations
 - **8 MCP tools** for natural language interaction
@@ -54,12 +55,14 @@ pg-migration-620/
 ### 1. **GraphQL Query Extraction** (95% Complete)
 
 #### **What It Does**
+
 - Scans JavaScript/TypeScript codebases for GraphQL operations
 - Supports multiple query formats and syntaxes
 - Resolves fragments across files with interpolation support
 - Handles dynamic variants and conditional fragments
 
 #### **Key Capabilities**
+
 - **Multi-strategy extraction**: AST-based, Pluck-based, and hybrid approaches
 - **Parallel processing**: Handles large codebases efficiently (10,000+ files)
 - **Smart caching**: Avoids re-processing unchanged files
@@ -68,15 +71,31 @@ pg-migration-620/
 - **Variant generation**: Extracts multiple variants for conditional queries
 
 #### **Supported Patterns**
+
 ```typescript
 // All these patterns are supported:
-gql`query GetUser { user { id name } }`
-graphql(`query GetUser { user { id name } }`)
-Apollo.gql`query GetUser { user { id name } }`
-const query = `query GetUser { user { id name } }`
+gql`
+  query GetUser {
+    user {
+      id
+      name
+    }
+  }
+`;
+graphql(`
+  query GetUser {
+    user {
+      id
+      name
+    }
+  }
+`);
+Apollo.gql`query GetUser { user { id name } }`;
+const query = `query GetUser { user { id name } }`;
 ```
 
 #### **CLI Commands**
+
 ```bash
 pnpm extract src                           # Basic extraction
 pnpm extract src --pattern "**/*.tsx"     # Custom patterns
@@ -85,6 +104,7 @@ pnpm extract-advanced src                 # Advanced variant extraction
 ```
 
 #### **Implementation Files**
+
 - `src/core/extraction/` - Complete extraction system
 - `src/core/scanner/` - Multiple scanner implementations
 - `src/cli/extract-*.ts` - CLI interfaces
@@ -93,12 +113,14 @@ pnpm extract-advanced src                 # Advanced variant extraction
 ### 2. **Schema-Aware Transformation** (85% Complete)
 
 #### **What It Does**
+
 - Analyzes GraphQL schema for deprecation directives
 - Automatically generates transformation rules
 - Applies field renaming and structural changes
 - Preserves query semantics while updating deprecated fields
 
 #### **Key Capabilities**
+
 - **Automatic rule generation**: Extracts rules from `@deprecated` directives
 - **Confidence scoring**: Each transformation has a confidence level (0-100)
 - **Dry-run mode**: Preview changes before applying
@@ -106,6 +128,7 @@ pnpm extract-advanced src                 # Advanced variant extraction
 - **AST-based safety**: No regex, pure GraphQL AST manipulation
 
 #### **Transformation Types**
+
 ```graphql
 # Simple Field Rename
 user.fullName → user.name
@@ -118,6 +141,7 @@ ventures → customer.ventures (with context awareness)
 ```
 
 #### **CLI Commands**
+
 ```bash
 pnpm transform -s schema.graphql          # Schema-based transformation
 pnpm transform --dry-run                  # Preview changes
@@ -125,6 +149,7 @@ pnpm transform --skip-invalid             # Skip invalid queries
 ```
 
 #### **Implementation Files**
+
 - `src/core/transformer/` - Transformation engines
 - `src/core/analyzer/SchemaDeprecationAnalyzer.ts` - Schema analysis
 - `src/cli/extract-transform.ts` - CLI interface
@@ -132,12 +157,14 @@ pnpm transform --skip-invalid             # Skip invalid queries
 ### 3. **AST-Based Code Application** (100% Complete)
 
 #### **What It Does**
+
 - Applies transformations to source files with surgical precision
 - Preserves all formatting, comments, and interpolations
 - Calculates minimal changes using longest common subsequence
 - Creates backups before modifications
 
 #### **Key Capabilities**
+
 - **100% accuracy**: Pure AST manipulation, no string replacement
 - **Interpolation preservation**: Maintains dynamic content like `${variables}`
 - **Pattern-based migration**: New approach preserving dynamic query naming logic
@@ -146,6 +173,7 @@ pnpm transform --skip-invalid             # Skip invalid queries
 - **Validation**: Ensures applied changes are syntactically correct
 
 #### **CLI Commands**
+
 ```bash
 pnpm apply -i transformed.json            # Apply transformations
 pnpm apply --backup                       # Create backups
@@ -153,6 +181,7 @@ pnpm apply --dry-run                      # Preview changes
 ```
 
 #### **Implementation Files**
+
 - `src/core/applicator/` - Complete application system
 - `src/core/applicator/ASTCodeApplicator.ts` - Main applicator
 - `src/core/applicator/MinimalChangeCalculator.ts` - Diff calculation
@@ -160,12 +189,14 @@ pnpm apply --dry-run                      # Preview changes
 ### 4. **Comprehensive Validation** (90% Complete)
 
 #### **What It Does**
+
 - Validates queries against GraphQL schema
 - Compares responses between original and transformed queries
 - Performs semantic validation of transformations
 - Integrates with real API endpoints for validation
 
 #### **Key Capabilities**
+
 - **Schema validation**: Syntax and type checking
 - **Response comparison**: Deep comparison of API responses
 - **Semantic validation**: Ensures transformation preserves meaning
@@ -174,6 +205,7 @@ pnpm apply --dry-run                      # Preview changes
 - **Report generation**: Detailed validation reports
 
 #### **CLI Commands**
+
 ```bash
 pnpm validate schema.graphql -i queries.json    # Schema validation
 pnpm validate:pipeline schema.graphql           # Full pipeline validation
@@ -181,6 +213,7 @@ pnpm validate-variants queries/ schema.graphql  # Variant validation
 ```
 
 #### **Implementation Files**
+
 - `src/core/validator/` - Complete validation system
 - `src/core/validator/SchemaValidator.ts` - Schema validation
 - `src/core/validator/ResponseValidationService.ts` - Response validation
@@ -189,12 +222,14 @@ pnpm validate-variants queries/ schema.graphql  # Variant validation
 ### 5. **Safety & Reliability Systems** (75% Complete)
 
 #### **What It Does**
+
 - Implements progressive rollout with feature flags
 - Provides automatic rollback on errors
 - Monitors migration health continuously
 - Scores transformation confidence
 
 #### **Key Capabilities**
+
 - **Progressive rollout**: 1% → 10% → 50% → 100% traffic
 - **Automatic rollback**: Rollback on error rate > 1%
 - **Health monitoring**: Continuous health checks
@@ -202,15 +237,17 @@ pnpm validate-variants queries/ schema.graphql  # Variant validation
 - **Rollback plans**: Pre-generated rollback strategies
 
 #### **Configuration**
+
 ```yaml
 rollout:
-  initial: 1         # Start with 1% of traffic
-  increment: 10      # Increase by 10% each step
-  interval: "1h"     # Wait 1 hour between increases
-  maxErrors: 0.01    # Rollback if error rate > 1%
+  initial: 1 # Start with 1% of traffic
+  increment: 10 # Increase by 10% each step
+  interval: '1h' # Wait 1 hour between increases
+  maxErrors: 0.01 # Rollback if error rate > 1%
 ```
 
 #### **Implementation Files**
+
 - `src/core/safety/` - Safety mechanisms
 - `src/core/analyzer/ConfidenceScorer.ts` - Confidence scoring
 - `src/core/MigrationOrchestrator.ts` - Overall coordination
@@ -218,12 +255,14 @@ rollout:
 ### 6. **Natural Language Interface (MCP)** (100% Complete)
 
 #### **What It Does**
+
 - Provides conversational interface through Model Context Protocol
 - Wraps complex CLI operations in natural language
 - Integrates with Cursor IDE and other AI assistants
 - Handles complex multi-step operations
 
 #### **Available Tools**
+
 1. **analyze_operations** - Analyze GraphQL operations
 2. **extract_queries** - Extract queries from codebase
 3. **transform_queries** - Transform queries with schema
@@ -234,6 +273,7 @@ rollout:
 8. **run_migration_pipeline** - Run complete pipeline
 
 #### **Example Interactions**
+
 ```
 User: "Help me migrate my GraphQL queries safely"
 AI: "I'll analyze your operations and create a safe migration plan..."
@@ -243,6 +283,7 @@ AI: "I found 12 deprecated fields across 47 queries..."
 ```
 
 #### **Implementation Files**
+
 - `src/mcp/server.ts` - MCP server implementation
 - Binary: `pg-migration-mcp` - Standalone MCP server
 
@@ -251,27 +292,32 @@ AI: "I found 12 deprecated fields across 47 queries..."
 #### **Available Commands**
 
 **Core Operations**
+
 - `pnpm extract` - Extract GraphQL queries
 - `pnpm transform` - Transform queries
 - `pnpm validate` - Validate queries
 - `pnpm apply` - Apply transformations
 
 **Analysis Operations**
+
 - `pnpm analyze` - Analyze operations
 - `pnpm pipeline` - Run production pipeline
 - `pnpm variants` - Variant analysis
 
 **Variant Operations**
+
 - `pnpm extract-variants` - Extract basic variants
 - `pnpm extract-advanced` - Extract advanced variants
 - `pnpm validate-variants` - Validate variants
 
 **Development Operations**
+
 - `pnpm type-safe` - Type-safe operations
 - `pnpm migrate` - Migration orchestrator
 - `pnpm generate-pr` - Generate pull requests
 
 **Binary Commands**
+
 - `pg-extract` - Standalone extraction
 - `pg-extract-transform` - Extraction and transformation
 - `pg-extract-variants` - Variant extraction
@@ -282,12 +328,14 @@ AI: "I found 12 deprecated fields across 47 queries..."
 ### 8. **Configuration System** (85% Complete)
 
 #### **Configuration Files**
+
 - `migration.config.yaml` - Main configuration
 - `package.json` - NPM scripts and dependencies
 - `tsconfig.json` - TypeScript configuration
 - `vitest.config.ts` - Test configuration
 
 #### **Configuration Capabilities**
+
 - **Source configuration**: Include/exclude patterns
 - **Confidence thresholds**: Automatic/semi-automatic/manual
 - **Rollout configuration**: Progressive rollout settings
@@ -297,12 +345,14 @@ AI: "I found 12 deprecated fields across 47 queries..."
 ### 9. **Testing & Quality Assurance** (82.7% Complete)
 
 #### **Test Coverage**
+
 - **277 passing tests** out of 363 total
 - **40+ test files** covering all major components
 - **Multiple test types**: Unit, integration, production, property-based
 - **Comprehensive mocking**: File system, GraphQL, API endpoints
 
 #### **Test Categories**
+
 - **Unit tests**: Individual component testing
 - **Integration tests**: Cross-component testing
 - **Production tests**: Real-world scenario testing
@@ -310,6 +360,7 @@ AI: "I found 12 deprecated fields across 47 queries..."
 - **Mutation tests**: Code quality validation
 
 #### **Test Files**
+
 - `src/test/` - Main test directory
 - `src/test/utils/` - Test utilities and helpers
 - `src/test/fixtures/` - Test fixtures and data
@@ -317,6 +368,7 @@ AI: "I found 12 deprecated fields across 47 queries..."
 ### 10. **Documentation System** (90% Complete)
 
 #### **Documentation Files**
+
 - `README.md` - Project overview and quick start
 - `docs/TECHNICAL-OVERVIEW.md` - Technical architecture
 - `docs/VALIDATION-GUIDE.md` - Validation processes
@@ -327,6 +379,7 @@ AI: "I found 12 deprecated fields across 47 queries..."
 - `audit-rad/` - Analysis and audit tools
 
 #### **Documentation Coverage**
+
 - **Architecture documentation**: Complete system overview
 - **API documentation**: All public interfaces
 - **Usage examples**: Comprehensive examples
@@ -338,6 +391,7 @@ AI: "I found 12 deprecated fields across 47 queries..."
 ## 🎯 Feature Implementation Status
 
 ### ✅ **Fully Implemented (100%)**
+
 - AST-based code application
 - MCP server and natural language interface
 - CLI command structure
@@ -345,6 +399,7 @@ AI: "I found 12 deprecated fields across 47 queries..."
 - Documentation system
 
 ### 🟡 **Mostly Implemented (75-95%)**
+
 - GraphQL query extraction (95%)
 - Schema-aware transformation (85%)
 - Validation systems (90%)
@@ -352,11 +407,13 @@ AI: "I found 12 deprecated fields across 47 queries..."
 - Configuration system (85%)
 
 ### 🟠 **Partially Implemented (50-75%)**
+
 - Safety and reliability systems (75%)
 - Testing and quality assurance (82.7%)
 - Integration with external systems (70%)
 
 ### ❌ **Not Implemented (0-25%)**
+
 - GitHub integration for PR generation
 - Monitoring dashboard
 - Multi-language support (beyond JS/TS)
@@ -367,6 +424,7 @@ AI: "I found 12 deprecated fields across 47 queries..."
 ## 🚀 Production Readiness
 
 ### **Ready for Production**
+
 - Core extraction and transformation pipeline
 - Schema validation
 - AST-based code application
@@ -374,12 +432,14 @@ AI: "I found 12 deprecated fields across 47 queries..."
 - CLI interface
 
 ### **Needs Additional Work**
+
 - Full test coverage (currently 82.7%)
 - Performance optimization for large codebases
 - Advanced monitoring and alerting
 - Production validation with real GraphQL APIs
 
 ### **Deployment Capabilities**
+
 - **NPM package**: Ready for installation
 - **Binary commands**: Standalone executables
 - **Docker support**: Configuration available
@@ -390,6 +450,7 @@ AI: "I found 12 deprecated fields across 47 queries..."
 ## 🔧 Technical Implementation Details
 
 ### **Dependencies**
+
 - **GraphQL Tools**: Complete GraphQL processing
 - **TypeScript**: Full type safety
 - **Commander.js**: CLI interface
@@ -397,6 +458,7 @@ AI: "I found 12 deprecated fields across 47 queries..."
 - **Model Context Protocol**: AI integration
 
 ### **Architecture Patterns**
+
 - **Modular design**: Clear separation of concerns
 - **Plugin architecture**: Extensible transformation system
 - **Strategy pattern**: Multiple extraction strategies
@@ -404,6 +466,7 @@ AI: "I found 12 deprecated fields across 47 queries..."
 - **Command pattern**: CLI operations
 
 ### **Performance Characteristics**
+
 - **Small codebases** (100 files): < 3 seconds full pipeline
 - **Medium codebases** (1,000 files): 15-30 seconds full pipeline
 - **Large codebases** (10,000 files): 1-2 minutes full pipeline
@@ -414,18 +477,21 @@ AI: "I found 12 deprecated fields across 47 queries..."
 ## 📊 Quality Metrics
 
 ### **Code Quality**
+
 - **TypeScript**: 100% type coverage
 - **ESLint**: Clean code standards
 - **Prettier**: Consistent formatting
 - **Test coverage**: 82.7% (277/363 tests)
 
 ### **Reliability**
+
 - **Error handling**: Comprehensive error recovery
 - **Input validation**: All inputs validated
 - **Safety checks**: Multiple validation layers
 - **Rollback capability**: Full rollback system
 
 ### **Performance**
+
 - **Parallel processing**: Multi-threaded operations
 - **Caching**: Intelligent file and AST caching
 - **Memory management**: Streaming for large files
@@ -436,17 +502,20 @@ AI: "I found 12 deprecated fields across 47 queries..."
 ## 🗺️ Future Development
 
 ### **Phase 1: Core Completion**
+
 - Fix remaining 86 test failures
 - Optimize performance for large codebases
 - Complete safety system implementation
 
 ### **Phase 2: Production Features**
+
 - GitHub integration for PR generation
 - Real-time monitoring dashboard
 - Advanced validation with API endpoints
 - Performance optimization
 
 ### **Phase 3: Advanced Features**
+
 - Multi-language support
 - Machine learning for pattern detection
 - Advanced rollback strategies
@@ -459,6 +528,7 @@ AI: "I found 12 deprecated fields across 47 queries..."
 **pg-migration-620** is a sophisticated, production-ready GraphQL migration tool with comprehensive capabilities for extracting, transforming, validating, and applying GraphQL query migrations. The system provides both command-line and natural language interfaces, with strong safety mechanisms and extensive testing.
 
 **Key Strengths:**
+
 - Complete AST-based approach for accuracy
 - Natural language interface through MCP
 - Comprehensive safety and rollback systems
@@ -466,6 +536,7 @@ AI: "I found 12 deprecated fields across 47 queries..."
 - Strong TypeScript foundation
 
 **Areas for Improvement:**
+
 - Test coverage completion (82.7% → 95%+)
 - Performance optimization for enterprise codebases
 - Advanced monitoring and alerting

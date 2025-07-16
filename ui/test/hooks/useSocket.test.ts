@@ -62,7 +62,7 @@ describe('useSocket', () => {
     // Simulate disconnect event
     act(() => {
       const disconnectHandler = mockSocket.on.mock.calls.find(
-        call => call[0] === 'disconnect'
+        (call) => call[0] === 'disconnect'
       )?.[1];
       if (disconnectHandler) {
         disconnectHandler('transport close');
@@ -78,7 +78,7 @@ describe('useSocket', () => {
     // Simulate connection error
     act(() => {
       const errorHandler = mockSocket.on.mock.calls.find(
-        call => call[0] === 'connect_error'
+        (call) => call[0] === 'connect_error'
       )?.[1];
       if (errorHandler) {
         errorHandler(new Error('Connection failed'));
@@ -93,9 +93,18 @@ describe('useSocket', () => {
 
     unmount();
 
-    expect(mockSocket.off).toHaveBeenCalledWith('connect', expect.any(Function));
-    expect(mockSocket.off).toHaveBeenCalledWith('disconnect', expect.any(Function));
-    expect(mockSocket.off).toHaveBeenCalledWith('connect_error', expect.any(Function));
+    expect(mockSocket.off).toHaveBeenCalledWith(
+      'connect',
+      expect.any(Function)
+    );
+    expect(mockSocket.off).toHaveBeenCalledWith(
+      'disconnect',
+      expect.any(Function)
+    );
+    expect(mockSocket.off).toHaveBeenCalledWith(
+      'connect_error',
+      expect.any(Function)
+    );
   });
 
   it('should handle socket reconnection', () => {
@@ -104,7 +113,7 @@ describe('useSocket', () => {
     // Simulate disconnect then reconnect
     act(() => {
       const disconnectHandler = mockSocket.on.mock.calls.find(
-        call => call[0] === 'disconnect'
+        (call) => call[0] === 'disconnect'
       )?.[1];
       if (disconnectHandler) {
         disconnectHandler('transport close');
@@ -115,7 +124,7 @@ describe('useSocket', () => {
 
     act(() => {
       const connectHandler = mockSocket.on.mock.calls.find(
-        call => call[0] === 'connect'
+        (call) => call[0] === 'connect'
       )?.[1];
       if (connectHandler) {
         connectHandler();
@@ -143,7 +152,7 @@ describe('useSocket', () => {
     // Simulate disconnect event to change connection status
     act(() => {
       const disconnectHandler = mockSocket.on.mock.calls.find(
-        call => call[0] === 'disconnect'
+        (call) => call[0] === 'disconnect'
       )?.[1];
       if (disconnectHandler) {
         disconnectHandler('transport close');

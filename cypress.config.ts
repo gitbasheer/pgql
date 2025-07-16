@@ -14,8 +14,8 @@ export default defineConfig({
     responseTimeout: 10000,
     env: {
       MOCK_API: true,
-      API_URL: 'http://localhost:4000/graphql'
-    }
+      API_URL: 'http://localhost:4000/graphql',
+    },
   },
   component: {
     devServer: {

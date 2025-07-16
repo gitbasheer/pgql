@@ -12,7 +12,9 @@ vi.mock('fs/promises', async () => ({
   readdir: vi.fn().mockResolvedValue([]),
   readFile: vi.fn().mockImplementation((filePath: string) => {
     const content = fileStorage.get(filePath);
-    return Promise.resolve(content || '{"queries": [], "metadata": {"timestamp": "2024-01-01T00:00:00.000Z"}}');
+    return Promise.resolve(
+      content || '{"queries": [], "metadata": {"timestamp": "2024-01-01T00:00:00.000Z"}}',
+    );
   }),
   writeFile: vi.fn().mockImplementation((filePath: string, content: string) => {
     fileStorage.set(filePath, content);
@@ -26,7 +28,7 @@ vi.mock('fs/promises', async () => ({
   }),
   rmdir: vi.fn().mockResolvedValue(undefined),
   stat: vi.fn().mockResolvedValue({ isDirectory: () => true }),
-  access: vi.fn().mockResolvedValue(undefined)
+  access: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe('MigrationValidator', () => {
@@ -40,7 +42,7 @@ describe('MigrationValidator', () => {
     tempDir = '/tmp/test-dir-123'; // Use mock temp directory
     beforeFile = path.join(tempDir, 'before-queries.json');
     afterFile = path.join(tempDir, 'after-queries.json');
-    
+
     // Clear mock filesystem
     (globalThis as any).clearMockFileSystem?.();
   });
@@ -59,8 +61,8 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       await fs.writeFile(beforeFile, JSON.stringify(queries), 'utf-8');
@@ -68,7 +70,7 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.status).toBe('passed');
@@ -86,7 +88,7 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
+          fragments: [],
         },
         {
           id: 'query2',
@@ -94,8 +96,8 @@ describe('MigrationValidator', () => {
           source: 'query GetVenture { venture { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       const afterQueries: ExtractedQuery[] = [
@@ -105,8 +107,8 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
@@ -114,7 +116,7 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.status).toBe('failed');
@@ -133,8 +135,8 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       const afterQueries: ExtractedQuery[] = [
@@ -144,7 +146,7 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
+          fragments: [],
         },
         {
           id: 'query2',
@@ -152,8 +154,8 @@ describe('MigrationValidator', () => {
           source: 'query GetVenture { venture { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
@@ -161,7 +163,7 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.status).toBe('warning');
@@ -179,8 +181,8 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       const afterQueries: ExtractedQuery[] = [
@@ -190,8 +192,8 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
@@ -199,14 +201,14 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.status).toBe('warning');
       expect(report.summary.modifiedQueries).toBe(1);
-      expect(report.issues.find(i => i.type === 'naming')).toBeDefined();
-      expect(report.issues.find(i => i.type === 'naming')?.message).toContain('GetUser');
-      expect(report.issues.find(i => i.type === 'naming')?.message).toContain('GetUserNew');
+      expect(report.issues.find((i) => i.type === 'naming')).toBeDefined();
+      expect(report.issues.find((i) => i.type === 'naming')?.message).toContain('GetUser');
+      expect(report.issues.find((i) => i.type === 'naming')?.message).toContain('GetUserNew');
     });
 
     it('should detect structural changes', async () => {
@@ -217,8 +219,8 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       const afterQueries: ExtractedQuery[] = [
@@ -228,8 +230,8 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name email } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
@@ -237,12 +239,14 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.status).toBe('warning');
-      expect(report.issues.find(i => i.type === 'structural')).toBeDefined();
-      expect(report.issues.find(i => i.type === 'structural')?.message).toContain('structure changed');
+      expect(report.issues.find((i) => i.type === 'structural')).toBeDefined();
+      expect(report.issues.find((i) => i.type === 'structural')?.message).toContain(
+        'structure changed',
+      );
     });
 
     it('should detect type changes as errors', async () => {
@@ -253,8 +257,8 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       const afterQueries: ExtractedQuery[] = [
@@ -264,8 +268,8 @@ describe('MigrationValidator', () => {
           source: 'mutation GetUser { user { id name } }',
           type: 'mutation',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
@@ -273,12 +277,12 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.status).toBe('failed');
-      expect(report.issues.find(i => i.severity === 'error')).toBeDefined();
-      expect(report.issues.find(i => i.message.includes('type changed'))).toBeDefined();
+      expect(report.issues.find((i) => i.severity === 'error')).toBeDefined();
+      expect(report.issues.find((i) => i.message.includes('type changed'))).toBeDefined();
     });
 
     it('should handle strict mode', async () => {
@@ -289,8 +293,8 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       const afterQueries: ExtractedQuery[] = [
@@ -300,8 +304,8 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
@@ -310,11 +314,11 @@ describe('MigrationValidator', () => {
       const report = await validator.validateMigration({
         before: beforeFile,
         after: afterFile,
-        strictMode: true
+        strictMode: true,
       });
 
       expect(report.status).toBe('failed');
-      expect(report.issues.find(i => i.severity === 'error')).toBeDefined();
+      expect(report.issues.find((i) => i.severity === 'error')).toBeDefined();
     });
 
     it('should validate pattern-specific fields', async () => {
@@ -325,8 +329,8 @@ describe('MigrationValidator', () => {
           source: 'query ${queryNames.getUserById} { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       const afterQueries: PatternExtractedQuery[] = [
@@ -343,9 +347,9 @@ describe('MigrationValidator', () => {
           patternMetadata: {
             isDynamic: true,
             hasInterpolation: true,
-            confidence: 1.0
-          }
-        }
+            confidence: 1.0,
+          },
+        },
       ];
 
       await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
@@ -353,7 +357,7 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.status).toBe('passed');
@@ -368,8 +372,8 @@ describe('MigrationValidator', () => {
           source: 'query ${queryNames.getUserById} { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       const afterQueries: PatternExtractedQuery[] = [
@@ -386,9 +390,9 @@ describe('MigrationValidator', () => {
           patternMetadata: {
             isDynamic: true,
             hasInterpolation: false, // Mismatch here
-            confidence: 1.0
-          }
-        }
+            confidence: 1.0,
+          },
+        },
       ];
 
       await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
@@ -396,11 +400,13 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.status).toBe('warning');
-      expect(report.issues.find(i => i.message.includes('Interpolation detection mismatch'))).toBeDefined();
+      expect(
+        report.issues.find((i) => i.message.includes('Interpolation detection mismatch')),
+      ).toBeDefined();
     });
 
     it('should handle different file formats', async () => {
@@ -412,9 +418,9 @@ describe('MigrationValidator', () => {
             source: 'query GetUser { user { id name } }',
             type: 'query',
             filePath: 'test.ts',
-            fragments: []
-          }
-        ]
+            fragments: [],
+          },
+        ],
       };
 
       const afterData = {
@@ -425,9 +431,9 @@ describe('MigrationValidator', () => {
             source: 'query GetUser { user { id name } }',
             type: 'query',
             filePath: 'test.ts',
-            fragments: []
-          }
-        ]
+            fragments: [],
+          },
+        ],
       };
 
       await fs.writeFile(beforeFile, JSON.stringify(beforeData), 'utf-8');
@@ -435,7 +441,7 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.status).toBe('passed');
@@ -450,8 +456,8 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       await fs.writeFile(beforeFile, JSON.stringify(queries), 'utf-8');
@@ -462,7 +468,7 @@ describe('MigrationValidator', () => {
       const report = await validator.validateMigration({
         before: beforeFile,
         after: afterFile,
-        output: reportFile
+        output: reportFile,
       });
 
       expect(report.status).toBe('passed');
@@ -478,10 +484,12 @@ describe('MigrationValidator', () => {
       await fs.writeFile(beforeFile, 'invalid json', 'utf-8');
       await fs.writeFile(afterFile, '[]', 'utf-8');
 
-      await expect(validator.validateMigration({
-        before: beforeFile,
-        after: afterFile
-      })).rejects.toThrow();
+      await expect(
+        validator.validateMigration({
+          before: beforeFile,
+          after: afterFile,
+        }),
+      ).rejects.toThrow();
     });
 
     it('should measure performance', async () => {
@@ -491,7 +499,7 @@ describe('MigrationValidator', () => {
         source: `query GetQuery${i} { data${i} { id } }`,
         type: 'query',
         filePath: 'test.ts',
-        fragments: []
+        fragments: [],
       }));
 
       await fs.writeFile(beforeFile, JSON.stringify(queries), 'utf-8');
@@ -499,7 +507,7 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.performance.validationTime).toBeGreaterThan(0);
@@ -514,7 +522,7 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.status).toBe('passed');
@@ -529,8 +537,8 @@ describe('MigrationValidator', () => {
           source: 'query { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       await fs.writeFile(beforeFile, JSON.stringify(queries), 'utf-8');
@@ -538,7 +546,7 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.status).toBe('passed');
@@ -552,8 +560,8 @@ describe('MigrationValidator', () => {
           source: 'query GetUser { user { id name } }',
           type: 'query',
           filePath: 'test.ts',
-          fragments: []
-        }
+          fragments: [],
+        },
       ];
 
       const afterQueries: PatternExtractedQuery[] = [
@@ -570,9 +578,9 @@ describe('MigrationValidator', () => {
           patternMetadata: {
             isDynamic: false,
             hasInterpolation: false,
-            confidence: 1.0
-          }
-        }
+            confidence: 1.0,
+          },
+        },
       ];
 
       await fs.writeFile(beforeFile, JSON.stringify(beforeQueries), 'utf-8');
@@ -580,7 +588,7 @@ describe('MigrationValidator', () => {
 
       const report = await validator.validateMigration({
         before: beforeFile,
-        after: afterFile
+        after: afterFile,
       });
 
       expect(report.status).toBe('passed');

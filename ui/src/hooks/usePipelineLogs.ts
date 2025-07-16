@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Socket } from 'socket.io-client';
+import { LogDetail } from '../types/api.types';
 
 export interface LogEntry {
   id: string;
@@ -16,21 +17,19 @@ export function usePipelineLogs(socket: Socket | null) {
   useEffect(() => {
     if (!socket) return;
 
-    const handleLog = (data: unknown) => {
+    const handleLog = (data: LogDetail) => {
       // Validate log data
       if (!data || typeof data !== 'object' || !('message' in data)) {
         return; // Skip malformed log data
       }
-      
-      const logData = data as Record<string, unknown>;
+
       const logEntry: LogEntry = {
-        stage: typeof logData.stage === 'string' ? logData.stage : 'general',
-        level: (logData.level === 'info' || logData.level === 'warn' || logData.level === 'error' || logData.level === 'success') 
-          ? logData.level : 'info',
-        message: String(logData.message),
-        details: typeof logData.details === 'object' ? logData.details as Record<string, unknown> : undefined,
+        stage: data.stage || 'general',
+        level: data.level,
+        message: data.message,
+        details: data.details as Record<string, unknown> | undefined,
         id: `${Date.now()}-${Math.random()}`,
-        timestamp: logData.timestamp ? new Date(String(logData.timestamp)) : new Date(),
+        timestamp: data.timestamp ? new Date(data.timestamp) : new Date(),
       };
       setLogs((prev) => [...prev, logEntry]);
     };

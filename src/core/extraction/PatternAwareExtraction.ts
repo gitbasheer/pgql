@@ -2,7 +2,11 @@
 import { ExtractionOptions, ExtractionResult } from './types/index.js';
 import { PatternExtractedQuery, MigrationResult } from './types/pattern.types.js';
 import { ExtractionContext } from './engine/ExtractionContext.js';
-import { createDefaultQueryServices, QueryServices, QueryServicesConfig } from './services/QueryServicesFactory.js';
+import {
+  createDefaultQueryServices,
+  QueryServices,
+  QueryServicesConfig,
+} from './services/QueryServicesFactory.js';
 import { ExtractionPipeline } from './engine/ExtractionPipeline.js';
 import { logger } from '../../utils/logger.js';
 import * as fs from 'fs';
@@ -38,7 +42,7 @@ export class PatternAwareExtraction {
     logger.debug('PatternAwareExtraction initialized successfully');
   }
 
-    /**
+  /**
    * Extract queries with pattern awareness and migration analysis
    */
   async extract(): Promise<{
@@ -88,18 +92,17 @@ export class PatternAwareExtraction {
         migration: {
           results: migrationResults,
           summary: migrationSummary,
-          queryNamesUpdates
+          queryNamesUpdates,
         },
-        cacheStats
+        cacheStats,
       };
-
     } catch (error) {
       logger.error(`Pattern-aware extraction failed: ${error}`);
       throw error;
     }
   }
 
-    /**
+  /**
    * Get duplicate analysis using content fingerprinting
    */
   async analyzeDuplicates(): Promise<Map<string, PatternExtractedQuery[]>> {
@@ -167,7 +170,7 @@ export class PatternAwareExtraction {
       const files = await glob(pattern, {
         cwd: this.context.options.directory,
         ignore,
-        absolute: true
+        absolute: true,
       });
       allFiles.push(...files);
     }
@@ -176,8 +179,8 @@ export class PatternAwareExtraction {
   }
 
   private logInsights(queries: PatternExtractedQuery[], migrationSummary: any): void {
-    const patternQueries = queries.filter(q => q.namePattern);
-    const staticQueries = queries.filter(q => !q.namePattern);
+    const patternQueries = queries.filter((q) => q.namePattern);
+    const staticQueries = queries.filter((q) => !q.namePattern);
 
     logger.info('\n📊 Pattern-Aware Extraction Insights');
     logger.info('═'.repeat(50));
@@ -186,7 +189,7 @@ export class PatternAwareExtraction {
     logger.info(`Static queries: ${staticQueries.length}`);
 
     if (patternQueries.length > 0) {
-      const deprecatedPatterns = patternQueries.filter(q => q.namePattern?.isDeprecated).length;
+      const deprecatedPatterns = patternQueries.filter((q) => q.namePattern?.isDeprecated).length;
       logger.info(`Deprecated patterns: ${deprecatedPatterns}`);
 
       logger.info('\n🔄 Migration Summary:');
@@ -206,7 +209,10 @@ export class PatternAwareExtraction {
 /**
  * Convenience function for simple pattern-aware extraction with factory-based services
  */
-export async function extractWithPatterns(options: ExtractionOptions, servicesConfig?: Partial<QueryServicesConfig>) {
+export async function extractWithPatterns(
+  options: ExtractionOptions,
+  servicesConfig?: Partial<QueryServicesConfig>,
+) {
   const extraction = new PatternAwareExtraction(options, servicesConfig);
   return extraction.extract();
 }
@@ -214,7 +220,10 @@ export async function extractWithPatterns(options: ExtractionOptions, servicesCo
 /**
  * Convenience function for migration analysis only
  */
-export async function analyzeMigration(options: ExtractionOptions, servicesConfig?: Partial<QueryServicesConfig>) {
+export async function analyzeMigration(
+  options: ExtractionOptions,
+  servicesConfig?: Partial<QueryServicesConfig>,
+) {
   const extraction = new PatternAwareExtraction(options, servicesConfig);
   const result = await extraction.extract();
   return result.migration;
@@ -223,6 +232,9 @@ export async function analyzeMigration(options: ExtractionOptions, servicesConfi
 /**
  * Convenience function to create services directly
  */
-export async function createPatternServices(options: ExtractionOptions, config?: Partial<QueryServicesConfig>) {
+export async function createPatternServices(
+  options: ExtractionOptions,
+  config?: Partial<QueryServicesConfig>,
+) {
   return createDefaultQueryServices(options);
 }
