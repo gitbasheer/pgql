@@ -118,12 +118,13 @@ program
       // Step 1: Extract queries
       const extractSpinner = ora('Extracting GraphQL operations...').start();
       // Always use dynamic extractor for production pipeline to catch all variants
-      const extractor = new UnifiedExtractor({ enableIncrementalExtraction: true });
-      const queries = await extractor.extractFromRepo(
-        directory,
-        ['**/*.{js,jsx,ts,tsx}'],
-        !options.skipFragments,
-      );
+      const extractor = new UnifiedExtractor({ 
+        directory, 
+        enableIncrementalExtraction: true,
+        patterns: ['**/*.{js,jsx,ts,tsx}'],
+        resolveFragments: !options.skipFragments
+      });
+      const queries = await extractor.extractFromRepo();
 
       report.extraction.totalOperations = queries.length;
       report.extraction.byType = queries.reduce(
@@ -139,8 +140,8 @@ program
       // Step 2: Fragment resolution details
       if (!options.skipFragments) {
         const fragmentSpinner = ora('Analyzing fragment resolution...').start();
-        const resolver = new FragmentResolver();
-        const fragmentFiles = await resolver.findAndLoadFragmentFiles(directory);
+        const resolver = new FragmentResolver(extractor.context);
+        const fragmentFiles = await resolver.loadFragmentsFromDirectory(directory);
 
         report.fragments.filesFound = fragmentFiles.size;
         let totalFragments = 0;

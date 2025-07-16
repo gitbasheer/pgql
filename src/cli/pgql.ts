@@ -244,21 +244,21 @@ validate
       const queries = queriesData.queries || queriesData;
 
       const validator = new ResponseValidationService({
-        endpoints: {
-          productGraph: { url: 'https://api.example.com/graphql' },
-          offerGraph: { url: 'https://api.example.com/offer-graphql' }
-        },
+        endpoints: [
+          { name: 'productGraph', url: 'https://api.example.com/graphql' },
+          { name: 'offerGraph', url: 'https://api.example.com/offer-graphql' }
+        ],
         capture: {
           maxConcurrency: 10,
           timeout: 30000,
-          variableGeneration: true
+          variableGeneration: 'auto'
         }
       });
       const results = [];
 
       for (const query of queries.slice(0, 5)) { // Limit for demo
         try {
-          const result = await validator.validateQuery({
+          const result = await validator.validateQueryResponse({
             query: query.content,
             endpoint: options.endpoint || 'https://api.example.com/graphql',
             variables: {},
@@ -420,7 +420,7 @@ migrate
       let transformedCount = 0;
 
       for (const query of queries) {
-        if (Array.from(validationResults.values()).find(v => v.queryId === query.queryName)?.valid) {
+        if (Array.from(validationResults.values()).find(v => v.queryName === query.queryName)?.valid) {
           try {
             const result = await transformer.transformQuery({
               queryId: query.queryName,

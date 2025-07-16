@@ -3,6 +3,13 @@
 // Endpoint types
 export type Endpoint = 'productGraph' | 'offerGraph';
 
+// Source location types
+export interface SourceLocation {
+  line: number;
+  column: number;
+  file: string;
+}
+
 // Pipeline stages
 export const PIPELINE_STAGES = [
   'Extraction',
@@ -19,6 +26,7 @@ export type PipelineStatus = 'pending' | 'in_progress' | 'completed' | 'error';
 // Core query interface used throughout the system
 export interface ExtractedQuery {
   // Identity
+  id: string;
   queryName: string;
   content: string;
   fullExpandedQuery?: string;
@@ -26,8 +34,10 @@ export interface ExtractedQuery {
   // Location
   filePath: string;
   lineNumber: number;
+  location?: SourceLocation;
 
   // GraphQL metadata
+  type: 'query' | 'mutation' | 'subscription';
   operation?: 'query' | 'mutation' | 'subscription';
   variables?: Record<string, string>;
   fragments?: string[];
