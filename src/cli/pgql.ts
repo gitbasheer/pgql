@@ -53,7 +53,7 @@ extract
       };
 
       const extractor = new UnifiedExtractor(extractorOptions);
-      const queries = await extractor.extractFromDirectory(
+      const queries = await extractor.extractFromRepo(
         directory,
         options.pattern,
         options.fragments !== false
@@ -102,7 +102,7 @@ analyze
     try {
       // Extract operations first
       const extractor = new UnifiedExtractor({ directory });
-      const queries = await extractor.extractFromDirectory(directory);
+      const queries = await extractor.extractFromRepo(directory);
 
       // Analyze operations
       const analyzer = new OperationAnalyzer();
@@ -381,7 +381,7 @@ migrate
       // Step 1: Extract
       console.log(chalk.yellow('📤 Step 1: Extracting queries...'));
       const extractor = new UnifiedExtractor({ directory });
-      const queries = await extractor.extractFromDirectory(directory);
+      const queries = await extractor.extractFromRepo(directory);
       console.log(chalk.green(`   ✅ Extracted ${queries.length} operations`));
 
       // Step 2: Analyze Schema

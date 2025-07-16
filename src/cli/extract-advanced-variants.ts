@@ -24,7 +24,7 @@ program
 
     try {
       const extractor = new UnifiedExtractor({ enableIncrementalExtraction: true });
-      const extractedQueries = await extractor.extractFromDirectory(
+      const extractedQueries = await extractor.extractFromRepo(
         directory,
         options.pattern,
         true // resolve fragments

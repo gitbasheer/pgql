@@ -1,4 +1,4 @@
-import { UnifiedVariantExtractor } from '../../core/scanner/UnifiedVariantExtractor.js';
+import { UnifiedVariantExtractor } from '../../core/extraction/strategies/UnifiedVariantExtractor.js';
 import { EnhancedDynamicExtractor } from '../../core/scanner/EnhancedDynamicExtractor.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';

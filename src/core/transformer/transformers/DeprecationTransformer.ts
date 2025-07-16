@@ -48,8 +48,8 @@ export class DeprecationTransformer extends BaseTransformer {
     }
 
     const ast = parseResult.value;
-    const changes = this.createChange[];
-    const warnings = this.createWarning[];
+    const changes = this.createChange();
+    const warnings = this.createWarning();
 
     // Apply deprecation rules
     const transformedAst = this.applyDeprecationRules(ast, context.schema, changes, warnings);
