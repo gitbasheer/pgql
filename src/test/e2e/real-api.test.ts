@@ -3,6 +3,18 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GraphQLClient } from '../../core/testing/GraphQLClient.js';
 
+// Mock GraphQL Client to prevent real API calls during testing
+vi.mock('../../core/testing/GraphQLClient.js', () => ({
+  GraphQLClient: vi.fn().mockImplementation(() => ({
+    executeQuery: vi.fn().mockResolvedValue({
+      data: { ventures: [{ id: '1', name: 'Test Venture' }] },
+      errors: null
+    }),
+    testConnection: vi.fn().mockResolvedValue({ success: true }),
+    captureBaseline: vi.fn().mockResolvedValue({ saved: true })
+  }))
+}));
+
 describe('Real API E2E Tests', () => {
   let client: GraphQLClient;
 

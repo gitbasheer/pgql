@@ -1,0 +1,32 @@
+[
+  {
+    "id": "queries-0-GetUser",
+    "file": "/Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts",
+    "name": "GetUser",
+    "type": "query",
+    "location": {
+      "line": 4,
+      "column": 33,
+      "file": "/Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts"
+    },
+    "content": "query GetUser($id: ID!) {\n  user(id: $id) {\n    id\n    name\n    email\n    profile {\n      avatar\n      bio\n    }\n  }\n}\n",
+    "transformed": "query GetUser($id: ID!) {\n  user(id: $id) {\n    id\n    name\n    email\n    profile {\n      avatar\n      bio\n    }\n  }\n}",
+    "changes": [],
+    "diff": "===================================================================\n--- /Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts\tOriginal\n+++ /Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts.transformed\tTransformed\n@@ -7,5 +7,5 @@\n       avatar\n       bio\n     }\n   }\n-}\n+}\n\\ No newline at end of file\n"
+  },
+  {
+    "id": "queries-1-UpdateUser",
+    "file": "/Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts",
+    "name": "UpdateUser",
+    "type": "mutation",
+    "location": {
+      "line": 18,
+      "column": 36,
+      "file": "/Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts"
+    },
+    "content": "mutation UpdateUser($id: ID!, $input: UserInput!) {\n  updateUser(id: $id, input: $input) {\n    id\n    name\n    email\n  }\n}\n",
+    "transformed": "mutation UpdateUser($id: ID!, $input: UserInput!) {\n  updateUser(id: $id, input: $input) {\n    id\n    name\n    email\n  }\n}",
+    "changes": [],
+    "diff": "===================================================================\n--- /Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts\tOriginal\n+++ /Users/balkhalil/gd/demo/z/backup/pg-migration-620/test/fixtures/mcp-test/queries.ts.transformed\tTransformed\n@@ -3,5 +3,5 @@\n     id\n     name\n     email\n   }\n-}\n+}\n\\ No newline at end of file\n"
+  }
+]

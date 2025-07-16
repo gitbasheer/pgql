@@ -271,17 +271,25 @@ export class ConfigurableTestRunner {
   }
 
   /**
-   * Report progress to callback if provided
+   * Report progress using polling mechanism (replaces socket.io integration)
    */
   private reportProgress(stage: TestProgress['stage'], current: number, total: number, message: string, startTime: number) {
+    const progress = {
+      stage,
+      current,
+      total,
+      message,
+      timeElapsed: Date.now() - startTime
+    };
+
+    // Update progress via callback for immediate reporting
     if (this.options.progressCallback) {
-      this.options.progressCallback({
-        stage,
-        current,
-        total,
-        message,
-        timeElapsed: Date.now() - startTime
-      });
+      this.options.progressCallback(progress);
+    }
+
+    // For UI integration: store progress state for polling
+    if (typeof global !== 'undefined') {
+      (global as any).testRunnerProgress = progress;
     }
   }
 }

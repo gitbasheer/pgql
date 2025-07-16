@@ -1,0 +1,25 @@
+{
+  "total": 2,
+  "valid": 2,
+  "invalid": 0,
+  "warnings": 0,
+  "summary": [
+    {
+      "id": "queries-0-GetUser",
+      "valid": true,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "id": "queries-1-UpdateUser",
+      "valid": true,
+      "errorCount": 0,
+      "warningCount": 0
+    }
+  ],
+  "machineReadable": {
+    "version": "1.0.0",
+    "timestamp": "2025-07-16T03:19:14.393Z",
+    "exitCode": 0
+  }
+}
