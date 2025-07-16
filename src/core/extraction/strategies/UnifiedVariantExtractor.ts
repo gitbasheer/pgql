@@ -363,14 +363,14 @@ export class UnifiedVariantExtractor extends GraphQLExtractor {
     filePath: string,
     node: any,
     queryIndex: number,
-  ): Promise<ExtractedQueryWithVariant | null> {
+  ): ExtractedQueryWithVariant | null {
     const context: ErrorContext = {
       file: filePath,
       operation: 'createVariant',
       details: { conditions },
     };
 
-    return this.errorHandler.tryPartialOperation(async () => {
+    return this.errorHandler.tryPartialOperation(() => {
       let variantContent = templateContent;
       const replacements: any[] = [];
 

@@ -79,9 +79,13 @@ export const ErrorUtils = {
    * Check if error is retryable
    */
   isRetryable(error: Error): boolean {
-    const { PgqlError } = require('./ErrorTypes.js');
-    if (error instanceof PgqlError) {
-      return (error as any).getAutomatedRecovery().some((action: any) => action.type === 'RETRY');
+    try {
+      const { PgqlError } = require('./ErrorTypes.js');
+      if (error instanceof PgqlError) {
+        return error.getAutomatedRecovery().some((action: any) => action.type === 'RETRY');
+      }
+    } catch {
+      // If PgqlError not available, assume not retryable
     }
     return false;
   },
@@ -90,9 +94,13 @@ export const ErrorUtils = {
    * Extract correlation ID from error
    */
   getCorrelationId(error: Error): string | undefined {
-    const { PgqlError } = require('./ErrorTypes.js');
-    if (error instanceof PgqlError) {
-      return (error as any).details.correlationId;
+    try {
+      const { PgqlError } = require('./ErrorTypes.js');
+      if (error instanceof PgqlError) {
+        return error.details.correlationId;
+      }
+    } catch {
+      // If PgqlError not available, return undefined
     }
     return undefined;
   },
