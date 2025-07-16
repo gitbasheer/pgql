@@ -1,0 +1,102 @@
+Customized Google TypeScript Style Guide for pgql Project
+Version: 1.0 (July 15, 2025) – Customized Edition for pgql (Main Branch State)
+
+Authors: Based on Google's Official TypeScript Style Guide (latest as of 2025, sourced from https://google.github.io/styleguide/tsguide.html), adapted by Grok for pgql's vision and codebase. Incorporates current structure (e.g., /src/core/ for pipelines, /ui/ for React dashboard, /test/fixtures/sample_data/ for testing).
+
+Purpose: This is the single, unified reference for all pgql developers. pgql is a schema-aware GraphQL migration tool emphasizing full controllability/configurability (every function accepts options for overrides), UI integration (all tools/functions callable/visible in dashboard with realtime data display), zero redundancy (DRY: single source of truth for schemas/queries/utils), and seamless coherence (modular, composable pipelines for production tests—e.g., quick runs on /data/sample_data/ then scalable to large repos like vnext-dashboard). Code must enable end-to-end tests without bottlenecks (e.g., parallel extraction, error-resilient validation).
+
+Deviations require approval. Enforce via ESLint/Prettier (configured with google base + pgql customs). Review on major updates (e.g., TS 5.5+ features for better generics in GraphQL typing).
+
+Introduction and Goals
+Core Principles: Avoid error-prone patterns, ensure consistency, prioritize maintainability, and automate enforcement. Code should read as if by one author, with focus on scalability for large repos (e.g., vnext-dashboard with 1000+ queries).
+pgql Vision Alignment: Center on configurability (e.g., all functions use PgqlOptions for UI/CLI overrides), UI control/visibility (e.g., emit data via sockets for dashboard display of queries/logs/errors), no redundancy (e.g., one schema loader reused across extraction/validation), and coherence (e.g., pipeline stages composable without side effects). Support seamless tests: Code must run fast on sample_data (<1min, full coverage) and scale to vnext-dashboard (parallel processing, caching to avoid O(n^2) graphs).
+Consistency Rule: Match existing styles (e.g., in UnifiedExtractor.ts) for minor changes; new code follows this. Style fixes in separate PRs. For pgql, prioritize GraphQL rules (e.g., type-safe schemas, AST-safe parsing).
+Source File Basics
+File Encoding: UTF-8
+All files must be UTF-8 encoded.
+Whitespace Characters
+Only ASCII horizontal space (0x20) as whitespace (besides line terminators).
+Escape other whitespace in strings.
+Special Escape Sequences
+Use standard escapes (\', \", etc.); avoid legacy octal.
+Prefer actual Unicode for non-ASCII (e.g., in GraphQL strings for directives like @deprecated).
+pgql Custom: In query templates (e.g., in sampleQueries.ts), escape to prevent AST parse errors during tests on sample_data.
+Non-ASCII Characters
+Use actual Unicode for printable non-ASCII (e.g., in UI labels).
+Hex/Unicode escapes for non-printable, with comments.
+pgql Custom: For GraphQL schemas (e.g., schema.graphql), use Unicode for field names but comment for UI display compatibility.
+Source File Structure
+Order (sections separated by one blank line):
+
+License/copyright (JSDoc).
+@fileoverview JSDoc (file purpose, no indented wraps).
+Imports.
+Content.
+pgql Custom: Add @pgqlVision tag for vision alignment (e.g., /** @pgqlVision Configurable via PgqlOptions; UI-visible data: extractedQueries */). For test files (e.g., sample-data.test.ts), include @testScope sample_data | vnext-dashboard.
+Imports and Exports
+Imports
+ES6 syntax; relative paths (./foo) for project files (limit ../ to 2 levels in core/ to avoid redundancy).
+Named imports preferred (import {Foo} from './foo';); as for clarity (e.g., import {Schema as BillingSchema} from '../data/billing-schema';).
+Namespace for large APIs (e.g., import * as apollo from '@apollo/client'; in validators).
+Type-only: import type {PgqlOptions} from '../types/pgql.types';.
+pgql Custom: Imports must be configurable (e.g., dynamic via options.schemas). No redundancy (e.g., centralize GraphQL deps in utils/graphqlUtils.ts). For UI, import from backend (e.g., import {extractFromRepo} from '../../src/core/extraction/UnifiedExtractor';) for seamless integration.
+Exports
+Named exports only (export function foo() {}); no defaults.
+Minimize; use internal for private.
+Avoid mutable; use getters.
+pgql Custom: Exports must be MCP-wrapped for UI/CLI (e.g., export const mcpExtract = (options: PgqlOptions) => extractFromRepo(options);). Add @uiVisible JSDoc for data display (e.g., exported queries shown in dashboard table). Ensure coherence for tests (e.g., export test hooks for sample_data runs).
+Language Features
+Variable Declarations
+const default; let for reassigns; no var.
+One per line; initialize at declaration.
+pgql Custom: For configs (e.g., in migration.config.yaml loads), use const options = mergeDefaults(userOptions); to avoid redundancy.
+Arrays and Objects
+Literals: [], {}.
+Spread for copy/merge ([...arr], {...obj}).
+Destructuring for params (e.g., function validate({ query, schemas }: ValidateParams) {}).
+pgql Custom: Use ReadonlyArray for immutable GraphQL data (e.g., queries in fixtures). Merge options objects for configurability (no redundancy in defaults).
+Classes and Interfaces
+Classes for stateful (e.g., UnifiedExtractor with options).
+@deprecated with migration notes.
+Interfaces for extensibility (e.g., interface PgqlOptions { repoPath?: string; uiEmit?: boolean; }).
+pgql Custom: Constructors take PgqlOptions for control. For UI, prefer functional components. No redundant classes (e.g., one base for services).
+Functions
+JSDoc if valuable; sparse @param/@return.
+Interface/destructuring for complex params.
+pgql Custom: Accept PgqlOptions always (e.g., for UI overrides). Emit data for visibility (e.g., options.uiCallback?.(result)). Coherent for pipelines (return promises for chaining).
+Types and Type Safety
+Explicit annotations (e.g., type ExtractedQuery = { fullExpandedQuery: string; } from pgql.types.ts).
+Generics for reuse (e.g., <t extends="" schema=""> for validators).</t>
+Interfaces over types; utility types (Partial<t>, Readonly<t>).</t></t>
+Strict mode on; avoid any (use unknown); type guards.
+pgql Custom: Types enable configurability (e.g., PgqlOptions extends all). For UI, use React types. No redundancy (e.g., single ExtractedQuery type reused).
+Error Handling and Logging
+Return errors preferred; throw exceptionally.
+Structured errors (class PgqlError extends Error { details: any; }).
+Try-catch with logging (no silents).
+pgql Custom: Errors UI-visible (emit to sockets). Rollback on fails for production tests (e.g., in ProgressiveMigration). Log for coherence (full context in tests on sample_data/vnext).
+Comments and Documentation
+For non-obvious only.
+@param/@return sparingly.
+pgql Custom: @configurable for options, @uiVisible for data spots, @testReady sample_data | vnext-dashboard for test coherence. Highlight no-redundancy (// Reuses shared loader).
+pgql-Specific Customizations (Vision-Centric)
+Configurability/Controllability
+All functions/classes take PgqlOptions (e.g., for UI/CLI overrides like logLevel, uiEmit).
+MCP-wrap exports for UI calls.
+UI Integration/Data Visibility
+Emit all data via sockets/queries for dashboard (e.g., extractedQueries in table, logs in viewer).
+Use React hooks for control (e.g., usePgqlExtract for realtime).
+No Redundancy (DRY)
+Centralize (e.g., one schemaLoader.ts reused in extraction/validation).
+Audit for duplicates (e.g., no repeated endpoint logic).
+Seamlessness/Coherence
+Composable pipelines (e.g., pipe(extract, validate, transform)).
+For tests: Add runTest(mode: 'sample_data' | 'vnext-dashboard', options: PgqlOptions) for seamless runs (parallel for large repos, caching to avoid bottlenecks).
+Testing/Production Readiness
+95%+ coverage/module; E2E for flows.
+Code handles small (sample_data: fast, full res) to large (vnext-dashboard: parallel, no O(n^2)).
+Enforcement/Tools
+Linter: ESLint with google + pgql rules (e.g., require @configurable).
+Formatter: Prettier (2-space, single quotes).
+CI: Lint/test on PRs.
+Audits: O reviews for vision alignment.

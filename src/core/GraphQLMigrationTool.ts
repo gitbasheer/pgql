@@ -1,5 +1,5 @@
 import { GraphQLSchema, buildSchema } from 'graphql';
-import { GraphQLExtractor } from './scanner/GraphQLExtractor.js';
+import { GraphQLExtractor } from './extraction/compat/GraphQLExtractorCompat.js';
 import { SchemaAnalyzer } from './analyzer/SchemaAnalyzer.js';
 import { TypeSafeTransformer } from './transformer/TypeSafeTransformer.js';
 import { PatternMatcher } from './analyzer/PatternMatcher.js';

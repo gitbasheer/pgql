@@ -1,6 +1,6 @@
 import * as babel from '@babel/parser';
-import * as traverseModule from '@babel/traverse';
-const traverse = (traverseModule as any).default || traverseModule;
+import traverse, { NodePath } from '@babel/traverse';
+import * as t from '@babel/types';
 import { BaseStrategy } from './BaseStrategy.js';
 import {
   ExtractedQuery,
@@ -332,18 +332,18 @@ export class ASTStrategy extends BaseStrategy {
     return content;
   }
 
-  private extractImports(ast: any): ImportInfo[] {
+  private extractImports(ast: t.File): ImportInfo[] {
     const imports: ImportInfo[] = [];
 
-    (traverse as any)(ast, {
-      ImportDeclaration: (path: any) => {
+    traverse(ast, {
+      ImportDeclaration: (path: NodePath<t.ImportDeclaration>) => {
         const source = path.node.source.value;
         const imported = path.node.specifiers
-          .map((spec: any) => {
+          .map((spec: t.ImportDefaultSpecifier | t.ImportNamespaceSpecifier | t.ImportSpecifier) => {
             if (spec.type === 'ImportDefaultSpecifier') {
               return 'default';
             } else if (spec.type === 'ImportSpecifier') {
-              return spec.imported.name;
+              return (spec.imported as t.Identifier).name;
             } else if (spec.type === 'ImportNamespaceSpecifier') {
               return '*';
             }

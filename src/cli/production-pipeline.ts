@@ -5,10 +5,10 @@ import chalk from 'chalk';
 import ora from 'ora';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { GraphQLExtractor } from '../core/scanner/GraphQLExtractor.js';
-import { UnifiedVariantExtractor } from '../core/scanner/UnifiedVariantExtractor.js';
+import { UnifiedExtractor } from '../core/extraction/engine/UnifiedExtractor.js';
+import { ExtractionOptions } from '../core/extraction/types/index.js';
 import { SchemaValidator } from '../core/validator/SchemaValidator.js';
-import { FragmentResolver } from '../core/scanner/FragmentResolver.js';
+import { FragmentResolver } from '../core/extraction/resolvers/FragmentResolver.js';
 import { OperationAnalyzer } from '../core/analyzer/OperationAnalyzer.js';
 import { SchemaDeprecationAnalyzer } from '../core/analyzer/SchemaDeprecationAnalyzer.js';
 import { OptimizedSchemaTransformer } from '../core/transformer/OptimizedSchemaTransformer.js';
@@ -118,7 +118,7 @@ program
       // Step 1: Extract queries
       const extractSpinner = ora('Extracting GraphQL operations...').start();
       // Always use dynamic extractor for production pipeline to catch all variants
-      const extractor = new UnifiedVariantExtractor({ enableIncrementalExtraction: true });
+      const extractor = new UnifiedExtractor({ enableIncrementalExtraction: true });
       const queries = await extractor.extractFromDirectory(
         directory,
         ['**/*.{js,jsx,ts,tsx}'],

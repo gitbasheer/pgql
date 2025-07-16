@@ -13,6 +13,7 @@ import { ExtractionContext } from './ExtractionContext.js';
 import { ExtractionPipeline } from './ExtractionPipeline.js';
 import { PluckStrategy } from '../strategies/PluckStrategy.js';
 import { ASTStrategy } from '../strategies/ASTStrategy.js';
+import { PatternAwareASTStrategy } from '../strategies/PatternAwareASTStrategy.js';
 import { BaseStrategy } from '../strategies/BaseStrategy.js';
 import { astCache } from '../../cache/CacheManager.js';
 import { monitor } from '../../monitoring/PerformanceMonitor.js';
@@ -35,11 +36,31 @@ export class UnifiedExtractor {
   private initializeStrategies(): Map<string, BaseStrategy> {
     const strategies = new Map<string, BaseStrategy>();
 
-    // Always initialize both strategies
-    strategies.set('pluck', new PluckStrategy(this.context));
-    strategies.set('ast', new ASTStrategy(this.context));
+    // Initialize strategies based on configuration
+    const requestedStrategies = this.context.options.strategies || ['pluck', 'ast'];
 
-    // NOTE: only 2 potential strategies? how do they get selected? per query per file?
+    for (const strategyName of requestedStrategies) {
+      switch (strategyName) {
+        case 'pluck':
+          strategies.set('pluck', new PluckStrategy(this.context));
+          break;
+        case 'ast':
+          strategies.set('ast', new ASTStrategy(this.context));
+          break;
+        case 'pattern-aware':
+          strategies.set('pattern-aware', new PatternAwareASTStrategy(this.context));
+          break;
+        default:
+          logger.warn(`Unknown strategy: ${strategyName}, skipping`);
+      }
+    }
+
+    // Ensure at least one strategy is available
+    if (strategies.size === 0) {
+      logger.warn('No valid strategies configured, falling back to AST strategy');
+      strategies.set('ast', new ASTStrategy(this.context));
+    }
+
     return strategies;
   }
 

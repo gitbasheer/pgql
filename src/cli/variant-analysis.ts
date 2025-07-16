@@ -5,8 +5,10 @@ import chalk from 'chalk';
 import ora from 'ora';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { UnifiedVariantExtractor } from '../core/scanner/UnifiedVariantExtractor.js';
+import { UnifiedExtractor } from '../core/extraction/engine/UnifiedExtractor.js';
+import { ExtractionOptions } from '../core/extraction/types/index.js';
 import { OperationAnalyzer } from '../core/analyzer/OperationAnalyzer.js';
+import { ExtractedQueryWithVariant, VariantMetadata } from '../core/extraction/types/variant-extractor.types.js';
 import { logger } from '../utils/logger.js';
 
 const program = new Command();
@@ -23,7 +25,7 @@ program
 
     try {
       // Extract with variant awareness
-      const extractor = new UnifiedVariantExtractor({ enableIncrementalExtraction: true });
+      const extractor = new UnifiedExtractor({ enableIncrementalExtraction: true });
       const queries = await extractor.extractFromDirectory(
         directory,
         options.pattern,
@@ -36,8 +38,9 @@ program
       const variantReport = await extractor.generateVariantReport();
 
       // Separate original queries from variants
-      const originalQueries = queries.filter((q) => !(q as any).variantMetadata?.isVariant);
-      const variants = queries.filter((q) => (q as any).variantMetadata?.isVariant);
+      const queriesWithVariants = queries as ExtractedQueryWithVariant[];
+      const originalQueries = queriesWithVariants.filter((q) => !q.variantMetadata?.isVariant);
+      const variants = queriesWithVariants.filter((q) => q.variantMetadata?.isVariant);
 
       console.log(chalk.blue('\n📊 Variant Analysis Summary:\n'));
       console.log(`  Original queries: ${originalQueries.length}`);
@@ -71,13 +74,15 @@ program
       }
 
       // Group variants by original query
-      const variantsByOriginal = new Map<string, any[]>();
+      const variantsByOriginal = new Map<string, ExtractedQueryWithVariant[]>();
       for (const variant of variants) {
-        const metadata = (variant as any).variantMetadata;
-        if (!variantsByOriginal.has(metadata.originalQueryId)) {
-          variantsByOriginal.set(metadata.originalQueryId, []);
+        const metadata = variant.variantMetadata;
+        if (metadata) {
+          if (!variantsByOriginal.has(metadata.originalQueryId)) {
+            variantsByOriginal.set(metadata.originalQueryId, []);
+          }
+          variantsByOriginal.get(metadata.originalQueryId)!.push(variant);
         }
-        variantsByOriginal.get(metadata.originalQueryId)!.push(variant);
       }
 
       if (variantsByOriginal.size > 0) {
@@ -89,11 +94,13 @@ program
           console.log(`    ${queryVariants.length} variants generated:`);
 
           for (const variant of queryVariants) {
-            const metadata = (variant as any).variantMetadata;
-            const conditionStr = Object.entries(metadata.conditions)
-              .map(([k, v]) => `${k}=${v}`)
-              .join(', ');
-            console.log(`      - ${conditionStr}`);
+            const metadata = variant.variantMetadata;
+            if (metadata) {
+              const conditionStr = Object.entries(metadata.conditions)
+                .map(([k, v]) => `${k}=${v}`)
+                .join(', ');
+              console.log(`      - ${conditionStr}`);
+            }
           }
         }
       }
@@ -124,8 +131,8 @@ program
           variants: variants.map((v) => ({
             id: v.id,
             name: v.name,
-            conditions: (v as any).variantMetadata.conditions,
-            replacements: (v as any).variantMetadata.replacements,
+            conditions: v.variantMetadata?.conditions || {},
+            replacements: v.variantMetadata?.replacements || [],
           })),
         })),
         operationAnalysis: operationReport,
@@ -143,14 +150,14 @@ program
             timestamp: new Date().toISOString(),
             directory,
             totalQueries: queries.length,
-            queries: queries.map((q) => ({
+            queries: queriesWithVariants.map((q) => ({
               id: q.id,
               file: q.filePath,
               name: q.name,
               type: q.type,
               location: q.location,
               content: q.content,
-              variantMetadata: (q as any).variantMetadata,
+              variantMetadata: q.variantMetadata,
             })),
           },
           null,

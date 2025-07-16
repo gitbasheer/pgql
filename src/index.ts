@@ -1,15 +1,15 @@
-// Main entry point with full type safety
-export { GraphQLExtractor } from './core/scanner/GraphQLExtractor.js';
-export { ASTScanner } from './core/scanner/ASTScanner.js';
+// Main entry point with full type safety - using compatibility bridges
+export { GraphQLExtractor } from './core/extraction/compat/GraphQLExtractorCompat.js';
+export { ASTScanner } from './core/extraction/compat/ASTScannerCompat.js';
 export { SchemaAnalyzer } from './core/analyzer/SchemaAnalyzer.js';
 export { TypeSafeTransformer } from './core/transformer/TypeSafeTransformer.js';
 export { QueryTransformer } from './core/transformer/QueryTransformer.js';
 export { PatternMatcher } from './core/analyzer/PatternMatcher.js';
 
-// Export types
-export type { ExtractedQuery } from './core/scanner/GraphQLExtractor.js';
+// Export types - using compatibility bridges
+export type { ExtractedQuery } from './core/extraction/compat/GraphQLExtractorCompat.js';
 
-export type { QueryExtraction, SourceLocation, GraphQLType } from './core/scanner/ASTScanner.js';
+export type { QueryExtraction, SourceLocation, GraphQLType } from './core/extraction/compat/ASTScannerCompat.js';
 
 export type {
   DeprecatedField,

@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import * as fs from 'fs/promises';
 import path from 'node:path';
-import { UnifiedVariantExtractor } from '../core/scanner/UnifiedVariantExtractor.js';
+import { UnifiedExtractor } from '../core/extraction/engine/UnifiedExtractor.js';
 import { ExtractedQueryWithVariant } from '../core/extraction/types/variant-extractor.types.js';
 import { logger } from '../utils/logger.js';
 
@@ -23,8 +23,24 @@ program
     const spinner = ora('Extracting GraphQL query variants...').start();
 
     try {
-      const extractor = new UnifiedVariantExtractor({ enableIncrementalExtraction: true });
-      const result = await extractor.extractWithVariants(directory, options.pattern);
+      const extractor = new UnifiedExtractor({ enableIncrementalExtraction: true });
+      const extractedQueries = await extractor.extractFromDirectory(
+        directory,
+        options.pattern,
+        true // resolve fragments
+      );
+      
+      // Generate extraction result for compatibility
+      const result = {
+        variants: extractedQueries,
+        switches: new Map(),
+        summary: {
+          totalOriginalQueries: extractedQueries.length,
+          totalVariants: 0,
+          totalSwitches: 0,
+          queriesWithVariants: []
+        }
+      };
 
       spinner.succeed(`Extraction complete`);
 
@@ -124,7 +140,14 @@ program
       // Optionally save individual query files
       if (options.saveQueries) {
         const queriesDir = path.join(options.output, 'queries');
-        await extractor.saveVariants(queriesDir, result.variants);
+        await fs.mkdir(queriesDir, { recursive: true });
+        
+        for (const query of result.variants) {
+          const fileName = `${query.id}.graphql`;
+          const filePath = path.join(queriesDir, fileName);
+          await fs.writeFile(filePath, query.content);
+        }
+        
         console.log(chalk.dim(`\n📁 Individual query files saved to ${queriesDir}`));
       }
 

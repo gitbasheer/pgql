@@ -1,21 +1,20 @@
-// @ts-nocheck
 import { BaseStrategy } from './BaseStrategy.js';
 import { PatternExtractedQuery } from '../types/pattern.types.js';
 import { ExtractedQuery, SourceAST } from '../types/query.types.js';
 import { QueryPatternService } from '../engine/QueryPatternRegistry.js';
+import { ExtractionContext } from '../engine/ExtractionContext.js';
 import { logger } from '../../../utils/logger.js';
 import { parse as parseGraphQL, DocumentNode } from 'graphql';
 import { parse as parseBabel } from '@babel/parser';
-import * as traverseModule from '@babel/traverse';
-const traverse = (traverseModule as any).default || traverseModule;
+import traverse, { NodePath } from '@babel/traverse';
 import * as babel from '@babel/types';
 
 export class PatternAwareASTStrategy extends BaseStrategy {
   private patternService: QueryPatternService;
 
-  constructor(patternService: QueryPatternService) {
-    super();
-    this.patternService = patternService;
+  constructor(context: ExtractionContext, patternService?: QueryPatternService) {
+    super(context);
+    this.patternService = patternService || new QueryPatternService();
   }
 
   async extract(filePath: string, content: string): Promise<PatternExtractedQuery[]> {
@@ -42,8 +41,8 @@ export class PatternAwareASTStrategy extends BaseStrategy {
       });
 
       // Extract queries with enhanced pattern awareness
-      (traverse as any)(ast, {
-        TaggedTemplateExpression: (path) => {
+      traverse(ast, {
+        TaggedTemplateExpression: (path: NodePath<babel.TaggedTemplateExpression>) => {
           if (this.isGraphQLTag(path.node.tag)) {
             const query = this.extractPatternQuery(path, filePath, content);
             if (query) {
@@ -297,5 +296,9 @@ export class PatternAwareASTStrategy extends BaseStrategy {
    */
   get name(): string {
     return 'pattern-aware-ast';
+  }
+
+  canHandle(filePath: string): boolean {
+    return /\.(js|jsx|ts|tsx)$/.test(filePath);
   }
 }
