@@ -127,36 +127,53 @@ export async function execGH(
  * Validate branch name to prevent injection
  */
 export function validateBranchName(branch: string): boolean {
-  // Allow alphanumeric, hyphens, underscores, forward slashes, and dots
-  // This matches common branch naming patterns like feature/BA-302, release_v1.0.0
-  const validBranchPattern = /^[a-zA-Z0-9/_.-]+$/;
+  // Strengthened regex - only alphanumeric, hyphens, underscores, forward slashes
+  // No dots allowed to prevent confusion with refs/tags
+  const validBranchPattern = /^[a-zA-Z0-9/_-]+$/;
+
+  // Check basic pattern first
+  if (!validBranchPattern.test(branch)) {
+    return false;
+  }
 
   // Additional validation: prevent common injection patterns
   const dangerousPatterns = [
-    /\$\(/, // Command substitution
+    /\$/, // Any dollar sign (command substitution)
     /`/, // Backticks
     /;/, // Command separator
     /\|/, // Pipe
     /&/, // Background/chain
     />/, // Redirect
     /</, // Input redirect
-    /\*/, // Wildcard (could be dangerous in some contexts)
+    /\*/, // Wildcard
     /\?/, // Wildcard
     /\[/, // Character class
     /\]/, // Character class
-    /\s/, // Whitespace (except in paths)
+    /\s/, // Whitespace
     /\.\./, // Directory traversal
+    /\\/, // Backslash
+    /'/, // Single quote
+    /"/, // Double quote
+    /\n/, // Newline
+    /\r/, // Carriage return
+    /\t/, // Tab
   ];
-
-  if (!validBranchPattern.test(branch)) {
-    return false;
-  }
 
   // Check for dangerous patterns
   for (const pattern of dangerousPatterns) {
     if (pattern.test(branch)) {
       return false;
     }
+  }
+
+  // Additional checks
+  if (branch.length === 0 || branch.length > 255) {
+    return false;
+  }
+
+  // Cannot start or end with forward slash
+  if (branch.startsWith('/') || branch.endsWith('/')) {
+    return false;
   }
 
   return true;
@@ -167,11 +184,30 @@ export function validateBranchName(branch: string): boolean {
  */
 export function validateFilePath(filePath: string, basePath: string): boolean {
   const path = require('path');
-  const resolved = path.resolve(basePath, filePath);
-  const normalized = path.normalize(resolved);
+  
+  // Check for obvious traversal attempts
+  if (filePath.includes('..') || filePath.includes('%2e%2e')) {
+    return false;
+  }
+  
+  // Check for absolute paths that would escape base
+  if (path.isAbsolute(filePath) && !filePath.startsWith(basePath)) {
+    return false;
+  }
+  
+  // Resolve and normalize paths
+  const resolvedBase = path.resolve(basePath);
+  const resolvedFile = path.resolve(basePath, filePath);
+  const normalizedBase = path.normalize(resolvedBase);
+  const normalizedFile = path.normalize(resolvedFile);
 
   // Ensure the resolved path is within the base path
-  return normalized.startsWith(path.normalize(basePath));
+  // Use path separator to prevent partial matches
+  const baseWithSeparator = normalizedBase.endsWith(path.sep) 
+    ? normalizedBase 
+    : normalizedBase + path.sep;
+    
+  return normalizedFile.startsWith(baseWithSeparator) || normalizedFile === normalizedBase;
 }
 
 /**

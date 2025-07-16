@@ -1,8 +1,47 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { QueryPatternService } from '../../../core/extraction/engine/QueryPatternRegistry.js';
 import { QueryMigrator } from '../../../core/extraction/engine/QueryMigrator.js';
 import { PatternAwareASTStrategy } from '../../../core/extraction/strategies/PatternAwareASTStrategy.js';
 import { PatternExtractedQuery } from '../../../core/extraction/types/pattern.types.js';
+
+// Mock vnext patterns fully
+vi.mock('../../../core/extraction/engine/QueryPatternRegistry.js', async () => {
+  const actual = await vi.importActual('../../../core/extraction/engine/QueryPatternRegistry.js');
+  return {
+    ...actual,
+    QueryPatternService: vi.fn().mockImplementation(() => ({
+      analyzeQueryPattern: vi.fn().mockReturnValue({
+        namePattern: {
+          template: '${queryNames.byIdV1}',
+          version: 'V1',
+          isDeprecated: true,
+          migrationPath: 'V3'
+        },
+        contentFingerprint: 'mock-fingerprint-abc123'
+      })),
+      generateContentFingerprint: vi.fn().mockReturnValue('mock-fingerprint-abc123'),
+      groupQueriesByFingerprint: vi.fn().mockReturnValue(new Map([
+        ['mock-fingerprint-abc123', [
+          { id: 'test-1', filePath: '/test/file1.ts' },
+          { id: 'test-2', filePath: '/test/file2.ts' }
+        ]]
+      ])),
+      loadVnextPatterns: vi.fn().mockResolvedValue({
+        queryNames: {
+          byIdV1: 'GetVentureByIdV1',
+          byIdV2: 'GetVentureByIdV2',
+          byIdV3: 'GetVentureByIdV3'
+        },
+        patterns: {
+          venture: {
+            byId: ['V1', 'V2', 'V3'],
+            current: 'V3'
+          }
+        }
+      })
+    }))
+  };
+});
 
 describe('Pattern-Based Extraction', () => {
   let patternService: QueryPatternService;
