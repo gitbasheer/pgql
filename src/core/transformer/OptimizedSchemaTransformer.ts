@@ -36,7 +36,7 @@ export interface TransformResult {
 }
 
 // Using shared TransformationChange instead of local Change interface
-export type Change = TransformationChange & { path?: string };
+export type Change = TransformationChange & { path?: string; replacement?: string };
 
 export class OptimizedSchemaTransformer {
   private deprecationMap: Map<string, DeprecationRule>;
@@ -363,7 +363,7 @@ export class OptimizedSchemaTransformer {
               if (rule.isVague && self.options.commentOutVague) {
                 // Track change for reporting
                 changes.push({
-                  type: 'field',
+                  type: 'comment-out',
                   field: fieldName,
                   oldValue: fieldName,
                   newValue: undefined,
@@ -379,10 +379,11 @@ export class OptimizedSchemaTransformer {
                 if (rule.replacement.includes('.')) {
                   // Nested replacement like logoUrl -> profile.logoUrl
                   changes.push({
-                    type: 'field',
+                    type: 'nested-replacement',
                     field: fieldName,
                     oldValue: fieldName,
                     newValue: rule.replacement,
+                    replacement: rule.replacement,
                     reason: rule.deprecationReason,
                     path: currentPath,
                   });
@@ -391,10 +392,11 @@ export class OptimizedSchemaTransformer {
                 } else {
                   // Simple field rename
                   changes.push({
-                    type: 'field',
+                    type: 'field-rename',
                     field: fieldName,
                     oldValue: fieldName,
                     newValue: rule.replacement,
+                    replacement: rule.replacement,
                     reason: rule.deprecationReason,
                     path: currentPath,
                   });
@@ -454,7 +456,7 @@ export class OptimizedSchemaTransformer {
     let result = query;
 
     for (const change of changes) {
-      if (change.newValue === undefined) {
+      if (change.type === 'comment-out' || change.newValue === undefined) {
         const comment = `# DEPRECATED: ${change.field} - ${change.reason || 'Deprecated field'}`;
         // This is simplified - in production you'd want more sophisticated comment insertion
         result = `${comment}\n${result}`;
@@ -733,7 +735,7 @@ export class EnhancedOptimizedSchemaTransformer extends OptimizedSchemaTransform
       transformedQuery: result.transformed,
       originalQuery: query.content,
       warnings: result.warnings,
-      mappingCode: this.generateMappingUtil({}, {}, query.queryName),
+      mappingCode: this.generateMappingUtil({}, {}, query.queryName || 'UnknownQuery'),
       changes: result.changes.map((c) => ({
         type: 'field' as const,
         field: c.field,
@@ -741,7 +743,7 @@ export class EnhancedOptimizedSchemaTransformer extends OptimizedSchemaTransform
         newValue: c.newValue,
         reason: c.reason,
       })),
-      abFlag: `new-queries-${query.queryName.toLowerCase()}`,
+      abFlag: `new-queries-${(query.queryName || 'unknown').toLowerCase()}`,
     };
 
     return transformationResult;

@@ -393,6 +393,255 @@ pg-cli extract queries --legacy-format
 pg-cli extract queries --json | jq '.totalQueries'
 ```
 
+## ⚙️ Configurability Guide
+
+### Core Configuration Options (PgqlOptions)
+
+The migration tool exposes comprehensive configuration through `PgqlOptions` for both CLI and UI usage:
+
+```typescript
+interface PgqlOptions {
+  // Extraction Strategy
+  strategy: 'pluck' | 'ast' | 'hybrid';
+  cacheConfig: {
+    enabled: boolean;
+    ttl: number;        // Cache time-to-live (ms)
+    maxSize: number;    // Memory limit (bytes)
+  };
+  
+  // Transformation Settings
+  transformation: {
+    commentOutVague: boolean;
+    addDeprecationComments: boolean;
+    preserveOriginalAsComment: boolean;
+    dryRun: boolean;
+  };
+  
+  // Performance Tuning
+  performance: {
+    parallelFiles: boolean;
+    concurrency: number;     // Max concurrent operations
+    chunkSize: number;       // Files per chunk
+  };
+  
+  // Schema Validation
+  validation: {
+    skipInvalid: boolean;
+    endpoint?: string;       // For real API testing
+    auth?: AuthConfig;
+  };
+}
+```
+
+### CLI Configuration Examples
+
+**Basic Extraction with Custom Strategy:**
+```bash
+# Use AST strategy for complex queries
+pg-cli extract queries ./src --strategy ast --cache-ttl 1800
+
+# Hybrid mode with parallel processing
+pg-cli extract queries ./src --strategy hybrid --parallel --concurrency 8
+```
+
+**Transformation with Safety Options:**
+```bash
+# Dry run with comments preserved
+pg-cli transform queries --dry-run --preserve-comments --comment-vague
+
+# Production transform with caching
+pg-cli transform queries --cache-enabled --cache-size 100MB
+```
+
+### UnifiedExtractor Configuration
+
+```typescript
+import { UnifiedExtractor } from './src/core/extraction/UnifiedExtractor';
+
+// Sample Data Configuration (Fast, Limited Scope)
+const sampleDataConfig: PgqlOptions = {
+  strategy: 'pluck',
+  cacheConfig: { enabled: true, ttl: 300000, maxSize: 10 * 1024 * 1024 },
+  performance: { parallelFiles: false, concurrency: 2, chunkSize: 10 },
+  transformation: { commentOutVague: true, dryRun: true }
+};
+
+// Large Repository Configuration (Robust, High Performance)
+const largeRepoConfig: PgqlOptions = {
+  strategy: 'hybrid',
+  cacheConfig: { enabled: true, ttl: 3600000, maxSize: 100 * 1024 * 1024 },
+  performance: { parallelFiles: true, concurrency: 16, chunkSize: 50 },
+  transformation: { commentOutVague: false, addDeprecationComments: true }
+};
+
+// Initialize extractor
+const extractor = new UnifiedExtractor(largeRepoConfig);
+const result = await extractor.extractFromRepo('./large-codebase');
+```
+
+### UI Integration Examples
+
+**Dashboard Configuration Override:**
+```typescript
+// In Dashboard.tsx - override CLI defaults for UI usage
+const uiConfig: Partial<PgqlOptions> = {
+  strategy: 'hybrid',
+  transformation: { dryRun: false },  // UI handles preview differently
+  performance: { 
+    parallelFiles: true,
+    concurrency: 4  // Lower for browser responsiveness
+  }
+};
+
+// Pass to pipeline
+await runPipeline(repoPath, { ...defaultConfig, ...uiConfig });
+```
+
+**Real-time Monitoring Configuration:**
+```typescript
+// For live pipeline monitoring
+const monitoringConfig: PgqlOptions = {
+  cacheConfig: { enabled: false },  // Disable for real-time updates
+  validation: {
+    endpoint: 'https://api.example.com/graphql',
+    auth: { cookies: userCookies, appKey: userAppKey }
+  }
+};
+```
+
+### Repository Size Optimization
+
+#### Small/Sample Data Repositories (< 100 files)
+```bash
+# Optimized for speed and development
+pg-cli extract queries ./data/sample_data \
+  --strategy pluck \
+  --cache-ttl 300 \
+  --no-parallel \
+  --concurrency 2
+```
+
+#### Medium Repositories (100-1000 files)
+```bash
+# Balanced approach
+pg-cli extract queries ./src \
+  --strategy hybrid \
+  --cache-ttl 1800 \
+  --parallel \
+  --concurrency 8 \
+  --chunk-size 25
+```
+
+#### Large Repositories (1000+ files)
+```bash
+# Maximum performance
+pg-cli extract queries ./large-codebase \
+  --strategy ast \
+  --cache-ttl 3600 \
+  --cache-size 200MB \
+  --parallel \
+  --concurrency 16 \
+  --chunk-size 100
+```
+
+### Environment-Specific Configurations
+
+**Development Environment:**
+```bash
+export PGQL_STRATEGY=hybrid
+export PGQL_CACHE_TTL=300000
+export PGQL_DRY_RUN=true
+export PGQL_PRESERVE_COMMENTS=true
+```
+
+**CI/CD Environment:**
+```bash
+export PGQL_STRATEGY=pluck
+export PGQL_CACHE_ENABLED=false
+export PGQL_PARALLEL=true
+export PGQL_CONCURRENCY=max
+export PGQL_OUTPUT_FORMAT=json
+```
+
+**Production Environment:**
+```bash
+export PGQL_STRATEGY=ast
+export PGQL_CACHE_TTL=3600000
+export PGQL_CACHE_SIZE=500MB
+export PGQL_VALIDATION_ENABLED=true
+export PGQL_ROLLBACK_ENABLED=true
+```
+
+### Advanced Configuration Patterns
+
+**Configuration File (migration.config.yaml):**
+```yaml
+# Development profile
+development:
+  strategy: hybrid
+  cache:
+    enabled: true
+    ttl: 300000  # 5 minutes
+    maxSize: 50MB
+  transformation:
+    dryRun: true
+    commentOutVague: true
+  performance:
+    parallelFiles: false
+    concurrency: 4
+
+# Production profile  
+production:
+  strategy: ast
+  cache:
+    enabled: true
+    ttl: 3600000  # 1 hour
+    maxSize: 200MB
+  transformation:
+    dryRun: false
+    addDeprecationComments: true
+  performance:
+    parallelFiles: true
+    concurrency: 16
+  validation:
+    skipInvalid: false
+    endpoint: "${GRAPHQL_ENDPOINT}"
+    auth:
+      method: "cookie"
+```
+
+**Programmatic Configuration:**
+```typescript
+import { loadConfig } from './src/config/ConfigLoader';
+
+// Load environment-specific config
+const config = await loadConfig(process.env.NODE_ENV || 'development');
+
+// Override for specific use case
+const customConfig = {
+  ...config,
+  transformation: {
+    ...config.transformation,
+    dryRun: process.argv.includes('--preview')
+  }
+};
+```
+
+### Performance Benchmarks
+
+| Repository Size | Recommended Strategy | Expected Time | Memory Usage |
+|----------------|---------------------|---------------|--------------|
+| < 50 files     | pluck              | < 5s          | < 10MB       |
+| 50-500 files   | hybrid             | 10-30s        | 20-50MB      |
+| 500-2000 files | hybrid             | 30-120s       | 50-100MB     |
+| 2000+ files    | ast                | 2-10min       | 100-500MB    |
+
+## 📚 Developer Resources
+
+- **[AST Development Guide](docs/AST_GUIDE.md)** - 2025 best practices for GraphQL AST handling
+- **[Technical Overview](docs/TECHNICAL-OVERVIEW.md)** - Architecture deep dive
+- **[User Guide](docs/USER_GUIDE.md)** - Complete workflow documentation
+
 ## 🔧 Configuration
 
 Edit `migration.config.yaml`:
