@@ -370,7 +370,7 @@ export class UnifiedVariantExtractor extends GraphQLExtractor {
       details: { conditions },
     };
 
-    return this.errorHandler.tryPartialOperation(() => {
+    try {
       let variantContent = templateContent;
       const replacements: any[] = [];
 
