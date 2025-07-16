@@ -1,6 +1,12 @@
-/** @fileoverview Sample queries converted from data/sample_data for testing */
+/** @fileoverview Sample queries converted from data/sample_data for testing - uses consolidated fragments */
 
 import { gql } from '@apollo/client/core';
+import {
+  PROJECT_FRAGMENT,
+  VENTURE_BASE_FRAGMENT,
+  VENTURE_INFINITY_STONE_FRAGMENT,
+  PROFILE_INFINITY_STONE_FRAGMENT
+} from './sampleFragments.js';
 
 export const SAMPLE_QUERY_NAMES = {
   byIdV1: 'getVentureHomeDataByVentureIdDashboard',
@@ -22,113 +28,7 @@ export const SAMPLE_QUERY_NAMES = {
 };
 
 export const SAMPLE_GET_ALL_VENTURES_QUERY = gql`
-  fragment ventureFields on Venture {
-    id
-    logoUrl
-    projects {
-      id
-      product {
-        id
-        ...on DomainProduct {
-          dns {
-            hostingProvider
-            emailProvider
-            hosting_ip
-            email_ip
-          }
-          isListedForSaleByOwner
-        }
-        ...on ExternalProduct {
-          type
-          entitlementsBlob
-          planType
-          status
-          properties
-          billing {
-            id
-          }
-        }
-        ...on WebsiteProduct {
-          type
-          entitlementsBlob
-          domainName
-          businessName
-          status
-          isPublished
-          planType
-          properties
-          data
-          createDate
-          homepageId
-          options
-          websiteSessionStats {
-            last12Months
-          }
-          billing {
-            id
-          }
-          backgroundImage
-        }
-        ...on WordpressProduct {
-          accountStatus
-          id
-          maxSites
-          sites {
-            blogTitle
-            siteUid
-            manageWpSiteId
-            cName
-            ipAddress
-            status
-            published
-            sslCertificateId
-            entity {
-              features {
-                isDomainAttached
-                domain
-              }
-            }
-          }
-        }
-        ... on AllAccessPassProduct {
-          domainCreditAvailable
-        }
-      }
-      group
-      created
-      status
-      billing {
-        id
-        plan
-      }
-      accessed
-      domain
-      domainUnicode
-      domainPunycode
-      subscription {
-        id
-        autoRenew
-        canBeRenewed
-        commonName
-        offerPlan
-        paidThroughDate
-        productName
-        status
-        entitlements {
-          status
-          prePurchaseKeyMap {
-            custom_data {
-              dify_website
-            }
-          }
-        }
-      }
-    }
-    profile {
-      aapOnboarded
-      aiOnboarded
-    }
-  }
+  ${VENTURE_BASE_FRAGMENT}
 
   query ${SAMPLE_QUERY_NAMES.allV1} {
     user {
@@ -163,137 +63,7 @@ export const SAMPLE_GET_ALL_VENTURES_QUERY = gql`
 `;
 
 export const SAMPLE_SINGLE_VENTURE_QUERY = gql`
-  fragment ventureInfinityStoneDataFields on Venture {
-    id
-    assetContainerId
-    logoUrl
-    isAAP @experimentalOptIn
-    profile {
-      inferred {
-        name
-        vertical
-        personalityKeywords
-        businessStyles
-        tagLines
-        description
-        websiteNeedsStore
-        websiteNeedsAppointments
-        fullWebsiteHeadline
-        fullWebsiteSubhead
-        fullWebsiteCTA
-        logoUrl
-        photoKeywords
-        photoKeywordPhrases
-        status {
-          logosRendered
-        }
-        brands {
-          businessStyle
-          logos {
-            id
-            width
-            height
-            imageUrl
-            template
-            projectSpecUri
-          }
-          primaryText
-          secondaryText
-          primaryFont {
-            type
-          }
-          secondaryFont {
-            type
-          }
-          icon {
-            ... on InferredBrandURLIcon {
-              url
-            }
-            ... on InferredBrandFlaticonIcon {
-              thumbnailUrl
-            }
-          }
-          colors {
-            accentColor {
-              hex
-              rgba {
-                r
-                g
-                b
-                a
-              }
-            }
-            backgroundColor {
-              hex
-              rgba {
-                r
-                g
-                b
-                a
-              }
-            }
-          }
-        }
-      }
-      aapOnboarded
-      aiOnboarded
-      category
-      lastVisited
-      numVisits
-      metadata {
-        createdAt
-        updatedAt
-      }
-      name
-    }
-    projects {
-      id
-      product {
-        id
-        ...on DomainProduct {
-          dns {
-            hostingProvider
-            emailProvider
-            hosting_ip
-            email_ip
-          }
-          isListedForSaleByOwner
-        }
-        ...on WebsiteProduct {
-          type
-          entitlementsBlob
-          domainName
-          businessName
-          status
-          isPublished
-          planType
-          properties
-          data
-          createDate
-          homepageId
-          options
-          websiteSessionStats {
-            last12Months
-          }
-          billing {
-            id
-          }
-          backgroundImage
-        }
-      }
-      group
-      created
-      status
-      billing {
-        id
-        plan
-      }
-      accessed
-      domain
-      domainUnicode
-      domainPunycode
-    }
-  }
+  ${VENTURE_INFINITY_STONE_FRAGMENT}
 
   query singleVentureByVentureId($ventureId: UUID!) {
     venture(ventureId: $ventureId) {

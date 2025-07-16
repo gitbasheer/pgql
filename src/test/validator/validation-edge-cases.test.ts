@@ -152,13 +152,14 @@ describe('Validation Edge Cases', () => {
         }
       `;
 
-      // Pre-process to strip JS interpolation before GraphQL parsing
-      const processedTemplate = complexTemplate.replace(/\$\{[^}]*\}/g, (match) => {
-        if (match.includes('minPrice') || match.includes('maxPrice')) {
-          return '0'; // Default numeric value
-        }
-        return '"placeholder"'; // Default string value
-      });
+      // More robust pre-processing for template literals
+      let processedTemplate = complexTemplate;
+      
+      // Replace interpolated strings (quoted)
+      processedTemplate = processedTemplate.replace(/"\$\{[^}]*\}"/g, '"placeholder"');
+      
+      // Replace interpolated numbers (unquoted)
+      processedTemplate = processedTemplate.replace(/\$\{[^}]*\}/g, '0');
 
       const result = await validator.validateQuery(processedTemplate);
       expect(result.valid).toBe(true);
@@ -173,8 +174,12 @@ describe('Validation Edge Cases', () => {
         }
       `;
 
-      // Pre-process nested template expressions 
-      const processedTemplate = nestedTemplate.replace(/\$\{[^}]*\}/g, '"placeholder"');
+      // More robust pre-processing for nested template expressions
+      // This complex pattern needs careful replacement to maintain GraphQL validity
+      let processedTemplate = nestedTemplate;
+      
+      // Replace the entire complex interpolated string
+      processedTemplate = processedTemplate.replace(/"\$\{[^}]*\}"/g, '"placeholder"');
       
       const result = await validator.validateQuery(processedTemplate);
       expect(result.valid).toBe(true);
