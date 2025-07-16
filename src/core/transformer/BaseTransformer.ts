@@ -119,7 +119,7 @@ export abstract class BaseTransformer {
       );
       
       // Handle error through unified system
-      await handleError(transformationError);
+      handleError(transformationError);
       
       const parseError: TransformError = {
         type: 'PARSE_ERROR',

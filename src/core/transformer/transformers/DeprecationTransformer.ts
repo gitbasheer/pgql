@@ -4,7 +4,7 @@
  */
 
 import { DocumentNode, visit, Kind } from 'graphql';
-import { BaseTransformer, TransformResult, TransformContext, TransformError } from '../BaseTransformer.js';
+import { BaseTransformer, TransformResult, TransformContext, TransformError, TransformChange, TransformWarning } from '../BaseTransformer.js';
 import { Result, ok, err } from 'neverthrow';
 import { GraphQLSchema } from 'graphql';
 
@@ -48,8 +48,8 @@ export class DeprecationTransformer extends BaseTransformer {
     }
 
     const ast = parseResult.value;
-    const changes = this.createChange[];
-    const warnings = this.createWarning[];
+    const changes: TransformChange[] = [];
+    const warnings: TransformWarning[] = [];
 
     // Apply deprecation rules
     const transformedAst = this.applyDeprecationRules(ast, context.schema, changes, warnings);
