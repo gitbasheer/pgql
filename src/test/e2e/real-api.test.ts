@@ -2,6 +2,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GraphQLClient } from '../../core/testing/GraphQLClient.js';
+import { getApiConfig } from '../../config/index.js';
 
 // Mock GraphQL Client to prevent real API calls during testing
 vi.mock('../../core/testing/GraphQLClient.js', () => ({

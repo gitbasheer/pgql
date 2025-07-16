@@ -5,8 +5,7 @@ import * as path from 'path';
 import { logger } from '../../utils/logger.js';
 import { safeParseGraphQL, logParsingError } from '../../utils/graphqlValidator.js';
 import * as babel from '@babel/parser';
-import * as traverseModule from '@babel/traverse';
-const traverse = (traverseModule as any).default || traverseModule;
+import traverse from '@babel/traverse';
 import glob from 'fast-glob';
 import { validatePath, validateReadPath } from '../../utils/securePath.js';
 

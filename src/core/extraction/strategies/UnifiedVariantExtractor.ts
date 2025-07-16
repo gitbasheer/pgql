@@ -1,8 +1,5 @@
-// @ts-nocheck
 import * as babel from '@babel/parser';
-import * as traverseModule from '@babel/traverse';
-const traverse = (traverseModule as any).default || traverseModule;
-import { NodePath } from '@babel/traverse';
+import traverse, { NodePath } from '@babel/traverse';
 import generate from '@babel/generator';
 import * as t from '@babel/types';
 import { DocumentNode, parse, print, visit, Kind } from 'graphql';
@@ -10,8 +7,8 @@ import { logger } from '../../utils/logger.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import { GraphQLExtractor, ExtractedQuery } from './GraphQLExtractor.js';
-import { ErrorHandler, ErrorContext } from '../extraction/utils/ErrorHandler.js';
+import { GraphQLExtractor, ExtractedQuery } from '../compat/GraphQLExtractor.js';
+import { ErrorHandler, ErrorContext } from '../utils/ErrorHandler.js';
 import {
   VariantMetadata,
   ExtractedQueryWithVariant,

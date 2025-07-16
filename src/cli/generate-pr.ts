@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import * as path from 'path';
 import { promises as fs } from 'fs';
 import { logger } from '../utils/logger.js';
+import { FileSystemError, ConfigurationError, handleError } from '../core/errors/index.js';
 import { GitHubService, MigrationSummary } from '../core/integration/GitHubService.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -61,8 +62,12 @@ program
       const schemaPath = path.resolve(options.schema);
       try {
         await fs.access(schemaPath);
-      } catch {
-        logger.error(`Schema file not found: ${schemaPath}`);
+      } catch (error) {
+        await handleError(new FileSystemError(
+          `Schema file not found: ${schemaPath}`,
+          { file: schemaPath },
+          error instanceof Error ? error : undefined
+        ));
         process.exit(1);
       }
 
@@ -72,7 +77,10 @@ program
       // Check git status
       const gitStatus = await githubService.getGitStatus();
       if (!gitStatus.isGitRepo) {
-        logger.error('Not a git repository. Please run this command from within a git repository.');
+        await handleError(new ConfigurationError(
+          'Not a git repository. Please run this command from within a git repository.',
+          { operation: 'generate-pr' }
+        ));
         process.exit(1);
       }
 
@@ -92,7 +100,11 @@ program
           summary = JSON.parse(summaryContent);
           logger.info(`Loaded migration summary from ${options.summaryFile}`);
         } catch (error) {
-          logger.error(`Failed to load summary file: ${error}`);
+          await handleError(new FileSystemError(
+            `Failed to load summary file: ${options.summaryFile}`,
+            { file: options.summaryFile },
+            error instanceof Error ? error : undefined
+          ));
           process.exit(1);
         }
       } else {
