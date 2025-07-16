@@ -425,7 +425,10 @@ export class UnifiedVariantExtractor extends GraphQLExtractor {
       };
 
       return variant;
-    }, context);
+    } catch (error) {
+      this.errorHandler.handleError(error, context);
+      return null;
+    }
   }
 
   /**
