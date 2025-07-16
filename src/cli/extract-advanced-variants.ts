@@ -67,7 +67,7 @@ program
           if (!variantsByQuery.has(originalId)) {
             variantsByQuery.set(originalId, []);
           }
-          variantsByQuery.get(originalId)!.push(variant as ExtractedQueryWithVariant);
+          variantsByQuery.get(originalId)!.push(variant as unknown as ExtractedQueryWithVariant);
         }
       }
 

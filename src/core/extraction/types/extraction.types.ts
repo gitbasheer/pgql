@@ -38,7 +38,7 @@ export interface ExtractionOptions {
   enableIncrementalExtraction?: boolean;
 }
 
-export type ExtractionStrategy = 'pluck' | 'ast' | 'hybrid';
+export type ExtractionStrategy = 'pluck' | 'ast' | 'hybrid' | 'pattern-aware';
 export type ReporterType = 'json' | 'html' | 'files' | 'summary';
 
 export interface ExtractionResult {

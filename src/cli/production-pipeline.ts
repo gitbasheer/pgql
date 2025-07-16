@@ -8,7 +8,7 @@ import * as path from 'path';
 import { UnifiedExtractor } from '../core/extraction/engine/UnifiedExtractor.js';
 import { ExtractionOptions } from '../core/extraction/types/index.js';
 import { SchemaValidator } from '../core/validator/SchemaValidator.js';
-import { FragmentResolver } from '../core/extraction/resolvers/FragmentResolver.js';
+import { FragmentResolver } from '../core/extraction/utils/FragmentResolver.js';
 import { OperationAnalyzer } from '../core/analyzer/OperationAnalyzer.js';
 import { SchemaDeprecationAnalyzer } from '../core/analyzer/SchemaDeprecationAnalyzer.js';
 import { OptimizedSchemaTransformer } from '../core/transformer/OptimizedSchemaTransformer.js';
@@ -140,8 +140,8 @@ program
       // Step 2: Fragment resolution details
       if (!options.skipFragments) {
         const fragmentSpinner = ora('Analyzing fragment resolution...').start();
-        const resolver = new FragmentResolver(extractor.context);
-        const fragmentFiles = await resolver.loadFragmentsFromDirectory(directory);
+        const resolver = new FragmentResolver();
+        const fragmentFiles = await resolver.findAndLoadFragmentFiles(directory);
 
         report.fragments.filesFound = fragmentFiles.size;
         let totalFragments = 0;

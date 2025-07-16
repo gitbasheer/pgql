@@ -6,7 +6,7 @@ import { ExtractionContext } from '../engine/ExtractionContext.js';
 import { logger } from '../../../utils/logger.js';
 import { parse as parseGraphQL, DocumentNode } from 'graphql';
 import { parse as parseBabel } from '@babel/parser';
-import traverse, { NodePath } from '@babel/traverse';
+import traverse from '@babel/traverse';
 import * as babel from '@babel/types';
 
 export class PatternAwareASTStrategy extends BaseStrategy {
@@ -17,7 +17,15 @@ export class PatternAwareASTStrategy extends BaseStrategy {
     this.patternService = patternService || new QueryPatternService();
   }
 
-  async extract(filePath: string, content: string): Promise<PatternExtractedQuery[]> {
+  get name(): string {
+    return 'pattern-aware';
+  }
+
+  canHandle(filePath: string): boolean {
+    return /\.(js|jsx|ts|tsx)$/.test(filePath);
+  }
+
+  async extract(filePath: string, content: string): Promise<ExtractedQuery[]> {
     const queries: PatternExtractedQuery[] = [];
 
     try {
@@ -42,7 +50,7 @@ export class PatternAwareASTStrategy extends BaseStrategy {
 
       // Extract queries with enhanced pattern awareness
       traverse(ast, {
-        TaggedTemplateExpression: (path: NodePath<babel.TaggedTemplateExpression>) => {
+        TaggedTemplateExpression: (path: any) => {
           if (this.isGraphQLTag(path.node.tag)) {
             const query = this.extractPatternQuery(path, filePath, content);
             if (query) {
@@ -61,14 +69,14 @@ export class PatternAwareASTStrategy extends BaseStrategy {
       return [];
     }
 
-    return queries;
+    return queries as ExtractedQuery[];
   }
 
   /**
    * Extract query with pattern awareness
    */
   private extractPatternQuery(
-    path: babel.NodePath<babel.TaggedTemplateExpression>,
+    path: any,
     filePath: string,
     content: string,
   ): PatternExtractedQuery | null {
@@ -184,7 +192,7 @@ export class PatternAwareASTStrategy extends BaseStrategy {
   /**
    * Extract query context information
    */
-  private extractQueryContext(path: babel.NodePath<babel.TaggedTemplateExpression>): any {
+  private extractQueryContext(path: any): any {
     const context: any = {};
 
     // Find containing function/component
@@ -194,7 +202,7 @@ export class PatternAwareASTStrategy extends BaseStrategy {
         context.functionName = functionPath.node.id.name;
       } else if (functionPath.node.type === 'ArrowFunctionExpression') {
         // Look for variable declaration
-        const varPath = functionPath.findParent((p) => p.isVariableDeclarator());
+        const varPath = functionPath.findParent((p: any) => p.isVariableDeclarator());
         if (
           varPath &&
           varPath.node.type === 'VariableDeclarator' &&
@@ -206,7 +214,7 @@ export class PatternAwareASTStrategy extends BaseStrategy {
     }
 
     // Check if this is an export
-    const exportPath = path.findParent((p) => p.isExportDeclaration());
+    const exportPath = path.findParent((p: any) => p.isExportDeclaration());
     if (exportPath) {
       context.isExported = true;
       context.isDefaultExport = exportPath.node.type === 'ExportDefaultDeclaration';
@@ -291,14 +299,4 @@ export class PatternAwareASTStrategy extends BaseStrategy {
     }));
   }
 
-  /**
-   * Override the name - this strategy doesn't need it
-   */
-  get name(): string {
-    return 'pattern-aware-ast';
-  }
-
-  canHandle(filePath: string): boolean {
-    return /\.(js|jsx|ts|tsx)$/.test(filePath);
-  }
 }

@@ -49,6 +49,7 @@ export const ErrorUtils = {
     try {
       return await fn();
     } catch (error) {
+      const { handleError } = await import('./ErrorHandler.js');
       await handleError(error instanceof Error ? error : new Error(String(error)));
       return null;
     }
@@ -64,6 +65,7 @@ export const ErrorUtils = {
     try {
       return fn();
     } catch (error) {
+      const { handleError } = require('./ErrorHandler.js');
       handleError(error instanceof Error ? error : new Error(String(error)));
       return null;
     }
@@ -72,9 +74,10 @@ export const ErrorUtils = {
   /**
    * Check if error is retryable
    */
-  isRetryable(error: Error | PgqlError): boolean {
+  isRetryable(error: Error): boolean {
+    const { PgqlError } = require('./ErrorTypes.js');
     if (error instanceof PgqlError) {
-      return error.getAutomatedRecovery().some(action => action.type === 'RETRY');
+      return error.getAutomatedRecovery().some((action: any) => action.type === 'RETRY');
     }
     return false;
   },
@@ -82,7 +85,8 @@ export const ErrorUtils = {
   /**
    * Extract correlation ID from error
    */
-  getCorrelationId(error: Error | PgqlError): string | undefined {
+  getCorrelationId(error: Error): string | undefined {
+    const { PgqlError } = require('./ErrorTypes.js');
     if (error instanceof PgqlError) {
       return error.details.correlationId;
     }

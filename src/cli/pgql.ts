@@ -252,20 +252,38 @@ validate
           maxConcurrency: 10,
           timeout: 30000,
           variableGeneration: 'auto'
+        },
+        comparison: {
+          strict: false,
+          ignorePaths: [],
+          customComparators: {}
+        },
+        validation: {
+          ignorePatterns: []
+        },
+        alignment: {
+          strict: false,
+          preserveNulls: true,
+          preserveOrder: false
+        },
+        storage: {
+          type: 'file',
+          path: './validation-storage'
         }
       });
       const results = [];
+      const validationResults = new Map();
 
       for (const query of queries.slice(0, 5)) { // Limit for demo
         try {
-          const result = await validator.validateQueryResponse({
-            query: query.content,
-            endpoint: options.endpoint || 'https://api.example.com/graphql',
-            variables: {},
-          });
-          results.push({ queryId: query.id, valid: result.valid, errors: result.errors });
+          const result = await validator.validateAgainstSchema(query.content, 'productGraph');
+          const validationResult = { queryName: query.queryName || query.id, valid: result.valid, errors: result.errors };
+          results.push(validationResult);
+          validationResults.set(query.queryName || query.id, validationResult);
         } catch (error) {
-          results.push({ queryId: query.id, valid: false, errors: [String(error)] });
+          const validationResult = { queryName: query.queryName || query.id, valid: false, errors: [String(error)] };
+          results.push(validationResult);
+          validationResults.set(query.queryName || query.id, validationResult);
         }
       }
 
