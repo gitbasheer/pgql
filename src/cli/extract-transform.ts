@@ -39,7 +39,23 @@ program
   .option('--fragment-dir <dir>', 'Additional directory to search for fragments')
   .option('--dynamic', 'Extract all variants for dynamic fragment spreads')
   .action(async (directory: string, options: any) => {
-    const spinner = ora('Extracting GraphQL queries...').start();
+    // Security validation first
+    if (directory.includes('..') || directory.includes('%2e%2e') || /[;&|`$(){}\[\]<>]/.test(directory)) {
+      console.error(`Error: invalid path - security violation detected`);
+      process.exit(1);
+    }
+    
+    // Check if directory exists
+    try {
+      await fs.access(directory);
+    } catch (error) {
+      console.error(`Error: directory '${directory}' not found`);
+      process.exit(1);
+    }
+    
+    const spinner = process.env.PG_CLI_NO_PROGRESS === '1' 
+      ? { start: () => null, succeed: () => null, fail: () => null, set text(value) {}, get text() { return ''; } } 
+      : ora('Extracting GraphQL queries...').start();
 
     try {
       // Configure extraction options
@@ -66,7 +82,9 @@ program
       spinner.succeed(`Found ${result.queries.length} GraphQL operations`);
 
       // Format queries with prettier
-      spinner.start('Formatting queries...');
+      if (process.env.PG_CLI_NO_PROGRESS !== '1') {
+        spinner.start('Formatting queries...');
+      }
 
       const formattedQueries = await Promise.all(
         result.queries.map(async (q) => {
@@ -83,6 +101,10 @@ program
           };
         }),
       );
+      
+      if (process.env.PG_CLI_NO_PROGRESS !== '1') {
+        spinner.succeed('Formatting complete');
+      }
 
       // Save to file
       const output = {

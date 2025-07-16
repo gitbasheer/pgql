@@ -19,21 +19,78 @@ program
   .description('🚀 GraphQL Migration Tool - Everything you need in one place')
   .version('0.1.0');
 
+// Security validation
+function validatePath(path: string): void {
+  // Prevent path traversal attacks
+  if (path.includes('..') || path.includes('%2e%2e') || /[;&|`$(){}\[\]<>]/.test(path)) {
+    console.error('Error: invalid path - security violation detected');
+    process.exit(1);
+  }
+}
+
+function validateBranchName(name: string): boolean {
+  const safeBranchRegex = /^[a-zA-Z0-9/_-]+(?:\.[a-zA-Z0-9]+)*$/;
+  return safeBranchRegex.test(name);
+}
+
 // Helper function to run CLI commands
 async function runCLI(scriptPath: string, args: string[] = []): Promise<void> {
+  // Validate all path arguments
+  args.forEach(arg => {
+    if (arg.startsWith('/') || arg.includes('..')) {
+      validatePath(arg);
+    }
+  });
+  
   return new Promise((resolve, reject) => {
+    const env = {
+      ...process.env,
+      // Handle PG_CLI_NO_PROGRESS environment variable
+      ...(process.env.PG_CLI_NO_PROGRESS === '1' ? { FORCE_COLOR: '0' } : {})
+    };
+    
     const child = spawn('tsx', [scriptPath, ...args], {
-      stdio: 'inherit',
+      stdio: process.env.PG_CLI_NO_PROGRESS === '1' ? 'pipe' : 'inherit',
       cwd: process.cwd(),
+      env
     });
 
-    child.on('close', (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`Command failed with code ${code}`));
-      }
-    });
+    // Handle progress suppression
+    if (process.env.PG_CLI_NO_PROGRESS === '1') {
+      let stdout = '';
+      let stderr = '';
+      
+      child.stdout?.on('data', (data) => {
+        stdout += data.toString();
+      });
+      
+      child.stderr?.on('data', (data) => {
+        stderr += data.toString();
+      });
+      
+      child.on('close', (code) => {
+        // Filter out progress indicators
+        const filteredStdout = stdout.replace(/Processing|Extracting|Analyzing|[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏]/g, '');
+        const filteredStderr = stderr.replace(/Processing|Extracting|Analyzing|[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏]/g, '');
+        
+        if (filteredStdout) process.stdout.write(filteredStdout);
+        if (filteredStderr) process.stderr.write(filteredStderr);
+        
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`Command failed with code ${code}`));
+        }
+      });
+    } else {
+      child.on('close', (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`Command failed with code ${code}`));
+        }
+      });
+    }
 
     child.on('error', reject);
   });
@@ -150,14 +207,23 @@ transform
   .option('-i, --input <path>', 'Input queries file', './extracted-queries.json')
   .option('-s, --schema <path>', 'GraphQL schema file', './schema.graphql')
   .option('-o, --output <path>', 'Output directory', './transformed')
+  .option('--confidence <number>', 'Minimum confidence threshold (0-100)', '70')
   .option('--dry-run', 'Preview changes without applying')
   .option('--validate', 'Validate against schema', true)
   .action(async (options) => {
+    // Validate confidence value
+    const confidence = parseInt(options.confidence);
+    if (isNaN(confidence) || confidence < 0 || confidence > 100) {
+      console.error('Error: invalid confidence value. Must be between 0 and 100');
+      process.exit(1);
+    }
+    
     const args = [
       'transform',
       ...(options.input ? ['-i', options.input] : []),
       ...(options.schema ? ['-s', options.schema] : []),
       ...(options.output ? ['-o', options.output] : []),
+      ...(options.confidence ? ['--confidence', options.confidence] : []),
       ...(options.dryRun ? ['--dry-run'] : []),
       ...(options.validate ? ['--validate'] : []),
     ];
@@ -170,12 +236,20 @@ const validate = program
   .description('✅ Validate GraphQL operations and responses');
 
 validate
-  .command('schema')
+  .command('queries')
   .description('Validate queries against GraphQL schema')
   .option('-q, --queries <path>', 'Queries file', './extracted-queries.json')
   .option('-s, --schema <path>', 'GraphQL schema file', './schema.graphql')
   .option('--pipeline', 'Run full validation pipeline')
   .action(async (options) => {
+    // Check if schema file exists
+    try {
+      const fs = await import('fs/promises');
+      await fs.access(options.schema);
+    } catch (error) {
+      console.error(`Error: schema file '${options.schema}' not found`);
+      process.exit(1);
+    }
     if (options.pipeline) {
       const args = [
         'pipeline',

@@ -206,9 +206,9 @@ export async function executeCommand(
         ...process.env,
         ...options.env,
         PG_CLI_OUTPUT_VERSION: options.outputVersion || '1.0',
-        PG_CLI_NO_PROGRESS: options.quiet ? '1' : '0',
-        FORCE_COLOR: '0', // Disable colors for parsing
-      },
+        PG_CLI_NO_PROGRESS: options.quiet ? '1' : options.env?.PG_CLI_NO_PROGRESS || '0',
+        FORCE_COLOR: '0' // Disable colors for parsing
+      }
     });
 
     let stdout = '';

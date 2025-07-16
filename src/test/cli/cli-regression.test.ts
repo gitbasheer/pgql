@@ -302,8 +302,8 @@ describe('CLI Regression Test Suite', () => {
 
   describe('Security Tests', () => {
     it('should validate branch names with safe regex pattern', async () => {
-      const safeBranchRegex = /^[a-zA-Z0-9/_-]+$/;
-
+      const safeBranchRegex = /^[a-zA-Z0-9/_-]+(?:\.[a-zA-Z0-9]+)*$/;
+      
       const testBranches = [
         { name: 'feature/add-auth', valid: true },
         { name: 'fix-123_bug', valid: true },
