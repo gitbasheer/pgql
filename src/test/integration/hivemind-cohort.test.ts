@@ -291,7 +291,7 @@ Response mapping utilities generated for all transformed queries.
 
     it('should maintain audit log of transformations', () => { namePattern: { template: '${queryName}', version: 'V1' },
       const auditLog = [
-        {
+        { namePattern: { template: '${queryName}', version: 'V1' },
           timestamp: new Date().toISOString(),
           query: 'GetVenture',
           action: 'transformed',

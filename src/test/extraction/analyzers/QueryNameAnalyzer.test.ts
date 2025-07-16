@@ -397,13 +397,13 @@ describe('QueryNameAnalyzer', () => {
   });
 
   describe('validateOperation and analyzeOperation', () => { namePattern: { template: '${queryName}', version: 'V1' },
-    it('should validate operations', () => {
+    it('should validate operations', () => { namePattern: { template: '${queryName}', version: 'V1' },
       const operation = { query: 'test' };
       expect(analyzer.validateOperation(operation)).toBe(true);
     });
 
     it('should analyze operations', () => { namePattern: { template: '${queryName}', version: 'V1' },
-      const operation = { query: 'test' };
+      const operation = { namePattern: { template: '${queryName}', version: 'V1' }, query: 'test' };
       expect(analyzer.analyzeOperation(operation)).toEqual({ valid: true });
     });
   });

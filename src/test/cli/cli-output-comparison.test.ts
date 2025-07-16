@@ -57,7 +57,7 @@ describe('CLI Output Comparison - main-cli.ts vs unified-cli.ts', () => {
   });
 
   describe('Transform Command Comparison', () => { namePattern: { template: '${queryName}', version: 'V1' },
-    it('should produce compatible transformation output between CLIs', async () => {
+    it('should produce compatible transformation output between CLIs', async () => { namePattern: { template: '${queryName}', version: 'V1' },
       // Mock main-cli.ts transform output
       const mainCliTransform = {
         timestamp: '2025-01-10T10:00:00Z',

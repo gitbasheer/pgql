@@ -449,7 +449,7 @@ describe('OperationAnalyzer', () => {
   });
 
   describe('validateOperation', () => { namePattern: { template: '${queryName}', version: 'V1' },
-    it('should validate operations', () => {
+    it('should validate operations', () => { namePattern: { template: '${queryName}', version: 'V1' },
       const operation = { query: 'test' };
       expect(analyzer.validateOperation(operation)).toBe(true);
     });

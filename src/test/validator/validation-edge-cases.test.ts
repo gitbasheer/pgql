@@ -187,7 +187,7 @@ describe('Validation Edge Cases', () => {
 
     it('should handle multiline template literals', async () => { namePattern: { template: '${queryName}', version: 'V1' },
       const multilineTemplate = `
-        query MultilineQuery {
+        query MultilineQuery { namePattern: { template: '${queryName}', version: 'V1' },
           search(query: "dynamic_query_string") {
             items { id name }
           }

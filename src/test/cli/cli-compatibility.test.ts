@@ -44,7 +44,7 @@ describe('CLI Compatibility Tests', () => {
     });
 
     it('should handle transformation output versioning', async () => { namePattern: { template: '${queryName}', version: 'V1' },
-      const mockData = {
+      const mockData = { namePattern: { template: '${queryName}', version: 'V1' },
         timestamp: '2025-01-10T10:00:00Z',
         totalTransformed: 3,
         transformations: [
